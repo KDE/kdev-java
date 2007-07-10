@@ -20,7 +20,6 @@ set(kdevjavalanguagesupport_PART_SRCS
 #    codeproxy.cpp
 )
 
-kde4_automoc(${kdevjavalanguagesupport_PART_SRCS})
 kde4_add_plugin(kdevjavalanguagesupport ${kdevjavalanguagesupport_PART_SRCS})
 target_link_libraries(kdevjavalanguagesupport
     ${QT_QTDESIGNER_LIBRARY}

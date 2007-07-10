@@ -164,7 +164,6 @@ set_source_files_properties(
 )
 
 
-kde4_automoc(${kdevjavaparser_STAT_SRCS})
 kde4_add_library(kdevjavaparser STATIC ${kdevjavaparser_STAT_SRCS})
 
 
