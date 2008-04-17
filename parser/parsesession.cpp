@@ -41,9 +41,11 @@ ParseSession::~ParseSession()
     delete token_stream;
 }
 
-void ParseSession::positionAt( std::size_t offset, int *line, int *column ) const
+KDevelop::SimpleCursor ParseSession::positionAt( std::size_t offset ) const
 {
-    token_stream->location_table()->position_at( offset, line, column );
+    int line, column;
+    token_stream->location_table()->position_at( offset, &line, &column );
+    return KDevelop::SimpleCursor(line, column);
 }
 
 std::size_t ParseSession::size() const
@@ -62,3 +64,15 @@ void ParseSession::setContents( const QByteArray & contents )
 }
 
 } // end of namespace java
+
+QString java::ParseSession::symbol(std::size_t token) const
+{
+    const kdev_pg_token_stream::token_type& tok = token_stream->token(token);
+    return QString::fromUtf8(tok.text + tok.begin, tok.end - tok.begin);
+}
+
+QString java::ParseSession::unify(const QString & str) const
+{
+    /// \todo implement
+    return str;
+}

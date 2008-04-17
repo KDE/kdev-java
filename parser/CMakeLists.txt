@@ -1,7 +1,17 @@
 
-include_directories( ${CMAKE_SOURCE_DIR}/lib
-    ${CMAKE_SOURCE_DIR}/lib/interfaces
+include_directories(
+    ${KDE4_INCLUDES}
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${KDEVPLATFORM_INCLUDE_DIR}
+    ${KDEVPLATFORM_INCLUDE_DIR}/interfaces
+    ${KDEVPLATFORM_INCLUDE_DIR}/editor
+    ${KDEVPLATFORM_INCLUDE_DIR}/project
+    ${KDEVPLATFORM_INCLUDE_DIR}/project/interfaces
+    ${KDEVPLATFORM_INCLUDE_DIR}/language
+    ${KDEVPLATFORM_INCLUDE_DIR}/language/interfaces
+    ${KDEVPLATFORM_INCLUDE_DIR}/language/backgroundparser
+    ${KDEVPLATFORM_INCLUDE_DIR}/language/duchain
+    ${KDEVPLATFORM_INCLUDE_DIR}/language/duchain/viewer
 )
 
 add_definitions(-fPIC)
@@ -10,11 +20,9 @@ add_definitions(-fPIC)
 
 set(kdevjavaparser_STAT_SRCS
     decoder.cpp
-    decoder.h
     java_io.cpp
-    java_lexer.h
     parsesession.cpp
-    parsesession.h
+    dumptree.cpp
 )
 
 

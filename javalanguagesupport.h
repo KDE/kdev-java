@@ -29,12 +29,17 @@ namespace java {
     // class CodeDelegate;
 }
 
+namespace KDevelop {
+    class IDocument;
+    class IProject;
+}
+
 class JavaLanguageSupport : public KDevelop::IPlugin, public KDevelop::ILanguageSupport
 {
 Q_OBJECT
 Q_INTERFACES( KDevelop::ILanguageSupport )
 public:
-    JavaLanguageSupport( QObject* parent, const QStringList& args = QStringList() );
+    JavaLanguageSupport(  QObject* parent, const QVariantList& args = QVariantList() );
     virtual ~JavaLanguageSupport();
 
     virtual QString name() const;
@@ -43,33 +48,18 @@ public:
     void unregisterExtensions();
     QStringList extensions() const;
 
-    /*
-    // KDevelop::LanguageSupport implementation
-    virtual KDevelop::CodeModel *codeModel( const KUrl& url ) const;
-    virtual KDevelop::CodeProxy *codeProxy() const;
-    virtual KDevelop::CodeDelegate *codeDelegate() const;
-    virtual KDevelop::CodeRepository *codeRepository() const;
-    virtual KDevelop::ParseJob *createParseJob( const KUrl &url );
-    virtual KDevelop::ParseJob *createParseJob( KDevelop::Document *document );
-    virtual QStringList mimeTypes() const;
-    */
+    virtual KDevelop::ParseJob *createParseJob(const KUrl &url);
+    virtual KDevelop::ILanguage *language();
 
 private slots:
-    /*
-    void documentLoaded( KDevelop::Document *document );
-    void documentClosed( KDevelop::Document *document );
-    void documentActivated( KDevelop::Document *document );
-    void projectOpened();
+    void documentLoaded( KDevelop::IDocument *document );
+    void documentClosed( KDevelop::IDocument *document );
+    void documentActivated( KDevelop::IDocument *document );
+    void projectOpened(KDevelop::IProject *project);
     void projectClosed();
-    */
 
 private:
-    /*
-    QStringList m_mimetypes;
-//     CodeProxy *m_codeProxy;
-//     CodeDelegate *m_codeDelegate;
 //     CppHighlighting *m_highlights;
-    */
 };
 
 #endif

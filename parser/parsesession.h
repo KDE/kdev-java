@@ -26,6 +26,7 @@
 
 #include "java_parser.h"
 
+#include <editor/simplecursor.h>
 
 namespace java
 {
@@ -43,7 +44,7 @@ public:
    *
    * \note the line starts from 0.
    */
-  void positionAt( std::size_t offset, int *line, int *column ) const;
+  KDevelop::SimpleCursor positionAt( std::size_t offset ) const;
 
   void setContents( const QByteArray& contents );
 
@@ -52,6 +53,12 @@ public:
   parser::memory_pool_type *memory_pool;
   parser::token_stream_type *token_stream;
   parser::java_compatibility_mode compatibility_mode;
+
+  QString symbol(std::size_t token) const;
+
+    /// This saves memory by sharing the strings using a global string repository
+    /// \note Unimplemented
+  QString unify(const QString& str) const;
 
 private:
   QByteArray m_contents;

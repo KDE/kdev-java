@@ -26,90 +26,52 @@ Boston, MA 02110-1301, USA.
 
 #include <QExtensionFactory>
 
-/*
-#include <kdevcore.h>
-#include <kdevproject.h>
-#include <kdevfilemanager.h>
-#include <kdevprojectmodel.h>
-#include <kdevprojectcontroller.h>
-#include <kdevdocumentcontroller.h>
-#include <kdevbackgroundparser.h>
-*/
+#include <icore.h>
+#include <ilanguagecontroller.h>
+#include <idocumentcontroller.h>
+#include <iprojectcontroller.h>
+#include <backgroundparser.h>
+#include <iproject.h>
 
 #include "parsejob.h"
-// #include "codeproxy.h"
-// #include "codedelegate.h"
 
 using namespace java;
 
-typedef KGenericFactory<JavaLanguageSupport> KDevJavaSupportFactory;
-K_EXPORT_COMPONENT_FACTORY( kdevjavalanguagesupport, KDevJavaSupportFactory( "kdevjavasupport" ) )
+K_PLUGIN_FACTORY(KDevJavaSupportFactory, registerPlugin<JavaLanguageSupport>(); )
+K_EXPORT_PLUGIN(KDevJavaSupportFactory("kdevjavasupport"))
 
-KDEV_USE_EXTENSION_INTERFACE_NS( KDevelop, ILanguageSupport, JavaLanguageSupport )
+//KDEV_USE_EXTENSION_INTERFACE_NS( KDevelop, ILanguageSupport, JavaLanguageSupport )
 
 JavaLanguageSupport::JavaLanguageSupport( QObject* parent,
-                                          const QStringList& /*args*/ )
+                                          const QVariantList& /*args*/ )
         : KDevelop::IPlugin( KDevJavaSupportFactory::componentData(), parent )
         , KDevelop::ILanguageSupport()
 {
-    /*
-    QString types =
-        QLatin1String( "text/x-java" );
-    m_mimetypes = types.split( "," );
+    KDEV_USE_EXTENSION_INTERFACE( KDevelop::ILanguageSupport )
 
-    //     m_codeProxy = new CodeProxy( this );
-    //     m_codeDelegate = new CodeDelegate( this );
-    //     m_backgroundParser = new BackgroundParser( this );
     //     m_highlights = new CppHighlighting( this );
 
-    connect( KDevelop::Core::documentController(),
-             SIGNAL( documentLoaded( KDevelop::Document* ) ),
-             this, SLOT( documentLoaded( KDevelop::Document* ) ) );
-    connect( KDevelop::Core::documentController(),
-             SIGNAL( documentClosed( KDevelop::Document* ) ),
-             this, SLOT( documentClosed( KDevelop::Document* ) ) );
-    connect( KDevelop::Core::documentController(),
-             SIGNAL( documentActivated( KDevelop::Document* ) ),
-             this, SLOT( documentActivated( KDevelop::Document* ) ) );
-    connect( KDevelop::Core::projectController(),
-             SIGNAL( projectOpened() ),
-             this, SLOT( projectOpened() ) );
-    connect( KDevelop::Core::projectController(),
+    connect( core()->documentController(),
+             SIGNAL( documentLoaded( KDevelop::IDocument* ) ),
+             this, SLOT( documentLoaded( KDevelop::IDocument* ) ) );
+    connect( core()->documentController(),
+             SIGNAL( documentClosed( KDevelop::IDocument* ) ),
+             this, SLOT( documentClosed( KDevelop::IDocument* ) ) );
+    connect( core()->documentController(),
+             SIGNAL( documentActivated( KDevelop::IDocument* ) ),
+             this, SLOT( documentActivated( KDevelop::IDocument* ) ) );
+    connect( core()->projectController(),
+             SIGNAL( projectOpened(KDevelop::IProject*) ),
+             this, SLOT( projectOpened(KDevelop::IProject*) ) );
+    connect( core()->projectController(),
              SIGNAL( projectClosed() ),
              this, SLOT( projectClosed() ) );
-    */
+
+    kDebug() << "Java support loaded";
 }
 
 JavaLanguageSupport::~JavaLanguageSupport()
 {
-}
-
-/*
-KDevelop::CodeModel *JavaLanguageSupport::codeModel( const KUrl &url ) const
-{
-    Q_UNUSED( url );
-    return 0;
-    //     if ( url.isValid() )
-    //         return m_codeProxy->codeModel( url );
-    //     else
-    //         return m_codeProxy->codeModel( KDevelop::Core::documentController() ->activeDocumentUrl() );
-}
-
-KDevelop::CodeProxy *JavaLanguageSupport::codeProxy() const
-{
-    return 0;
-    //     return m_codeProxy;
-}
-
-KDevelop::CodeDelegate *JavaLanguageSupport::codeDelegate() const
-{
-    return 0;
-    //     return m_codeDelegate;
-}
-
-KDevelop::CodeRepository *JavaLanguageSupport::codeRepository() const
-{
-    return 0;
 }
 
 KDevelop::ParseJob *JavaLanguageSupport::createParseJob( const KUrl &url )
@@ -117,52 +79,36 @@ KDevelop::ParseJob *JavaLanguageSupport::createParseJob( const KUrl &url )
     return new ParseJob( url, this );
 }
 
-KDevelop::ParseJob *JavaLanguageSupport::createParseJob( KDevelop::Document *document )
+void JavaLanguageSupport::documentLoaded( KDevelop::IDocument *document )
 {
-    return new ParseJob( document, this );
+    core()->languageController()->backgroundParser()->addDocument( document->url() );
 }
 
-QStringList JavaLanguageSupport::mimeTypes() const
+void JavaLanguageSupport::documentClosed( KDevelop::IDocument *document )
 {
-    return m_mimetypes;
+    core()->languageController()->backgroundParser()->removeDocument( document->url() );
 }
 
-void JavaLanguageSupport::documentLoaded( KDevelop::Document *document )
-{
-    if ( supportsDocument( document ) )
-        KDevelop::Core::backgroundParser() ->addDocument( document );
-}
-
-void JavaLanguageSupport::documentClosed( KDevelop::Document *document )
-{
-    if ( supportsDocument( document ) )
-        KDevelop::Core::backgroundParser() ->removeDocument( document );
-}
-
-void JavaLanguageSupport::documentActivated( KDevelop::Document *document )
+void JavaLanguageSupport::documentActivated( KDevelop::IDocument *document )
 {
     Q_UNUSED( document );
 }
 
-void JavaLanguageSupport::projectOpened()
+void JavaLanguageSupport::projectOpened(KDevelop::IProject *project)
 {
-    KUrl::List documentList;
-    QList<KDevelop::ProjectFileItem*> files = KDevelop::Core::activeProject()->allFiles();
-    foreach ( KDevelop::ProjectFileItem * file, files )
-    {
-        if ( supportsDocument( file->url() ) /*&& file->url().fileName().endsWith( ".java" )* / )
-        {
-            documentList.append( file->url() );
+    foreach(KDevelop::IDocument* doc, core()->documentController()->openDocuments()) {
+        if (project->inProject(doc->url())) {
+            QString path = doc->url().path();
+
+            core()->languageController()->backgroundParser()->addDocument(doc->url());
         }
     }
-    KDevelop::Core::backgroundParser() ->addDocumentList( documentList );
 }
 
 void JavaLanguageSupport::projectClosed()
 {
     // FIXME This should remove the project files from the backgroundparser
 }
-*/
 
 QString JavaLanguageSupport::name() const
 {
@@ -172,6 +118,11 @@ QString JavaLanguageSupport::name() const
 QStringList JavaLanguageSupport::extensions() const
 {
     return QStringList() << "ILanguageSupport";
+}
+
+KDevelop::ILanguage * JavaLanguageSupport::language()
+{
+    return core()->languageController()->language(name());
 }
 
 #include "javalanguagesupport.moc"

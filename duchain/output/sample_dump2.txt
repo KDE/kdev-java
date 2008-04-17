@@ -1,0 +1,298 @@
+  compilation_unit [ 0 , 139 ] "classT{static{inti;}publicT(){this((int)(r*255),(int)(g*255));}voidfoo(){finalclassU{inti;}Classc=int[].class;Classd=Object[].class;t.newT();((T)t).method();return"[i="+(value)+"]";intq=(int)+3;intz=(int)4;inty=(z)+5;Strings=(String)"ff";Stringt=(s)+"blort";}}"                                                                           
+    type_declaration [ 0 , 139 ] "classT{static{inti;}publicT(){this((int)(r*255),(int)(g*255));}voidfoo(){finalclassU{inti;}Classc=int[].class;Classd=Object[].class;t.newT();((T)t).method();return"[i="+(value)+"]";intq=(int)+3;intz=(int)4;inty=(z)+5;Strings=(String)"ff";Stringt=(s)+"blort";}}"                                                                         
+      class_declaration [ 0 , 139 ] "classT{static{inti;}publicT(){this((int)(r*255),(int)(g*255));}voidfoo(){finalclassU{inti;}Classc=int[].class;Classd=Object[].class;t.newT();((T)t).method();return"[i="+(value)+"]";intq=(int)+3;intz=(int)4;inty=(z)+5;Strings=(String)"ff";Stringt=(s)+"blort";}}"                                                                      
+        optional_modifiers [ 0 , 0 ] ""                          
+        optional_modifiers                                       
+        identifier [ 1 , 2 ] "T"                                 
+        identifier                                               
+        class_body [ 2 , 139 ] "{static{inti;}publicT(){this((int)(r*255),(int)(g*255));}voidfoo(){finalclassU{inti;}Classc=int[].class;Classd=Object[].class;t.newT();((T)t).method();return"[i="+(value)+"]";intq=(int)+3;intz=(int)4;inty=(z)+5;Strings=(String)"ff";Stringt=(s)+"blort";}}"                                                                                 
+          class_field [ 3 , 9 ] "static{inti;}"                  
+            block [ 4 , 9 ] "{inti;}"                            
+              block_statement [ 5 , 8 ] "inti;"                  
+                variable_declaration_statement [ 5 , 8 ] "inti;" 
+                  variable_declaration [ 5 , 7 ] "inti"          
+                    variable_declaration_data [ 5 , 7 ] "inti"   
+                      optional_modifiers [ 5 , 5 ] ""            
+                      optional_modifiers                         
+                      type [ 5 , 6 ] "int"                       
+                        optional_array_builtin_type [ 5 , 6 ] "int"                                                                                                   
+                          builtin_type [ 5 , 6 ] "int"           
+                          builtin_type                           
+                          optional_declarator_brackets [ 6 , 6 ] ""                                                                                                   
+                          optional_declarator_brackets           
+                        optional_array_builtin_type              
+                      type                                       
+                      variable_declarator [ 6 , 7 ] "i"          
+                        identifier [ 6 , 7 ] "i"                 
+                        identifier                               
+                        optional_declarator_brackets [ 7 , 7 ] ""
+                        optional_declarator_brackets             
+                      variable_declarator                        
+                    variable_declaration_data                    
+                  variable_declaration                           
+                variable_declaration_statement                   
+              block_statement                                    
+            block                                                
+          class_field                                            
+          class_field [ 9 , 36 ] "publicT(){this((int)(r*255),(int)(g*255));}"                                                                                        
+            constructor_declaration [ 9 , 36 ] "publicT(){this((int)(r*255),(int)(g*255));}"                                                                          
+              optional_modifiers [ 9 , 10 ] "public"             
+              optional_modifiers                                 
+              identifier [ 10 , 11 ] "T"                         
+              identifier                                         
+              optional_parameter_declaration_list [ 12 , 12 ] "" 
+              optional_parameter_declaration_list                
+              block [ 13 , 36 ] "{this((int)(r*255),(int)(g*255));}"                                                                                                  
+                block_statement [ 14 , 35 ] "this((int)(r*255),(int)(g*255));"                                                                                        
+                  embedded_statement [ 14 , 35 ] "this((int)(r*255),(int)(g*255));"                                                                                   
+                    statement_expression [ 14 , 34 ] "this((int)(r*255),(int)(g*255))"                                                                                
+                      expression [ 14 , 34 ] "this((int)(r*255),(int)(g*255))"                                                                                        
+                        conditional_expression [ 14 , 34 ] "this((int)(r*255),(int)(g*255))"                                                                          
+                          logical_or_expression [ 14 , 34 ] "this((int)(r*255),(int)(g*255))"                                                                         
+                            logical_and_expression [ 14 , 34 ] "this((int)(r*255),(int)(g*255))"                                                                      
+                              bit_or_expression [ 14 , 34 ] "this((int)(r*255),(int)(g*255))"                                                                         
+                                bit_xor_expression [ 14 , 34 ] "this((int)(r*255),(int)(g*255))"                                                                      
+                                  bit_and_expression [ 14 , 34 ] "this((int)(r*255),(int)(g*255))"                                                                    
+                                    equality_expression [ 14 , 34 ] "this((int)(r*255),(int)(g*255))"                                                                 
+                                      relational_expression [ 14 , 34 ] "this((int)(r*255),(int)(g*255))"                                                             
+                                        shift_expression [ 14 , 34 ] "this((int)(r*255),(int)(g*255))"                                                                
+                                          additive_expression [ 14 , 34 ] "this((int)(r*255),(int)(g*255))"                                                           
+                                            multiplicative_expression [ 14 , 34 ] "this((int)(r*255),(int)(g*255))"                                                   
+                                              unary_expression [ 14 , 34 ] "this((int)(r*255),(int)(g*255))"                                                          
+                                                unary_expression_not_plusminus [ 14 , 34 ] "this((int)(r*255),(int)(g*255))"                                          
+                                                  primary_expression [ 14 , 34 ] "this((int)(r*255),(int)(g*255))"                                                    
+                                                    primary_atom [ 14 , 34 ] "this((int)(r*255),(int)(g*255))"                                                        
+                                                      this_call_data [ 16 , 34 ] "(int)(r*255),(int)(g*255))"                                                         
+                                                        optional_argument_list [ 16 , 33 ] "(int)(r*255),(int)(g*255)"                                                
+                                                          expression [ 16 , 24 ] "(int)(r*255)"                                                                       
+                                                            conditional_expression [ 16 , 24 ] "(int)(r*255)"                                                         
+                                                              logical_or_expression [ 16 , 24 ] "(int)(r*255)"                                                        
+                                                                logical_and_expression [ 16 , 24 ] "(int)(r*255)"                                                     
+                                                                  bit_or_expression [ 16 , 24 ] "(int)(r*255)"                                                        
+                                                                    bit_xor_expression [ 16 , 24 ] "(int)(r*255)"                                                     
+                                                                      bit_and_expression [ 16 , 24 ] "(int)(r*255)"                                                   
+                                                                        equality_expression [ 16 , 24 ] "(int)(r*255)"                                                
+                                                                          relational_expression [ 16 , 24 ] "(int)(r*255)"                                            
+                                                                            shift_expression [ 16 , 24 ] "(int)(r*255)"                                               
+                                                                              additive_expression [ 16 , 24 ] "(int)(r*255)"                                          
+                                                                                multiplicative_expression [ 16 , 24 ] "(int)(r*255)"                                  
+                                                                                  unary_expression [ 16 , 24 ] "(int)(r*255)"                                         
+                                                                                    unary_expression_not_plusminus [ 16 , 24 ] "(int)(r*255)"                         
+                                                                                      cast_expression [ 16 , 24 ] "(int)(r*255)"                                      
+                                                                                        optional_array_builtin_type [ 17 , 18 ] "int"                                 
+                                                                                          builtin_type [ 17 , 18 ] "int"                                              
+                                                                                          builtin_type                                                                
+                                                                                          optional_declarator_brackets [ 18 , 18 ] ""                                 
+                                                                                          optional_declarator_brackets                                                
+                                                                                        optional_array_builtin_type                                                   
+                                                                                        unary_expression [ 19 , 24 ] "(r*255)"                                        
+                                                                                          unary_expression_not_plusminus [ 19 , 24 ] "(r*255)"                        
+                                                                                            primary_expression [ 19 , 24 ] "(r*255)"                                  
+                                                                                              primary_atom [ 19 , 24 ] "(r*255)"                                      
+                                                                                                expression [ 20 , 23 ] "r*255"                                        
+                                                                                                  conditional_expression [ 20 , 23 ] "r*255"                          
+                                                                                                    logical_or_expression [ 20 , 23 ] "r*255"                         
+                                                                                                      logical_and_expression [ 20 , 23 ] "r*255"                      
+                                                                                                        bit_or_expression [ 20 , 23 ] "r*255"                         
+                                                                                                          bit_xor_expression [ 20 , 23 ] "r*255"                      
+                                                                                                            bit_and_expression [ 20 , 23 ] "r*255"                    
+                                                                                                              equality_expression [ 20 , 23 ] "r*255"                 
+                                                                                                                relational_expression [ 20 , 23 ] "r*255"             
+                                                                                                                  shift_expression [ 20 , 23 ] "r*255"                
+                                                                                                                    additive_expression [ 20 , 23 ] "r*255"           
+                                                                                                                      multiplicative_expression [ 20 , 23 ] "r*255"   
+                                                                                                                        unary_expression [ 20 , 21 ] "r"              
+                                                                                                                          unary_expression_not_plusminus [ 20 , 21 ] "r"                                                                                                   
+                                                                                                                            primary_expression [ 20 , 21 ] "r"        
+                                                                                                                              primary_atom [ 20 , 21 ] "r"            
+                                                                                                                                simple_name_access_data [ 20 , 21 ] "r"                                                                                                    
+                                                                                                                                  identifier [ 20 , 21 ] "r"          
+                                                                                                                                  identifier                          
+                                                                                                                                simple_name_access_data               
+                                                                                                                              primary_atom                            
+                                                                                                                            primary_expression                        
+                                                                                                                          unary_expression_not_plusminus              
+                                                                                                                        unary_expression                              
+                                                                                                                        multiplicative_expression_rest [ 21 , 23 ] "*255"                                                                                                  
+                                                                                                                          unary_expression [ 22 , 23 ] "255"          
+                                                                                                                            unary_expression_not_plusminus [ 22 , 23 ] "255"                                                                                               
+                                                                                                                              primary_expression [ 22 , 23 ] "255"    
+                                                                                                                                primary_atom [ 22 , 23 ] "255"        
+                                                                                                                                  literal [ 22 , 23 ] "255"           
+                                                                                                                                  literal                             
+                                                                                                                                primary_atom                          
+                                                                                                                              primary_expression                      
+                                                                                                                            unary_expression_not_plusminus            
+                                                                                                                          unary_expression                            
+                                                                                                                        multiplicative_expression_rest                
+                                                                                                                      multiplicative_expression                       
+                                                                                                                    additive_expression                               
+                                                                                                                  shift_expression                                    
+                                                                                                                relational_expression                                 
+                                                                                                              equality_expression                                     
+                                                                                                            bit_and_expression                                        
+                                                                                                          bit_xor_expression                                          
+                                                                                                        bit_or_expression                                             
+                                                                                                      logical_and_expression                                          
+                                                                                                    logical_or_expression                                             
+                                                                                                  conditional_expression                                              
+                                                                                                expression                                                            
+                                                                                              primary_atom                                                            
+                                                                                            primary_expression                                                        
+                                                                                          unary_expression_not_plusminus                                              
+                                                                                        unary_expression                                                              
+                                                                                      cast_expression                                                                 
+                                                                                    unary_expression_not_plusminus                                                    
+                                                                                  unary_expression                                                                    
+                                                                                multiplicative_expression                                                             
+                                                                              additive_expression                                                                     
+                                                                            shift_expression                                                                          
+                                                                          relational_expression                                                                       
+                                                                        equality_expression                                                                           
+                                                                      bit_and_expression                                                                              
+                                                                    bit_xor_expression                                                                                
+                                                                  bit_or_expression                                                                                   
+                                                                logical_and_expression                                                                                
+                                                              logical_or_expression                                                                                   
+                                                            conditional_expression                                                                                    
+                                                          expression                                                                                                  
+                                                          expression [ 25 , 33 ] "(int)(g*255)"                                                                       
+                                                            conditional_expression [ 25 , 33 ] "(int)(g*255)"                                                         
+                                                              logical_or_expression [ 25 , 33 ] "(int)(g*255)"                                                        
+                                                                logical_and_expression [ 25 , 33 ] "(int)(g*255)"                                                     
+                                                                  bit_or_expression [ 25 , 33 ] "(int)(g*255)"                                                        
+                                                                    bit_xor_expression [ 25 , 33 ] "(int)(g*255)"                                                     
+                                                                      bit_and_expression [ 25 , 33 ] "(int)(g*255)"                                                   
+                                                                        equality_expression [ 25 , 33 ] "(int)(g*255)"                                                
+                                                                          relational_expression [ 25 , 33 ] "(int)(g*255)"                                            
+                                                                            shift_expression [ 25 , 33 ] "(int)(g*255)"                                               
+                                                                              additive_expression [ 25 , 33 ] "(int)(g*255)"                                          
+                                                                                multiplicative_expression [ 25 , 33 ] "(int)(g*255)"                                  
+                                                                                  unary_expression [ 25 , 33 ] "(int)(g*255)"                                         
+                                                                                    unary_expression_not_plusminus [ 25 , 33 ] "(int)(g*255)"                         
+                                                                                      cast_expression [ 25 , 33 ] "(int)(g*255)"                                      
+                                                                                        optional_array_builtin_type [ 26 , 27 ] "int"                                 
+                                                                                          builtin_type [ 26 , 27 ] "int"                                              
+                                                                                          builtin_type                                                                
+                                                                                          optional_declarator_brackets [ 27 , 27 ] ""                                 
+                                                                                          optional_declarator_brackets                                                
+                                                                                        optional_array_builtin_type                                                   
+                                                                                        unary_expression [ 28 , 33 ] "(g*255)"                                        
+                                                                                          unary_expression_not_plusminus [ 28 , 33 ] "(g*255)"                        
+                                                                                            primary_expression [ 28 , 33 ] "(g*255)"                                  
+                                                                                              primary_atom [ 28 , 33 ] "(g*255)"                                      
+                                                                                                expression [ 29 , 32 ] "g*255"                                        
+                                                                                                  conditional_expression [ 29 , 32 ] "g*255"                          
+                                                                                                    logical_or_expression [ 29 , 32 ] "g*255"                         
+                                                                                                      logical_and_expression [ 29 , 32 ] "g*255"                      
+                                                                                                        bit_or_expression [ 29 , 32 ] "g*255"                         
+                                                                                                          bit_xor_expression [ 29 , 32 ] "g*255"                      
+                                                                                                            bit_and_expression [ 29 , 32 ] "g*255"                    
+                                                                                                              equality_expression [ 29 , 32 ] "g*255"                 
+                                                                                                                relational_expression [ 29 , 32 ] "g*255"             
+                                                                                                                  shift_expression [ 29 , 32 ] "g*255"                
+                                                                                                                    additive_expression [ 29 , 32 ] "g*255"           
+                                                                                                                      multiplicative_expression [ 29 , 32 ] "g*255"   
+                                                                                                                        unary_expression [ 29 , 30 ] "g"              
+                                                                                                                          unary_expression_not_plusminus [ 29 , 30 ] "g"                                                                                                   
+                                                                                                                            primary_expression [ 29 , 30 ] "g"        
+                                                                                                                              primary_atom [ 29 , 30 ] "g"            
+                                                                                                                                simple_name_access_data [ 29 , 30 ] "g"                                                                                                    
+                                                                                                                                  identifier [ 29 , 30 ] "g"          
+                                                                                                                                  identifier                          
+                                                                                                                                simple_name_access_data               
+                                                                                                                              primary_atom                            
+                                                                                                                            primary_expression                        
+                                                                                                                          unary_expression_not_plusminus              
+                                                                                                                        unary_expression                              
+                                                                                                                        multiplicative_expression_rest [ 30 , 32 ] "*255"                                                                                                  
+                                                                                                                          unary_expression [ 31 , 32 ] "255"          
+                                                                                                                            unary_expression_not_plusminus [ 31 , 32 ] "255"                                                                                               
+                                                                                                                              primary_expression [ 31 , 32 ] "255"    
+                                                                                                                                primary_atom [ 31 , 32 ] "255"        
+                                                                                                                                  literal [ 31 , 32 ] "255"           
+                                                                                                                                  literal                             
+                                                                                                                                primary_atom                          
+                                                                                                                              primary_expression                      
+                                                                                                                            unary_expression_not_plusminus            
+                                                                                                                          unary_expression                            
+                                                                                                                        multiplicative_expression_rest                
+                                                                                                                      multiplicative_expression                       
+                                                                                                                    additive_expression                               
+                                                                                                                  shift_expression                                    
+                                                                                                                relational_expression                                 
+                                                                                                              equality_expression                                     
+                                                                                                            bit_and_expression                                        
+                                                                                                          bit_xor_expression                                          
+                                                                                                        bit_or_expression                                             
+                                                                                                      logical_and_expression                                          
+                                                                                                    logical_or_expression                                             
+                                                                                                  conditional_expression                                              
+                                                                                                expression                                                            
+                                                                                              primary_atom                                                            
+                                                                                            primary_expression                                                        
+                                                                                          unary_expression_not_plusminus                                              
+                                                                                        unary_expression                                                              
+                                                                                      cast_expression                                                                 
+                                                                                    unary_expression_not_plusminus                                                    
+                                                                                  unary_expression                                                                    
+                                                                                multiplicative_expression                                                             
+                                                                              additive_expression                                                                     
+                                                                            shift_expression                                                                          
+                                                                          relational_expression                                                                       
+                                                                        equality_expression                                                                           
+                                                                      bit_and_expression                                                                              
+                                                                    bit_xor_expression                                                                                
+                                                                  bit_or_expression                                                                                   
+                                                                logical_and_expression                                                                                
+                                                              logical_or_expression                                                                                   
+                                                            conditional_expression                                                                                    
+                                                          expression                                                                                                  
+                                                        optional_argument_list                                                                                        
+                                                      this_call_data                                                                                                  
+                                                    primary_atom 
+                                                  primary_expression                                                                                                  
+                                                unary_expression_not_plusminus                                                                                        
+                                              unary_expression   
+                                            multiplicative_expression                                                                                                 
+                                          additive_expression    
+                                        shift_expression         
+                                      relational_expression      
+                                    equality_expression          
+                                  bit_and_expression             
+                                bit_xor_expression               
+                              bit_or_expression                  
+                            logical_and_expression               
+                          logical_or_expression                  
+                        conditional_expression                   
+                      expression                                 
+                    statement_expression                         
+                  embedded_statement                             
+                block_statement                                  
+              block                                              
+            constructor_declaration                              
+          class_field                                            
+          class_field [ 36 , 138 ] "voidfoo(){finalclassU{inti;}Classc=int[].class;Classd=Object[].class;t.newT();((T)t).method();return"[i="+(value)+"]";intq=(int)+3;intz=(int)4;inty=(z)+5;Strings=(String)"ff";Stringt=(s)+"blort";}"                                  
+            method_declaration [ 36 , 138 ] "voidfoo(){finalclassU{inti;}Classc=int[].class;Classd=Object[].class;t.newT();((T)t).method();return"[i="+(value)+"]";intq=(int)+3;intz=(int)4;inty=(z)+5;Strings=(String)"ff";Stringt=(s)+"blort";}"                         
+              optional_modifiers [ 36 , 36 ] ""                  
+              optional_modifiers                                 
+              type [ 36 , 37 ] "void"                            
+                optional_array_builtin_type [ 36 , 37 ] "void"   
+                  builtin_type [ 36 , 37 ] "void"                
+                  builtin_type                                   
+                  optional_declarator_brackets [ 37 , 37 ] ""    
+                  optional_declarator_brackets                   
+                optional_array_builtin_type                      
+              type                                               
+              identifier [ 37 , 38 ] "foo"                       
+              identifier                                         
+              optional_parameter_declaration_list [ 39 , 39 ] "" 
+              optional_parameter_declaration_list                
+              optional_declarator_brackets [ 40 , 40 ] ""
+              optional_declarator_brackets
+            method_declaration
+          class_field
+        class_body
+      class_declaration
+    type_declaration
+  compilation_unit

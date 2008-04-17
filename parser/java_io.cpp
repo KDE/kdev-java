@@ -28,6 +28,8 @@
 
 #include <iostream>
 
+#include <kdebug.h>
+
 // void print_token_environment(java::parser* parser);
 
 
@@ -42,11 +44,11 @@ void parser::report_problem( parser::problem_type type, std::string message )
 void parser::report_problem( parser::problem_type type, const char* message )
 {
   if (type == error)
-    std::cerr << "** ERROR: " << message << std::endl;
+    kDebug() << "** ERROR: " << message;
   else if (type == warning)
-    std::cerr << "** WARNING: " << message << std::endl;
+    kDebug() << "** WARNING: " << message;
   else if (type == info)
-    std::cerr << "** Info: " << message << std::endl;
+    kDebug() << "** Info: " << message;
 }
 
 

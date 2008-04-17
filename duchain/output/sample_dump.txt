@@ -1,0 +1,146 @@
+  compilation_unit [ 0 , 88 ] "importjava.lang.*;classSuperClass{{}};classJavaExampleextendsSuperClass{intfact(intn,String...args[]){if(n==0)return1;else{n*=fact(n-1);}returnn;}Stringtest(){returnnewInteger(10).toString();}intmain(){returnfact(1000);}};"             
+    import_declaration [ 0 , 7 ] "importjava.lang.*;"            
+      qualified_identifier_with_optional_star [ 1 , 6 ] "java.lang.*"                                                                                                 
+        identifier [ 1 , 2 ] "java"                              
+        identifier                                               
+        identifier [ 3 , 4 ] "lang"                              
+        identifier                                               
+      qualified_identifier_with_optional_star                    
+    import_declaration                                           
+    type_declaration [ 7 , 13 ] "classSuperClass{{}}"            
+      class_declaration [ 7 , 13 ] "classSuperClass{{}}"         
+        optional_modifiers [ 7 , 7 ] ""                          
+        optional_modifiers                                       
+        identifier [ 8 , 9 ] "SuperClass"                        
+        identifier                                               
+        class_body [ 9 , 13 ] "{{}}"                             
+          class_field [ 10 , 12 ] "{}"                           
+            block [ 10 , 12 ] "{}"                               
+            block                                                
+          class_field                                            
+        class_body                                               
+      class_declaration                                          
+    type_declaration                                             
+    type_declaration [ 13 , 14 ] ";"                             
+    type_declaration                                             
+    type_declaration [ 14 , 87 ] "classJavaExampleextendsSuperClass{intfact(intn,String...args[]){if(n==0)return1;else{n*=fact(n-1);}returnn;}Stringtest(){returnnewInteger(10).toString();}intmain(){returnfact(1000);}}"                                                 
+      class_declaration [ 14 , 87 ] "classJavaExampleextendsSuperClass{intfact(intn,String...args[]){if(n==0)return1;else{n*=fact(n-1);}returnn;}Stringtest(){returnnewInteger(10).toString();}intmain(){returnfact(1000);}}"                                              
+        optional_modifiers [ 14 , 14 ] ""                        
+        optional_modifiers                                       
+        identifier [ 15 , 16 ] "JavaExample"                     
+        identifier                                               
+        class_extends_clause [ 16 , 18 ] "extendsSuperClass"     
+          class_or_interface_type_name [ 17 , 18 ] "SuperClass"  
+            class_or_interface_type_name_part [ 17 , 18 ] "SuperClass"                                                                                                
+              identifier [ 17 , 18 ] "SuperClass"                
+              identifier                                         
+            class_or_interface_type_name_part                    
+          class_or_interface_type_name                           
+        class_extends_clause                                     
+        class_body [ 18 , 87 ] "{intfact(intn,String...args[]){if(n==0)return1;else{n*=fact(n-1);}returnn;}Stringtest(){returnnewInteger(10).toString();}intmain(){returnfact(1000);}}"                                                                                    
+          class_field [ 19 , 57 ] "intfact(intn,String...args[]){if(n==0)return1;else{n*=fact(n-1);}returnn;}"                                                        
+            method_declaration [ 19 , 57 ] "intfact(intn,String...args[]){if(n==0)return1;else{n*=fact(n-1);}returnn;}"                                               
+              optional_modifiers [ 19 , 19 ] ""                  
+              optional_modifiers                                 
+              type [ 19 , 20 ] "int"                             
+                optional_array_builtin_type [ 19 , 20 ] "int"    
+                  builtin_type [ 19 , 20 ] "int"                 
+                  builtin_type                                   
+                  optional_declarator_brackets [ 20 , 20 ] ""    
+                  optional_declarator_brackets                   
+                optional_array_builtin_type                      
+              type                                               
+              identifier [ 20 , 21 ] "fact"                      
+              identifier                                         
+              optional_parameter_declaration_list [ 22 , 30 ] "intn,String...args[]"                                                                                  
+                parameter_declaration_ellipsis [ 22 , 24 ] "intn"
+                  optional_parameter_modifiers [ 22 , 22 ] ""    
+                  optional_parameter_modifiers                   
+                  type [ 22 , 23 ] "int"                         
+                    optional_array_builtin_type [ 22 , 23 ] "int"
+                      builtin_type [ 22 , 23 ] "int"             
+                      builtin_type                               
+                      optional_declarator_brackets [ 23 , 23 ] ""
+                      optional_declarator_brackets               
+                    optional_array_builtin_type                  
+                  type                                           
+                  identifier [ 23 , 24 ] "n"                     
+                  identifier                                     
+                  optional_declarator_brackets [ 24 , 24 ] ""    
+                  optional_declarator_brackets                   
+                parameter_declaration_ellipsis                   
+                parameter_declaration_ellipsis [ 25 , 30 ] "String...args[]"                                                                                          
+                  optional_parameter_modifiers [ 25 , 25 ] ""    
+                  optional_parameter_modifiers                   
+                  type [ 25 , 26 ] "String"                      
+                    class_type [ 25 , 26 ] "String"              
+                      class_or_interface_type_name [ 25 , 26 ] "String"                                                                                               
+                        class_or_interface_type_name_part [ 25 , 26 ] "String"                                                                                        
+                          identifier [ 25 , 26 ] "String"        
+                          identifier                             
+                        class_or_interface_type_name_part        
+                      class_or_interface_type_name               
+                      optional_declarator_brackets [ 26 , 26 ] ""
+                      optional_declarator_brackets               
+                    class_type                                   
+                  type                                           
+                  identifier [ 27 , 28 ] "args"                  
+                  identifier                                     
+                  optional_declarator_brackets [ 28 , 30 ] "[]"  
+                  optional_declarator_brackets                   
+                parameter_declaration_ellipsis                   
+              optional_parameter_declaration_list                
+              optional_declarator_brackets [ 31 , 31 ] ""        
+              optional_declarator_brackets                       
+            method_declaration                                   
+          class_field                                            
+          class_field [ 57 , 74 ] "Stringtest(){returnnewInteger(10).toString();}"                                                                                    
+            method_declaration [ 57 , 74 ] "Stringtest(){returnnewInteger(10).toString();}"                                                                           
+              optional_modifiers [ 57 , 57 ] ""                  
+              optional_modifiers                                 
+              type [ 57 , 58 ] "String"                          
+                class_type [ 57 , 58 ] "String"                  
+                  class_or_interface_type_name [ 57 , 58 ] "String"                                                                                                   
+                    class_or_interface_type_name_part [ 57 , 58 ] "String"                                                                                            
+                      identifier [ 57 , 58 ] "String"            
+                      identifier                                 
+                    class_or_interface_type_name_part            
+                  class_or_interface_type_name                   
+                  optional_declarator_brackets [ 58 , 58 ] ""    
+                  optional_declarator_brackets                   
+                class_type                                       
+              type                                               
+              identifier [ 58 , 59 ] "test"                      
+              identifier                                         
+              optional_parameter_declaration_list [ 60 , 60 ] "" 
+              optional_parameter_declaration_list                
+              optional_declarator_brackets [ 61 , 61 ] ""        
+              optional_declarator_brackets                       
+            method_declaration                                   
+          class_field                                            
+          class_field [ 74 , 86 ] "intmain(){returnfact(1000);}" 
+            method_declaration [ 74 , 86 ] "intmain(){returnfact(1000);}"                                                                                             
+              optional_modifiers [ 74 , 74 ] ""                  
+              optional_modifiers                                 
+              type [ 74 , 75 ] "int"                             
+                optional_array_builtin_type [ 74 , 75 ] "int"    
+                  builtin_type [ 74 , 75 ] "int"                 
+                  builtin_type                                   
+                  optional_declarator_brackets [ 75 , 75 ] ""    
+                  optional_declarator_brackets
+                optional_array_builtin_type
+              type
+              identifier [ 75 , 76 ] "main"
+              identifier
+              optional_parameter_declaration_list [ 77 , 77 ] ""
+              optional_parameter_declaration_list
+              optional_declarator_brackets [ 78 , 78 ] ""
+              optional_declarator_brackets
+            method_declaration
+          class_field
+        class_body
+      class_declaration
+    type_declaration
+    type_declaration [ 87 , 88 ] ";"
+    type_declaration
+  compilation_unit

@@ -6,10 +6,11 @@
 
 #include <kdev-pg-list.h>
 
-#include <kdevast.h>
-
-
 #include <string>
+
+namespace KDevelop {
+    class DUContext;
+}
 
 namespace java
   {
@@ -297,7 +298,7 @@ namespace java
   }
 
 
-  struct ast_node: public KDevelop::AST
+  struct ast_node
     {
       enum ast_node_kind_enum {
         Kind_additive_expression = 1000,
@@ -434,6 +435,7 @@ namespace java
       int kind;
       std::size_t start_token;
       std::size_t end_token;
+      KDevelop::DUContext* ducontext;
     };
 
   struct additive_expression_ast: public ast_node
@@ -1912,6 +1914,14 @@ namespace java
       class_type_ast *type;
     };
 
+template <class _Tp>
+_Tp ast_cast(ast_node *item)
+{
+  if (item && static_cast<_Tp>(0)->__node_kind == item->kind)
+    return static_cast<_Tp>(item);
+
+  return 0;
+}
 
 
 } // end of namespace java

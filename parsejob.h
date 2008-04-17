@@ -24,12 +24,11 @@
 #define JAVA_PARSEJOB_H
 
 #include <kurl.h>
-#include <kdevparsejob.h>
+#include <language/backgroundparser/parsejob.h>
 
 // from the parser subdirectory
 #include <java_ast.h>
 
-class KDevelop::CodeModel;
 class JavaLanguageSupport;
 
 namespace java
@@ -44,7 +43,7 @@ class ParseJob : public KDevelop::ParseJob
 
 public:
     ParseJob( const KUrl &url, JavaLanguageSupport* parent );
-    ParseJob( KDevelop::Document* document, JavaLanguageSupport* parent );
+    //ParseJob( KDevelop::Document* document, JavaLanguageSupport* parent );
 
     virtual ~ParseJob();
 
@@ -54,8 +53,7 @@ public:
 
     bool wasReadFromDisk() const;
 
-    virtual KDevelop::AST *AST() const;
-    virtual KDevelop::CodeModel *codeModel() const;
+    virtual ast_node *AST() const;
 
 protected:
     virtual void run();
@@ -63,7 +61,6 @@ protected:
 private:
     ParseSession *m_session;
     compilation_unit_ast *m_AST;
-    KDevelop::CodeModel *m_model;
     bool m_readFromDisk;
 };
 

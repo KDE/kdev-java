@@ -18,7 +18,7 @@ namespace java
     do
       {
         kind = lexer.yylex();
-        //std::cerr << lexer.YYText() << std::endl; //" "; // debug output
+        //kDebug() << lexer.YYText(); //" "; // debug output
 
         if ( !kind ) // when the lexer returns 0, the end of file is reached
           kind = parser::Token_EOF;
