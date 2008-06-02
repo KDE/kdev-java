@@ -38,10 +38,10 @@ EditorIntegrator::EditorIntegrator( ParseSession* session )
 
 KDevelop::SimpleCursor EditorIntegrator::findPosition( qint64 token, Edge edge ) const
 {
-  if(token == 0) {
+  /*if (token == 0) {
     kDebug() << "Searching position of invalid token";
     return KDevelop::SimpleCursor();
-  }
+  }*/
 
   const KDevPG::TokenStream::Token& t = m_session->token_stream->token(token);
   return findPosition(t, edge);
@@ -58,17 +58,17 @@ KDevelop::SimpleCursor EditorIntegrator::findPosition( const KDevPG::TokenStream
 KDevelop::SimpleRange EditorIntegrator::findRange( AstNode * node, RangeEdge edge )
 {
   Q_UNUSED(edge);
-  return KDevelop::SimpleRange(findPosition(node->startToken, FrontEdge), findPosition(node->endToken - 1, BackEdge));
+  return KDevelop::SimpleRange(findPosition(node->startToken, FrontEdge), findPosition(node->endToken, BackEdge));
 }
 
 KDevelop::SimpleRange EditorIntegrator::findRange( qint64 startToken, qint64 endToken )
 {
-  return KDevelop::SimpleRange(findPosition(startToken, FrontEdge), findPosition(endToken - 1, BackEdge));
+  return KDevelop::SimpleRange(findPosition(startToken, FrontEdge), findPosition(endToken, BackEdge));
 }
 
 KDevelop::SimpleRange EditorIntegrator::findRange(AstNode* from, AstNode* to)
 {
-  return KDevelop::SimpleRange(findPosition(from->startToken, FrontEdge), findPosition(to->endToken - 1, BackEdge));
+  return KDevelop::SimpleRange(findPosition(from->startToken, FrontEdge), findPosition(to->endToken, BackEdge));
 }
 
 KDevelop::SimpleRange EditorIntegrator::findRange( const KDevPG::TokenStream::Token & token )

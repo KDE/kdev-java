@@ -197,7 +197,7 @@ void DumpChain::visitNode(AstNode *node)
   if (node)
     if (m_editor) {
       QString nodeText;
-      for( qint64 a = node->startToken; a != node->endToken; a++ ) {
+      for( qint64 a = node->startToken; a <= node->endToken; a++ ) {
         if( !nodeText.isEmpty() )
           nodeText += ' ';
         nodeText += m_session->symbol(a);
@@ -206,8 +206,8 @@ void DumpChain::visitNode(AstNode *node)
 
 
       kDebug(9007) << indentation <<  "\\" << names[node->kind - 1000]
-              << "[(" << node->startToken << ")" << m_editor->findPosition(node->startToken, EditorIntegrator::FrontEdge).textCursor() << /*", "
-              << m_editor->findPosition(node->endToken, EditorIntegrator::FrontEdge) <<*/ "]" << nodeText << endl;
+              << "[" << node->startToken << m_editor->findPosition(node->startToken, EditorIntegrator::FrontEdge).textCursor() << ", "
+              << node->endToken << m_editor->findPosition(node->endToken, EditorIntegrator::BackEdge).textCursor() << "]" << nodeText << endl;
     } else
       kDebug(9007) << indentation << "\\" << names[node->kind - 1000]
               << "[" << node->startToken << "," << node->endToken << "]" << endl;

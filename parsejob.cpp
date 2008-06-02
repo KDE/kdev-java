@@ -170,8 +170,8 @@ void ParseJob::run()
         //java_parser.yy_expected_symbol(AstNode::Kind_compilation_unit, "compilation_unit"); // ### remove me
     }
 
-    DumpTree dt;
-    dt.dump(ast, m_session);
+    DumpChain dump;
+    dump.dump(ast, m_session);
 
     // 3) Form definition-use chain
     java::EditorIntegrator editor(parseSession());
@@ -187,7 +187,6 @@ void ParseJob::run()
     KDevelop::DUContext* chain = contextBuilder.buildContexts(KDevelop::HashedString(document()), ast, KDevelop::TopDUContextPointer());
 
     KDevelop::DUChainReadLocker duchainlock(KDevelop::DUChain::lock());
-    DumpChain dump;
     dump.dump(chain);
 }
 

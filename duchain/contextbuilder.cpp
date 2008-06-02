@@ -483,81 +483,7 @@ void ContextBuilder::closeContext()
     m_editor->exitCurrentRange();
 }
 
-/*void ContextBuilder::visitCompoundStatement(CompoundStatementAstNode * node)
-{
-  openContext(node, DUContext::Other);
-
-  addImportedContexts();
-
-  DefaultVisitor::visitCompoundStatement(node);
-
-  closeContext();
-}
-
-void ContextBuilder::visitSimpleDeclaration(SimpleDeclarationAstNode *node)
-{
-  DefaultVisitor::visitSimpleDeclaration(node);
-
-  // Didn't get claimed if it was still set
-  m_importedParentContexts.clear();
-}
-
-void ContextBuilder::visitPostSimpleDeclaration(SimpleDeclarationAstNode*)
-{
-  // Didn't get claimed if it was still set
-  m_importedParentContexts.clear();
-}
-
-void ContextBuilder::visitName (AstNode *)
-{
-  // Note: we don't want to visit the name node, the name compiler does that for us (only when we need it)
-}
-
-void ContextBuilder::visitUsing(UsingAstNode* node)
-{
-  // TODO store the using
-  DefaultVisitor::visitUsing(node);
-}
-
-void ContextBuilder::visitExpressionOrDeclarationStatement(ExpressionOrDeclarationStatementAstNode* node)
-{
-  DUContext::ContextType type;
-  {
-    DUChainReadLocker lock(DUChain::lock());
-    type = currentContext()->type();
-  }
-
-  switch (type) {
-    case DUContext::Global:
-    case DUContext::Namespace:
-    case DUContext::Class:
-      visit(node->declaration);
-      break;
-
-    case DUContext::Function:
-    case DUContext::Other:
-      if (m_compilingContexts) {
-        DUChainReadLocker lock(DUChain::lock());
-/ *        VerifyExpressionVisitor iv(m_editor->parseSession());
-
-        node->expression->ducontext = currentContext();
-        iv.parse(node->expression); * /
-        IdentifierVerifier iv(this, SimpleCursor(m_editor->findPosition(node->start_token)));
-        iv.visit(node->expression);
-        //kDebug(9007) << m_editor->findPosition(node->start_token) << "IdentifierVerifier returned" << iv.result;
-        node->expressionChosen = iv.result;
-      }
-
-      if (node->expressionChosen)
-        visit(node->expression);
-      else
-        visit(node->declaration);
-      break;
-    case DUContext::Template:
-      break;
-  }
-}
-
+/*
 void ContextBuilder::visitForStatement(ForStatementAstNode *node)
 {
   // Not setting the member var because it gets nuked in visitSimpleDeclaration
@@ -673,16 +599,22 @@ bool ContextBuilder::smart() const {
   return m_editor->smart();
 }
 
-
 void ContextBuilder::visitClass_declaration(Class_declarationAst * node)
 {
+  visitNode(node->modifiers);
+  visitNode(node->type_parameters);
+  visitNode(node->extends);
+  visitNode(node->implements);
+
   QualifiedIdentifier id = identifierForName(node->class_name);
 
-  DUContext* classContext = openContext(node, DUContext::Class, id);
+  if (node->body) {
+    DUContext* classContext = openContext(node->body, DUContext::Class, id);
 
-  DefaultVisitor::visitClass_declaration(node);
+    visitNode(node->body);
 
-  closeContext();
+    closeContext();
+  }
 }
 
 void ContextBuilder::visitMethod_declaration(Method_declarationAst * node)
@@ -705,3 +637,53 @@ void ContextBuilder::visitOptional_parameter_declaration_list(Optional_parameter
 
   closeContext();
 }
+
+void java::ContextBuilder::visitBlock(BlockAst * node)
+{
+  openContext(node, DUContext::Other);
+
+  DefaultVisitor::visitBlock(node);
+
+  closeContext();
+}
+
+void java::ContextBuilder::visitFor_control(For_controlAst * node)
+{
+  openContext(node, DUContext::Other);
+
+  DefaultVisitor::visitFor_control(node);
+
+  closeContext();
+}
+
+void java::ContextBuilder::visitIf_statement(If_statementAst * node)
+{
+  DUContext* condition = openContext(node->condition, DUContext::Other);
+  visitNode(node->condition);
+  closeContext();
+
+  if (node->if_body) {
+    DUContext* body = openContext(node->if_body, DUContext::Other);
+
+    if (condition) {
+      DUChainWriteLocker lock(DUChain::lock());
+      body->addImportedParentContext(condition);
+    }
+
+    visitNode(node->if_body);
+    closeContext();
+  }
+
+  if (node->else_body) {
+    DUContext* body = openContext(node->else_body, DUContext::Other);
+
+    if (condition) {
+      DUChainWriteLocker lock(DUChain::lock());
+      body->addImportedParentContext(condition);
+    }
+
+    visitNode(node->else_body);
+    closeContext();
+  }
+}
+
