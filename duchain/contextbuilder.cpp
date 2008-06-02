@@ -28,8 +28,8 @@
 #include <topducontext.h>
 #include <duchainlock.h>
 #include <declaration.h>
-#include <use.h>
 #include <symboltable.h>
+#include <use.h>
 #include <smartconverter.h>
 #include <parsingenvironment.h>
 
@@ -47,7 +47,7 @@ using namespace java;
 
 ///Retrieves the first and last item from a list
 template <class _Tp>
-void getFirstLast(ast_node** first, ast_node** last, const list_node<_Tp> *nodes)
+void getFirstLast(AstNode** first, AstNode** last, const KDevPG::ListNode<_Tp> *nodes)
 {
   *first = 0;
   *last = 0;
@@ -55,8 +55,8 @@ void getFirstLast(ast_node** first, ast_node** last, const list_node<_Tp> *nodes
   if (!nodes)
     return;
 
-  const list_node<_Tp>
-    *it = nodes->toFront(),
+  const KDevPG::ListNode<_Tp>
+    *it = nodes->front(),
     *end = it;
 
   do
@@ -101,7 +101,7 @@ ContextBuilder::~ContextBuilder ()
   delete m_identifierCompiler;
 }
 
-TopDUContext* ContextBuilder::buildContexts(const KDevelop::HashedString& url, ast_node *node, const TopDUContextPointer& updateContext, bool removeOldImports)
+TopDUContext* ContextBuilder::buildContexts(const KDevelop::HashedString& url, AstNode *node, const TopDUContextPointer& updateContext, bool removeOldImports)
 {
   m_compilingContexts = true;
 
@@ -186,7 +186,7 @@ TopDUContext* ContextBuilder::buildContexts(const KDevelop::HashedString& url, a
   return topLevelContext;
 }
 
-void ContextBuilder::supportBuild(ast_node *node, DUContext* context)
+void ContextBuilder::supportBuild(AstNode *node, DUContext* context)
 {
   //Q_ASSERT(dynamic_cast<TopDUContext*>(node->ducontext)); This assertion is invalid, because the node may also be a statement that has a non-top context set
 
@@ -203,14 +203,14 @@ void ContextBuilder::supportBuild(ast_node *node, DUContext* context)
 
   m_editor->setCurrentRange(currentContext()->smartRange());
 
-  visit_node(node);
+  visitNode(node);
 
   closeContext();
 
   Q_ASSERT(m_contextStack.isEmpty());
 }
 
-/*void ContextBuilder::visitNamespace (Namespaceast_node *node)
+/*void ContextBuilder::visitNamespace (NamespaceAstNode *node)
 {
   QualifiedIdentifier identifier;
   if (m_compilingContexts) {
@@ -229,7 +229,7 @@ void ContextBuilder::supportBuild(ast_node *node, DUContext* context)
   closeContext();
 }
 
-void ContextBuilder::visitClassSpecifier (ClassSpecifierast_node *node)
+void ContextBuilder::visitClassSpecifier (ClassSpecifierAstNode *node)
 {
   //We only use the local identifier here, because we build a prefix-context around
   ///@todo think about this.
@@ -248,7 +248,7 @@ void ContextBuilder::visitClassSpecifier (ClassSpecifierast_node *node)
   closeContext();
 }
 
-void ContextBuilder::visitTypedef (Typedefast_node *node)
+void ContextBuilder::visitTypedef (TypedefAstNode *node)
 {
   DefaultVisitor::visitTypedef (node);
 
@@ -256,7 +256,7 @@ void ContextBuilder::visitTypedef (Typedefast_node *node)
   m_importedParentContexts.clear();
 }
 
-void ContextBuilder::visitFunctionDefinition (FunctionDefinitionast_node *node)
+void ContextBuilder::visitFunctionDefinition (FunctionDefinitionAstNode *node)
 {
   PushValue<bool> push(m_inFunctionDefinition, (bool)node->function_body);
 
@@ -300,14 +300,14 @@ void ContextBuilder::visitFunctionDefinition (FunctionDefinitionast_node *node)
   m_importedParentContexts.clear();
 }
 
-void ContextBuilder::visitFunctionDeclaration (FunctionDefinitionast_node* node)
+void ContextBuilder::visitFunctionDeclaration (FunctionDefinitionAstNode* node)
 {
   visit(node->type_specifier);
   visit(node->init_declarator);
 }
 */
 
-DUContext* ContextBuilder::openContext(ast_node* rangeNode, DUContext::ContextType type, ast_node* identifier)
+DUContext* ContextBuilder::openContext(AstNode* rangeNode, DUContext::ContextType type, AstNode* identifier)
 {
   if (m_compilingContexts) {
     DUContext* ret = openContextInternal(m_editor->findRange(rangeNode), type, identifier ? identifierForName(identifier) : QualifiedIdentifier());
@@ -321,7 +321,7 @@ DUContext* ContextBuilder::openContext(ast_node* rangeNode, DUContext::ContextTy
   }
 }
 
-DUContext* ContextBuilder::openContextEmpty(ast_node* rangeNode, DUContext::ContextType type)
+DUContext* ContextBuilder::openContextEmpty(AstNode* rangeNode, DUContext::ContextType type)
 {
   if (m_compilingContexts) {
     KDevelop::SimpleRange range = m_editor->findRange(rangeNode);
@@ -337,7 +337,7 @@ DUContext* ContextBuilder::openContextEmpty(ast_node* rangeNode, DUContext::Cont
   }
 }
 
-DUContext* ContextBuilder::openContext(ast_node* rangeNode, DUContext::ContextType type, const QualifiedIdentifier& identifier)
+DUContext* ContextBuilder::openContext(AstNode* rangeNode, DUContext::ContextType type, const QualifiedIdentifier& identifier)
 {
   if (m_compilingContexts) {
     DUContext* ret = openContextInternal(m_editor->findRange(rangeNode), type, identifier);
@@ -351,7 +351,7 @@ DUContext* ContextBuilder::openContext(ast_node* rangeNode, DUContext::ContextTy
   }
 }
 
-DUContext* ContextBuilder::openContext(ast_node* fromRange, ast_node* toRange, DUContext::ContextType type, ast_node* identifier)
+DUContext* ContextBuilder::openContext(AstNode* fromRange, AstNode* toRange, DUContext::ContextType type, AstNode* identifier)
 {
   if (m_compilingContexts) {
     DUContext* ret = openContextInternal(m_editor->findRange(fromRange, toRange), type, identifier ? identifierForName(identifier) : QualifiedIdentifier());
@@ -483,7 +483,7 @@ void ContextBuilder::closeContext()
     m_editor->exitCurrentRange();
 }
 
-/*void ContextBuilder::visitCompoundStatement(CompoundStatementast_node * node)
+/*void ContextBuilder::visitCompoundStatement(CompoundStatementAstNode * node)
 {
   openContext(node, DUContext::Other);
 
@@ -494,7 +494,7 @@ void ContextBuilder::closeContext()
   closeContext();
 }
 
-void ContextBuilder::visitSimpleDeclaration(SimpleDeclarationast_node *node)
+void ContextBuilder::visitSimpleDeclaration(SimpleDeclarationAstNode *node)
 {
   DefaultVisitor::visitSimpleDeclaration(node);
 
@@ -502,24 +502,24 @@ void ContextBuilder::visitSimpleDeclaration(SimpleDeclarationast_node *node)
   m_importedParentContexts.clear();
 }
 
-void ContextBuilder::visitPostSimpleDeclaration(SimpleDeclarationast_node*)
+void ContextBuilder::visitPostSimpleDeclaration(SimpleDeclarationAstNode*)
 {
   // Didn't get claimed if it was still set
   m_importedParentContexts.clear();
 }
 
-void ContextBuilder::visitName (ast_node *)
+void ContextBuilder::visitName (AstNode *)
 {
   // Note: we don't want to visit the name node, the name compiler does that for us (only when we need it)
 }
 
-void ContextBuilder::visitUsing(Usingast_node* node)
+void ContextBuilder::visitUsing(UsingAstNode* node)
 {
   // TODO store the using
   DefaultVisitor::visitUsing(node);
 }
 
-void ContextBuilder::visitExpressionOrDeclarationStatement(ExpressionOrDeclarationStatementast_node* node)
+void ContextBuilder::visitExpressionOrDeclarationStatement(ExpressionOrDeclarationStatementAstNode* node)
 {
   DUContext::ContextType type;
   {
@@ -538,7 +538,7 @@ void ContextBuilder::visitExpressionOrDeclarationStatement(ExpressionOrDeclarati
     case DUContext::Other:
       if (m_compilingContexts) {
         DUChainReadLocker lock(DUChain::lock());
-/*        VerifyExpressionVisitor iv(m_editor->parseSession());
+/ *        VerifyExpressionVisitor iv(m_editor->parseSession());
 
         node->expression->ducontext = currentContext();
         iv.parse(node->expression); * /
@@ -558,10 +558,10 @@ void ContextBuilder::visitExpressionOrDeclarationStatement(ExpressionOrDeclarati
   }
 }
 
-void ContextBuilder::visitForStatement(ForStatementast_node *node)
+void ContextBuilder::visitForStatement(ForStatementAstNode *node)
 {
   // Not setting the member var because it gets nuked in visitSimpleDeclaration
-  ast_node* first = node->init_statement;
+  AstNode* first = node->init_statement;
   if (!first)
     first = node->condition;
   if (!first)
@@ -569,7 +569,7 @@ void ContextBuilder::visitForStatement(ForStatementast_node *node)
   if (!first)
     return;
 
-  ast_node* second = node->expression;
+  AstNode* second = node->expression;
   if (!second)
     second = node->condition;
   if (!second)
@@ -614,7 +614,7 @@ void ContextBuilder::addImportedContexts()
   m_lastContext = 0;
 }
 
-void ContextBuilder::visitIfStatement(IfStatementast_node* node)
+void ContextBuilder::visitIfStatement(IfStatementAstNode* node)
 {
   // Not setting the member var because it gets nuked in visitSimpleDeclaration
   DUContext* secondParentContext = openContext(node->condition, DUContext::Other);
@@ -642,16 +642,16 @@ void ContextBuilder::visitIfStatement(IfStatementast_node* node)
   }
 }
 
-bool ContextBuilder::createContextIfNeeded(ast_node* node, DUContext* importedParentContext)
+bool ContextBuilder::createContextIfNeeded(AstNode* node, DUContext* importedParentContext)
 {
   return createContextIfNeeded(node, QList<DUContext*>() << importedParentContext);
 }
 
-bool ContextBuilder::createContextIfNeeded(ast_node* node, const QList<DUContext*>& importedParentContexts)
+bool ContextBuilder::createContextIfNeeded(AstNode* node, const QList<DUContext*>& importedParentContexts)
 {
   m_importedParentContexts = importedParentContexts;
 
-  const bool contextNeeded = !ast_cast<CompoundStatementast_node*>(node);
+  const bool contextNeeded = !ast_cast<CompoundStatementAstNode*>(node);
   if (contextNeeded) {
     openContext(node, DUContext::Other);
     addImportedContexts();
@@ -659,7 +659,7 @@ bool ContextBuilder::createContextIfNeeded(ast_node* node, const QList<DUContext
   return contextNeeded;
 }*/
 
-QualifiedIdentifier ContextBuilder::identifierForName(ast_node* id) const
+QualifiedIdentifier ContextBuilder::identifierForName(AstNode* id) const
 {
   if( !id )
     return QualifiedIdentifier();
@@ -674,34 +674,34 @@ bool ContextBuilder::smart() const {
 }
 
 
-void ContextBuilder::visit_class_declaration(class_declaration_ast * node)
+void ContextBuilder::visitClass_declaration(Class_declarationAst * node)
 {
   QualifiedIdentifier id = identifierForName(node->class_name);
 
   DUContext* classContext = openContext(node, DUContext::Class, id);
 
-  default_visitor::visit_class_declaration(node);
+  DefaultVisitor::visitClass_declaration(node);
 
   closeContext();
 }
 
-void ContextBuilder::visit_method_declaration(method_declaration_ast * node)
+void ContextBuilder::visitMethod_declaration(Method_declarationAst * node)
 {
   QualifiedIdentifier id = identifierForName(node->method_name);
 
     // TODO incorrect
   openContext(node, DUContext::Function, id);
 
-  default_visitor::visit_method_declaration(node);
+  DefaultVisitor::visitMethod_declaration(node);
 
   closeContext();
 }
 
-void ContextBuilder::visit_optional_parameter_declaration_list(optional_parameter_declaration_list_ast * node)
+void ContextBuilder::visitOptional_parameter_declaration_list(Optional_parameter_declaration_listAst * node)
 {
   openContext(node, DUContext::Other);
 
-  default_visitor::visit_optional_parameter_declaration_list(node);
+  DefaultVisitor::visitOptional_parameter_declaration_list(node);
 
   closeContext();
 }

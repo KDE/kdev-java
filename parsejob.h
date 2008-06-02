@@ -27,7 +27,7 @@
 #include <language/backgroundparser/parsejob.h>
 
 // from the parser subdirectory
-#include <java_ast.h>
+#include <javaast.h>
 
 class JavaLanguageSupport;
 
@@ -53,14 +53,14 @@ public:
 
     bool wasReadFromDisk() const;
 
-    virtual ast_node *AST() const;
+    virtual AstNode *AST() const;
 
 protected:
     virtual void run();
 
 private:
     ParseSession *m_session;
-    compilation_unit_ast *m_AST;
+    Compilation_unitAst *m_AST;
     bool m_readFromDisk;
 };
 

@@ -21,7 +21,7 @@
 #define DUMPCHAIN_H
 
 
-#include "java_default_visitor.h"
+#include "javadefaultvisitor.h"
 
 namespace KDevelop
 {
@@ -32,22 +32,23 @@ namespace java {
 
 class ParseSession;
 
-class DumpChain: protected default_visitor
+class DumpChain: protected DefaultVisitor
 {
 public:
   DumpChain();
   virtual ~DumpChain();
 
-  void dump(ast_node *node, ParseSession* session = 0);
+  void dump(AstNode *node, ParseSession* session = 0);
 
   void dump(KDevelop::DUContext* context, bool imported = false);
 
 
 protected:
-  virtual void visit_node(java::ast_node *node);
+  virtual void visitNode(java::AstNode *node);
 
 private:
   class EditorIntegrator* m_editor;
+  ParseSession* m_session;
   int indent;
 };
 

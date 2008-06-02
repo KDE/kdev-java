@@ -20,7 +20,7 @@
 #ifndef NAME_COMPILER_H
 #define NAME_COMPILER_H
 
-#include "java_default_visitor.h"
+#include "javadefaultvisitor.h"
 #include <identifier.h>
 #include <declaration.h>
 
@@ -28,12 +28,12 @@ namespace java {
 
 class ParseSession;
 
-class IdentifierCompiler: protected default_visitor
+class IdentifierCompiler: protected DefaultVisitor
 {
 public:
   IdentifierCompiler(ParseSession* session);
 
-  void run(ast_node *node);
+  void run(AstNode *node);
 
   QString name() const { return m_name.toString(); }
   QStringList qualifiedName() const { return m_name.toStringList(); }
@@ -41,9 +41,9 @@ public:
   const KDevelop::QualifiedIdentifier& identifier() const;
 
 protected:
-  virtual void visit_identifier(identifier_ast *node);
+  virtual void visitIdentifier(IdentifierAst *node);
   //virtual void visit_qualified_identifier(qualified_identifier_ast *node);
-  virtual void visit_qualified_identifier_with_optional_star(qualified_identifier_with_optional_star_ast *node);
+  virtual void visitQualified_identifier_with_optional_star(Qualified_identifier_with_optional_starAst *node);
 
 private:
   ParseSession* m_session;
@@ -52,7 +52,7 @@ private:
   KDevelop::QualifiedIdentifier m_name;
 };
 
-KDevelop::Declaration::CVSpecs parseConstVolatile(ParseSession* session, const list_node<std::size_t> *cv);
+KDevelop::Declaration::CVSpecs parseConstVolatile(ParseSession* session, const KDevPG::ListNode<qint64> *cv);
 
 }
 

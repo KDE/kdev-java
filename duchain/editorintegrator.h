@@ -28,7 +28,7 @@
 namespace java {
 
 class ParseSession;
-class ast_node;
+class AstNode;
 
 
 /**
@@ -55,7 +55,7 @@ public:
    *
    * \returns the requested cursor relating to the start or end of the given token.
    */
-  KDevelop::SimpleCursor findPosition(const kdev_pg_token_stream::token_type& token, Edge edge = BackEdge) const;
+  KDevelop::SimpleCursor findPosition(const KDevPG::TokenStream::Token& token, Edge edge = BackEdge) const;
 
   /**
    * Finds the location and \a file where the given \a token was parsed from.
@@ -66,54 +66,54 @@ public:
    *
    * \returns the requested cursor relating to the start or end of the given token.
    */
-  KDevelop::SimpleCursor findPosition(std::size_t token, Edge edge = BackEdge) const;
+  KDevelop::SimpleCursor findPosition(qint64 token, Edge edge = BackEdge) const;
 
   using KDevelop::EditorIntegrator::createRange;
 
   /**
-   * Create a range encompassing the given ast_node \a node.
+   * Create a range encompassing the given AstNode \a node.
    * This function does not change any of the EditorIntegrator's state.
    *
    * \overload
    */
-  KDevelop::SimpleRange findRange(ast_node* node, RangeEdge = OuterEdge);
+  KDevelop::SimpleRange findRange(AstNode* node, RangeEdge = OuterEdge);
 
   /**
-   * Create a range encompassing the given ast_node \a nodes.
+   * Create a range encompassing the given AstNode \a nodes.
    * This function does not change any of the EditorIntegrator's state.
    *
    * \overload
    */
-  KDevelop::SimpleRange findRange(ast_node* from, ast_node* to);
+  KDevelop::SimpleRange findRange(AstNode* from, AstNode* to);
 
   /**
-   * Create a range encompassing the given ast_node \a token.
+   * Create a range encompassing the given AstNode \a token.
    * This function does not change any of the EditorIntegrator's state.
    *
    * \overload
    */
-  KDevelop::SimpleRange findRange(const kdev_pg_token_stream::token_type& token);
+  KDevelop::SimpleRange findRange(const KDevPG::TokenStream::Token& token);
 
   /**
-   * Create a range encompassing the given ast_node \a token.
+   * Create a range encompassing the given AstNode \a token.
    * This function does not change any of the EditorIntegrator's state.
    *
    * \overload
    */
-  KDevelop::SimpleRange findRange(std::size_t token);
+  KDevelop::SimpleRange findRange(qint64 token);
 
   /**
-   * Create a range encompassing the given ast_node \a tokens.
+   * Create a range encompassing the given AstNode \a tokens.
    * This function does not change any of the EditorIntegrator's state.
    *
    * \overload
    */
-  KDevelop::SimpleRange findRange(std::size_t start_token, std::size_t end_token);
+  KDevelop::SimpleRange findRange(qint64 start_token, qint64 end_token);
 
   /**
    * Retrieve the string represented by a token.
    */
-  QString tokenToString(std::size_t token) const;
+  QString tokenToString(qint64 token) const;
 
 private:
   static QHash<KUrl, KTextEditor::Document*> s_documents;

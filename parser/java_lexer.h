@@ -19,6 +19,8 @@
 
 #include "javaparser.h"
 
+#include "javaparserexport.h"
+
 #include <iostream>
 
 #ifndef DONT_INCLUDE_FLEXLEXER
@@ -34,7 +36,7 @@ m_tokenEnd += yyleng;
 namespace java
 {
 
-class Lexer : public yyFlexLexer
+class KDEVJAVAPARSER_EXPORT Lexer : public yyFlexLexer
 {
 public:
     Lexer( java::Parser *parser, char *contents );

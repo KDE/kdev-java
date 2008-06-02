@@ -21,8 +21,8 @@
 
 #include "identifiercompiler.h"
 #include "java_lexer.h"
-#include "java_ast.h"
-#include "java_parser.h"
+#include "javaast.h"
+#include "javaparser.h"
 #include "parsesession.h"
 //#include "tokens.h"
 
@@ -50,18 +50,18 @@ using namespace java;
   return ret;
 }*/
 
-Declaration::CVSpecs parseConstVolatile(ParseSession* session, const list_node<std::size_t> *cv)
+Declaration::CVSpecs parseConstVolatile(ParseSession* session, const KDevPG::ListNode<qint64> *cv)
 {
   Declaration::CVSpecs ret = Declaration::CVNone;
 
   if (cv) {
-    const list_node<std::size_t> *it = cv->to_front();
-    const list_node<std::size_t> *end = it;
+    const KDevPG::ListNode<qint64> *it = cv->front();
+    const KDevPG::ListNode<qint64> *end = it;
     do {
       int kind = session->token_stream->token(it->element).kind;
-      if (kind == parser::Token_CONST)
+      if (kind == Parser::Token_CONST)
         ret |= Declaration::Const;
-      else if (kind == parser::Token_VOLATILE)
+      else if (kind == Parser::Token_VOLATILE)
         ret |= Declaration::Volatile;
 
       it = it->next;
@@ -76,13 +76,13 @@ IdentifierCompiler::IdentifierCompiler(ParseSession* session)
 {
 }
 
-void IdentifierCompiler::run(ast_node *node)
+void IdentifierCompiler::run(AstNode *node)
 {
   m_name.clear();
-  visit_node(node);
+  visitNode(node);
 }
 
-void IdentifierCompiler::visit_identifier(identifier_ast *node)
+void IdentifierCompiler::visitIdentifier(IdentifierAst *node)
 {
   QString tmp_name;
 
@@ -99,9 +99,9 @@ const QualifiedIdentifier& IdentifierCompiler::identifier() const
   return m_name;
 }
 
-void IdentifierCompiler::visit_qualified_identifier_with_optional_star(qualified_identifier_with_optional_star_ast * node)
+void IdentifierCompiler::visitQualified_identifier_with_optional_star(Qualified_identifier_with_optional_starAst *node)
 {
-  default_visitor::visit_qualified_identifier_with_optional_star(node);
+  DefaultVisitor::visitQualified_identifier_with_optional_star(node);
 
   if (node->has_star) {
     m_name.push(Identifier("*"));

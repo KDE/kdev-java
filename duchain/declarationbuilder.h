@@ -48,7 +48,7 @@ public:
    *
    * \param includes contexts to reference from the top context.  The list may be changed by this function.
    */
-  KDevelop::TopDUContext* buildDeclarations(const KDevelop::HashedString& url, ast_node *node, const KDevelop::TopDUContextPointer& updateContext = KDevelop::TopDUContextPointer(), bool removeOldImports = true);
+  KDevelop::TopDUContext* buildDeclarations(const KDevelop::HashedString& url, AstNode *node, const KDevelop::TopDUContextPointer& updateContext = KDevelop::TopDUContextPointer(), bool removeOldImports = true);
 
   inline KDevelop::Declaration* currentDeclaration() const { return m_declarationStack.isEmpty() ? 0 : m_declarationStack.top(); }
 
@@ -70,19 +70,19 @@ public:
   virtual void visitEnumerator(EnumeratorAST* node);
   virtual void visitNamespaceAliasDefinition(NamespaceAliasDefinitionAST*);*/
 
-  virtual void classTypeOpened(KDevelop::AbstractType::Ptr);
+  //virtual void classTypeOpened(KDevelop::AbstractType::Ptr);
 
 private:
-  KDevelop::ForwardDeclaration* openForwardDeclaration(ast_node* name, ast_node* range);
+  KDevelop::ForwardDeclaration* openForwardDeclaration(AstNode* name, AstNode* range);
   /**
    * Register a new declaration with the definition-use chain.
    * Returns the new context created by this definition.
    * @param name When this is zero, the identifier given through customName is used.
    * \param range provide a valid AST here if name is null
    */
-  KDevelop::Declaration* openDeclaration(ast_node* name, ast_node* range, bool isFunction = false, bool isForward = false, bool isDefinition = false, bool isNamespaceAlias = false, const KDevelop::Identifier& customName = KDevelop::Identifier());
+  KDevelop::Declaration* openDeclaration(AstNode* name, AstNode* range, bool isFunction = false, bool isForward = false, bool isDefinition = false, bool isNamespaceAlias = false, const KDevelop::Identifier& customName = KDevelop::Identifier());
   /// Same as the above, but sets it as the definition too
-  KDevelop::Declaration* openDefinition(ast_node* name, ast_node* range, bool isFunction = false);
+  KDevelop::Declaration* openDefinition(AstNode* name, AstNode* range, bool isFunction = false);
   void eventuallyAssignInternalContext();
   void closeDeclaration();
   void abortDeclaration();

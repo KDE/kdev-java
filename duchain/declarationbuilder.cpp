@@ -33,7 +33,7 @@
 #include "identifiercompiler.h"
 #include "classfunctiondeclaration.h"
 #include "functiondeclaration.h"
-#include "java_ast.h"
+#include "javaast.h"
 #include "parsesession.h"
 
 using namespace KTextEditor;
@@ -66,7 +66,7 @@ DeclarationBuilder::DeclarationBuilder (EditorIntegrator* editor)
 {
 }
 
-KDevelop::TopDUContext* DeclarationBuilder::buildDeclarations(const KDevelop::HashedString& url, ast_node *node, const KDevelop::TopDUContextPointer& updateContext, bool removeOldImports)
+KDevelop::TopDUContext* DeclarationBuilder::buildDeclarations(const KDevelop::HashedString& url, AstNode *node, const KDevelop::TopDUContextPointer& updateContext, bool removeOldImports)
 {
   TopDUContext* top = buildContexts(url, node, updateContext, removeOldImports);
 
@@ -76,7 +76,7 @@ KDevelop::TopDUContext* DeclarationBuilder::buildDeclarations(const KDevelop::Ha
   return top;
 }
 
-/*void DeclarationBuilder::visitFunctionDeclaration(FunctionDefinitionast_node* node)
+/*void DeclarationBuilder::visitFunctionDeclaration(FunctionDefinitionAstNode* node)
 {
   parseComments(node->comments);
   parseStorageSpecifiers(node->storage_specifiers);
@@ -91,7 +91,7 @@ KDevelop::TopDUContext* DeclarationBuilder::buildDeclarations(const KDevelop::Ha
   popSpecifiers();
 }
 
-void DeclarationBuilder::visitSimpleDeclaration(SimpleDeclarationast_node* node)
+void DeclarationBuilder::visitSimpleDeclaration(SimpleDeclarationAstNode* node)
 {
   parseComments(node->comments);
   parseStorageSpecifiers(node->storage_specifiers);
@@ -106,12 +106,12 @@ void DeclarationBuilder::visitSimpleDeclaration(SimpleDeclarationast_node* node)
   popSpecifiers();
 }
 
-void DeclarationBuilder::visitDeclarator (Declaratorast_node* node)
+void DeclarationBuilder::visitDeclarator (DeclaratorAstNode* node)
 {
   //need to make backup because we may temporarily change it
-  ParameterDeclarationClauseast_node* parameter_declaration_clause_backup = node->parameter_declaration_clause;
+  ParameterDeclarationClauseAstNode* parameter_declaration_clause_backup = node->parameter_declaration_clause;
 
-  ///@todo this should be solved more elegantly within parser and ast_node
+  ///@todo this should be solved more elegantly within parser and AstNode
   if (node->parameter_declaration_clause) {
     //Check if all parameter declarations are valid. If not, this is a misunderstood variable declaration.
     if(!checkParameterDeclarationClause(node->parameter_declaration_clause))
@@ -142,7 +142,7 @@ void DeclarationBuilder::visitDeclarator (Declaratorast_node* node)
 
         QList<Declaration*> declarations = currentContext()->findDeclarations(id, pos, AbstractType::Ptr(), 0, DUContext::OnlyFunctions);
 
-        JavaFunctionType::Ptr currentFunction = JavaFunctionType::Ptr(dynamic_cast<JavaFunctionType*>(lastType().data()));
+        JavaFunctionType::Ptr currentFunction = JavaFunctionType::Ptr(dynamic_cast<JavaFunctionType*>(currentDeclaration().data()));
         int functionArgumentCount = 0;
         if(currentFunction)
           functionArgumentCount = currentFunction->arguments().count();
@@ -156,8 +156,8 @@ void DeclarationBuilder::visitDeclarator (Declaratorast_node* node)
             if(dec == currentDeclaration() || dec->isDefinition())
               continue;
             //Compare signatures of function-declarations:
-            if(dec->abstractType() == lastType()
-                || (dec->abstractType() && lastType() && dec->abstractType()->equals(lastType().data())))
+            if(dec->abstractType() == currentDeclaration()
+                || (dec->abstractType() && currentDeclaration() && dec->abstractType()->equals(currentDeclaration().data())))
             {
               //The declaration-type matches this definition, good.
             }else{
@@ -195,12 +195,13 @@ void DeclarationBuilder::visitDeclarator (Declaratorast_node* node)
   node->parameter_declaration_clause = parameter_declaration_clause_backup;
 }*/
 
-Declaration* DeclarationBuilder::openDefinition(ast_node* name, ast_node* rangeNode, bool isFunction)
+#if 0
+Declaration* DeclarationBuilder::openDefinition(AstNode* name, AstNode* rangeNode, bool isFunction)
 {
   return openDeclaration(name, rangeNode, isFunction, false, true);
 }
 
-Declaration* DeclarationBuilder::openDeclaration(ast_node* name, ast_node* rangeNode, bool isFunction, bool isForward, bool isDefinition, bool isNamespaceAlias, const Identifier& customName)
+Declaration* DeclarationBuilder::openDeclaration(AstNode* name, AstNode* rangeNode, bool isFunction, bool isForward, bool isDefinition, bool isNamespaceAlias, const Identifier& customName)
 {
   DUChainWriteLocker lock(DUChain::lock());
 
@@ -224,7 +225,7 @@ Declaration* DeclarationBuilder::openDeclaration(ast_node* name, ast_node* range
   }
 
 
-  SimpleRange newRange = m_editor->findRange(name ? static_cast<ast_node*>(name->unqualified_name) : rangeNode);
+  SimpleRange newRange = m_editor->findRange(name ? static_cast<AstNode*>(name->unqualified_name) : rangeNode);
 
   if(newRange.start >= newRange.end)
     kWarning(9007) << "Range collapsed";
@@ -232,11 +233,11 @@ Declaration* DeclarationBuilder::openDeclaration(ast_node* name, ast_node* range
   QualifiedIdentifier id;
 
   if (name) {
-    TypeSpecifierast_node* typeSpecifier = 0; //Additional type-specifier for example the return-type of a cast operator
+    TypeSpecifierAstNode* typeSpecifier = 0; //Additional type-specifier for example the return-type of a cast operator
     id = identifierForName(name, &typeSpecifier);
     if( typeSpecifier && id == QualifiedIdentifier("operator{...cast...}") ) {
-      if( typeSpecifier->kind == ast_node::Kind_SimpleTypeSpecifier )
-        visitSimpleTypeSpecifier( static_cast<SimpleTypeSpecifierast_node*>( typeSpecifier ) );
+      if( typeSpecifier->kind == AstNode::Kind_SimpleTypeSpecifier )
+        visitSimpleTypeSpecifier( static_cast<SimpleTypeSpecifierAstNode*>( typeSpecifier ) );
     }
   } else {
     id = QualifiedIdentifier(customName);
@@ -429,6 +430,7 @@ Declaration* DeclarationBuilder::openDeclaration(ast_node* name, ast_node* range
 
   return declaration;
 }
+#endif
 
 void DeclarationBuilder::eventuallyAssignInternalContext()
 {
@@ -454,11 +456,11 @@ void DeclarationBuilder::eventuallyAssignInternalContext()
 
 void DeclarationBuilder::closeDeclaration()
 {
-  if (lastType()) {
+  if (currentDeclaration()) {
     DUChainWriteLocker lock(DUChain::lock());
 
-    IdentifiedType* idType = dynamic_cast<IdentifiedType*>(lastType().data());
-    DelayedType* delayed = dynamic_cast<DelayedType*>(lastType().data());
+    IdentifiedType* idType = dynamic_cast<IdentifiedType*>(currentDeclaration());
+    DelayedType* delayed = dynamic_cast<DelayedType*>(currentDeclaration());
 
     //When the given type has no declaration yet, assume we are declaring it now.
     //If the type is a delayed type, it is a searched type, and not a declared one, so don't set the declaration then.
@@ -471,7 +473,7 @@ void DeclarationBuilder::closeDeclaration()
     else
       currentDeclaration()->setKind(Declaration::Type);
 
-    currentDeclaration()->setType(lastType());
+    //currentDeclaration()->setType(currentDeclaration());
   }
 
   eventuallyAssignInternalContext();
@@ -486,7 +488,7 @@ void DeclarationBuilder::abortDeclaration()
   m_declarationStack.pop();
 }
 
-/*void DeclarationBuilder::visitEnumSpecifier(EnumSpecifierast_node* node)
+/*void DeclarationBuilder::visitEnumSpecifier(EnumSpecifierAstNode* node)
 {
   openDefinition(node->name, node);
 
@@ -495,7 +497,7 @@ void DeclarationBuilder::abortDeclaration()
   closeDeclaration();
 }
 
-void DeclarationBuilder::visitEnumerator(Enumeratorast_node* node)
+void DeclarationBuilder::visitEnumerator(EnumeratorAstNode* node)
 {
   //Ugly hack: Since we want the identifier only to have the range of the id(not
   //the assigned expression), we change the range of the node temporarily
@@ -512,7 +514,7 @@ void DeclarationBuilder::visitEnumerator(Enumeratorast_node* node)
   closeDeclaration();
 }
 
-void DeclarationBuilder::visitClassSpecifier(ClassSpecifierast_node *node)
+void DeclarationBuilder::visitClassSpecifier(ClassSpecifierAstNode *node)
 {
   bool m_wasInTypedef = m_inTypedef;
   m_inTypedef = false;
@@ -549,7 +551,7 @@ void DeclarationBuilder::visitClassSpecifier(ClassSpecifierast_node *node)
 
     QList<Declaration*> declarations = Java::findDeclarationsSameLevel(currentContext(), id, pos);
 
-    AbstractType::Ptr newLastType;
+    AbstractType::Ptr newcurrentDeclaration;
 
     foreach( Declaration* decl, declarations ) {
       if( decl->abstractType()) {
@@ -614,8 +616,8 @@ void DeclarationBuilder::visitClassSpecifier(ClassSpecifierast_node *node)
       }
     }//foreach
 
-    if( newLastType )
-      setLastType(newLastType);
+    if( newcurrentDeclaration )
+      setcurrentDeclaration(newcurrentDeclaration);
   }//node-name
 
   closeDeclaration();
@@ -627,7 +629,7 @@ void DeclarationBuilder::visitClassSpecifier(ClassSpecifierast_node *node)
   m_inTypedef = m_wasInTypedef;
 }*/
 
-/*void DeclarationBuilder::visitUsingDirective(UsingDirectiveast_node * node)
+/*void DeclarationBuilder::visitUsingDirective(UsingDirectiveAstNode * node)
 {
   DeclarationBuilderBase::visitUsingDirective(node);
 
@@ -651,7 +653,7 @@ void DeclarationBuilder::visitClassSpecifier(ClassSpecifierast_node *node)
   }
 }*/
 
-/*void DeclarationBuilder::visitAccessSpecifier(AccessSpecifierast_node* node)
+/*void DeclarationBuilder::visitAccessSpecifier(AccessSpecifierAstNode* node)
 {
   if (node->specs) {
     const ListNode<std::size_t> *it = node->specs->toFront();
@@ -747,7 +749,7 @@ void DeclarationBuilder::parseFunctionSpecifiers(const ListNode<std::size_t>* fu
   m_functionSpecifiers.push(specs);
 }*/
 
-/*void DeclarationBuilder::visitParameterDeclaration(ParameterDeclarationast_node* node) {
+/*void DeclarationBuilder::visitParameterDeclaration(ParameterDeclarationAstNode* node) {
   DeclarationBuilderBase::visitParameterDeclaration(node);
   AbstractFunctionDeclaration* function = currentDeclaration<AbstractFunctionDeclaration>();
 
@@ -771,6 +773,7 @@ void DeclarationBuilder::popSpecifiers()
   m_storageSpecifiers.pop();
 }
 
+#if 0
 void DeclarationBuilder::applyStorageSpecifiers()
 {
   if (!m_storageSpecifiers.isEmpty() && m_storageSpecifiers.top() != 0)
@@ -792,6 +795,7 @@ void DeclarationBuilder::applyFunctionSpecifiers()
     function->setFunctionSpecifiers(m_functionSpecifiers.top());
   }
 }
+#endif
 
 void DeclarationBuilder::openContext(DUContext * newContext)
 {

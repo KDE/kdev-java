@@ -136,7 +136,7 @@ FloatingPoint   {Float1}|{Float2}|{Float3}|{Float4}|{HexFloat1}|{HexFloat2}
 [\n]            /* skip */ ;
 "*"+"/"         BEGIN(INITIAL);
 <<EOF>> {
-    m_parser->report_problem( Parser::error,
+    m_parser->reportProblem( Parser::error,
         "Encountered end of file in an unclosed block comment" );
     return Parser::Token_EOF;
 }
@@ -158,7 +158,7 @@ FloatingPoint   {Float1}|{Float2}|{Float3}|{Float4}|{HexFloat1}|{HexFloat2}
     if (m_parser->compatibility_mode() >= Parser::java15_compatibility)
         return Parser::Token_AT;
     else {
-        m_parser->report_problem( Parser::error,
+        m_parser->reportProblem( Parser::error,
             "Annotations are not supported by Java 1.4 or earlier" );
         return Parser::Token_INVALID;
     }
@@ -208,7 +208,7 @@ FloatingPoint   {Float1}|{Float2}|{Float3}|{Float4}|{HexFloat1}|{HexFloat2}
     if ( m_parser->compatibility_mode() >= Parser::java15_compatibility )
         return Parser::Token_ELLIPSIS;
     else {
-        m_parser->report_problem( Parser::error,
+        m_parser->reportProblem( Parser::error,
             "Variable-length argument lists are "
             "not supported by Java 1.4 or earlier" );
         return Parser::Token_INVALID;
@@ -233,7 +233,7 @@ FloatingPoint   {Float1}|{Float2}|{Float3}|{Float4}|{HexFloat1}|{HexFloat2}
 "char"          return Parser::Token_CHAR;
 "class"         return Parser::Token_CLASS;
 "const"         {
-    m_parser->report_problem( Parser::error,
+    m_parser->reportProblem( Parser::error,
         "\"const\": reserved but unused (invalid) keyword" );
     return Parser::Token_CONST;
 }
@@ -255,7 +255,7 @@ FloatingPoint   {Float1}|{Float2}|{Float3}|{Float4}|{HexFloat1}|{HexFloat2}
 "float"         return Parser::Token_FLOAT;
 "for"           return Parser::Token_FOR;
 "goto"          {
-    m_parser->report_problem( Parser::error,
+    m_parser->reportProblem( Parser::error,
         "\"goto\": reserved but unused (invalid) keyword" );
     return Parser::Token_GOTO;
 }
@@ -295,15 +295,15 @@ FloatingPoint   {Float1}|{Float2}|{Float3}|{Float4}|{HexFloat1}|{HexFloat2}
 
 [']({Escape}|{Multibyte}|[^\\\n\'])[']   return Parser::Token_CHARACTER_LITERAL;
 [']({Escape}|{Multibyte}|[\\][^\\\n\']|[^\\\n\'])*([\\]?[\n]|[']) {
-    m_parser->report_problem( Parser::error,
-        std::string("Invalid character literal: ") + yytext );
+    m_parser->reportProblem( Parser::error,
+        QString("Invalid character literal: %1").arg(yytext) );
     return Parser::Token_CHARACTER_LITERAL;
 }
 
 ["]({Escape}|{Multibyte}|[^\\\n\"])*["]  return Parser::Token_STRING_LITERAL;
 ["]({Escape}|{Multibyte}|[\\][^\\\n\"]|[^\\\n\"])*([\\]?[\n]|["]) {
-    m_parser->report_problem( Parser::error,
-        std::string("Invalid string literal: ") + yytext );
+    m_parser->reportProblem( Parser::error,
+        QString("Invalid string literal: %1").arg(yytext) );
     return Parser::Token_STRING_LITERAL;
 }
 

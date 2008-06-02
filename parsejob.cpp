@@ -42,8 +42,8 @@
 
 // from the parser subdirectory
 #include <parsesession.h>
-#include <java_parser.h>
-#include <java_default_visitor.h>
+#include <javaparser.h>
+#include <javadefaultvisitor.h>
 
 #include <ilanguage.h>
 
@@ -81,7 +81,7 @@ JavaLanguageSupport* ParseJob::java() const
     return static_cast<JavaLanguageSupport*>(const_cast<QObject*>(parent()));
 }
 
-ast_node *ParseJob::AST() const
+AstNode *ParseJob::AST() const
 {
     return 0;
 //     Q_ASSERT ( isFinished () && m_AST );
@@ -140,10 +140,10 @@ void ParseJob::run()
         return abortJob();
 
     // 0) setup
-    java::parser java_parser;
+    java::Parser java_parser;
     java_parser.set_compatibility_mode( m_session->compatibility_mode );
-    java_parser.set_token_stream( m_session->token_stream );
-    java_parser.set_memory_pool( m_session->memory_pool );
+    java_parser.setTokenStream( m_session->token_stream );
+    java_parser.setMemoryPool( m_session->memory_pool );
 
     // 1) tokenize
     java_parser.tokenize( (char*) m_session->contents() );
@@ -152,8 +152,8 @@ void ParseJob::run()
         return abortJob();
 
     // 2) parse
-    compilation_unit_ast *ast = 0;
-    bool matched = java_parser.parse_compilation_unit( &ast );
+    Compilation_unitAst *ast = 0;
+    bool matched = java_parser.parseCompilation_unit( &ast );
     //m_AST->language = java();
 
     if ( abortRequested() )
@@ -161,16 +161,17 @@ void ParseJob::run()
 
     if ( matched )
     {
-        default_visitor v;
-        v.visit_node( ast );
+        DefaultVisitor v;
+        v.visitNode( ast );
     }
     else
     {
-        java_parser.yy_expected_symbol(ast_node::Kind_compilation_unit, "compilation_unit"); // ### remove me
+        // FIXME
+        //java_parser.yy_expected_symbol(AstNode::Kind_compilation_unit, "compilation_unit"); // ### remove me
     }
 
     DumpTree dt;
-    dt.dump(ast, m_session->token_stream);
+    dt.dump(ast, m_session);
 
     // 3) Form definition-use chain
     java::EditorIntegrator editor(parseSession());

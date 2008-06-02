@@ -80,9 +80,8 @@
 ------------------------------------------------------------
 
 [:
-#include <string>
+#include <QtCore/QString>
 :]
-
 
 
 ------------------------------------------------------------
@@ -116,8 +115,7 @@
       warning,
       info
   };
-  void report_problem( Parser::problem_type type, const char* message );
-  void report_problem( Parser::problem_type type, std::string message );
+  void reportProblem( Parser::problem_type type, const QString& message );
 :]
 
 %parserclass (private declaration)
@@ -627,7 +625,7 @@
               modifiers, type, variable_declaratorSequence
             ]
           |
-            0 [: report_problem( error,
+            0 [: reportProblem( error,
                    "Expected method declaration after type parameter list" );
                :]
             SEMICOLON -- not really needed, but avoids conflict warnings
@@ -678,7 +676,7 @@
            modifiers, type, variable_declaratorSequence
          ]
        |
-         0 [: report_problem( error,
+         0 [: reportProblem( error,
                 "Expected method declaration after type parameter list" );
             :]
          SEMICOLON -- not really needed, but avoids conflict warnings
@@ -721,7 +719,7 @@
            modifiers, type, variable_declaratorSequence
          ]
        |
-         0 [: report_problem( error,
+         0 [: reportProblem( error,
                 "Expected method declaration after type parameter list" );
             :]
          SEMICOLON -- not really needed, but avoids conflict warnings
@@ -887,7 +885,7 @@
    -- if we are at the "top level" of nested type_parameters productions
    [: if (currentLtLevel == 0 && _M_state.ltCounter != currentLtLevel ) {
         if (!mBlockErrors) {
-          report_problem(error, "The amount of closing ``>'' characters is incorrect");
+          reportProblem(error, "The amount of closing ``>'' characters is incorrect");
         }
         return false;
       }
@@ -916,7 +914,7 @@
    -- if we are at the "top level" of nested type_arguments productions
    [: if (currentLtLevel == 0 && _M_state.ltCounter != currentLtLevel ) {
         if (!mBlockErrors) {
-          report_problem(error, "The amount of closing ``>'' characters is incorrect");
+          reportProblem(error, "The amount of closing ``>'' characters is incorrect");
         }
         return false;
       }
@@ -937,7 +935,7 @@
    -- if we are at the "top level" of nested type_arguments productions
    [: if (currentLtLevel == 0 && _M_state.ltCounter != currentLtLevel ) {
         if (!mBlockErrors) {
-          report_problem(error, "The amount of closing ``>'' characters is incorrect");
+          reportProblem(error, "The amount of closing ``>'' characters is incorrect");
         }
         return false;
       }

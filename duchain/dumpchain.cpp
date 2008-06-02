@@ -176,18 +176,19 @@ DumpChain::DumpChain()
 {
 }
 
-void DumpChain::dump( ast_node * node, ParseSession* session)
+void DumpChain::dump( AstNode * node, ParseSession* session)
 {
   delete m_editor;
   m_editor = 0;
 
-  if (session)
-    m_editor = new EditorIntegrator(session);
+  Q_ASSERT(session);
+  m_session = session;
+  m_editor = new EditorIntegrator(session);
 
-  visit_node(node);
+  visitNode(node);
 }
 
-void DumpChain::visit_node(ast_node *node)
+void DumpChain::visitNode(AstNode *node)
 {
   QString indentation;
   for( int a = 0; a < indent; a++ )
@@ -196,34 +197,33 @@ void DumpChain::visit_node(ast_node *node)
   if (node)
     if (m_editor) {
       QString nodeText;
-      for( std::size_t a = node->start_token; a != node->end_token; a++ ) {
-        const kdev_pg_token_stream::token_type& tok( m_editor->parseSession()->token_stream->token(a) );
+      for( qint64 a = node->startToken; a != node->endToken; a++ ) {
         if( !nodeText.isEmpty() )
           nodeText += ' ';
-        nodeText += QByteArray( tok.text + tok.begin, tok.end - tok.begin );
+        nodeText += m_session->symbol(a);
       }
       if( !nodeText.isEmpty() ) nodeText = "\"" + nodeText + "\"";
 
 
       kDebug(9007) << indentation <<  "\\" << names[node->kind - 1000]
-              << "[(" << node->start_token << ")" << m_editor->findPosition(node->start_token, EditorIntegrator::FrontEdge).textCursor() << /*", "
-              << m_editor->findPosition(node->end_token, EditorIntegrator::FrontEdge) <<*/ "]" << nodeText << endl;
+              << "[(" << node->startToken << ")" << m_editor->findPosition(node->startToken, EditorIntegrator::FrontEdge).textCursor() << /*", "
+              << m_editor->findPosition(node->endToken, EditorIntegrator::FrontEdge) <<*/ "]" << nodeText << endl;
     } else
       kDebug(9007) << indentation << "\\" << names[node->kind - 1000]
-              << "[" << node->start_token << "," << node->end_token << "]" << endl;
+              << "[" << node->startToken << "," << node->endToken << "]" << endl;
 
   ++indent;
-  default_visitor::visit_node(node);
+  DefaultVisitor::visitNode(node);
   --indent;
 
   if (node)
     if (m_editor)
       kDebug(9007) << indentation << "/" << names[node->kind - 1000]
-              << "[("  << node->end_token << ") "/*<< m_editor->findPosition(node->start_token, EditorIntegrator::FrontEdge) << ", "*/
-              << m_editor->findPosition(node->end_token, EditorIntegrator::FrontEdge).textCursor() << "]" << endl;
+              << "[("  << node->endToken << ") "/*<< m_editor->findPosition(node->startToken, EditorIntegrator::FrontEdge) << ", "*/
+              << m_editor->findPosition(node->endToken, EditorIntegrator::FrontEdge).textCursor() << "]" << endl;
     else
       kDebug(9007) << indentation << "/" << names[node->kind - 1000]
-              << "[" << node->start_token << "," << node->end_token << ']' << endl;
+              << "[" << node->startToken << "," << node->endToken << ']' << endl;
 }
 
 DumpChain::~ DumpChain( )

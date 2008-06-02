@@ -20,7 +20,7 @@
 #ifndef CONTEXTBUILDER_H
 #define CONTEXTBUILDER_H
 
-#include "java_default_visitor.h"
+#include "javadefaultvisitor.h"
 
 #include <QtCore/QSet>
 
@@ -54,7 +54,7 @@ class IdentifierCompiler;
 /**
  * A class which iterates the AST to identify contexts.
  */
-class ContextBuilder: protected default_visitor
+class ContextBuilder: protected DefaultVisitor
 {
   friend class IdentifierVerifier;
 
@@ -70,13 +70,13 @@ public:
    * \param includes contexts to reference from the top context.  The list may be changed by this function.
    * \param removeOldImports Should old imports that are not in the includes-list be removed?
    */
-  KDevelop::TopDUContext* buildContexts(const KDevelop::HashedString& url, ast_node *node, const KDevelop::TopDUContextPointer& updateContext = KDevelop::TopDUContextPointer(), bool removeOldImports = true);
+  KDevelop::TopDUContext* buildContexts(const KDevelop::HashedString& url, AstNode *node, const KDevelop::TopDUContextPointer& updateContext = KDevelop::TopDUContextPointer(), bool removeOldImports = true);
 
   /**
    * Support another builder by tracking the current context.
    * @param context the context to use. Must be set when the given node has no context. When it has one attached, this parameter is not needed.
    */
-  void supportBuild(ast_node *node, KDevelop::DUContext* context = 0);
+  void supportBuild(AstNode *node, KDevelop::DUContext* context = 0);
 
 protected:
   inline KDevelop::DUContext* currentContext() { return m_contextStack.top(); }
@@ -96,13 +96,13 @@ protected:
   }
 
   /**
-   * Compile an identifier for the specified ast_node \a id.
+   * Compile an identifier for the specified AstNode \a id.
    *
    * \note this reference will only be valid until the next time the function
    * is called, so you need to create a copy (store as non-reference).
    * @param typeSpecifier a pointer that will eventually be filled with a type-specifier that can be found in the name(for example the return-type of a cast-operator)
    */
-  KDevelop::QualifiedIdentifier identifierForName(ast_node* id) const;
+  KDevelop::QualifiedIdentifier identifierForName(AstNode* id) const;
 
   EditorIntegrator* m_editor;
   // Notifications for subclasses
@@ -111,25 +111,25 @@ protected:
   inline void setRecompiling(bool recomp) { m_recompiling = recomp; }
 
   // Visitors
-  virtual void visit_class_declaration(class_declaration_ast *node);
-  virtual void visit_method_declaration(method_declaration_ast *node);
-  virtual void visit_optional_parameter_declaration_list(optional_parameter_declaration_list_ast *node);
+  virtual void visitClass_declaration(Class_declarationAst *node);
+  virtual void visitMethod_declaration(Method_declarationAst *node);
+  virtual void visitOptional_parameter_declaration_list(Optional_parameter_declaration_listAst *node);
 
   // Write lock is already held here...
   virtual void openContext(KDevelop::DUContext* newContext);
   // Write lock is already held here...
   virtual void closeContext();
 
-  KDevelop::DUContext* openContext(ast_node* range, KDevelop::DUContext::ContextType type, const KDevelop::QualifiedIdentifier& identifier);
-  KDevelop::DUContext* openContext(ast_node* range, KDevelop::DUContext::ContextType type, ast_node* identifier = 0);
-  KDevelop::DUContext* openContext(ast_node* fromRange, ast_node* toRange, KDevelop::DUContext::ContextType type, ast_node* identifier = 0);
+  KDevelop::DUContext* openContext(AstNode* range, KDevelop::DUContext::ContextType type, const KDevelop::QualifiedIdentifier& identifier);
+  KDevelop::DUContext* openContext(AstNode* range, KDevelop::DUContext::ContextType type, AstNode* identifier = 0);
+  KDevelop::DUContext* openContext(AstNode* fromRange, AstNode* toRange, KDevelop::DUContext::ContextType type, AstNode* identifier = 0);
   //Opens a context of size 0, starting at the given node
-  KDevelop::DUContext* openContextEmpty(ast_node* range, KDevelop::DUContext::ContextType type);
+  KDevelop::DUContext* openContextEmpty(AstNode* range, KDevelop::DUContext::ContextType type);
 
   KDevelop::DUContext* openContextInternal(const KDevelop::SimpleRange& range, KDevelop::DUContext::ContextType type, const KDevelop::QualifiedIdentifier& identifier);
 
-  //bool createContextIfNeeded(ast_node* node, const QList<KDevelop::DUContext*>& importedParentContexts);
-  //bool createContextIfNeeded(ast_node* node, KDevelop::DUContext* importedParentContext);
+  //bool createContextIfNeeded(AstNode* node, const QList<KDevelop::DUContext*>& importedParentContexts);
+  //bool createContextIfNeeded(AstNode* node, KDevelop::DUContext* importedParentContext);
   //void addImportedContexts();
 
   //void smartenContext(KDevelop::TopDUContext* topLevelContext);

@@ -36,12 +36,7 @@
 namespace java
 {
 
-void Parser::report_problem( Parser::problem_type type, std::string message )
-{
-  report_problem( type, message.c_str() );
-}
-
-void Parser::report_problem( Parser::problem_type type, const char* message )
+void Parser::reportProblem( Parser::problem_type type, const QString& message )
 {
   if (type == error)
     kDebug() << "** ERROR: " << message;
@@ -53,29 +48,27 @@ void Parser::report_problem( Parser::problem_type type, const char* message )
 
 
 // custom error recovery
-#if 0
-void Parser::yy_expected_token(int /*expected*/, std::size_t /*where*/, char const *name)
+void Parser::expectedToken(int /*expected*/, qint64 /*where*/, const QString& name)
 {
   // print_token_environment(this);
-  report_problem(
+  reportProblem(
     Parser::error,
-    std::string("Expected token ``") + name
+    QString("Expected token ``%1").arg(name)
       //+ "'' instead of ``" + current_token_text
       + "''"
   );
 }
 
-void Parser::yy_expected_symbol(int /*expected_symbol*/, char const *name)
+void Parser::expectedSymbol(int /*expected_symbol*/, const QString& name)
 {
   // print_token_environment(this);
-  report_problem(
+  reportProblem(
     Parser::error,
-    std::string("Expected symbol ``") + name
+    QString("Expected symbol ``%1").arg(name)
       //+ "'' instead of ``" + current_token_text
       + "''"
   );
 }
-#endif
 
 } // end of namespace java
 

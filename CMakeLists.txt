@@ -22,6 +22,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/parser/duchain
     ${CMAKE_CURRENT_BINARY_DIR}/parser
     ${KDE4_INCLUDE_DIR}/threadweaver
+    ${KDE4_INCLUDE_DIR}/kdevelop-pg-qt
     ${KDEVPLATFORM_INCLUDE_DIR}
     ${KDEVPLATFORM_INCLUDE_DIR}/interfaces
     ${KDEVPLATFORM_INCLUDE_DIR}/editor
