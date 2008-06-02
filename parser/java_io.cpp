@@ -23,7 +23,7 @@
 // but will rather be placed as items inside some listbox.
 
 
-#include "java_parser.h"
+#include "javaparser.h"
 #include "java_lexer.h"
 
 #include <iostream>
@@ -36,12 +36,12 @@
 namespace java
 {
 
-void parser::report_problem( parser::problem_type type, std::string message )
+void Parser::report_problem( Parser::problem_type type, std::string message )
 {
   report_problem( type, message.c_str() );
 }
 
-void parser::report_problem( parser::problem_type type, const char* message )
+void Parser::report_problem( Parser::problem_type type, const char* message )
 {
   if (type == error)
     kDebug() << "** ERROR: " << message;
@@ -53,27 +53,29 @@ void parser::report_problem( parser::problem_type type, const char* message )
 
 
 // custom error recovery
-void parser::yy_expected_token(int /*expected*/, std::size_t /*where*/, char const *name)
+#if 0
+void Parser::yy_expected_token(int /*expected*/, std::size_t /*where*/, char const *name)
 {
   // print_token_environment(this);
   report_problem(
-    parser::error,
+    Parser::error,
     std::string("Expected token ``") + name
       //+ "'' instead of ``" + current_token_text
       + "''"
   );
 }
 
-void parser::yy_expected_symbol(int /*expected_symbol*/, char const *name)
+void Parser::yy_expected_symbol(int /*expected_symbol*/, char const *name)
 {
   // print_token_environment(this);
   report_problem(
-    parser::error,
+    Parser::error,
     std::string("Expected symbol ``") + name
       //+ "'' instead of ``" + current_token_text
       + "''"
   );
 }
+#endif
 
 } // end of namespace java
 

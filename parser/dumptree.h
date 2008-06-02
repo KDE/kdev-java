@@ -20,25 +20,29 @@
 #ifndef DUMPTREE_H
 #define DUMPTREE_H
 
-#include "java_default_visitor.h"
+#include "javadefaultvisitor.h"
 
-class kdev_pg_token_stream;
+namespace java {
 
-class DumpTree: protected java::default_visitor
+class ParseSession;
+
+class DumpTree: protected java::DefaultVisitor
 {
 public:
   DumpTree();
   virtual ~DumpTree();
 
-  void dump(java::ast_node *node, kdev_pg_token_stream* tokenStream = 0);
+  void dump(java::AstNode *node, ParseSession* parseSession = 0);
 
 protected:
-  virtual void visit_node(java::ast_node *node);
+  virtual void visitNode(java::AstNode *node);
 
 private:
-  kdev_pg_token_stream* m_tokenStream;
+  ParseSession* m_parseSession;
   int indent;
 };
+
+}
 
 #endif // DUMPTREE_H
 

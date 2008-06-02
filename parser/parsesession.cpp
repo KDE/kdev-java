@@ -29,9 +29,9 @@ namespace java
 {
 
 ParseSession::ParseSession()
-        : memory_pool( new parser::memory_pool_type )
-        , token_stream( new parser::token_stream_type )
-        , compatibility_mode( parser::java15_compatibility )
+    : memory_pool( new Parser::memoryPoolType )
+    , token_stream( new KDevPG::TokenStream )
+    , compatibility_mode( Parser::java15_compatibility )
 {
 }
 
@@ -41,14 +41,14 @@ ParseSession::~ParseSession()
     delete token_stream;
 }
 
-KDevelop::SimpleCursor ParseSession::positionAt( std::size_t offset ) const
+KDevelop::SimpleCursor ParseSession::positionAt( qint64 offset ) const
 {
-    int line, column;
-    token_stream->location_table()->position_at( offset, &line, &column );
+    qint64 line, column;
+    token_stream->locationTable()->positionAt( offset, &line, &column );
     return KDevelop::SimpleCursor(line, column);
 }
 
-std::size_t ParseSession::size() const
+qint64 ParseSession::size() const
 {
     return m_contents.size();
 }
@@ -65,10 +65,10 @@ void ParseSession::setContents( const QByteArray & contents )
 
 } // end of namespace java
 
-QString java::ParseSession::symbol(std::size_t token) const
+QString java::ParseSession::symbol(qint64 token) const
 {
-    const kdev_pg_token_stream::token_type& tok = token_stream->token(token);
-    return QString::fromUtf8(tok.text + tok.begin, tok.end - tok.begin);
+    const KDevPG::TokenStream::Token& tok = token_stream->token(token);
+    return QString::fromUtf8(m_contents.constData() + tok.begin, tok.end - tok.begin);
 }
 
 QString java::ParseSession::unify(const QString & str) const

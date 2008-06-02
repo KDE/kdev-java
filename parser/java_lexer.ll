@@ -136,189 +136,189 @@ FloatingPoint   {Float1}|{Float2}|{Float3}|{Float4}|{HexFloat1}|{HexFloat2}
 [\n]            /* skip */ ;
 "*"+"/"         BEGIN(INITIAL);
 <<EOF>> {
-    m_parser->report_problem( parser::error,
+    m_parser->report_problem( Parser::error,
         "Encountered end of file in an unclosed block comment" );
-    return parser::Token_EOF;
+    return Parser::Token_EOF;
 }
 }
 
 
  /* seperators */
 
-"("             return parser::Token_LPAREN;
-")"             return parser::Token_RPAREN;
-"{"             return parser::Token_LBRACE;
-"}"             return parser::Token_RBRACE;
-"["             return parser::Token_LBRACKET;
-"]"             return parser::Token_RBRACKET;
-","             return parser::Token_COMMA;
-";"             return parser::Token_SEMICOLON;
-"."             return parser::Token_DOT;
+"("             return Parser::Token_LPAREN;
+")"             return Parser::Token_RPAREN;
+"{"             return Parser::Token_LBRACE;
+"}"             return Parser::Token_RBRACE;
+"["             return Parser::Token_LBRACKET;
+"]"             return Parser::Token_RBRACKET;
+","             return Parser::Token_COMMA;
+";"             return Parser::Token_SEMICOLON;
+"."             return Parser::Token_DOT;
 "@"             {
-    if (m_parser->compatibility_mode() >= parser::java15_compatibility)
-        return parser::Token_AT;
+    if (m_parser->compatibility_mode() >= Parser::java15_compatibility)
+        return Parser::Token_AT;
     else {
-        m_parser->report_problem( parser::error,
+        m_parser->report_problem( Parser::error,
             "Annotations are not supported by Java 1.4 or earlier" );
-        return parser::Token_INVALID;
+        return Parser::Token_INVALID;
     }
 }
 
 
  /* operators */
 
-"?"             return parser::Token_QUESTION;
-":"             return parser::Token_COLON;
-"!"             return parser::Token_BANG;
-"~"             return parser::Token_TILDE;
-"=="            return parser::Token_EQUAL;
-"<"             return parser::Token_LESS_THAN;
-"<="            return parser::Token_LESS_EQUAL;
-">"             return parser::Token_GREATER_THAN;
-">="            return parser::Token_GREATER_EQUAL;
-"!="            return parser::Token_NOT_EQUAL;
-"&&"            return parser::Token_LOG_AND;
-"||"            return parser::Token_LOG_OR;
-"++"            return parser::Token_INCREMENT;
-"--"            return parser::Token_DECREMENT;
-"="             return parser::Token_ASSIGN;
-"+"             return parser::Token_PLUS;
-"+="            return parser::Token_PLUS_ASSIGN;
-"-"             return parser::Token_MINUS;
-"-="            return parser::Token_MINUS_ASSIGN;
-"*"             return parser::Token_STAR;
-"*="            return parser::Token_STAR_ASSIGN;
-"/"             return parser::Token_SLASH;
-"/="            return parser::Token_SLASH_ASSIGN;
-"&"             return parser::Token_BIT_AND;
-"&="            return parser::Token_BIT_AND_ASSIGN;
-"|"             return parser::Token_BIT_OR;
-"|="            return parser::Token_BIT_OR_ASSIGN;
-"^"             return parser::Token_BIT_XOR;
-"^="            return parser::Token_BIT_XOR_ASSIGN;
-"%"             return parser::Token_REMAINDER;
-"%="            return parser::Token_REMAINDER_ASSIGN;
-"<<"            return parser::Token_LSHIFT;
-"<<="           return parser::Token_LSHIFT_ASSIGN;
-">>"            return parser::Token_SIGNED_RSHIFT;
-">>="           return parser::Token_SIGNED_RSHIFT_ASSIGN;
-">>>"           return parser::Token_UNSIGNED_RSHIFT;
-">>>="          return parser::Token_UNSIGNED_RSHIFT_ASSIGN;
+"?"             return Parser::Token_QUESTION;
+":"             return Parser::Token_COLON;
+"!"             return Parser::Token_BANG;
+"~"             return Parser::Token_TILDE;
+"=="            return Parser::Token_EQUAL;
+"<"             return Parser::Token_LESS_THAN;
+"<="            return Parser::Token_LESS_EQUAL;
+">"             return Parser::Token_GREATER_THAN;
+">="            return Parser::Token_GREATER_EQUAL;
+"!="            return Parser::Token_NOT_EQUAL;
+"&&"            return Parser::Token_LOG_AND;
+"||"            return Parser::Token_LOG_OR;
+"++"            return Parser::Token_INCREMENT;
+"--"            return Parser::Token_DECREMENT;
+"="             return Parser::Token_ASSIGN;
+"+"             return Parser::Token_PLUS;
+"+="            return Parser::Token_PLUS_ASSIGN;
+"-"             return Parser::Token_MINUS;
+"-="            return Parser::Token_MINUS_ASSIGN;
+"*"             return Parser::Token_STAR;
+"*="            return Parser::Token_STAR_ASSIGN;
+"/"             return Parser::Token_SLASH;
+"/="            return Parser::Token_SLASH_ASSIGN;
+"&"             return Parser::Token_BIT_AND;
+"&="            return Parser::Token_BIT_AND_ASSIGN;
+"|"             return Parser::Token_BIT_OR;
+"|="            return Parser::Token_BIT_OR_ASSIGN;
+"^"             return Parser::Token_BIT_XOR;
+"^="            return Parser::Token_BIT_XOR_ASSIGN;
+"%"             return Parser::Token_REMAINDER;
+"%="            return Parser::Token_REMAINDER_ASSIGN;
+"<<"            return Parser::Token_LSHIFT;
+"<<="           return Parser::Token_LSHIFT_ASSIGN;
+">>"            return Parser::Token_SIGNED_RSHIFT;
+">>="           return Parser::Token_SIGNED_RSHIFT_ASSIGN;
+">>>"           return Parser::Token_UNSIGNED_RSHIFT;
+">>>="          return Parser::Token_UNSIGNED_RSHIFT_ASSIGN;
 "..."           {
-    if ( m_parser->compatibility_mode() >= parser::java15_compatibility )
-        return parser::Token_ELLIPSIS;
+    if ( m_parser->compatibility_mode() >= Parser::java15_compatibility )
+        return Parser::Token_ELLIPSIS;
     else {
-        m_parser->report_problem( parser::error,
+        m_parser->report_problem( Parser::error,
             "Variable-length argument lists are "
             "not supported by Java 1.4 or earlier" );
-        return parser::Token_INVALID;
+        return Parser::Token_INVALID;
     }
 }
 
 
  /* reserved words */
 
-"abstract"      return parser::Token_ABSTRACT;
+"abstract"      return Parser::Token_ABSTRACT;
 "assert"        {
-    if ( m_parser->compatibility_mode() >= parser::java14_compatibility )
-        return parser::Token_ASSERT;
+    if ( m_parser->compatibility_mode() >= Parser::java14_compatibility )
+        return Parser::Token_ASSERT;
     else
-        return parser::Token_IDENTIFIER;
+        return Parser::Token_IDENTIFIER;
 }
-"boolean"       return parser::Token_BOOLEAN;
-"break"         return parser::Token_BREAK;
-"byte"          return parser::Token_BYTE;
-"case"          return parser::Token_CASE;
-"catch"         return parser::Token_CATCH;
-"char"          return parser::Token_CHAR;
-"class"         return parser::Token_CLASS;
+"boolean"       return Parser::Token_BOOLEAN;
+"break"         return Parser::Token_BREAK;
+"byte"          return Parser::Token_BYTE;
+"case"          return Parser::Token_CASE;
+"catch"         return Parser::Token_CATCH;
+"char"          return Parser::Token_CHAR;
+"class"         return Parser::Token_CLASS;
 "const"         {
-    m_parser->report_problem( parser::error,
+    m_parser->report_problem( Parser::error,
         "\"const\": reserved but unused (invalid) keyword" );
-    return parser::Token_CONST;
+    return Parser::Token_CONST;
 }
-"continue"      return parser::Token_CONTINUE;
-"default"       return parser::Token_DEFAULT;
-"do"            return parser::Token_DO;
-"double"        return parser::Token_DOUBLE;
-"else"          return parser::Token_ELSE;
+"continue"      return Parser::Token_CONTINUE;
+"default"       return Parser::Token_DEFAULT;
+"do"            return Parser::Token_DO;
+"double"        return Parser::Token_DOUBLE;
+"else"          return Parser::Token_ELSE;
 "enum"          {
-    if ( m_parser->compatibility_mode() >= parser::java15_compatibility )
-        return parser::Token_ENUM;
+    if ( m_parser->compatibility_mode() >= Parser::java15_compatibility )
+        return Parser::Token_ENUM;
     else
-        return parser::Token_IDENTIFIER;
+        return Parser::Token_IDENTIFIER;
 }
-"extends"       return parser::Token_EXTENDS;
-"false"         return parser::Token_FALSE;
-"final"         return parser::Token_FINAL;
-"finally"       return parser::Token_FINALLY;
-"float"         return parser::Token_FLOAT;
-"for"           return parser::Token_FOR;
+"extends"       return Parser::Token_EXTENDS;
+"false"         return Parser::Token_FALSE;
+"final"         return Parser::Token_FINAL;
+"finally"       return Parser::Token_FINALLY;
+"float"         return Parser::Token_FLOAT;
+"for"           return Parser::Token_FOR;
 "goto"          {
-    m_parser->report_problem( parser::error,
+    m_parser->report_problem( Parser::error,
         "\"goto\": reserved but unused (invalid) keyword" );
-    return parser::Token_GOTO;
+    return Parser::Token_GOTO;
 }
-"if"            return parser::Token_IF;
-"implements"    return parser::Token_IMPLEMENTS;
-"import"        return parser::Token_IMPORT;
-"instanceof"    return parser::Token_INSTANCEOF;
-"int"           return parser::Token_INT;
-"interface"     return parser::Token_INTERFACE;
-"long"          return parser::Token_LONG;
-"native"        return parser::Token_NATIVE;
-"new"           return parser::Token_NEW;
-"null"          return parser::Token_NULL;
-"package"       return parser::Token_PACKAGE;
-"private"       return parser::Token_PRIVATE;
-"protected"     return parser::Token_PROTECTED;
-"public"        return parser::Token_PUBLIC;
-"return"        return parser::Token_RETURN;
-"short"         return parser::Token_SHORT;
-"static"        return parser::Token_STATIC;
-"strictfp"      return parser::Token_STRICTFP;
-"super"         return parser::Token_SUPER;
-"switch"        return parser::Token_SWITCH;
-"synchronized"  return parser::Token_SYNCHRONIZED;
-"this"          return parser::Token_THIS;
-"throw"         return parser::Token_THROW;
-"throws"        return parser::Token_THROWS;
-"transient"     return parser::Token_TRANSIENT;
-"true"          return parser::Token_TRUE;
-"try"           return parser::Token_TRY;
-"void"          return parser::Token_VOID;
-"volatile"      return parser::Token_VOLATILE;
-"while"         return parser::Token_WHILE;
+"if"            return Parser::Token_IF;
+"implements"    return Parser::Token_IMPLEMENTS;
+"import"        return Parser::Token_IMPORT;
+"instanceof"    return Parser::Token_INSTANCEOF;
+"int"           return Parser::Token_INT;
+"interface"     return Parser::Token_INTERFACE;
+"long"          return Parser::Token_LONG;
+"native"        return Parser::Token_NATIVE;
+"new"           return Parser::Token_NEW;
+"null"          return Parser::Token_NULL;
+"package"       return Parser::Token_PACKAGE;
+"private"       return Parser::Token_PRIVATE;
+"protected"     return Parser::Token_PROTECTED;
+"public"        return Parser::Token_PUBLIC;
+"return"        return Parser::Token_RETURN;
+"short"         return Parser::Token_SHORT;
+"static"        return Parser::Token_STATIC;
+"strictfp"      return Parser::Token_STRICTFP;
+"super"         return Parser::Token_SUPER;
+"switch"        return Parser::Token_SWITCH;
+"synchronized"  return Parser::Token_SYNCHRONIZED;
+"this"          return Parser::Token_THIS;
+"throw"         return Parser::Token_THROW;
+"throws"        return Parser::Token_THROWS;
+"transient"     return Parser::Token_TRANSIENT;
+"true"          return Parser::Token_TRUE;
+"try"           return Parser::Token_TRY;
+"void"          return Parser::Token_VOID;
+"volatile"      return Parser::Token_VOLATILE;
+"while"         return Parser::Token_WHILE;
 
 
  /* characters and strings */
 
-[']({Escape}|{Multibyte}|[^\\\n\'])[']   return parser::Token_CHARACTER_LITERAL;
+[']({Escape}|{Multibyte}|[^\\\n\'])[']   return Parser::Token_CHARACTER_LITERAL;
 [']({Escape}|{Multibyte}|[\\][^\\\n\']|[^\\\n\'])*([\\]?[\n]|[']) {
-    m_parser->report_problem( parser::error,
+    m_parser->report_problem( Parser::error,
         std::string("Invalid character literal: ") + yytext );
-    return parser::Token_CHARACTER_LITERAL;
+    return Parser::Token_CHARACTER_LITERAL;
 }
 
-["]({Escape}|{Multibyte}|[^\\\n\"])*["]  return parser::Token_STRING_LITERAL;
+["]({Escape}|{Multibyte}|[^\\\n\"])*["]  return Parser::Token_STRING_LITERAL;
 ["]({Escape}|{Multibyte}|[\\][^\\\n\"]|[^\\\n\"])*([\\]?[\n]|["]) {
-    m_parser->report_problem( parser::error,
+    m_parser->report_problem( Parser::error,
         std::string("Invalid string literal: ") + yytext );
-    return parser::Token_STRING_LITERAL;
+    return Parser::Token_STRING_LITERAL;
 }
 
 
  /* identifiers and number literals */
 
-{Letter}({Letter}|{Digit})*  return parser::Token_IDENTIFIER;
+{Letter}({Letter}|{Digit})*  return Parser::Token_IDENTIFIER;
 
-{IntegerLiteral}   return parser::Token_INTEGER_LITERAL;
-{FloatingPoint}    return parser::Token_FLOATING_POINT_LITERAL;
+{IntegerLiteral}   return Parser::Token_INTEGER_LITERAL;
+{FloatingPoint}    return Parser::Token_FLOATING_POINT_LITERAL;
 
 
  /* everything else is not a valid lexeme */
 
-.                  return parser::Token_INVALID;
+.                  return Parser::Token_INVALID;
 
 %%
 

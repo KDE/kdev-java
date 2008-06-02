@@ -1,6 +1,7 @@
 
 include_directories(
     ${KDE4_INCLUDES}
+    ${KDE4_INCLUDE_DIR}/kdevelop-pg-qt
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${KDEVPLATFORM_INCLUDE_DIR}
     ${KDEVPLATFORM_INCLUDE_DIR}/interfaces
@@ -27,15 +28,15 @@ kdevpgqt_generate(_kdevpgList java NAMESPACE java DEBUG_VISITOR
 )
 
 set(kdevjavaparser_STAT_SRCS
-    decoder.cpp
     java_io.cpp
     parsesession.cpp
     dumptree.cpp
     ${_kdevpgList}
 )
 
+find_package(Flex)
 
-if(FLEX_EXECUTABLE)
+if(FLEX_FOUND)
     # Copy java_lexer.ll to the builddir, so that flex doesn't write out
     # absolute paths in the generated file when we pass them as arguments.
     # In short, I don't want stuff like
@@ -55,13 +56,13 @@ if(FLEX_EXECUTABLE)
     add_custom_command(
         OUTPUT  "${CMAKE_CURRENT_BINARY_DIR}/java_lexer.cpp"
         MAIN_DEPENDENCY "${CMAKE_CURRENT_BINARY_DIR}/java_lexer.ll"
-        DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/java_parser.h"
+        DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/javaparser.h"
         COMMAND ${FLEX_EXECUTABLE}
         ARGS    -o"java_lexer.cpp"
                 "java_lexer.ll"
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
-else(FLEX_EXECUTABLE)
+else(FLEX_FOUND)
     # If flex is not available, copy the pre-generated lexer from SVN.
     add_custom_command(
         OUTPUT  "${CMAKE_CURRENT_BINARY_DIR}/java_lexer.cpp"
@@ -71,7 +72,7 @@ else(FLEX_EXECUTABLE)
                 "${CMAKE_CURRENT_BINARY_DIR}/java_lexer.cpp"
         COMMENT "flex is not installed, using the pre-generated lexer from SVN."
     )
-endif(FLEX_EXECUTABLE)
+endif(FLEX_FOUND)
 
 set(kdevjavaparser_STAT_SRCS
     ${kdevjavaparser_STAT_SRCS}
@@ -90,23 +91,23 @@ add_custom_target( copy-generated
 
 # 1. copy the kdev-pg generated files for the java parser
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${CMAKE_CURRENT_BINARY_DIR}/java_ast.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/generated/java_ast.h"
+            "${CMAKE_CURRENT_BINARY_DIR}/javaast.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/generated/javaast.h"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${CMAKE_CURRENT_BINARY_DIR}/java_parser.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/generated/java_parser.h"
+            "${CMAKE_CURRENT_BINARY_DIR}/javaparser.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/generated/javaparser.h"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${CMAKE_CURRENT_BINARY_DIR}/java_parser.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/generated/java_parser.cpp"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${CMAKE_CURRENT_BINARY_DIR}/java_visitor.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/generated/java_visitor.h"
+            "${CMAKE_CURRENT_BINARY_DIR}/javavisitor.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/generated/javavisitor.h"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${CMAKE_CURRENT_BINARY_DIR}/java_visitor.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/generated/java_visitor.cpp"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${CMAKE_CURRENT_BINARY_DIR}/java_default_visitor.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/generated/java_default_visitor.h"
+            "${CMAKE_CURRENT_BINARY_DIR}/javadefaultvisitor.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/generated/javadefaultvisitor.h"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${CMAKE_CURRENT_BINARY_DIR}/java_default_visitor.cpp"
             "${CMAKE_CURRENT_SOURCE_DIR}/generated/java_default_visitor.cpp"
@@ -118,12 +119,12 @@ add_custom_target( copy-generated
             "${CMAKE_CURRENT_SOURCE_DIR}/generated/java_lexer.cpp"
 
 # 2. depend on the files being copied
-    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/java_ast.h"
-            "${CMAKE_CURRENT_BINARY_DIR}/java_parser.h"
+    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/javaast.h"
+            "${CMAKE_CURRENT_BINARY_DIR}/javaparser.h"
             "${CMAKE_CURRENT_BINARY_DIR}/java_parser.cpp"
-            "${CMAKE_CURRENT_BINARY_DIR}/java_visitor.h"
+            "${CMAKE_CURRENT_BINARY_DIR}/javavisitor.h"
             "${CMAKE_CURRENT_BINARY_DIR}/java_visitor.cpp"
-            "${CMAKE_CURRENT_BINARY_DIR}/java_default_visitor.h"
+            "${CMAKE_CURRENT_BINARY_DIR}/javadefaultvisitor.h"
             "${CMAKE_CURRENT_BINARY_DIR}/java_default_visitor.cpp"
             "${CMAKE_CURRENT_BINARY_DIR}/java_serialize_visitor.h"
             "${CMAKE_CURRENT_BINARY_DIR}/java_lexer.cpp"

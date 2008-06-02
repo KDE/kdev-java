@@ -24,7 +24,7 @@
 
 #include <QtCore/QByteArray>
 
-#include "java_parser.h"
+#include "javaparser.h"
 
 #include <editor/simplecursor.h>
 
@@ -44,17 +44,17 @@ public:
    *
    * \note the line starts from 0.
    */
-  KDevelop::SimpleCursor positionAt( std::size_t offset ) const;
+  KDevelop::SimpleCursor positionAt( qint64 offset ) const;
 
   void setContents( const QByteArray& contents );
 
   const char *contents() const;
-  std::size_t size() const;
-  parser::memory_pool_type *memory_pool;
-  parser::token_stream_type *token_stream;
-  parser::java_compatibility_mode compatibility_mode;
+  qint64 size() const;
+  Parser::memoryPoolType *memory_pool;
+  KDevPG::TokenStream *token_stream;
+  Parser::java_compatibility_mode compatibility_mode;
 
-  QString symbol(std::size_t token) const;
+  QString symbol(qint64 token) const;
 
     /// This saves memory by sharing the strings using a global string repository
     /// \note Unimplemented

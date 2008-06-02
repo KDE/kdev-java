@@ -108,21 +108,21 @@
       java15_compatibility = 150
   };
 
-  parser::java_compatibility_mode compatibility_mode();
-  void set_compatibility_mode( parser::java_compatibility_mode mode );
+  Parser::java_compatibility_mode compatibility_mode();
+  void set_compatibility_mode( Parser::java_compatibility_mode mode );
 
   enum problem_type {
       error,
       warning,
       info
   };
-  void report_problem( parser::problem_type type, const char* message );
-  void report_problem( parser::problem_type type, std::string message );
+  void report_problem( Parser::problem_type type, const char* message );
+  void report_problem( Parser::problem_type type, std::string message );
 :]
 
 %parserclass (private declaration)
 [:
-  parser::java_compatibility_mode _M_compatibility_mode;
+  Parser::java_compatibility_mode _M_compatibility_mode;
 
   struct parser_state {
       // ltCounter stores the amount of currently open type arguments rules,
@@ -578,7 +578,7 @@
          #variable_declarator:variable_declarator @ COMMA
          SEMICOLON
          constant_declaration=variable_declaration_data[
-           modifiers, type, variable_declarator_sequence
+           modifiers, type, variable_declaratorSequence
          ]
       )
    )
@@ -624,7 +624,7 @@
             #variable_declarator:variable_declarator @ COMMA
             SEMICOLON
             variable_declaration=variable_declaration_data[
-              modifiers, type, variable_declarator_sequence
+              modifiers, type, variable_declaratorSequence
             ]
           |
             0 [: report_problem( error,
@@ -675,7 +675,7 @@
          #variable_declarator:variable_declarator @ COMMA
          SEMICOLON
          variable_declaration=variable_declaration_data[
-           modifiers, type, variable_declarator_sequence
+           modifiers, type, variable_declaratorSequence
          ]
        |
          0 [: report_problem( error,
@@ -718,7 +718,7 @@
          #variable_declarator:variable_declarator @ COMMA
          SEMICOLON
          variable_declaration=variable_declaration_data[
-           modifiers, type, variable_declarator_sequence
+           modifiers, type, variable_declaratorSequence
          ]
        |
          0 [: report_problem( error,
@@ -886,7 +886,7 @@
    -- make sure we have gobbled up enough '>' characters
    -- if we are at the "top level" of nested type_parameters productions
    [: if (currentLtLevel == 0 && _M_state.ltCounter != currentLtLevel ) {
-        if (!yy_block_errors) {
+        if (!mBlockErrors) {
           report_problem(error, "The amount of closing ``>'' characters is incorrect");
         }
         return false;
@@ -915,7 +915,7 @@
    -- make sure we have gobbled up enough '>' characters
    -- if we are at the "top level" of nested type_arguments productions
    [: if (currentLtLevel == 0 && _M_state.ltCounter != currentLtLevel ) {
-        if (!yy_block_errors) {
+        if (!mBlockErrors) {
           report_problem(error, "The amount of closing ``>'' characters is incorrect");
         }
         return false;
@@ -936,7 +936,7 @@
    -- make sure we have gobbled up enough '>' characters
    -- if we are at the "top level" of nested type_arguments productions
    [: if (currentLtLevel == 0 && _M_state.ltCounter != currentLtLevel ) {
-        if (!yy_block_errors) {
+        if (!mBlockErrors) {
           report_problem(error, "The amount of closing ``>'' characters is incorrect");
         }
         return false;
@@ -1026,7 +1026,7 @@
    modifiers:optional_modifiers type:type
    #variable_declarator:variable_declarator @ COMMA
    data=variable_declaration_data[
-     modifiers, type, variable_declarator_sequence
+     modifiers, type, variable_declaratorSequence
    ]
 -> variable_declaration ;;
 
@@ -1079,7 +1079,7 @@
 -- declarations in for_control and catch_clause to the standard format. Unity!
 
    0 [:
-     variable_declarator_ast* declarator = create<variable_declarator_ast>();
+     Variable_declaratorAst* declarator = create<Variable_declaratorAst>();
      declarator->variable_name       = parameter_declaration->variable_name;
      declarator->declarator_brackets = parameter_declaration->declarator_brackets;
 
@@ -1088,22 +1088,22 @@
      else
        declarator->initializer         = 0;
 
-     declarator_sequence = snoc(declarator_sequence, declarator, memory_pool);
+     declaratorSequence = snoc(declaratorSequence, declarator, memoryPool);
 
-     if (rest && rest->variable_declarator_sequence)
+     if (rest && rest->variable_declaratorSequence)
        {
-         const list_node<variable_declarator_ast*> *__it
-           = rest->variable_declarator_sequence->to_front(), *__end = __it;
+         const KDevPG::ListNode<Variable_declaratorAst*> *__it
+           = rest->variable_declaratorSequence->front(), *__end = __it;
 
          do {
-             declarator_sequence = snoc(declarator_sequence, __it->element, memory_pool);
+             declaratorSequence = snoc(declaratorSequence, __it->element, memoryPool);
              __it = __it->next;
          } while (__it != __end);
        }
    :]
    data=variable_declaration_data[
      parameter_declaration->parameter_modifiers, parameter_declaration->type,
-     declarator_sequence
+     declaratorSequence
    ]
 -> variable_declaration_split_data [
      argument temporary node parameter_declaration: parameter_declaration;
@@ -1855,53 +1855,52 @@
 
 [:
 #include "java_lexer.h"
-
+#include <QString>
 
 namespace java
 {
 
-void parser::tokenize( char *contents )
+void Parser::tokenize( char *contents )
 {
     Lexer lexer( this, contents );
 
-    int kind = parser::Token_EOF;
+    int kind = Parser::Token_EOF;
     do
     {
         kind = lexer.yylex();
         //std::cerr << lexer.YYText() << std::endl; //" "; // debug output
 
         if ( !kind ) // when the lexer returns 0, the end of file is reached
-            kind = parser::Token_EOF;
+            kind = Parser::Token_EOF;
 
-        parser::token_type &t = this->token_stream->next();
+        Parser::Token &t = this->tokenStream->next();
         t.kind = kind;
         t.begin = lexer.tokenBegin();
         t.end = lexer.tokenEnd();
-        t.text = contents;
     }
-    while ( kind != parser::Token_EOF );
+    while ( kind != Parser::Token_EOF );
 
     this->yylex(); // produce the look ahead token
 }
 
-parser::java_compatibility_mode parser::compatibility_mode()
+Parser::java_compatibility_mode Parser::compatibility_mode()
 {
     return _M_compatibility_mode;
 }
-void parser::set_compatibility_mode( parser::java_compatibility_mode mode )
+void Parser::set_compatibility_mode( Parser::java_compatibility_mode mode )
 {
     _M_compatibility_mode = mode;
 }
 
 
-parser::parser_state *parser::copy_current_state()
+Parser::parser_state *Parser::copy_current_state()
 {
     parser_state *state = new parser_state();
     state->ltCounter = _M_state.ltCounter;
     return state;
 }
 
-void parser::restore_state( parser::parser_state *state )
+void Parser::restore_state( Parser::parser_state *state )
 {
     _M_state.ltCounter = state->ltCounter;
 }

@@ -17,7 +17,7 @@
  * Boston, MA 02110-1301, USA.                                               *
  *****************************************************************************/
 
-#include "java_parser.h"
+#include "javaparser.h"
 
 #include <iostream>
 
@@ -37,8 +37,8 @@ namespace java
 class Lexer : public yyFlexLexer
 {
 public:
-    Lexer( java::parser *parser, char *contents );
-    void restart( java::parser *parser, char *contents );
+    Lexer( java::Parser *parser, char *contents );
+    void restart( java::Parser *parser, char *contents );
 
     int yylex();
     char *contents()         { return m_contents;   }
@@ -54,11 +54,11 @@ protected:
     virtual void LexerError( const char */*msg*/ ) { return; }
 
 private:
-    java::parser* m_parser;
+    java::Parser* m_parser;
     char *m_contents;
     std::size_t m_tokenBegin, m_tokenEnd;
     std::size_t m_currentOffset;
-    kdev_pg_location_table *m_locationTable;
+    KDevPG::LocationTable *m_locationTable;
 };
 
 } // end of namespace java

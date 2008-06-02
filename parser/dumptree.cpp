@@ -20,7 +20,7 @@
 #include "dumptree.h"
 //#include "lexer.h"
 #include "parsesession.h"
-#include "java_ast.h"
+#include "javaast.h"
 #include "kdev-pg-token-stream.h"
 
 #include <QtCore/QString>
@@ -162,33 +162,32 @@ static char const * const names[] = {
 using namespace java;
 
 DumpTree::DumpTree()
-  : m_tokenStream(0), indent(0)
+  : m_parseSession(0), indent(0)
 {
 }
 
-void DumpTree::dump( ast_node * node, kdev_pg_token_stream * tokenStream )
+void DumpTree::dump( AstNode * node, ParseSession* parseSession )
 {
-  m_tokenStream = tokenStream;
-  visit_node(node);
-  m_tokenStream = 0;
+  m_parseSession = parseSession;
+  visitNode(node);
+  m_parseSession = 0;
 }
 
-void DumpTree::visit_node(ast_node *node)
+void DumpTree::visitNode(AstNode *node)
 {
   QString nodeText;
-  if( m_tokenStream && node ) {
-    for( std::size_t a = node->start_token; a != node->end_token; a++ ) {
-      const kdev_pg_token_stream::token_type& tok( m_tokenStream->token(a) );
-      nodeText += QByteArray( tok.text + tok.begin, tok.end - tok.begin );
+  if( m_parseSession && node ) {
+    for( qint64 a = node->startToken; a != node->endToken; a++ ) {
+      nodeText += m_parseSession->symbol(a);
     }
   }
   if (node) {
     kDebug() << QString(indent * 2, ' ').toLatin1().constData() << names[node->kind - 1000]
-             <<  "[" << node->start_token << "," << node->end_token << "]" << nodeText << endl;
+             <<  "[" << node->startToken << "," << node->endToken << "]" << nodeText << endl;
   }
 
   ++indent;
-  default_visitor::visit_node(node);
+  DefaultVisitor::visitNode(node);
   --indent;
 
   if (node)
