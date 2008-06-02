@@ -325,15 +325,15 @@ FloatingPoint   {Float1}|{Float2}|{Float3}|{Float4}|{HexFloat1}|{HexFloat2}
 namespace java
 {
 
-Lexer::Lexer( parser *parser, char *contents )
+Lexer::Lexer( Parser *parser, char *contents )
 {
     restart( parser, contents );
 }
 
-void Lexer::restart( parser *parser, char *contents )
+void Lexer::restart( Parser *parser, char *contents )
 {
     m_parser = parser;
-    m_locationTable = parser->token_stream->location_table();
+    m_locationTable = parser->tokenStream->locationTable();
     m_contents = contents;
     m_tokenBegin = m_tokenEnd = 0;
     m_currentOffset = 0;
