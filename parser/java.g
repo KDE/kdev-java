@@ -83,6 +83,8 @@
 #include <QtCore/QString>
 :]
 
+%export_macro "KDEVJAVAPARSER_EXPORT"
+%export_macro_header "javaparserexport.h"
 
 ------------------------------------------------------------
 -- Parser class members

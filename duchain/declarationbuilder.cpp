@@ -195,18 +195,17 @@ void DeclarationBuilder::visitDeclarator (DeclaratorAstNode* node)
   node->parameter_declaration_clause = parameter_declaration_clause_backup;
 }*/
 
-#if 0
-Declaration* DeclarationBuilder::openDefinition(AstNode* name, AstNode* rangeNode, bool isFunction)
+Declaration* DeclarationBuilder::openDefinition(IdentifierAst* name, AstNode* rangeNode, bool isFunction)
 {
   return openDeclaration(name, rangeNode, isFunction, false, true);
 }
 
-Declaration* DeclarationBuilder::openDeclaration(AstNode* name, AstNode* rangeNode, bool isFunction, bool isForward, bool isDefinition, bool isNamespaceAlias, const Identifier& customName)
+Declaration* DeclarationBuilder::openDeclaration(IdentifierAst* name, AstNode* rangeNode, bool isFunction, bool isForward, bool isDefinition, bool isNamespaceAlias, const Identifier& customName)
 {
   DUChainWriteLocker lock(DUChain::lock());
 
   if( isFunction && !m_functionDefinedStack.isEmpty() )
-        isDefinition |= (bool)m_functionDefinedStack.top();
+    isDefinition |= (bool)m_functionDefinedStack.top();
 
   Declaration::Scope scope = Declaration::GlobalScope;
   switch (currentContext()->type()) {
@@ -225,46 +224,22 @@ Declaration* DeclarationBuilder::openDeclaration(AstNode* name, AstNode* rangeNo
   }
 
 
-  SimpleRange newRange = m_editor->findRange(name ? static_cast<AstNode*>(name->unqualified_name) : rangeNode);
+  SimpleRange newRange = m_editor->findRange(name ? name : rangeNode);
 
-  if(newRange.start >= newRange.end)
-    kWarning(9007) << "Range collapsed";
+  if (newRange.start >= newRange.end)
+    kWarning() << "Range collapsed";
 
-  QualifiedIdentifier id;
-
-  if (name) {
-    TypeSpecifierAstNode* typeSpecifier = 0; //Additional type-specifier for example the return-type of a cast operator
-    id = identifierForName(name, &typeSpecifier);
-    if( typeSpecifier && id == QualifiedIdentifier("operator{...cast...}") ) {
-      if( typeSpecifier->kind == AstNode::Kind_SimpleTypeSpecifier )
-        visitSimpleTypeSpecifier( static_cast<SimpleTypeSpecifierAstNode*>( typeSpecifier ) );
-    }
-  } else {
-    id = QualifiedIdentifier(customName);
-  }
+  QualifiedIdentifier id = identifierForName(name);
 
   Identifier localId;
 
-  //For classes, the scope problem is solved differently: An intermediate scope context is created
-  ///@todo Solve this problem uniquely for classes and functions
-  if(id.count() > 1 && isFunction) {
-    //Merge the scope of the declaration. Add dollar-signs instead of the ::.
-    //Else the declarations could be confused with global functions.
-    //This is done before the actual search, so there are no name-clashes while searching the class for a constructor.
-
-    localId = id.last(); //This copies the template-arguments
-
-    QString newId = id.last().identifier();
-    for(int a = id.count()-2; a >= 0; --a)
-      newId = id.at(a).identifier() + ";;" + newId;
-
-    localId.setIdentifier(newId);
-  }else if(!id.isEmpty()) {
+  if(!id.isEmpty()) {
     localId = id.last();
   }
 
   Declaration* declaration = 0;
 
+#if 0
   if (recompiling()) {
     // Seek a matching declaration
 
@@ -327,11 +302,9 @@ Declaration* DeclarationBuilder::openDeclaration(AstNode* name, AstNode* rangeNo
       }
     }
   }
-
+#endif
 
   if (!declaration) {
-/*    if( recompiling() )
-      kDebug(9007) << "creating new declaration while recompiling: " << localId << "(" << newRange.textRange() << ")";*/
     SmartRange* prior = m_editor->currentRange();
     SmartRange* range = m_editor->createRange(newRange.textRange());
 
@@ -340,43 +313,24 @@ Declaration* DeclarationBuilder::openDeclaration(AstNode* name, AstNode* rangeNo
 
     Q_ASSERT(m_editor->currentRange() == prior);
 
-    if( isNamespaceAlias ) {
-      declaration = new NamespaceAliasDeclaration(m_editor->currentUrl(), newRange, scope, currentContext());
-      declaration->setSmartRange(range);
-      declaration->setIdentifier(customName);
-    } else if (isForward) {
+    /*if (isForward) {
       declaration = specialDeclaration<ForwardDeclaration>(range, newRange, scope);
 
-    } else if (isFunction) {
+    } else*/
+    if (isFunction) {
       if (scope == Declaration::ClassScope) {
-        declaration = specialDeclaration<ClassFunctionDeclaration>( range, newRange );
+        declaration = new ClassFunctionDeclaration(m_editor->currentUrl(), newRange, currentContext());
       } else {
-        declaration = specialDeclaration<FunctionDeclaration>(range, newRange, scope );
+        declaration = new FunctionDeclaration(m_editor->currentUrl(), newRange, scope, currentContext());
       }
     } else if (scope == Declaration::ClassScope) {
-        declaration = specialDeclaration<ClassMemberDeclaration>( range, newRange );
-    } else if( currentContext()->type() == DUContext::Template ) {
-      //This is a template-parameter.
-      declaration = new TemplateParameterDeclaration( m_editor->currentUrl(), newRange, currentContext() );
-      declaration->setSmartRange(range);
+        declaration = new ClassMemberDeclaration(m_editor->currentUrl(), newRange, currentContext());
     } else {
-      declaration = specialDeclaration<Declaration>( range, newRange, scope );
-    }
-
-    if (!isNamespaceAlias) {
-      // FIXME this can happen if we're defining a staticly declared variable
-      //Q_ASSERT(m_nameCompiler->identifier().count() == 1);
-/*      if(id.isEmpty())
-        kWarning() << "empty id";*/
-      declaration->setIdentifier(localId);
+      declaration = new Declaration(m_editor->currentUrl(), newRange, scope, currentContext());
     }
 
     declaration->setDeclarationIsDefinition(isDefinition);
-
-    if (currentContext()->type() == DUContext::Class) {
-      if(dynamic_cast<ClassMemberDeclaration*>(declaration)) //It may also be a forward-declaration, not based on ClassMemberDeclaration!
-        static_cast<ClassMemberDeclaration*>(declaration)->setAccessPolicy(currentAccessPolicy());
-    }
+    declaration->setIdentifier(localId);
 
     switch (currentContext()->type()) {
       case DUContext::Global:
@@ -389,38 +343,6 @@ Declaration* DeclarationBuilder::openDeclaration(AstNode* name, AstNode* rangeNo
     }
   }
 
-  if( m_inTypedef )
-    declaration->setIsTypeAlias(true);
-
-  if( !localId.templateIdentifiers().isEmpty() ) {
-    TemplateDeclaration* templateDecl = dynamic_cast<TemplateDeclaration*>(declaration);
-    if( declaration && templateDecl ) {
-      ///This is a template-specialization. Find the class it is specialized from.
-      localId.clearTemplateIdentifiers();
-      id.pop();
-      id.push(localId);
-
-      ///@todo Make sure the searched class is in the same namespace
-      QList<Declaration*> decls = currentContext()->findDeclarations(id, m_editor->findPosition(name->start_token, KDevelop::EditorIntegrator::FrontEdge) );
-
-      if( !decls.isEmpty() )
-      {
-        if( decls.count() > 1 )
-          kDebug(9007) << "Found multiple declarations of specialization-base" << id.toString() << "for" << declaration->toString();
-
-        foreach( Declaration* decl, decls )
-          if( TemplateDeclaration* baseTemplateDecl = dynamic_cast<TemplateDeclaration*>(decl) )
-            templateDecl->setSpecializedFrom(baseTemplateDecl);
-
-        if( !templateDecl->specializedFrom() )
-          kDebug(9007) << "Could not find valid specialization-base" << id.toString() << "for" << declaration->toString();
-      }
-    } else {
-      kDebug(9007) << "Specialization of non-template class" << declaration->toString();
-    }
-
-  }
-
   declaration->setComment(m_lastComment);
   m_lastComment = QString();
 
@@ -430,7 +352,6 @@ Declaration* DeclarationBuilder::openDeclaration(AstNode* name, AstNode* rangeNo
 
   return declaration;
 }
-#endif
 
 void DeclarationBuilder::eventuallyAssignInternalContext()
 {
@@ -805,4 +726,40 @@ void DeclarationBuilder::openContext(DUContext * newContext)
 void DeclarationBuilder::closeContext()
 {
   DeclarationBuilderBase::closeContext();
+}
+
+void java::DeclarationBuilder::visitClass_declaration(Class_declarationAst * node)
+{
+  Declaration* classDeclaration = openDefinition(node->class_name, node, false);
+
+  DeclarationBuilderBase::visitClass_declaration(node);
+
+  closeDeclaration();
+}
+
+void java::DeclarationBuilder::visitInterface_declaration(Interface_declarationAst * node)
+{
+  Declaration* interfaceDeclaration = openDefinition(node->interface_name, node, false);
+
+  DeclarationBuilderBase::visitInterface_declaration(node);
+
+  closeDeclaration();
+}
+
+void java::DeclarationBuilder::visitConstructor_declaration(Constructor_declarationAst * node)
+{
+  Declaration* constructorDeclaration = openDefinition(node->class_name, node, true);
+
+  DeclarationBuilderBase::visitConstructor_declaration(node);
+
+  closeDeclaration();
+}
+
+void java::DeclarationBuilder::visitMethod_declaration(Method_declarationAst * node)
+{
+  Declaration* methodDeclaration = openDefinition(node->method_name, node, true);
+
+  DeclarationBuilderBase::visitMethod_declaration(node);
+
+  closeDeclaration();
 }

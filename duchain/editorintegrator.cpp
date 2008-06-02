@@ -38,11 +38,6 @@ EditorIntegrator::EditorIntegrator( ParseSession* session )
 
 KDevelop::SimpleCursor EditorIntegrator::findPosition( qint64 token, Edge edge ) const
 {
-  /*if (token == 0) {
-    kDebug() << "Searching position of invalid token";
-    return KDevelop::SimpleCursor();
-  }*/
-
   const KDevPG::TokenStream::Token& t = m_session->token_stream->token(token);
   return findPosition(t, edge);
 }
@@ -50,7 +45,7 @@ KDevelop::SimpleCursor EditorIntegrator::findPosition( qint64 token, Edge edge )
 KDevelop::SimpleCursor EditorIntegrator::findPosition( const KDevPG::TokenStream::Token & token, Edge edge ) const
 {
   if(edge == BackEdge)
-    return m_session->positionAt(token.end + 1);// + KDevelop::SimpleCursor(0, token.size);
+    return m_session->positionAt(token.end + 1);
   else
     return m_session->positionAt(token.begin + 1);
 }

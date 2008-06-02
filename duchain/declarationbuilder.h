@@ -72,6 +72,11 @@ public:
 
   //virtual void classTypeOpened(KDevelop::AbstractType::Ptr);
 
+  virtual void visitClass_declaration(Class_declarationAst *node);
+  virtual void visitMethod_declaration(Method_declarationAst *node);
+  virtual void visitConstructor_declaration(Constructor_declarationAst *node);
+  virtual void visitInterface_declaration(Interface_declarationAst *node);
+
 private:
   KDevelop::ForwardDeclaration* openForwardDeclaration(AstNode* name, AstNode* range);
   /**
@@ -80,9 +85,9 @@ private:
    * @param name When this is zero, the identifier given through customName is used.
    * \param range provide a valid AST here if name is null
    */
-  KDevelop::Declaration* openDeclaration(AstNode* name, AstNode* range, bool isFunction = false, bool isForward = false, bool isDefinition = false, bool isNamespaceAlias = false, const KDevelop::Identifier& customName = KDevelop::Identifier());
+  KDevelop::Declaration* openDeclaration(IdentifierAst* name, AstNode* range, bool isFunction = false, bool isForward = false, bool isDefinition = false, bool isNamespaceAlias = false, const KDevelop::Identifier& customName = KDevelop::Identifier());
   /// Same as the above, but sets it as the definition too
-  KDevelop::Declaration* openDefinition(AstNode* name, AstNode* range, bool isFunction = false);
+  KDevelop::Declaration* openDefinition(IdentifierAst* name, AstNode* range, bool isFunction = false);
   void eventuallyAssignInternalContext();
   void closeDeclaration();
   void abortDeclaration();

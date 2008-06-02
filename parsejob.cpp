@@ -52,7 +52,7 @@
 #include <duchain.h>
 #include <duchainlock.h>
 
-#include "duchain/contextbuilder.h"
+#include "duchain/declarationbuilder.h"
 #include "duchain/editorintegrator.h"
 #include "duchain/dumpchain.h"
 
@@ -183,8 +183,8 @@ void ParseJob::run()
 
     //kDebug( 9007 ) << (contentContext ? "updating" : "building") << "duchain for" << parentJob()->document().str();
 
-    ContextBuilder contextBuilder(&editor);
-    KDevelop::DUContext* chain = contextBuilder.buildContexts(KDevelop::HashedString(document()), ast, KDevelop::TopDUContextPointer());
+    DeclarationBuilder builder(&editor);
+    KDevelop::DUContext* chain = builder.buildDeclarations(KDevelop::HashedString(document()), ast, KDevelop::TopDUContextPointer());
 
     KDevelop::DUChainReadLocker duchainlock(KDevelop::DUChain::lock());
     dump.dump(chain);
