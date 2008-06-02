@@ -64,13 +64,11 @@ target_link_libraries(kdevjavalanguagesupport
     kdevjavaparser
 )
 
-install(TARGETS kdevjavalanguagesupport DESTINATION /opt/kde4/lib/kde4)
-#${PLUGIN_INSTALL_DIR})
+install(TARGETS kdevjavalanguagesupport DESTINATION ${PLUGIN_INSTALL_DIR})
 
 
 ########### install files ###############
 
-install(FILES kdevjavasupport.desktop DESTINATION /opt/kde4/share/kde4/services)
-#${SERVICES_INSTALL_DIR})
+install(FILES kdevjavasupport.desktop DESTINATION ${SERVICES_INSTALL_DIR})
 
 
