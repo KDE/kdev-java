@@ -217,6 +217,7 @@ Declaration* DeclarationBuilder::openDeclaration(IdentifierAst* name, AstNode* r
       break;
     case DUContext::Function:
     case DUContext::Template:
+    case DUContext::Other:
       scope = Declaration::LocalScope;
       break;
     default:
@@ -309,15 +310,13 @@ Declaration* DeclarationBuilder::openDeclaration(IdentifierAst* name, AstNode* r
     SmartRange* range = m_editor->createRange(newRange.textRange());
 
     m_editor->exitCurrentRange();
-  //Q_ASSERT(range->start() != range->end());
+    //Q_ASSERT(range->start() != range->end());
 
     Q_ASSERT(m_editor->currentRange() == prior);
 
-    /*if (isForward) {
-      declaration = specialDeclaration<ForwardDeclaration>(range, newRange, scope);
-
-    } else*/
-    if (isFunction) {
+    if (isForward) {
+      declaration = new ForwardDeclaration(m_editor->currentUrl(), newRange, scope, currentContext());
+    } else if (isFunction) {
       if (scope == Declaration::ClassScope) {
         declaration = new ClassFunctionDeclaration(m_editor->currentUrl(), newRange, currentContext());
       } else {
@@ -329,6 +328,7 @@ Declaration* DeclarationBuilder::openDeclaration(IdentifierAst* name, AstNode* r
       declaration = new Declaration(m_editor->currentUrl(), newRange, scope, currentContext());
     }
 
+    declaration->setSmartRange(range);
     declaration->setDeclarationIsDefinition(isDefinition);
     declaration->setIdentifier(localId);
 

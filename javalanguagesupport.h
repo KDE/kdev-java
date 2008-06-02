@@ -34,6 +34,8 @@ namespace KDevelop {
     class IProject;
 }
 
+class JavaHighlighting;
+
 class JavaLanguageSupport : public KDevelop::IPlugin, public KDevelop::ILanguageSupport
 {
 Q_OBJECT
@@ -50,6 +52,7 @@ public:
 
     virtual KDevelop::ParseJob *createParseJob(const KUrl &url);
     virtual KDevelop::ILanguage *language();
+    virtual const KDevelop::ICodeHighlighting *codeHighlighting() const;
 
 private slots:
     void documentLoaded( KDevelop::IDocument *document );
@@ -59,7 +62,7 @@ private slots:
     void projectClosed();
 
 private:
-//     CppHighlighting *m_highlights;
+    JavaHighlighting *m_highlights;
 };
 
 #endif

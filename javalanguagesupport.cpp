@@ -34,13 +34,12 @@ Boston, MA 02110-1301, USA.
 #include <iproject.h>
 
 #include "parsejob.h"
+#include "javahighlighting.h"
 
 using namespace java;
 
 K_PLUGIN_FACTORY(KDevJavaSupportFactory, registerPlugin<JavaLanguageSupport>(); )
 K_EXPORT_PLUGIN(KDevJavaSupportFactory("kdevjavasupport"))
-
-//KDEV_USE_EXTENSION_INTERFACE_NS( KDevelop, ILanguageSupport, JavaLanguageSupport )
 
 JavaLanguageSupport::JavaLanguageSupport( QObject* parent,
                                           const QVariantList& /*args*/ )
@@ -49,7 +48,7 @@ JavaLanguageSupport::JavaLanguageSupport( QObject* parent,
 {
     KDEV_USE_EXTENSION_INTERFACE( KDevelop::ILanguageSupport )
 
-    //     m_highlights = new CppHighlighting( this );
+    m_highlights = new JavaHighlighting( this );
 
     connect( core()->documentController(),
              SIGNAL( documentLoaded( KDevelop::IDocument* ) ),
@@ -123,6 +122,11 @@ QStringList JavaLanguageSupport::extensions() const
 KDevelop::ILanguage * JavaLanguageSupport::language()
 {
     return core()->languageController()->language(name());
+}
+
+const KDevelop::ICodeHighlighting * JavaLanguageSupport::codeHighlighting() const
+{
+    return m_highlights;
 }
 
 #include "javalanguagesupport.moc"
