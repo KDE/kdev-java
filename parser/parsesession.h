@@ -25,6 +25,7 @@
 #include <QtCore/QByteArray>
 
 #include "javaparser.h"
+#include "javaparserexport.h"
 
 #include <editor/simplecursor.h>
 
@@ -33,7 +34,7 @@ namespace java
 
 /// Contains everything needed to keep an AST useful once the rest of the parser
 /// has gone away.
-class ParseSession
+class KDEVJAVAPARSER_EXPORT ParseSession
 {
 public:
   ParseSession();

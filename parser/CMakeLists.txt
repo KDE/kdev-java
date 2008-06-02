@@ -15,8 +15,6 @@ include_directories(
     ${KDEVPLATFORM_INCLUDE_DIR}/language/duchain/viewer
 )
 
-add_definitions(-fPIC)
-
 find_package(KDevelop-PG-Qt)
 
 ########### next target ###############
@@ -84,14 +82,13 @@ set_source_files_properties(
 )
 
 
-kde4_add_library(kdevjavaparser STATIC ${kdevjavaparser_STAT_SRCS})
 
 # Note: This library doesn't follow API/ABI/BC rules and shouldn't have a SOVERSION
 #       Its only purpose is to support the plugin without needing to add all source files
 #       to the plugin target
-#kde4_add_library(kdevjavaparser SHARED ${kdevjavaparser_STAT_SRCS})
-#target_link_libraries(kdevjavaparser ${KDEVPLATFORM_LANGUAGE_LIBRARY} ${KDE4_KDECORE_LIBS} ${KDE4_KTEXTEDITOR_LIBS} )
-#install(TARGETS kdevjavaparser ${INSTALL_TARGETS_DEFAULT_ARGS} )
+kde4_add_library(kdevjavaparser SHARED ${kdevjavaparser_STAT_SRCS})
+target_link_libraries(kdevjavaparser ${KDE4_KDECORE_LIBS} ${KDE4_KTEXTEDITOR_LIBS} ${KDEVPLATFORM_LANGUAGE_LIBRARY})
+install(TARGETS kdevjavaparser ${INSTALL_TARGETS_DEFAULT_ARGS} )
 
 
 add_custom_target( copy-generated
