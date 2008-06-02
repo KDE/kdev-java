@@ -177,7 +177,9 @@ void DumpTree::visitNode(AstNode *node)
 {
   QString nodeText;
   if( m_parseSession && node ) {
-    for( qint64 a = node->startToken; a != node->endToken; a++ ) {
+    for( qint64 a = node->startToken; a <= node->endToken; a++ ) {
+      if( !nodeText.isEmpty() )
+        nodeText += ' ';
       nodeText += m_parseSession->symbol(a);
     }
   }
