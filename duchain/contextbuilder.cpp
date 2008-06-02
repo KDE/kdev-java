@@ -210,103 +210,6 @@ void ContextBuilder::supportBuild(AstNode *node, DUContext* context)
   Q_ASSERT(m_contextStack.isEmpty());
 }
 
-/*void ContextBuilder::visitNamespace (NamespaceAstNode *node)
-{
-  QualifiedIdentifier identifier;
-  if (m_compilingContexts) {
-    DUChainReadLocker lock(DUChain::lock());
-
-    if (node->namespace_name)
-      identifier.push(QualifiedIdentifier(m_editor->tokenToString(node->namespace_name)));
-    else
-      identifier.push(Identifier::unique(0));
-  }
-
-  openContext(node, DUContext::Namespace, identifier);
-
-  DefaultVisitor::visitNamespace (node);
-
-  closeContext();
-}
-
-void ContextBuilder::visitClassSpecifier (ClassSpecifierAstNode *node)
-{
-  //We only use the local identifier here, because we build a prefix-context around
-  ///@todo think about this.
-  QualifiedIdentifier id;
-  if(node->name) {
-    IdentifierCompiler nc(m_editor->parseSession());
-    nc.run(node->name);
-    id = nc.identifier();
-  }
-
-  openContext(node, DUContext::Class, id.isEmpty() ? QualifiedIdentifier() : QualifiedIdentifier(id.last()) );
-  addImportedContexts(); //eventually add template-context
-
-  DefaultVisitor::visitClassSpecifier (node);
-
-  closeContext();
-}
-
-void ContextBuilder::visitTypedef (TypedefAstNode *node)
-{
-  DefaultVisitor::visitTypedef (node);
-
-  // Didn't get claimed if it was still set
-  m_importedParentContexts.clear();
-}
-
-void ContextBuilder::visitFunctionDefinition (FunctionDefinitionAstNode *node)
-{
-  PushValue<bool> push(m_inFunctionDefinition, (bool)node->function_body);
-
-  if (m_compilingContexts && node->init_declarator && node->init_declarator->declarator && node->init_declarator->declarator->id) {
-    QualifiedIdentifier functionName = identifierForName(node->init_declarator->declarator->id);
-    if (functionName.count() >= 2) {
-      // This is a class function definition
-      functionName.pop();
-
-      DUChainReadLocker lock(DUChain::lock());
-
-      QList<DUContext*> classContexts = currentContext()->findContexts(DUContext::Class, functionName);
-      if (classContexts.count() != 0)
-        m_importedParentContexts.append(classContexts.first());
-      if (classContexts.count() > 1) {
-        kWarning(9007) << "Muliple class contexts for" << functionName.toString() << "- shouldn't happen!" ;
-        foreach (DUContext* classContext, classContexts) {
-          kDebug(9007) << "Context" << classContext->scopeIdentifier(true) << "range" << classContext->range().textRange() << "in" << classContext->url().str();
-        }
-      }
-    }
-  }
-
-  visitFunctionDeclaration(node);
-
-  if (node->constructor_initializers && node->function_body) {
-    openContext(node->constructor_initializers, node->function_body, DUContext::Other);
-    addImportedContexts();
-  }
-  // Otherwise, the context is created in the function body visit
-
-  visit(node->constructor_initializers);
-  visit(node->function_body);
-
-  if (node->constructor_initializers)
-    closeContext();
-
-  visit(node->win_decl_specifiers);
-
-  // If still defined, not needed
-  m_importedParentContexts.clear();
-}
-
-void ContextBuilder::visitFunctionDeclaration (FunctionDefinitionAstNode* node)
-{
-  visit(node->type_specifier);
-  visit(node->init_declarator);
-}
-*/
-
 DUContext* ContextBuilder::openContext(AstNode* rangeNode, DUContext::ContextType type, AstNode* identifier)
 {
   if (m_compilingContexts) {
@@ -483,108 +386,6 @@ void ContextBuilder::closeContext()
     m_editor->exitCurrentRange();
 }
 
-/*
-void ContextBuilder::visitForStatement(ForStatementAstNode *node)
-{
-  // Not setting the member var because it gets nuked in visitSimpleDeclaration
-  AstNode* first = node->init_statement;
-  if (!first)
-    first = node->condition;
-  if (!first)
-    first = node->expression;
-  if (!first)
-    return;
-
-  AstNode* second = node->expression;
-  if (!second)
-    second = node->condition;
-  if (!second)
-    second = node->init_statement;
-
-  DUContext* secondParentContext = openContext(first, second, DUContext::Other);
-
-  visit(node->init_statement);
-  visit(node->condition);
-  visit(node->expression);
-
-  closeContext();
-
-  const bool contextNeeded = createContextIfNeeded(node->statement, secondParentContext);
-
-  visit(node->statement);
-
-  if (contextNeeded)
-    closeContext();
-
-  // Didn't get claimed if it was still set
-  m_importedParentContexts.clear();
-}
-
-void ContextBuilder::addImportedContexts()
-{
-  if (m_compilingContexts && !m_importedParentContexts.isEmpty()) {
-    DUChainWriteLocker lock(DUChain::lock());
-
-    foreach (DUContext* imported, m_importedParentContexts)
-      currentContext()->addImportedParentContext(imported);
-
-    //Move on the internal-context of Declarations/Definitions
-    foreach( DUContext* importedContext, m_importedParentContexts )  {
-      if( (importedContext->type() == DUContext::Template || importedContext->type() == DUContext::Function) )
-        if( importedContext->owner() && importedContext->owner()->internalContext() == importedContext )
-          importedContext->owner()->setInternalContext(currentContext());
-    }
-
-    m_importedParentContexts.clear();
-  }
-  m_lastContext = 0;
-}
-
-void ContextBuilder::visitIfStatement(IfStatementAstNode* node)
-{
-  // Not setting the member var because it gets nuked in visitSimpleDeclaration
-  DUContext* secondParentContext = openContext(node->condition, DUContext::Other);
-
-  visit(node->condition);
-
-  closeContext();
-
-  if (node->statement) {
-    const bool contextNeeded = createContextIfNeeded(node->statement, secondParentContext);
-
-    visit(node->statement);
-
-    if (contextNeeded)
-      closeContext();
-  }
-
-  if (node->else_statement) {
-    const bool contextNeeded = createContextIfNeeded(node->else_statement, secondParentContext);
-
-    visit(node->else_statement);
-
-    if (contextNeeded)
-      closeContext();
-  }
-}
-
-bool ContextBuilder::createContextIfNeeded(AstNode* node, DUContext* importedParentContext)
-{
-  return createContextIfNeeded(node, QList<DUContext*>() << importedParentContext);
-}
-
-bool ContextBuilder::createContextIfNeeded(AstNode* node, const QList<DUContext*>& importedParentContexts)
-{
-  m_importedParentContexts = importedParentContexts;
-
-  const bool contextNeeded = !ast_cast<CompoundStatementAstNode*>(node);
-  if (contextNeeded) {
-    openContext(node, DUContext::Other);
-    addImportedContexts();
-  }
-  return contextNeeded;
-}*/
-
 QualifiedIdentifier ContextBuilder::identifierForName(AstNode* id) const
 {
   if( !id )
@@ -606,6 +407,7 @@ void ContextBuilder::visitClass_declaration(Class_declarationAst * node)
   visitNode(node->extends);
   visitNode(node->implements);
 
+  //visitNode(node->class_name);
   QualifiedIdentifier id = identifierForName(node->class_name);
 
   if (node->body) {
@@ -619,35 +421,44 @@ void ContextBuilder::visitClass_declaration(Class_declarationAst * node)
 
 void ContextBuilder::visitMethod_declaration(Method_declarationAst * node)
 {
+  visitNode(node->modifiers);
+  visitNode(node->type_parameters);
+  visitNode(node->return_type);
+
+  //visitNode(node->method_name);
   QualifiedIdentifier id = identifierForName(node->method_name);
 
-    // TODO incorrect
-  openContext(node, DUContext::Function, id);
+  DUContext* parameters = 0;
+  if (node->parameters) {
+    parameters = openContext(node->parameters, DUContext::Other);
+    visitNode(node->parameters);
+    closeContext();
+  }
 
-  DefaultVisitor::visitMethod_declaration(node);
+  visitNode(node->declarator_brackets);
+  visitNode(node->throws_clause);
 
+  // TODO there's no method body parsed!!
+  DUContext* body = openContext(node, DUContext::Function, id);
+  if (parameters) {
+    DUChainWriteLocker lock(DUChain::lock());
+    body->addImportedParentContext(parameters);
+  }
+
+  //TODO parse the method body!
   closeContext();
 }
 
-void ContextBuilder::visitOptional_parameter_declaration_list(Optional_parameter_declaration_listAst * node)
-{
-  openContext(node, DUContext::Other);
-
-  DefaultVisitor::visitOptional_parameter_declaration_list(node);
-
-  closeContext();
-}
-
-void java::ContextBuilder::visitBlock(BlockAst * node)
+/*void ContextBuilder::visitBlock(BlockAst * node)
 {
   openContext(node, DUContext::Other);
 
   DefaultVisitor::visitBlock(node);
 
   closeContext();
-}
+}*/
 
-void java::ContextBuilder::visitFor_statement(For_statementAst *node)
+void ContextBuilder::visitFor_statement(For_statementAst *node)
 {
   DUContext* control = 0;
   if (node->for_control) {
@@ -667,7 +478,7 @@ void java::ContextBuilder::visitFor_statement(For_statementAst *node)
   }
 }
 
-void java::ContextBuilder::visitIf_statement(If_statementAst * node)
+void ContextBuilder::visitIf_statement(If_statementAst * node)
 {
   DUContext* condition = 0;
   if (node->condition) {
@@ -697,6 +508,51 @@ void java::ContextBuilder::visitIf_statement(If_statementAst * node)
     }
 
     visitNode(node->else_body);
+    closeContext();
+  }
+}
+
+void java::ContextBuilder::visitConstructor_declaration(Constructor_declarationAst * node)
+{
+  visitNode(node->modifiers);
+  visitNode(node->type_parameters);
+
+  //visitNode(node->class_name);
+  QualifiedIdentifier id = identifierForName(node->class_name);
+
+  DUContext* parameters = 0;
+  if (node->parameters) {
+    parameters = openContext(node->parameters, DUContext::Other);
+    visitNode(node->parameters);
+    closeContext();
+  }
+
+  visitNode(node->throws_clause);
+
+  if (node->body) {
+    DUContext* body = openContext(node->body, DUContext::Class, id);
+    if (parameters) {
+      DUChainWriteLocker lock(DUChain::lock());
+      body->addImportedParentContext(parameters);
+    }
+    visitNode(node->body);
+    closeContext();
+  }
+}
+
+void java::ContextBuilder::visitInterface_declaration(Interface_declarationAst * node)
+{
+  visitNode(node->modifiers);
+
+  //visitNode(node->interface_name);
+  QualifiedIdentifier id = identifierForName(node->interface_name);
+
+  visitNode(node->type_parameters);
+  visitNode(node->extends);
+
+  if (node->body) {
+    openContext(node->body, DUContext::Class, id);
+    visitNode(node->body);
     closeContext();
   }
 }

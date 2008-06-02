@@ -111,12 +111,13 @@ protected:
   inline void setRecompiling(bool recomp) { m_recompiling = recomp; }
 
   // Visitors
-  virtual void visitBlock(BlockAst *node);
+  //virtual void visitBlock(BlockAst *node);
   virtual void visitFor_statement(For_statementAst *node);
   virtual void visitIf_statement(If_statementAst *node);
   virtual void visitClass_declaration(Class_declarationAst *node);
   virtual void visitMethod_declaration(Method_declarationAst *node);
-  virtual void visitOptional_parameter_declaration_list(Optional_parameter_declaration_listAst *node);
+  virtual void visitConstructor_declaration(Constructor_declarationAst *node);
+  virtual void visitInterface_declaration(Interface_declarationAst *node);
 
   // Write lock is already held here...
   virtual void openContext(KDevelop::DUContext* newContext);
@@ -130,12 +131,6 @@ protected:
   KDevelop::DUContext* openContextEmpty(AstNode* range, KDevelop::DUContext::ContextType type);
 
   KDevelop::DUContext* openContextInternal(const KDevelop::SimpleRange& range, KDevelop::DUContext::ContextType type, const KDevelop::QualifiedIdentifier& identifier);
-
-  //bool createContextIfNeeded(AstNode* node, const QList<KDevelop::DUContext*>& importedParentContexts);
-  //bool createContextIfNeeded(AstNode* node, KDevelop::DUContext* importedParentContext);
-  //void addImportedContexts();
-
-  //void smartenContext(KDevelop::TopDUContext* topLevelContext);
 
 protected:
   // Variables
