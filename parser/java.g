@@ -87,6 +87,15 @@
 %export_macro_header "javaparserexport.h"
 
 ------------------------------------------------------------
+-- Ast Node class members
+------------------------------------------------------------
+%ast_extra_members
+[:
+  class KDevelop::DUContext;
+  KDevelop::DUContext* ducontext;
+:]
+
+------------------------------------------------------------
 -- Parser class members
 ------------------------------------------------------------
 
