@@ -647,20 +647,34 @@ void java::ContextBuilder::visitBlock(BlockAst * node)
   closeContext();
 }
 
-void java::ContextBuilder::visitFor_control(For_controlAst * node)
+void java::ContextBuilder::visitFor_statement(For_statementAst *node)
 {
-  openContext(node, DUContext::Other);
+  DUContext* control = 0;
+  if (node->for_control) {
+    control = openContext(node->for_control, DUContext::Other);
+    visitNode(node->for_control);
+    closeContext();
+  }
 
-  DefaultVisitor::visitFor_control(node);
-
-  closeContext();
+  if (node->for_body) {
+    DUContext* body = openContext(node->for_body, DUContext::Other);
+    if (control) {
+      DUChainWriteLocker lock(DUChain::lock());
+      body->addImportedParentContext(control);
+    }
+    visitNode(node->for_body);
+    closeContext();
+  }
 }
 
 void java::ContextBuilder::visitIf_statement(If_statementAst * node)
 {
-  DUContext* condition = openContext(node->condition, DUContext::Other);
-  visitNode(node->condition);
-  closeContext();
+  DUContext* condition = 0;
+  if (node->condition) {
+    condition = openContext(node->condition, DUContext::Other);
+    visitNode(node->condition);
+    closeContext();
+  }
 
   if (node->if_body) {
     DUContext* body = openContext(node->if_body, DUContext::Other);

@@ -112,7 +112,7 @@ protected:
 
   // Visitors
   virtual void visitBlock(BlockAst *node);
-  virtual void visitFor_control(For_controlAst *node);
+  virtual void visitFor_statement(For_statementAst *node);
   virtual void visitIf_statement(If_statementAst *node);
   virtual void visitClass_declaration(Class_declarationAst *node);
   virtual void visitMethod_declaration(Method_declarationAst *node);
