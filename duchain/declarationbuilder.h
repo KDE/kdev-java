@@ -76,6 +76,8 @@ public:
   virtual void visitMethod_declaration(Method_declarationAst *node);
   virtual void visitConstructor_declaration(Constructor_declarationAst *node);
   virtual void visitInterface_declaration(Interface_declarationAst *node);
+  virtual void visitVariable_declaration(Variable_declarationAst *node);
+  virtual void visitVariable_declarator(Variable_declaratorAst *node);
 
 private:
   KDevelop::ForwardDeclaration* openForwardDeclaration(AstNode* name, AstNode* range);

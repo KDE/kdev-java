@@ -763,3 +763,19 @@ void java::DeclarationBuilder::visitMethod_declaration(Method_declarationAst * n
 
   closeDeclaration();
 }
+
+void java::DeclarationBuilder::visitVariable_declaration(Variable_declarationAst * node)
+{
+  // Here we should save / apply the type
+
+  DeclarationBuilderBase::visitVariable_declaration(node);
+}
+
+void java::DeclarationBuilder::visitVariable_declarator(Variable_declaratorAst * node)
+{
+  openDefinition(node->variable_name, node, true);
+
+  DeclarationBuilderBase::visitVariable_declarator(node);
+
+  closeDeclaration();
+}
