@@ -81,15 +81,14 @@
 
 [:
 #include <QtCore/QString>
+namespace KDevelop
+{
+class DUContext;
+}
 :]
 
 %export_macro "KDEVJAVAPARSER_EXPORT"
 %export_macro_header "javaparserexport.h"
-
-%namespace KDevelop
-[:
-class DUContext;
-:]
 
 ------------------------------------------------------------
 -- Ast Node class members
