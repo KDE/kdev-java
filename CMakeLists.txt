@@ -62,7 +62,7 @@ target_link_libraries(kdevjavalanguagesupport
     ${KDEVPLATFORM_LANGUAGE_LIBRARY}
     ${KDEVPLATFORM_LANGUAGE_LIBRARY}
     ${KDE4_KDEUI_LIBS}
-    kdevjavaparser
+    kdev4javaparser
 )
 
 install(TARGETS kdevjavalanguagesupport DESTINATION ${PLUGIN_INSTALL_DIR})

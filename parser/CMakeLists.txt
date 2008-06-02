@@ -86,9 +86,9 @@ set_source_files_properties(
 # Note: This library doesn't follow API/ABI/BC rules and shouldn't have a SOVERSION
 #       Its only purpose is to support the plugin without needing to add all source files
 #       to the plugin target
-kde4_add_library(kdevjavaparser SHARED ${kdevjavaparser_STAT_SRCS})
-target_link_libraries(kdevjavaparser ${KDE4_KDECORE_LIBS} ${KDE4_KTEXTEDITOR_LIBS} ${KDEVPLATFORM_LANGUAGE_LIBRARY})
-install(TARGETS kdevjavaparser ${INSTALL_TARGETS_DEFAULT_ARGS} )
+kde4_add_library(kdev4javaparser SHARED ${kdevjavaparser_STAT_SRCS})
+target_link_libraries(kdev4javaparser ${KDE4_KDECORE_LIBS} ${KDE4_KTEXTEDITOR_LIBS} ${KDEVPLATFORM_LANGUAGE_LIBRARY})
+install(TARGETS kdev4javaparser ${INSTALL_TARGETS_DEFAULT_ARGS} )
 
 
 add_custom_target( copy-generated
