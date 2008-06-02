@@ -81,6 +81,10 @@
 
 [:
 #include <QtCore/QString>
+
+namespace KDevelop {
+class DUContext;
+}
 :]
 
 %export_macro "KDEVJAVAPARSER_EXPORT"
