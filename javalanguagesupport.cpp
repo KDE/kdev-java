@@ -54,6 +54,9 @@ JavaLanguageSupport::JavaLanguageSupport( QObject* parent,
              SIGNAL( documentLoaded( KDevelop::IDocument* ) ),
              this, SLOT( documentLoaded( KDevelop::IDocument* ) ) );
     connect( core()->documentController(),
+             SIGNAL( documentStateChanged( KDevelop::IDocument* ) ),
+             this, SLOT( documentChanged( KDevelop::IDocument* ) ) );
+    connect( core()->documentController(),
              SIGNAL( documentClosed( KDevelop::IDocument* ) ),
              this, SLOT( documentClosed( KDevelop::IDocument* ) ) );
     connect( core()->documentController(),
@@ -76,6 +79,11 @@ JavaLanguageSupport::~JavaLanguageSupport()
 KDevelop::ParseJob *JavaLanguageSupport::createParseJob( const KUrl &url )
 {
     return new ParseJob( url, this );
+}
+
+void JavaLanguageSupport::documentChanged( KDevelop::IDocument* document )
+{
+    core()->languageController()->backgroundParser()->addDocument( document->url() );
 }
 
 void JavaLanguageSupport::documentLoaded( KDevelop::IDocument *document )
