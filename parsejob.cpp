@@ -53,6 +53,7 @@
 #include <duchainlock.h>
 
 #include "duchain/declarationbuilder.h"
+#include "duchain/usebuilder.h"
 #include "duchain/editorintegrator.h"
 #include "duchain/dumpchain.h"
 
@@ -185,6 +186,9 @@ void ParseJob::run()
 
     DeclarationBuilder builder(&editor);
     KDevelop::DUContext* chain = builder.buildDeclarations(KDevelop::HashedString(document()), ast, KDevelop::TopDUContextPointer());
+
+    UseBuilder useBuilder(&editor);
+    useBuilder.buildUses(ast);
 
     KDevelop::DUChainReadLocker duchainlock(KDevelop::DUChain::lock());
     dump.dump(chain);

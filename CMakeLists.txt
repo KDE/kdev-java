@@ -50,6 +50,7 @@ set(kdevjavalanguagesupport_PART_SRCS
     duchain/contextbuilder.cpp
     duchain/dumpchain.cpp
     duchain/declarationbuilder.cpp
+    duchain/usebuilder.cpp
 )
 
 kde4_add_plugin(kdevjavalanguagesupport ${kdevjavalanguagesupport_PART_SRCS})
