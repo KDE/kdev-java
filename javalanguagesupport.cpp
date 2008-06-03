@@ -57,6 +57,9 @@ JavaLanguageSupport::JavaLanguageSupport( QObject* parent,
              SIGNAL( documentStateChanged( KDevelop::IDocument* ) ),
              this, SLOT( documentChanged( KDevelop::IDocument* ) ) );
     connect( core()->documentController(),
+             SIGNAL( documentContentChanged( KDevelop::IDocument* ) ),
+             this, SLOT( documentChanged( KDevelop::IDocument* ) ) );
+    connect( core()->documentController(),
              SIGNAL( documentClosed( KDevelop::IDocument* ) ),
              this, SLOT( documentClosed( KDevelop::IDocument* ) ) );
     connect( core()->documentController(),
