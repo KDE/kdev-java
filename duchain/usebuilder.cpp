@@ -64,7 +64,7 @@ void UseBuilder::newUse(IdentifierAst* name)
   QualifiedIdentifier id = identifierForName(name);
 
   SimpleRange newRange = m_editor->findRange(name);
-  
+
   DUChainWriteLocker lock(DUChain::lock());
   QList<Declaration*> declarations = currentContext()->findDeclarations(id, newRange.start);
   foreach (Declaration* declaration, declarations)
@@ -84,7 +84,7 @@ void UseBuilder::newUse(qint64 start_token, qint64 end_token, KDevelop::Declarat
   DUChainWriteLocker lock(DUChain::lock());
 
   if(!declaration) {
-    kDebug(9007) << "Tried to create use of zero declaration";
+    kDebug() << "Tried to create use of zero declaration";
     return;
   }
 
@@ -184,7 +184,7 @@ void UseBuilder::closeContext()
 {
   if(m_finishContext) {
     DUChainWriteLocker lock(DUChain::lock());
-    
+
     //Delete all uses that were not encountered
     //That means: All uses in skippedUses, and all uses from nextUseIndex() to currentContext()->uses().count()
     for(int a = currentContext()->uses().count()-1; a >= nextUseIndex(); --a)
@@ -192,7 +192,7 @@ void UseBuilder::closeContext()
     for(int a = skippedUses().count()-1; a >= 0; --a)
       currentContext()->deleteUse(skippedUses()[a]);
   }
-  
+
   UseBuilderBase::closeContext();
 
   m_contexts.pop();

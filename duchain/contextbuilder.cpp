@@ -119,7 +119,7 @@ TopDUContext* ContextBuilder::buildContexts(const KDevelop::HashedString& url, A
       }
 
     if (topLevelContext) {
-      kDebug(9007) << "ContextBuilder::buildContexts: recompiling";
+      kDebug() << "ContextBuilder::buildContexts: recompiling";
       m_recompiling = true;
 
       if (m_compilingContexts) {
@@ -127,13 +127,13 @@ TopDUContext* ContextBuilder::buildContexts(const KDevelop::HashedString& url, A
         if (m_editor->currentDocument() && m_editor->smart() && topLevelContext->range().textRange() != m_editor->currentDocument()->documentRange()) {
           topLevelContext->setRange(SimpleRange(m_editor->currentDocument()->documentRange()));
           //This happens the whole file is deleted, and then a space inserted.
-          kDebug(9007) << "WARNING: Top-level context has wrong size: " << topLevelContext->range().textRange() << " should be: " << m_editor->currentDocument()->documentRange();
+          kDebug() << "WARNING: Top-level context has wrong size: " << topLevelContext->range().textRange() << " should be: " << m_editor->currentDocument()->documentRange();
         }
       }
 
       //DUChain::self()->updateContextEnvironment( topLevelContext, const_cast<Java::EnvironmentFile*>(file.data() ) );
     } else {
-      kDebug(9007) << "ContextBuilder::buildContexts: compiling";
+      kDebug() << "ContextBuilder::buildContexts: compiling";
       m_recompiling = false;
 
       Q_ASSERT(m_compilingContexts);
@@ -154,19 +154,19 @@ TopDUContext* ContextBuilder::buildContexts(const KDevelop::HashedString& url, A
   supportBuild(node);
 
   if (m_editor->currentDocument() && m_editor->smart() && topLevelContext->range().textRange() != m_editor->currentDocument()->documentRange()) {
-    kDebug(9007) << "WARNING: Top-level context has wrong size: " << topLevelContext->range().textRange() << " should be: " << m_editor->currentDocument()->documentRange();
+    kDebug() << "WARNING: Top-level context has wrong size: " << topLevelContext->range().textRange() << " should be: " << m_editor->currentDocument()->documentRange();
     topLevelContext->setRange( SimpleRange(m_editor->currentDocument()->documentRange()) );
   }
 
   {
     DUChainReadLocker lock(DUChain::lock());
 
-    kDebug(9007) << "built top-level context with" << topLevelContext->localDeclarations().size() << "declarations and" << topLevelContext->importedParentContexts().size() << "included files";
+    kDebug() << "built top-level context with" << topLevelContext->localDeclarations().size() << "declarations and" << topLevelContext->importedParentContexts().size() << "included files";
 
 /*     if( m_recompiling ) {
       DumpChain dump;
       dump.dump(topLevelContext);
-      kDebug(9007) << dump.dotGraph(topLevelContext);
+      kDebug() << dump.dotGraph(topLevelContext);
      }*/
   }
 
@@ -174,7 +174,7 @@ TopDUContext* ContextBuilder::buildContexts(const KDevelop::HashedString& url, A
 
   if (!m_importedParentContexts.isEmpty()) {
     DUChainReadLocker lock(DUChain::lock());
-    kWarning(9007) << url.str() << "Previous parameter declaration context didn't get used??" ;
+    kWarning() << url.str() << "Previous parameter declaration context didn't get used??" ;
     DumpChain dump;
     dump.dump(topLevelContext);
     m_importedParentContexts.clear();
@@ -271,7 +271,7 @@ DUContext* ContextBuilder::openContextInternal(const KDevelop::SimpleRange& rang
 {
   DUContext* ret = 0L;
   if(range.start > range.end)
-    kDebug(9007) << "Bad context-range" << range.textRange();
+    kDebug() << "Bad context-range" << range.textRange();
   {
     DUChainReadLocker readLock(DUChain::lock());
 
@@ -333,7 +333,7 @@ DUContext* ContextBuilder::openContextInternal(const KDevelop::SimpleRange& rang
       }
 
       if( recompiling() )
-        kDebug(9007) << "created new context while recompiling for " << identifier.toString() << "(" << ret->range().textRange() << ")";
+        kDebug() << "created new context while recompiling for " << identifier.toString() << "(" << ret->range().textRange() << ")";
     }
   }
 
@@ -349,7 +349,7 @@ void ContextBuilder::checkRanges()
 {
   for(QHash<KDevelop::DUContext*, KDevelop::SimpleRange>::iterator it = m_contextRanges.begin(); it != m_contextRanges.end(); ) {
     if(it.key()->range() != *it) {
-      kDebug(9007) << "Range of" << it.key()->scopeIdentifier(true).toString() << "changed from" << (*it).textRange() << "to" << it.key()->range().textRange() << "at\n" << kBacktrace();
+      kDebug() << "Range of" << it.key()->scopeIdentifier(true).toString() << "changed from" << (*it).textRange() << "to" << it.key()->range().textRange() << "at\n" << kBacktrace();
       it = m_contextRanges.erase(it); //Remove it so we see each change only once
     }else{
       ++it;
@@ -423,8 +423,11 @@ void ContextBuilder::visitMethod_declaration(Method_declarationAst * node)
 {
   visitNode(node->modifiers);
   visitNode(node->type_parameters);
-  visitNode(node->return_type);
 
+  // Called by type builder
+  //visitNode(node->return_type);
+
+  // Called below
   //visitNode(node->method_name);
   QualifiedIdentifier id = identifierForName(node->method_name);
 
@@ -438,14 +441,14 @@ void ContextBuilder::visitMethod_declaration(Method_declarationAst * node)
   visitNode(node->declarator_brackets);
   visitNode(node->throws_clause);
 
-  // TODO there's no method body parsed!!
-  DUContext* body = openContext(node, DUContext::Function, id);
+  DUContext* body = openContext(node->body, DUContext::Function, id);
   if (parameters) {
     DUChainWriteLocker lock(DUChain::lock());
     body->addImportedParentContext(parameters);
   }
 
-  //TODO parse the method body!
+  visitNode(node->body);
+
   closeContext();
 }
 

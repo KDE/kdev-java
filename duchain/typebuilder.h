@@ -22,26 +22,28 @@
 #include "contextbuilder.h"
 #include <typesystem.h>
 #include <declaration.h>
-#include "cppduchainexport.h"
-
-class StructureType;
-class FunctionType;
+#include "types.h"
 
 namespace KDevelop {
   class QualifiedIdentifier;
   class ForwardDeclaration;
 }
 
+namespace java {
+
+class ClassType;
+class FunctionType;
+
 typedef ContextBuilder TypeBuilderBase;
 
 /**
- * Create types from an AST tree.
+ * Create types from an AstNode tree.
  *
  * \note This builder overrides visitDeclarator, in order to support
  * array types; parent classes will not have
  * their visitDeclarator function called.
  */
-class KDEVCPPDUCHAIN_EXPORT TypeBuilder: public TypeBuilderBase
+class TypeBuilder: public TypeBuilderBase
 {
 public:
   TypeBuilder(ParseSession* session);
@@ -51,79 +53,73 @@ public:
    * Build types by iterating the given \a node.
    * @param context the context to use. Must be set when the given node has no context. When it has one attached, this parameter is not needed. However it will always be preferred over the node's context.
    */
-  virtual void supportBuild(AST *node, KDevelop::DUContext* context = 0);
+  virtual void supportBuild(AstNode *node, KDevelop::DUContext* context = 0);
 
   const QList< KDevelop::AbstractType::Ptr >& topTypes() const;
 
 protected:
   ///Returns either the current context, or the last importend parent-context(needed to find template-argument function return-values)
   KDevelop::DUContext* searchContext() ;
-  
+
   KDevelop::AbstractType::Ptr lastType() const;
 
   void setLastType(KDevelop::AbstractType::Ptr ptr);
-  
+
   // Called at the beginning of processing a class-specifier, right after the type for the class was created. The type can be gotten through currentAbstractType().
   virtual void classTypeOpened(KDevelop::AbstractType::Ptr) {};
-  
-  // Created visitors
-  virtual void visitArrayExpression(ExpressionAST*);
-  
+
   // Regular visitors
-  /*virtual void visitClassSpecifier(ClassSpecifierAST*);
-  virtual void visitBaseSpecifier(BaseSpecifierAST*);
-  virtual void visitEnumSpecifier(EnumSpecifierAST*);
-  virtual void visitEnumerator(EnumeratorAST*);
-  virtual void visitElaboratedTypeSpecifier(ElaboratedTypeSpecifierAST*);
-  virtual void visitSimpleTypeSpecifier(SimpleTypeSpecifierAST*);
-  virtual void visitSimpleDeclaration(SimpleDeclarationAST*);
-  virtual void visitTypedef(TypedefAST*);
-  virtual void visitFunctionDeclaration(FunctionDefinitionAST*);
-  virtual void visitPtrOperator(PtrOperatorAST*);
-  virtual void visitParameterDeclaration(ParameterDeclarationAST*);
-  virtual void visitTemplateParameter(TemplateParameterAST *);
-  virtual void createTypeForDeclarator(DeclaratorAST *node);
-  virtual void closeTypeForDeclarator(DeclaratorAST *node);*/
+  /*virtual void visitClassSpecifier(ClassSpecifierAstNode*);
+  virtual void visitBaseSpecifier(BaseSpecifierAstNode*);
+  virtual void visitEnumSpecifier(EnumSpecifierAstNode*);
+  virtual void visitEnumerator(EnumeratorAstNode*);
+  virtual void visitElaboratedTypeSpecifier(ElaboratedTypeSpecifierAstNode*);
+  virtual void visitSimpleTypeSpecifier(SimpleTypeSpecifierAstNode*);
+  virtual void visitSimpleDeclaration(SimpleDeclarationAstNode*);
+  virtual void visitTypedef(TypedefAstNode*);
+  virtual void visitFunctionDeclaration(FunctionDefinitionAstNode*);
+  virtual void visitPtrOperator(PtrOperatorAstNode*);
+  virtual void visitParameterDeclaration(ParameterDeclarationAstNode*);
+  virtual void visitTemplateParameter(TemplateParameterAstNode *);
+  virtual void createTypeForDeclarator(DeclaratorAstNode *node);
+  virtual void closeTypeForDeclarator(DeclaratorAstNode *node);*/
 
   virtual void visitClass_declaration(Class_declarationAst *node);
   virtual void visitClass_extends_clause(Class_extends_clauseAst *node);
+  virtual void visitImplements_clause(Implements_clauseAst *node);
   virtual void visitClass_or_interface_type_name_part(Class_or_interface_type_name_partAst *node);
+  virtual void visitType_argument(Type_argumentAst *node);
 
   virtual void visitMethod_declaration(Method_declarationAst *node);
   virtual void visitConstructor_declaration(Constructor_declarationAst *node);
   virtual void visitInterface_declaration(Interface_declarationAst *node);
-  virtual void visitVariable_declaration(Variable_declarationAst *node);
 
-  virtual void addBaseType( StructureType::BaseClassInstance base );
+  virtual void visitBuiltin_type(Builtin_typeAst *node);
 
-  bool m_declarationHasInitDeclarators; //Is set when processing the type-specifiers within SimpleDeclarationASTs, to change the behavior for elaborated type-specifiers.
+  bool m_declarationHasInitDeclarators; //Is set when processing the type-specifiers within SimpleDeclarationAstNodes, to change the behavior for elaborated type-specifiers.
 
   /**Simulates that the given type was created.
    * After calling, the given type will be the last type.
    * */
-  void injectType(const AbstractType::Ptr& type, AST* node);
+  void injectType(const KDevelop::AbstractType::Ptr& type, AstNode* node);
 
   ///Returns whether a type was opened
-  bool openTypeFromName(NameAST* name, bool needClass = false);
+  bool openTypeFromName(IdentifierAst* name, bool needClass = false);
 
-  bool lastTypeWasInstance() const;
-  
-  private:
+private:
   template <class T>
-  void openType(KSharedPtr<T> type, AST* node)
+  void openType(KSharedPtr<T> type, AstNode* node)
   { openAbstractType(KDevelop::AbstractType::Ptr::staticCast(type), node); }
 
-  void openDelayedType(const KDevelop::QualifiedIdentifier& identifier, AST* node, DelayedType::Kind kind);
-  
-  void openAbstractType(KDevelop::AbstractType::Ptr type, AST* node);
+  void openAbstractType(KDevelop::AbstractType::Ptr type, AstNode* node);
   void closeType();
 
-  StructureType* openClass(int kind);
-  FunctionType* openFunction(DeclaratorAST *node);
-
-  KDevelop::Declaration::CVSpecs parseConstVolatile(const ListNode<std::size_t>* cv);
+  ClassType* openClass(bool interface, bool parameters);
+  FunctionType* openFunction();
 
   bool hasCurrentType() { return !m_typeStack.isEmpty(); }
+
+  TypeModifiers parseModifiers(Optional_modifiersAst* node) const;
 
   // You must not use this in creating another type definition, as it may not be the registered type.
   inline KDevelop::AbstractType::Ptr currentAbstractType() { return m_typeStack.top(); }
@@ -134,17 +130,16 @@ protected:
 
   QStack<KDevelop::AbstractType::Ptr> m_typeStack;
 
+  QList<ClassType::Ptr> m_rememberClassNames;
+
   KDevelop::AbstractType::Ptr m_lastType;
 
   QList<KDevelop::AbstractType::Ptr> m_topTypes;
 
   int m_currentEnumeratorValue;
-
-  bool m_lastTypeWasInstance;
 };
 
-///Helper-function that extracts the text from start_token until end_token
-QString stringFromSessionTokens( ParseSession* session, int start_token, int end_token );
+}
 
 #endif // TYPEBUILDER_H
 

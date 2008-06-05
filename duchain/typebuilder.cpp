@@ -24,13 +24,13 @@
 #include <duchain.h>
 #include <forwarddeclaration.h>
 #include <forwarddeclarationtype.h>
-#include <templateparameterdeclaration.h>
 #include <duchainlock.h>
 #include "editorintegrator.h"
 #include <ducontext.h>
 #include "parsesession.h"
 #include <declaration.h>
 #include "declarationbuilder.h"
+#include "typerepository.h"
 //#define DEBUG
 
 #ifdef DEBUG
@@ -40,18 +40,19 @@
 #endif
 
 using namespace KDevelop;
+using namespace java;
 
 TypeBuilder::TypeBuilder(ParseSession* session)
-  : TypeBuilderBase(session), m_declarationHasInitDeclarators(false), m_lastTypeWasInstance(false)
+  : TypeBuilderBase(session), m_declarationHasInitDeclarators(false)
 {
 }
 
 TypeBuilder::TypeBuilder(EditorIntegrator * editor)
-  : TypeBuilderBase(editor), m_declarationHasInitDeclarators(false), m_lastTypeWasInstance(false)
+  : TypeBuilderBase(editor), m_declarationHasInitDeclarators(false)
 {
 }
 
-void TypeBuilder::supportBuild(AST *node, DUContext* context)
+void TypeBuilder::supportBuild(AstNode *node, DUContext* context)
 {
   m_topTypes.clear();
 
@@ -60,7 +61,7 @@ void TypeBuilder::supportBuild(AST *node, DUContext* context)
   Q_ASSERT(m_typeStack.isEmpty());
 }
 
-void TypeBuilder::openAbstractType(AbstractType::Ptr type, AST* node)
+void TypeBuilder::openAbstractType(AbstractType::Ptr type, AstNode* node)
 {
   Q_UNUSED(node);
 
@@ -82,47 +83,23 @@ void TypeBuilder::closeType()
     m_topTypes.append(m_lastType);
 }
 
-StructureType* TypeBuilder::openClass(bool interface)
+ClassType* TypeBuilder::openClass(bool interface, bool parameters)
 {
-  StructureType* classType = new StructureType();
+  ClassType* classType = parameters ? new ParameterizedType() : new ClassType();
 
-  // TODO save interface or not
-  
+  classType->setClassType(interface ? ClassType::Class : ClassType::Interface);
+
   return classType;
 }
 
-void TypeBuilder::visitClass_declaration(Class_declarationAst *node)
-{
-  StructureType::Ptr classType = StructureType::Ptr(openClass(kind));
-  
-  openType(classType, node);
+#if 0
 
-  classTypeOpened( TypeRepository::self()->registerType(currentAbstractType()) ); //This callback is needed, because the type of the class-declaration needs to be set early so the class can be referenced from within itself
-
-  TypeBuilderBase::visitClass_declaration(node);
-
-  // Prevent additional elements being added if this becomes the current type again
-  classType->close();
-
-  closeType();
-}
-
-void TypeBuilder::addBaseType( StructureType::BaseClassInstance base ) {
-  {
-    DUChainWriteLocker lock(DUChain::lock());
-    StructureType* klass = dynamic_cast<StructureType*>(m_typeStack.top().data());
-    Q_ASSERT( klass );
-    klass->addBaseClass(base);
-  }
-  TypeBuilderBase::addBaseType(base);
-}
-
-void TypeBuilder::visitBaseSpecifier(BaseSpecifierAST *node)
+void TypeBuilder::visitBaseSpecifier(BaseSpecifierAstNode *node)
 {
   if (node->name) {
     DUChainReadLocker lock(DUChain::lock());
-    
-    StructureType* klass = dynamic_cast<StructureType*>(m_typeStack.top().data());
+
+    ClassType* klass = dynamic_cast<ClassType*>(m_typeStack.top().data());
     Q_ASSERT( klass );
 
     bool openedType = openTypeFromName(node->name, true);
@@ -130,8 +107,8 @@ void TypeBuilder::visitBaseSpecifier(BaseSpecifierAST *node)
     if( openedType ) {
       closeType();
 
-      StructureType::BaseClassInstance instance;
-      
+      ClassType::BaseClassInstance instance;
+
       instance.virtualInheritance = (bool)node->virt;
       instance.baseClass = m_lastType;
 
@@ -153,36 +130,36 @@ void TypeBuilder::visitBaseSpecifier(BaseSpecifierAST *node)
       }
 
       lock.unlock();
-      
+
       addBaseType(instance);
     } else { //A case for the problem-reporter
-      kDebug(9007) << "Could not find base declaration for" << identifierForName(node->name);
+      kDebug() << "Could not find base declaration for" << identifierForName(node->name);
     }
   }
 
   TypeBuilderBase::visitBaseSpecifier(node);
 }
 
-void TypeBuilder::visitEnumSpecifier(EnumSpecifierAST *node)
+void TypeBuilder::visitEnumSpecifier(EnumSpecifierAstNode *node)
 {
   m_currentEnumeratorValue = 0;
-  
+
   openType(EnumerationType::Ptr(new EnumerationType()), node);
 
   TypeBuilderBase::visitEnumSpecifier(node);
-  
+
   closeType();
 }
 
-void TypeBuilder::visitEnumerator(EnumeratorAST* node)
+void TypeBuilder::visitEnumerator(EnumeratorAstNode* node)
 {
   bool openedType = false;
-  
+
   if(node->expression) {
     ::ExpressionParser parser;
 
     ::ExpressionEvaluationResult res;
-    
+
     bool delay = false;
 
     if(!delay) {
@@ -217,7 +194,7 @@ void TypeBuilder::visitEnumerator(EnumeratorAST* node)
       openedType = true;
     }
   }
-  
+
 //   if (EnumerationType::Ptr parent = currentType<EnumerationType>()) {
 //     EnumeratorType::Ptr enumerator(new EnumeratorType());
 //     openType(enumerator, node);
@@ -230,7 +207,7 @@ void TypeBuilder::visitEnumerator(EnumeratorAST* node)
     openType(enumerator, node);
     enumerator->setValue<qint64>(m_currentEnumeratorValue);
   }
-  
+
   TypeBuilderBase::visitEnumerator(node);
 
   closeType();
@@ -243,7 +220,7 @@ bool TypeBuilder::lastTypeWasInstance() const
   return m_lastTypeWasInstance;
 }
 
-void TypeBuilder::visitElaboratedTypeSpecifier(ElaboratedTypeSpecifierAST *node)
+void TypeBuilder::visitElaboratedTypeSpecifier(ElaboratedTypeSpecifierAstNode *node)
 {
   m_lastTypeWasInstance = false;
   AbstractType::Ptr type;
@@ -253,20 +230,20 @@ void TypeBuilder::visitElaboratedTypeSpecifier(ElaboratedTypeSpecifierAST *node)
   if( kind == Token_typename ) {
     //For typename, just find the type and return
     bool openedType = openTypeFromName(node->name);
-    
+
     TypeBuilderBase::visitElaboratedTypeSpecifier(node);
 
     if(openedType)
       closeType();
     return;
   }
-  
+
   if (node->name) {
 /*    {
       DUChainReadLocker lock(DUChain::lock());
-      
+
       ///If possible, find another fitting declaration/forward-declaration and re-use it's type
-    
+
       SimpleCursor pos = m_editor->findPosition(node->start_token, KDevelop::EditorIntegrator::FrontEdge);
 
       QList<Declaration*> declarations = ::findDeclarationsSameLevel(currentContext(), identifierForName(node->name), pos);
@@ -276,7 +253,7 @@ void TypeBuilder::visitElaboratedTypeSpecifier(ElaboratedTypeSpecifierAST *node)
         return;
       }
     }*/
-    
+
 //     switch (kind) {
 //       case Token_class:
 //       case Token_struct:
@@ -293,7 +270,7 @@ void TypeBuilder::visitElaboratedTypeSpecifier(ElaboratedTypeSpecifierAST *node)
 //     }
 
     type = AbstractType::Ptr(new ForwardDeclarationType());
-    
+
     openType(type, node);
   }
 
@@ -305,7 +282,7 @@ void TypeBuilder::visitElaboratedTypeSpecifier(ElaboratedTypeSpecifierAST *node)
     closeType();
 }
 
-void TypeBuilder::visitSimpleTypeSpecifier(SimpleTypeSpecifierAST *node)
+void TypeBuilder::visitSimpleTypeSpecifier(SimpleTypeSpecifierAstNode *node)
 {
   bool openedType = false;
   m_lastTypeWasInstance = false;
@@ -362,7 +339,7 @@ void TypeBuilder::visitSimpleTypeSpecifier(SimpleTypeSpecifierAST *node)
 
     if(type == IntegralType::TypeNone)
       type = IntegralType::TypeInt; //Happens, example: "unsigned short"
-    
+
     IntegralType::Ptr integral = TypeRepository::self()->integral(type, modifiers, parseConstVolatile(node->cv));
     if (integral) {
       openedType = true;
@@ -378,68 +355,10 @@ void TypeBuilder::visitSimpleTypeSpecifier(SimpleTypeSpecifierAST *node)
   if (openedType)
     closeType();
 }
+#endif
 
-bool TypeBuilder::openTypeFromName(NameAST* name, bool needClass) {
-  QualifiedIdentifier id = identifierForName(name);
-
-  bool openedType = false;
-  
-  bool delay = false;
-
-  if(!delay) {
-    SimpleCursor pos = m_editor->findPosition(name->start_token, KDevelop::EditorIntegrator::FrontEdge);
-    DUChainReadLocker lock(DUChain::lock());
-    
-    QList<Declaration*> dec = searchContext()->findDeclarations(id, pos, AbstractType::Ptr(), 0, DUContext::NoUndefinedTemplateParams);
-
-    if ( dec.isEmpty() || (templateDeclarationDepth() && isTemplateDependent(dec.front())) )
-      delay = true;
-
-    if(!delay) {
-      foreach( Declaration* decl, dec ) {
-        if( needClass && !dynamic_cast<StructureType*>(decl->abstractType().data()) )
-          continue;
-        
-        if (decl->abstractType() ) {
-          if(decl->kind() == KDevelop::Declaration::Instance)
-            m_lastTypeWasInstance = true;
-          
-          ///@todo only functions may have multiple declarations here
-          ifDebug( if( dec.count() > 1 ) kDebug(9007) << id.toString() << "was found" << dec.count() << "times" )
-          //kDebug(9007) << "found for" << id.toString() << ":" << decl->toString() << "type:" << decl->abstractType()->toString() << "context:" << decl->context();
-          openedType = true;
-          openType(decl->abstractType(), name);
-          break;
-        }
-      }
-    }
-    
-    if(!openedType)
-      delay = true;
-  }
-    ///@todo What about position?
-
-  if(delay) {
-    //Either delay the resolution for template-dependent types, or create an unresolved type that stores the name.
-   openedType = true;
-   openDelayedType(id, name, templateDeclarationDepth() ? DelayedType::Delayed : DelayedType::Unresolved );
-
-   ifDebug( if(templateDeclarationDepth() == 0) kDebug(9007) << "no declaration found for" << id.toString() << "in context \"" << searchContext()->scopeIdentifier(true).toString() << "\"" << "" << searchContext() )
-  }
-  return openedType;
-}
-
-
-DUContext* TypeBuilder::searchContext() {
-  DUChainReadLocker lock(DUChain::lock());
-  if( !m_importedParentContexts.isEmpty() && m_importedParentContexts.last()->type() == DUContext::Template ) {
-    return m_importedParentContexts.last();
-  } else
-    return currentContext();
-}
-
-///@todo check whether this conflicts with the isTypeAlias(..) stuff in declaration, and whether it is used at all
-void TypeBuilder::visitTypedef(TypedefAST* node)
+#if 0
+void TypeBuilder::visitTypedef(TypedefAstNode* node)
 {
   openType(TypeAliasType::Ptr(new TypeAliasType()), node);
 
@@ -448,14 +367,14 @@ void TypeBuilder::visitTypedef(TypedefAST* node)
   closeType();
 }
 
-void TypeBuilder::visitFunctionDeclaration(FunctionDefinitionAST* node)
+void TypeBuilder::visitFunctionDeclaration(FunctionDefinitionAstNode* node)
 {
   m_lastType = 0;
 
   TypeBuilderBase::visitFunctionDeclaration(node);
 }
 
-void TypeBuilder::visitSimpleDeclaration(SimpleDeclarationAST* node)
+void TypeBuilder::visitSimpleDeclaration(SimpleDeclarationAstNode* node)
 {
   m_lastType = 0;
 
@@ -467,7 +386,7 @@ void TypeBuilder::visitSimpleDeclaration(SimpleDeclarationAST* node)
   AbstractType::Ptr baseType = m_lastType;
 
   if (node->init_declarators) {
-    const ListNode<InitDeclaratorAST*> *it = node->init_declarators->toFront(), *end = it;
+    const ListNode<InitDeclaratorAstNode*> *it = node->init_declarators->toFront(), *end = it;
 
     do {
       visit(it->element);
@@ -483,7 +402,7 @@ void TypeBuilder::visitSimpleDeclaration(SimpleDeclarationAST* node)
   visitPostSimpleDeclaration(node);
 }
 
-void TypeBuilder::visitPtrOperator(PtrOperatorAST* node)
+void TypeBuilder::visitPtrOperator(PtrOperatorAstNode* node)
 {
   bool typeOpened = false;
   if (node->op) {
@@ -508,24 +427,13 @@ void TypeBuilder::visitPtrOperator(PtrOperatorAST* node)
   if (typeOpened)
     closeType();
 }
+#endif
 
-FunctionType* TypeBuilder::openFunction(DeclaratorAST *node)
-{
-  FunctionType* functionType = new FunctionType();
-
-  if (node->fun_cv)
-    functionType->setCV(parseConstVolatile(node->fun_cv));
-
-  if (lastType())
-    functionType->setReturnType(lastType());
-
-  return functionType;
-}
-
-void TypeBuilder::createTypeForDeclarator(DeclaratorAST *node) {
+#if 0
+void TypeBuilder::createTypeForDeclarator(DeclaratorAstNode *node) {
   // Custom code - create array types
   if (node->array_dimensions) {
-    const ListNode<ExpressionAST*> *it = node->array_dimensions->toFront(), *end = it;
+    const ListNode<ExpressionAstNode*> *it = node->array_dimensions->toFront(), *end = it;
 
     do {
       visitArrayExpression(it->element);
@@ -538,31 +446,31 @@ void TypeBuilder::createTypeForDeclarator(DeclaratorAST *node) {
     openType(FunctionType::Ptr(openFunction(node)), node);
 }
 
-void TypeBuilder::closeTypeForDeclarator(DeclaratorAST *node) {
+void TypeBuilder::closeTypeForDeclarator(DeclaratorAstNode *node) {
   if (node->parameter_declaration_clause)
     closeType();
 
   if (lastType() && hasCurrentType())
-    if (StructureType::Ptr structure = currentType<StructureType>())
+    if (ClassType::Ptr structure = currentType<ClassType>())
       structure->addElement(lastType());
 }
 
 
-void TypeBuilder::visitArrayExpression(ExpressionAST* expression)
+void TypeBuilder::visitArrayExpression(ExpressionAstNode* expression)
 {
   bool typeOpened = false;
 
   ::ExpressionParser parser;
 
   ::ExpressionEvaluationResult res;
-  
+
   {
     DUChainReadLocker lock(DUChain::lock());
     if(expression) {
       expression->ducontext = currentContext();
       res = parser.evaluateType( expression, m_editor->parseSession(), ImportTrace() );
     }
-  
+
     ArrayType::Ptr array(new ArrayType());
     array->setElementType(lastType());
 
@@ -572,7 +480,7 @@ void TypeBuilder::visitArrayExpression(ExpressionAST* expression)
     } else {
       array->setDimension(0);
     }
-    
+
     openType(array, expression);
     typeOpened = true;
   }
@@ -580,6 +488,7 @@ void TypeBuilder::visitArrayExpression(ExpressionAST* expression)
   if (typeOpened)
     closeType();
 }
+#endif
 
 void TypeBuilder::setLastType(KDevelop::AbstractType::Ptr ptr) {
   m_lastType = ptr;
@@ -590,64 +499,270 @@ AbstractType::Ptr TypeBuilder::lastType() const
   return m_lastType;
 }
 
-Declaration::CVSpecs TypeBuilder::parseConstVolatile(const ListNode<std::size_t> *cv)
-{
-  Declaration::CVSpecs ret = Declaration::CVNone;
-
-  if (cv) {
-    const ListNode<std::size_t> *it = cv->toFront();
-    const ListNode<std::size_t> *end = it;
-    do {
-      int kind = m_editor->parseSession()->token_stream->kind(it->element);
-      if (kind == Token_const)
-        ret |= Declaration::Const;
-      else if (kind == Token_volatile)
-        ret |= Declaration::Volatile;
-
-      it = it->next;
-    } while (it != end);
-  }
-
-  return ret;
-}
-
-
-void TypeBuilder::openDelayedType(const QualifiedIdentifier& identifier, AST* node, DelayedType::Kind kind) {
-  DelayedType::Ptr type(new DelayedType());
-  type->setIdentifier(identifier);
-  type->setKind(kind);
-  openType(type, node);
-}
-
-
 const QList< AbstractType::Ptr > & TypeBuilder::topTypes() const
 {
   return m_topTypes;
 }
 
-void TypeBuilder::visitTemplateParameter(TemplateParameterAST *ast)
-{
-  openType(TemplateParameterType::Ptr(new TemplateParameterType()), ast);
-
-  TypeBuilderBase::visitTemplateParameter(ast);
-  
-  closeType();
-}
-
-void TypeBuilder::injectType(const AbstractType::Ptr& type, AST* node) {
+void TypeBuilder::injectType(const AbstractType::Ptr& type, AstNode* node) {
   openType(type, node);
   closeType();
 }
 
-
-void TypeBuilder::visitParameterDeclaration(ParameterDeclarationAST* node)
+void TypeBuilder::visitMethod_declaration(Method_declarationAst * node)
 {
-  TypeBuilderBase::visitParameterDeclaration(node);
+  visitNode(node->return_type);
 
-  if (hasCurrentType()) {
-    if (FunctionType::Ptr function = currentType<FunctionType>()) {
-      function->addArgument(lastType());
+  FunctionType::Ptr functionType = FunctionType::Ptr(new FunctionType(parseModifiers(node->modifiers)));
+
+  if (lastType())
+    functionType->setReturnType(lastType());
+
+  openType(functionType, node);
+
+  TypeBuilderBase::visitMethod_declaration(node);
+
+  closeType();
+}
+
+void TypeBuilder::visitConstructor_declaration(Constructor_declarationAst * node)
+{
+  // TODO set constructor type
+
+  FunctionType::Ptr functionType = FunctionType::Ptr(new FunctionType(parseModifiers(node->modifiers)));
+
+  if (lastType())
+    functionType->setReturnType(lastType());
+
+  openType(functionType, node);
+
+  TypeBuilderBase::visitConstructor_declaration(node);
+
+  closeType();
+}
+
+void TypeBuilder::visitClass_declaration(Class_declarationAst *node)
+{
+  ClassType::Ptr classType = ClassType::Ptr(openClass(false, node->type_parameters));
+
+  openType(classType, node);
+
+  classTypeOpened( TypeRepository::self()->registerType(currentAbstractType()) ); //This callback is needed, because the type of the class-declaration needs to be set early so the class can be referenced from within itself
+
+  TypeBuilderBase::visitClass_declaration(node);
+
+  // Prevent additional elements being added if this becomes the current type again
+  classType->close();
+
+  closeType();
+}
+
+void TypeBuilder::visitInterface_declaration(Interface_declarationAst * node)
+{
+  ClassType::Ptr classType = ClassType::Ptr(openClass(true, node->type_parameters));
+
+  openType(classType, node);
+
+  classTypeOpened( TypeRepository::self()->registerType(currentAbstractType()) ); //This callback is needed, because the type of the class-declaration needs to be set early so the class can be referenced from within itself
+
+  TypeBuilderBase::visitInterface_declaration(node);
+
+  // Prevent additional elements being added if this becomes the current type again
+  classType->close();
+
+  closeType();
+}
+
+void TypeBuilder::visitBuiltin_type(Builtin_typeAst * node)
+{
+  bool openedType = false;
+
+  if (node) {
+    IntegralType::IntegralTypes type = IntegralType::TypeNone;
+
+    switch (node->type) {
+      case builtin_type::type_void:
+        type = IntegralType::TypeVoid;
+        break;
+      case builtin_type::type_boolean:
+          type = IntegralType::TypeBoolean;
+          break;
+      case builtin_type::type_byte:
+          type = IntegralType::TypeByte;
+          break;
+      case builtin_type::type_char:
+          type = IntegralType::TypeChar;
+          break;
+      case builtin_type::type_short:
+          type = IntegralType::TypeShort;
+          break;
+      case builtin_type::type_int:
+          type = IntegralType::TypeInt;
+          break;
+      case builtin_type::type_float:
+          type = IntegralType::TypeFloat;
+          break;
+      case builtin_type::type_long:
+          type = IntegralType::TypeLong;
+          break;
+      case builtin_type::type_double:
+          type = IntegralType::TypeDouble;
+          break;
     }
-    // else may be a template argument
+
+    if(type == IntegralType::TypeNone)
+      type = IntegralType::TypeInt; //Happens, example: "unsigned short"
+
+    // TODO move this out and pass the modifiers as well
+    /*
+    // Equal value
+    TypeModifiers mod = static_cast<TypeModifiers>(node->modifiers);
+
+    if (JavaType* type = dynamic_cast<JavaType*>(currentAbstractType().data()))
+      type->setModifiers(mod);*/
+
+    IntegralType::Ptr integral = TypeRepository::self()->integral(type);
+    if (integral) {
+      openedType = true;
+      openType(integral, node);
+    }
   }
+
+  TypeBuilderBase::visitBuiltin_type(node);
+
+  if (openedType)
+    closeType();
+}
+
+void TypeBuilder::visitType_argument(Type_argumentAst * node)
+{
+  //node->
+
+  TypeBuilderBase::visitType_argument(node);
+}
+
+TypeModifiers java::TypeBuilder::parseModifiers(Optional_modifiersAst * node) const
+{
+  return static_cast<TypeModifiers>(node->modifiers);
+}
+
+void java::TypeBuilder::visitClass_extends_clause(Class_extends_clauseAst * node)
+{
+  m_rememberClassNames.clear();
+
+  TypeBuilderBase::visitClass_extends_clause(node);
+
+  ClassType* klass = dynamic_cast<ClassType*>(m_typeStack.top().data());
+
+  foreach (const ClassType::Ptr& extends, m_rememberClassNames) {
+    // TODO read locking required??
+    if (extends->classType() == ClassType::Interface) {
+      DUChainWriteLocker lock(DUChain::lock());
+      klass->addExtendsClass(extends);
+    } else {
+      // TODO problem reporter
+      kDebug() << "Tried to extend rather than implement an interface";
+    }
+  }
+}
+
+void java::TypeBuilder::visitClass_or_interface_type_name_part(Class_or_interface_type_name_partAst * node)
+{
+  /*
+
+  m_rememberClassNames.clear();
+
+  ClassType::Ptr klass = ClassType::Ptr::dynamicCast(m_typeStack.top());
+  Q_ASSERT( klass );
+
+  bool openedType = openTypeFromName(node->identifier, true);
+
+  TypeBuilderBase::visitClass_or_interface_type_name_part(node);
+
+  if( openedType ) {
+    closeType();
+
+    m_rememberClassNames.append(klass);
+
+  } else { //A case for the problem-reporter
+    kDebug() << "Could not find base declaration for" << identifierForName(node->identifier);
+  }*/
+}
+
+void java::TypeBuilder::visitImplements_clause(Implements_clauseAst * node)
+{
+  /*m_rememberClassNames.clear();
+
+  TypeBuilderBase::visitImplements_clause(node);
+
+  ClassType* klass = dynamic_cast<ClassType*>(m_typeStack.top().data());
+
+  foreach (const ClassType::Ptr& interface, m_rememberClassNames) {
+    // TODO read locking required??
+    if (interface->classType() == ClassType::Interface) {
+      DUChainWriteLocker lock(DUChain::lock());
+      klass->addImplementsInterface(interface);
+    } else {
+      // TODO problem reporter
+      kDebug() << "Tried to implement a class rather than an interface";
+    }
+  }*/
+}
+
+DUContext* TypeBuilder::searchContext() {
+  DUChainReadLocker lock(DUChain::lock());
+  if( !m_importedParentContexts.isEmpty() && m_importedParentContexts.last()->type() == DUContext::Template ) {
+    return m_importedParentContexts.last();
+  } else
+    return currentContext();
+}
+
+bool TypeBuilder::openTypeFromName(IdentifierAst* name, bool needClass) {
+  QualifiedIdentifier id = identifierForName(name);
+
+  bool openedType = false;
+
+  bool delay = false;
+
+  if(!delay) {
+/*    SimpleCursor pos = m_editor->findPosition(name->start_token, KDevelop::EditorIntegrator::FrontEdge);
+    DUChainReadLocker lock(DUChain::lock());
+
+    QList<Declaration*> dec = searchContext()->findDeclarations(id, pos, AbstractType::Ptr(), 0, DUContext::NoUndefinedTemplateParams);
+
+    if ( dec.isEmpty() || (templateDeclarationDepth() && isTemplateDependent(dec.front())) )
+      delay = true;
+
+    if(!delay) {
+      foreach( Declaration* decl, dec ) {
+        if( needClass && !dynamic_cast<CppClassType*>(decl->abstractType().data()) )
+          continue;
+
+        if (decl->abstractType() ) {
+          if(decl->kind() == KDevelop::Declaration::Instance)
+            m_lastTypeWasInstance = true;
+
+          ///@todo only functions may have multiple declarations here
+          ifDebug( if( dec.count() > 1 ) kDebug(9007) << id.toString() << "was found" << dec.count() << "times" )
+          //kDebug(9007) << "found for" << id.toString() << ":" << decl->toString() << "type:" << decl->abstractType()->toString() << "context:" << decl->context();
+          openedType = true;
+          openType(decl->abstractType(), name);
+          break;
+        }
+      }
+    }
+
+    if(!openedType)
+      delay = true;
+*/  }
+    ///@todo What about position?
+
+  /*if(delay) {
+    //Either delay the resolution for template-dependent types, or create an unresolved type that stores the name.
+   openedType = true;
+   openDelayedType(id, name, templateDeclarationDepth() ? DelayedType::Delayed : DelayedType::Unresolved );
+
+   ifDebug( if(templateDeclarationDepth() == 0) kDebug(9007) << "no declaration found for" << id.toString() << "in context \"" << searchContext()->scopeIdentifier(true).toString() << "\"" << "" << searchContext() )
+  }*/
+  return openedType;
 }

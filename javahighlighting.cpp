@@ -64,15 +64,15 @@ uint totalColorInterpolationSteps() {
 
 ///Generates a color from the color wheel. @param step Step-number, one of totalColorInterpolationSteps
 uint interpolate(uint step) {
-  
+
   uint waypoint = 0;
   while(step > interpolationLengths[waypoint]) {
     step -= interpolationLengths[waypoint];
     ++waypoint;
   }
-    
+
   uint nextWaypoint = (waypoint + 1) % totalColorInterpolationStepCount;
-  
+
   return mix(interpolationWaypoints[waypoint], interpolationWaypoints[nextWaypoint], (step * 0xff) / interpolationLengths[waypoint]);
 }
 
@@ -163,11 +163,11 @@ KTextEditor::Attribute::Ptr JavaHighlighting::attributeForType( Types type, Cont
       case TypeAliasType:
         a->setForeground(QColor(0x00981e)); //Lighter greyish green
         break;
-        
+
       case EnumType:
         a->setForeground(QColor(0x6c101e)); //Dark red
         break;
-        
+
       case EnumeratorType:
         a->setForeground(QColor(0x862a38)); //Greyish red
         break;
@@ -185,11 +185,11 @@ KTextEditor::Attribute::Ptr JavaHighlighting::attributeForType( Types type, Cont
       case LocalClassMemberType:
         a->setForeground(QColor(0xae7d00)); //Light orange
         break;
-        
+
       case InheritedClassMemberType:
         a->setForeground(QColor(0x705000)); //Dark orange
         break;
-        
+
       case LocalVariableType:
         // Dark aquamarine
         a->setForeground(QColor(0x0C4D3C));
@@ -259,7 +259,7 @@ KTextEditor::Attribute::Ptr JavaHighlighting::attributeForType( Types type, Cont
 
 void JavaHighlighting::outputRange( KTextEditor::SmartRange * range ) const
 {
-  kDebug( 9007 ) << range << QString(range->depth(), ' ') << *range << "attr" << range->attribute();
+  kDebug(  ) << range << QString(range->depth(), ' ') << *range << "attr" << range->attribute();
   Q_ASSERT(range->start() <= range->end());
   foreach (SmartRange* child, range->childRanges())
     outputRange(child);
@@ -272,8 +272,8 @@ ColorMap emptyColorMap() {
 
 void JavaHighlighting::highlightDUChain(TopDUContext* context) const
 {
-  kDebug( 9007 ) << "highighting du chain";
-  
+  kDebug(  ) << "highighting du chain";
+
   DUChainReadLocker lock(DUChain::lock());
 
   m_contextClasses.clear();
@@ -295,12 +295,12 @@ void JavaHighlighting::highlightDUChainSimple(DUContext* context) const
     return;
 
   bool isInFunction = context->type() == DUContext::Function || (context->type() == DUContext::Other && context->owner());
-  
+
   if( isInFunction && m_localColorization ) {
     highlightDUChain(context, QHash<Declaration*, uint>(), emptyColorMap());
     return;
   }
-  
+
 
   foreach (Declaration* dec, context->localDeclarations()) {
     highlightDeclaration(dec, 0);
@@ -346,7 +346,7 @@ void JavaHighlighting::highlightDUChain(DUContext* context, QHash<Declaration*, 
   }
 
   QList<Declaration*> takeFreeColors;
-  
+
   foreach (Declaration* dec, context->localDeclarations()) {
     //Initially pick a color using the hash, so the chances are good that the same identifier gets the same color always.
     uint colorNum = dec->identifier().hash() % validColorCount;
@@ -358,7 +358,7 @@ void JavaHighlighting::highlightDUChain(DUContext* context, QHash<Declaration*, 
 
     colorsForDeclarations[dec] = colorNum;
     declarationsForColors[colorNum] = dec;
-    
+
     highlightDeclaration(dec, colors[colorNum]);
   }
 
@@ -375,7 +375,7 @@ void JavaHighlighting::highlightDUChain(DUContext* context, QHash<Declaration*, 
     }
     colorsForDeclarations[dec] = colorNum;
     declarationsForColors[colorNum] = dec;
-    
+
     highlightDeclaration(dec, colors[colorNum]);
   }
 
@@ -416,9 +416,9 @@ KDevelop::Declaration* JavaHighlighting::localClassFromCodeContext(KDevelop::DUC
 
   if(m_contextClasses.contains(context))
     return m_contextClasses[context];
-  
+
   DUContext* startContext = context;
-  
+
   while( context->parentContext() && context->type() == DUContext::Other && context->parentContext()->type() == DUContext::Other )
   { //Move context to the top context of type "Other". This is needed because every compound-statement creates a new sub-context.
     context = context->parentContext();
@@ -431,7 +431,7 @@ KDevelop::Declaration* JavaHighlighting::localClassFromCodeContext(KDevelop::DUC
 
     if(m_contextClasses.contains(context))
       return m_contextClasses[context];
-    
+
     functionDeclaration = context->owner()->declaration(startContext->topContext());
   }
 
@@ -448,7 +448,7 @@ KDevelop::Declaration* JavaHighlighting::localClassFromCodeContext(KDevelop::DUC
 
   if(m_useClassCache)
     m_contextClasses[context] = decl;
-  
+
   return decl;
 }
 
@@ -459,7 +459,7 @@ JavaHighlighting::Types JavaHighlighting::typeForDeclaration(Declaration * dec, 
    * 1. Is the item in the local class or an inherited class? If yes, highlight.
    * 2. What kind of item is it? If it's a type/function/enumerator, highlight by type.
    * 3. Else, highlight by scope.
-   * 
+   *
    * */
 
   Types type = LocalVariableType;

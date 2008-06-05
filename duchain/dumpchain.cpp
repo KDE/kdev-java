@@ -205,11 +205,11 @@ void DumpChain::visitNode(AstNode *node)
       if( !nodeText.isEmpty() ) nodeText = "\"" + nodeText + "\"";
 
 
-      kDebug(9007) << indentation <<  "\\" << names[node->kind - 1000]
+      kDebug() << indentation <<  "\\" << names[node->kind - 1000]
               << "[" << node->startToken << m_editor->findPosition(node->startToken, EditorIntegrator::FrontEdge).textCursor() << ", "
               << node->endToken << m_editor->findPosition(node->endToken, EditorIntegrator::BackEdge).textCursor() << "]" << nodeText << endl;
     } else
-      kDebug(9007) << indentation << "\\" << names[node->kind - 1000]
+      kDebug() << indentation << "\\" << names[node->kind - 1000]
               << "[" << node->startToken << "," << node->endToken << "]" << endl;
 
   ++indent;
@@ -218,11 +218,11 @@ void DumpChain::visitNode(AstNode *node)
 
   if (node)
     if (m_editor)
-      kDebug(9007) << indentation << "/" << names[node->kind - 1000]
+      kDebug() << indentation << "/" << names[node->kind - 1000]
               << "[("  << node->endToken << ") "/*<< m_editor->findPosition(node->startToken, EditorIntegrator::FrontEdge) << ", "*/
               << m_editor->findPosition(node->endToken, EditorIntegrator::FrontEdge).textCursor() << "]" << endl;
     else
-      kDebug(9007) << indentation << "/" << names[node->kind - 1000]
+      kDebug() << indentation << "/" << names[node->kind - 1000]
               << "[" << node->startToken << "," << node->endToken << ']' << endl;
 }
 
@@ -233,20 +233,20 @@ DumpChain::~ DumpChain( )
 
 void DumpChain::dump( DUContext * context, bool imported )
 {
-  kDebug(9007) << QString(indent * 2, ' ') << (imported ? "==import==> Context " : "New Context ") << context << "\"" <<  context->localScopeIdentifier() << "\" [" << context->scopeIdentifier() << "]" << context->range().textRange() << " " << (dynamic_cast<TopDUContext*>(context) ? "top-context" : "");
+  kDebug() << QString(indent * 2, ' ') << (imported ? "==import==> Context " : "New Context ") << context << "\"" <<  context->localScopeIdentifier() << "\" [" << context->scopeIdentifier() << "]" << context->range().textRange() << " " << (dynamic_cast<TopDUContext*>(context) ? "top-context" : "");
   if( !context )
     return;
   if (!imported) {
     foreach (Declaration* dec, context->localDeclarations()) {
 
-      kDebug(9007) << QString((indent+1) * 2, ' ') << "Declaration: " << dec->toString() << /*(idType ? (" (type-identity: " + idType->identifier().toString() + ")") : QString()) <<*/ " [" << dec->qualifiedIdentifier() << "]" << dec << "(internal ctx" << dec->internalContext() << ")" << dec->range().textRange() << "," << (dec->isDefinition() ? "defined, " : (dec->definition() ? "" : "no definition, ")) << dec->uses().count() << "use(s).";
+      kDebug() << QString((indent+1) * 2, ' ') << "Declaration: " << dec->toString() << /*(idType ? (" (type-identity: " + idType->identifier().toString() + ")") : QString()) <<*/ " [" << dec->qualifiedIdentifier() << "]" << dec << "(internal ctx" << dec->internalContext() << ")" << dec->range().textRange() << "," << (dec->isDefinition() ? "defined, " : (dec->definition() ? "" : "no definition, ")) << dec->uses().count() << "use(s).";
       if (dec->definition())
-        kDebug(9007) << QString((indent+1) * 2 + 1, ' ') << "Definition:" << dec->definition()->range().textRange();
+        kDebug() << QString((indent+1) * 2 + 1, ' ') << "Definition:" << dec->definition()->range().textRange();
       QMap<HashedString, QList<SimpleRange> > uses = dec->uses();
       for(QMap<HashedString, QList<SimpleRange> >::const_iterator it = uses.begin(); it != uses.end(); ++it) {
-        kDebug(9007) << QString((indent+2) * 2, ' ') << "File:" << it.key().str();
+        kDebug() << QString((indent+2) * 2, ' ') << "File:" << it.key().str();
         foreach (const SimpleRange& range, *it)
-          kDebug(9007) << QString((indent+2) * 2+1, ' ') << "Use:" << range.textRange();
+          kDebug() << QString((indent+2) * 2+1, ' ') << "Use:" << range.textRange();
       }
     }
   }

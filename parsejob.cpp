@@ -118,7 +118,7 @@ void ParseJob::run()
         if ( !file.open( QIODevice::ReadOnly ) )
         {
             m_errorMessage = i18n( "Could not open file '%1'", m_document.str() );
-            kWarning( 9007 ) << "Could not open file " << m_document.str()
+            kWarning(  ) << "Could not open file " << m_document.str()
                              << " (path " << fileInfo.filePath() << ")";
             return ;
         }
@@ -182,7 +182,7 @@ void ParseJob::run()
     if (editor.smart() && revisionToken() > 0)
         editor.smart()->useRevision(revisionToken());
 
-    //kDebug( 9007 ) << (contentContext ? "updating" : "building") << "duchain for" << parentJob()->document().str();
+    //kDebug(  ) << (contentContext ? "updating" : "building") << "duchain for" << parentJob()->document().str();
 
     DeclarationBuilder builder(&editor);
     KDevelop::DUContext* chain = builder.buildDeclarations(KDevelop::HashedString(document()), ast, KDevelop::TopDUContextPointer());

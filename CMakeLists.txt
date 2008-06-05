@@ -38,7 +38,7 @@ include_directories(
 
 ########### next target ###############
 
-add_definitions( ${QT_DEFINITIONS} ${KDE4_DEFINITIONS} -DKDE_DEFAULT_DEBUG_AREA=9013 )
+add_definitions( ${QT_DEFINITIONS} ${KDE4_DEFINITIONS} -DKDE_DEFAULT_DEBUG_AREA=9043 )
 
 set(kdevjavalanguagesupport_PART_SRCS
     javalanguagesupport.cpp
@@ -51,6 +51,9 @@ set(kdevjavalanguagesupport_PART_SRCS
     duchain/dumpchain.cpp
     duchain/declarationbuilder.cpp
     duchain/usebuilder.cpp
+    duchain/typebuilder.cpp
+    duchain/types.cpp
+    duchain/typerepository.cpp
 )
 
 kde4_add_plugin(kdevjavalanguagesupport ${kdevjavalanguagesupport_PART_SRCS})
@@ -63,6 +66,7 @@ target_link_libraries(kdevjavalanguagesupport
     ${KDE4_THREADWEAVER_LIBRARIES}
     ${KDEVPLATFORM_LANGUAGE_LIBRARY}
     ${KDEVPLATFORM_LANGUAGE_LIBRARY}
+    ${KDE4_KDE3SUPPORT_LIBRARY}
     ${KDE4_KDEUI_LIBS}
     kdev4javaparser
 )

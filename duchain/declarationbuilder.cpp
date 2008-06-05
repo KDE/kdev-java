@@ -367,7 +367,7 @@ void DeclarationBuilder::eventuallyAssignInternalContext()
         currentDeclaration()->setInternalContext(m_lastContext);
 
         if( currentDeclaration()->range().start >= currentDeclaration()->range().end )
-          kDebug(9007) << "Warning: Range was invalidated";
+          kDebug() << "Warning: Range was invalidated";
 
         m_lastContext = 0;
       }
@@ -380,26 +380,12 @@ void DeclarationBuilder::closeDeclaration()
   if (currentDeclaration()) {
     DUChainWriteLocker lock(DUChain::lock());
 
-    IdentifiedType* idType = dynamic_cast<IdentifiedType*>(currentDeclaration());
-    DelayedType* delayed = dynamic_cast<DelayedType*>(currentDeclaration());
-
-    //When the given type has no declaration yet, assume we are declaring it now.
-    //If the type is a delayed type, it is a searched type, and not a declared one, so don't set the declaration then.
-    if( idType && idType->declaration() == 0 && !delayed )
-        idType->setDeclaration( currentDeclaration() );
-
-    //If the type is not identified, it is an instance-declaration too, because those types have no type-declarations.
-    if( (((!idType) || (idType && idType->declaration() != currentDeclaration())) && !currentDeclaration()->isTypeAlias() && !currentDeclaration()->isForwardDeclaration() ) || dynamic_cast<AbstractFunctionDeclaration*>(currentDeclaration()) )
-      currentDeclaration()->setKind(Declaration::Instance);
-    else
-      currentDeclaration()->setKind(Declaration::Type);
-
-    //currentDeclaration()->setType(currentDeclaration());
+    currentDeclaration()->setType(lastType());
   }
 
   eventuallyAssignInternalContext();
 
-  //kDebug(9007) << "Mangled declaration:" << currentDeclaration()->mangledIdentifier();
+  //kDebug() << "Mangled declaration:" << currentDeclaration()->mangledIdentifier();
 
   m_declarationStack.pop();
 }
@@ -484,7 +470,7 @@ void DeclarationBuilder::visitClassSpecifier(ClassSpecifierAstNode *node)
 
               KDevelop::DUContext* currentTemplateContext = getTemplateContext(currentDeclaration());
               if( (bool)forwardTemplateContext != (bool)currentTemplateContext ) {
-                kDebug(9007) << "Template-contexts of forward- and real declaration do not match: " << currentTemplateContext << getTemplateContext(currentDeclaration()) << currentDeclaration()->internalContext() << forwardTemplateContext << currentDeclaration()->internalContext()->importedParentContexts().count();
+                kDebug() << "Template-contexts of forward- and real declaration do not match: " << currentTemplateContext << getTemplateContext(currentDeclaration()) << currentDeclaration()->internalContext() << forwardTemplateContext << currentDeclaration()->internalContext()->importedParentContexts().count();
               } else if( forwardTemplateContext && currentTemplateContext ) {
                 if( forwardTemplateContext->localDeclarations().count() != currentTemplateContext->localDeclarations().count() ) {
                 } else {
@@ -529,7 +515,7 @@ void DeclarationBuilder::visitClassSpecifier(ClassSpecifierAstNode *node)
 //                 //Copy the class from real into the forward-declaration's instance
 //                 copyJavaClass(realClass.data(), forwardClass.data());
 //               } else {
-//                 kDebug(9007) << "Bad types involved in formward-declaration";
+//                 kDebug() << "Bad types involved in formward-declaration";
 //               }
 //             }
 //           }//templateForward && currentTemplate
@@ -558,7 +544,7 @@ void DeclarationBuilder::visitClassSpecifier(ClassSpecifierAstNode *node)
     DUChainReadLocker lock(DUChain::lock());
     if( currentContext()->type() != DUContext::Namespace && currentContext()->type() != DUContext::Global ) {
       ///@todo report problem
-      kDebug(9007) << "Namespace-import used in non-global scope";
+      kDebug() << "Namespace-import used in non-global scope";
       return;
     }
   }
@@ -746,6 +732,15 @@ void java::DeclarationBuilder::visitInterface_declaration(Interface_declarationA
   closeDeclaration();
 }
 
+void java::DeclarationBuilder::visitInterface_method_declaration(Interface_method_declarationAst * node)
+{
+  Declaration* interfaceDeclaration = openDefinition(node->method_name, node, true);
+
+  DeclarationBuilderBase::visitInterface_method_declaration(node);
+
+  closeDeclaration();
+}
+
 void java::DeclarationBuilder::visitConstructor_declaration(Constructor_declarationAst * node)
 {
   Declaration* constructorDeclaration = openDefinition(node->class_name, node, true);
@@ -773,9 +768,28 @@ void java::DeclarationBuilder::visitVariable_declaration(Variable_declarationAst
 
 void java::DeclarationBuilder::visitVariable_declarator(Variable_declaratorAst * node)
 {
-  openDefinition(node->variable_name, node, true);
+  openDefinition(node->variable_name, node, false);
 
   DeclarationBuilderBase::visitVariable_declarator(node);
 
   closeDeclaration();
 }
+
+void java::DeclarationBuilder::visitParameter_declaration(Parameter_declarationAst * node)
+{
+  openDefinition(node->variable_name, node, false);
+
+  DeclarationBuilderBase::visitParameter_declaration(node);
+
+  closeDeclaration();
+}
+
+void java::DeclarationBuilder::visitParameter_declaration_ellipsis(Parameter_declaration_ellipsisAst * node)
+{
+  openDefinition(node->variable_name, node, false);
+
+  DeclarationBuilderBase::visitParameter_declaration_ellipsis(node);
+
+  closeDeclaration();
+}
+
