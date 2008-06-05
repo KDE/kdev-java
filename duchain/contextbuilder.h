@@ -111,7 +111,6 @@ protected:
   inline void setRecompiling(bool recomp) { m_recompiling = recomp; }
 
   // Visitors
-  //virtual void visitBlock(BlockAst *node);
   virtual void visitFor_statement(For_statementAst *node);
   virtual void visitIf_statement(If_statementAst *node);
   virtual void visitClass_declaration(Class_declarationAst *node);

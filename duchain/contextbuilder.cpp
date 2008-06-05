@@ -449,15 +449,6 @@ void ContextBuilder::visitMethod_declaration(Method_declarationAst * node)
   closeContext();
 }
 
-/*void ContextBuilder::visitBlock(BlockAst * node)
-{
-  openContext(node, DUContext::Other);
-
-  DefaultVisitor::visitBlock(node);
-
-  closeContext();
-}*/
-
 void ContextBuilder::visitFor_statement(For_statementAst *node)
 {
   DUContext* control = 0;
