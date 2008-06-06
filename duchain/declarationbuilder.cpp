@@ -661,91 +661,91 @@ void DeclarationBuilder::closeContext()
   DeclarationBuilderBase::closeContext();
 }
 
-void java::DeclarationBuilder::visitClass_declaration(Class_declarationAst * node)
+void java::DeclarationBuilder::visitClassDeclaration(ClassDeclarationAst * node)
 {
-  Declaration* classDeclaration = openDefinition(node->class_name, node, false);
-  
+  Declaration* classDeclaration = openDefinition(node->className, node, false);
+
   currentDeclaration()->setKind(Declaration::Type);
 
-  DeclarationBuilderBase::visitClass_declaration(node);
+  DeclarationBuilderBase::visitClassDeclaration(node);
 
   closeDeclaration();
 }
 
-void java::DeclarationBuilder::visitInterface_declaration(Interface_declarationAst * node)
+void java::DeclarationBuilder::visitInterfaceDeclaration(InterfaceDeclarationAst * node)
 {
-  openDefinition(node->interface_name, node, false);
-  
+  openDefinition(node->interfaceName, node, false);
+
   currentDeclaration()->setKind(Declaration::Type);
 
-  DeclarationBuilderBase::visitInterface_declaration(node);
+  DeclarationBuilderBase::visitInterfaceDeclaration(node);
 
   closeDeclaration();
 }
 
-void java::DeclarationBuilder::visitInterface_method_declaration(Interface_method_declarationAst * node)
+void java::DeclarationBuilder::visitInterfaceMethodDeclaration(InterfaceMethodDeclarationAst * node)
 {
-  openDefinition(node->method_name, node, true);
-  
+  openDefinition(node->methodName, node, true);
+
   currentDeclaration()->setKind(Declaration::Type);
 
-  DeclarationBuilderBase::visitInterface_method_declaration(node);
+  DeclarationBuilderBase::visitInterfaceMethodDeclaration(node);
 
   closeDeclaration();
 }
 
-void java::DeclarationBuilder::visitConstructor_declaration(Constructor_declarationAst * node)
+void java::DeclarationBuilder::visitConstructorDeclaration(ConstructorDeclarationAst * node)
 {
-  openDefinition(node->class_name, node, true);
-  
+  openDefinition(node->className, node, true);
+
   currentDeclaration()->setKind(Declaration::Type);
 
-  DeclarationBuilderBase::visitConstructor_declaration(node);
+  DeclarationBuilderBase::visitConstructorDeclaration(node);
 
   closeDeclaration();
 }
 
-void java::DeclarationBuilder::visitMethod_declaration(Method_declarationAst * node)
+void java::DeclarationBuilder::visitMethodDeclaration(MethodDeclarationAst * node)
 {
-  openDefinition(node->method_name, node, true);
-  
+  openDefinition(node->methodName, node, true);
+
   currentDeclaration()->setKind(Declaration::Type);
 
-  DeclarationBuilderBase::visitMethod_declaration(node);
+  DeclarationBuilderBase::visitMethodDeclaration(node);
 
   closeDeclaration();
 }
 
-void java::DeclarationBuilder::visitVariable_declaration(Variable_declarationAst * node)
+void java::DeclarationBuilder::visitVariableDeclaration(VariableDeclarationAst * node)
 {
   // Here we should save / apply the type
 
-  DeclarationBuilderBase::visitVariable_declaration(node);
+  DeclarationBuilderBase::visitVariableDeclaration(node);
 }
 
-void java::DeclarationBuilder::visitVariable_declarator(Variable_declaratorAst * node)
+void java::DeclarationBuilder::visitVariableDeclarator(VariableDeclaratorAst * node)
 {
-  openDefinition(node->variable_name, node, false);
+  openDefinition(node->variableName, node, false);
 
-  DeclarationBuilderBase::visitVariable_declarator(node);
+  DeclarationBuilderBase::visitVariableDeclarator(node);
 
   closeDeclaration();
 }
 
-void java::DeclarationBuilder::visitParameter_declaration(Parameter_declarationAst * node)
+void java::DeclarationBuilder::visitParameterDeclaration(ParameterDeclarationAst * node)
 {
-  openDefinition(node->variable_name, node, false);
+  openDefinition(node->variableName, node, false);
 
-  DeclarationBuilderBase::visitParameter_declaration(node);
+  DeclarationBuilderBase::visitParameterDeclaration(node);
 
   closeDeclaration();
 }
 
-void java::DeclarationBuilder::visitParameter_declaration_ellipsis(Parameter_declaration_ellipsisAst * node)
+void java::DeclarationBuilder::visitParameterDeclarationEllipsis(ParameterDeclarationEllipsisAst * node)
 {
-  openDefinition(node->variable_name, node, false);
+  openDefinition(node->variableName, node, false);
 
-  DeclarationBuilderBase::visitParameter_declaration_ellipsis(node);
+  DeclarationBuilderBase::visitParameterDeclarationEllipsis(node);
 
   closeDeclaration();
 }

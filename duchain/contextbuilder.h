@@ -111,12 +111,12 @@ protected:
   inline void setRecompiling(bool recomp) { m_recompiling = recomp; }
 
   // Visitors
-  virtual void visitFor_statement(For_statementAst *node);
-  virtual void visitIf_statement(If_statementAst *node);
-  virtual void visitClass_declaration(Class_declarationAst *node);
-  virtual void visitMethod_declaration(Method_declarationAst *node);
-  virtual void visitConstructor_declaration(Constructor_declarationAst *node);
-  virtual void visitInterface_declaration(Interface_declarationAst *node);
+  virtual void visitForStatement(ForStatementAst *node);
+  virtual void visitIfStatement(IfStatementAst *node);
+  virtual void visitClassDeclaration(ClassDeclarationAst *node);
+  virtual void visitMethodDeclaration(MethodDeclarationAst *node);
+  virtual void visitConstructorDeclaration(ConstructorDeclarationAst *node);
+  virtual void visitInterfaceDeclaration(InterfaceDeclarationAst *node);
 
   // Write lock is already held here...
   virtual void openContext(KDevelop::DUContext* newContext);

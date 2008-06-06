@@ -61,9 +61,9 @@ void Parser::restoreState( Parser::ParserState *state )
 namespace java
 {
 
-bool Parser::parseAdditive_expression(Additive_expressionAst **yynode)
+bool Parser::parseAdditiveExpression(AdditiveExpressionAst **yynode)
 {
-    *yynode = create<Additive_expressionAst>();
+    *yynode = create<AdditiveExpressionAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -96,12 +96,12 @@ bool Parser::parseAdditive_expression(Additive_expressionAst **yynode)
         || yytoken == Token_LESS_THAN
         || yytoken == Token_TRUE)
     {
-        Multiplicative_expressionAst *__node_0 = 0;
-        if (!parseMultiplicative_expression(&__node_0))
+        MultiplicativeExpressionAst *__node_0 = 0;
+        if (!parseMultiplicativeExpression(&__node_0))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Multiplicative_expressionKind, "multiplicative_expression");
+                expectedSymbol(AstNode::MultiplicativeExpressionKind, "multiplicativeExpression");
             }
             return false;
         }
@@ -110,16 +110,16 @@ bool Parser::parseAdditive_expression(Additive_expressionAst **yynode)
         while (yytoken == Token_MINUS
                || yytoken == Token_PLUS)
         {
-            Additive_expression_restAst *__node_1 = 0;
-            if (!parseAdditive_expression_rest(&__node_1))
+            AdditiveExpressionRestAst *__node_1 = 0;
+            if (!parseAdditiveExpressionRest(&__node_1))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Additive_expression_restKind, "additive_expression_rest");
+                    expectedSymbol(AstNode::AdditiveExpressionRestKind, "additiveExpressionRest");
                 }
                 return false;
             }
-            (*yynode)->additional_expressionSequence = snoc((*yynode)->additional_expressionSequence, __node_1, memoryPool);
+            (*yynode)->additionalExpressionSequence = snoc((*yynode)->additionalExpressionSequence, __node_1, memoryPool);
 
         }
     }
@@ -133,9 +133,9 @@ bool Parser::parseAdditive_expression(Additive_expressionAst **yynode)
     return true;
 }
 
-bool Parser::parseAdditive_expression_rest(Additive_expression_restAst **yynode)
+bool Parser::parseAdditiveExpressionRest(AdditiveExpressionRestAst **yynode)
 {
-    *yynode = create<Additive_expression_restAst>();
+    *yynode = create<AdditiveExpressionRestAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -154,7 +154,7 @@ bool Parser::parseAdditive_expression_rest(Additive_expression_restAst **yynode)
             }
             yylex();
 
-            (*yynode)->additive_operator = AdditiveOperatorPlus;
+            (*yynode)->additiveOperator = AdditiveOperatorPlus;
         }
         else if (yytoken == Token_MINUS)
         {
@@ -168,18 +168,18 @@ bool Parser::parseAdditive_expression_rest(Additive_expression_restAst **yynode)
             }
             yylex();
 
-            (*yynode)->additive_operator = AdditiveOperatorMinus;
+            (*yynode)->additiveOperator = AdditiveOperatorMinus;
         }
         else
         {
             return false;
         }
-        Multiplicative_expressionAst *__node_2 = 0;
-        if (!parseMultiplicative_expression(&__node_2))
+        MultiplicativeExpressionAst *__node_2 = 0;
+        if (!parseMultiplicativeExpression(&__node_2))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Multiplicative_expressionKind, "multiplicative_expression");
+                expectedSymbol(AstNode::MultiplicativeExpressionKind, "multiplicativeExpression");
             }
             return false;
         }
@@ -214,16 +214,16 @@ bool Parser::parseAnnotation(AnnotationAst **yynode)
         }
         yylex();
 
-        Qualified_identifierAst *__node_3 = 0;
-        if (!parseQualified_identifier(&__node_3))
+        QualifiedIdentifierAst *__node_3 = 0;
+        if (!parseQualifiedIdentifier(&__node_3))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Qualified_identifierKind, "qualified_identifier");
+                expectedSymbol(AstNode::QualifiedIdentifierKind, "qualifiedIdentifier");
             }
             return false;
         }
-        (*yynode)->type_name = __node_3;
+        (*yynode)->typeName = __node_3;
 
         if (yytoken == Token_LPAREN)
         {
@@ -268,12 +268,12 @@ bool Parser::parseAnnotation(AnnotationAst **yynode)
                 || yytoken == Token_TRUE
                 || yytoken == Token_LBRACE)
             {
-                Annotation_argumentsAst *__node_4 = 0;
-                if (!parseAnnotation_arguments(&__node_4))
+                AnnotationArgumentsAst *__node_4 = 0;
+                if (!parseAnnotationArguments(&__node_4))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Annotation_argumentsKind, "annotation_arguments");
+                        expectedSymbol(AstNode::AnnotationArgumentsKind, "annotationArguments");
                     }
                     return false;
                 }
@@ -297,11 +297,11 @@ bool Parser::parseAnnotation(AnnotationAst **yynode)
             }
             yylex();
 
-            (*yynode)->has_parentheses = true;
+            (*yynode)->hasParentheses = true;
         }
         else if (true /*epsilon*/)
         {
-            (*yynode)->has_parentheses = false;
+            (*yynode)->hasParentheses = false;
         }
         else
         {
@@ -318,9 +318,9 @@ bool Parser::parseAnnotation(AnnotationAst **yynode)
     return true;
 }
 
-bool Parser::parseAnnotation_arguments(Annotation_argumentsAst **yynode)
+bool Parser::parseAnnotationArguments(AnnotationArgumentsAst **yynode)
 {
-    *yynode = create<Annotation_argumentsAst>();
+    *yynode = create<AnnotationArgumentsAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -357,16 +357,16 @@ bool Parser::parseAnnotation_arguments(Annotation_argumentsAst **yynode)
     {
         if ((yytoken == Token_IDENTIFIER) && ( LA(2).kind == Token_ASSIGN ))
         {
-            Annotation_element_value_pairAst *__node_5 = 0;
-            if (!parseAnnotation_element_value_pair(&__node_5))
+            AnnotationElementValuePairAst *__node_5 = 0;
+            if (!parseAnnotationElementValuePair(&__node_5))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Annotation_element_value_pairKind, "annotation_element_value_pair");
+                    expectedSymbol(AstNode::AnnotationElementValuePairKind, "annotationElementValuePair");
                 }
                 return false;
             }
-            (*yynode)->value_pairSequence = snoc((*yynode)->value_pairSequence, __node_5, memoryPool);
+            (*yynode)->valuePairSequence = snoc((*yynode)->valuePairSequence, __node_5, memoryPool);
 
             while (yytoken == Token_COMMA)
             {
@@ -380,16 +380,16 @@ bool Parser::parseAnnotation_arguments(Annotation_argumentsAst **yynode)
                 }
                 yylex();
 
-                Annotation_element_value_pairAst *__node_6 = 0;
-                if (!parseAnnotation_element_value_pair(&__node_6))
+                AnnotationElementValuePairAst *__node_6 = 0;
+                if (!parseAnnotationElementValuePair(&__node_6))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Annotation_element_value_pairKind, "annotation_element_value_pair");
+                        expectedSymbol(AstNode::AnnotationElementValuePairKind, "annotationElementValuePair");
                     }
                     return false;
                 }
-                (*yynode)->value_pairSequence = snoc((*yynode)->value_pairSequence, __node_6, memoryPool);
+                (*yynode)->valuePairSequence = snoc((*yynode)->valuePairSequence, __node_6, memoryPool);
 
             }
         }
@@ -424,16 +424,16 @@ bool Parser::parseAnnotation_arguments(Annotation_argumentsAst **yynode)
                  || yytoken == Token_TRUE
                  || yytoken == Token_LBRACE)
         {
-            Annotation_element_valueAst *__node_7 = 0;
-            if (!parseAnnotation_element_value(&__node_7))
+            AnnotationElementValueAst *__node_7 = 0;
+            if (!parseAnnotationElementValue(&__node_7))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Annotation_element_valueKind, "annotation_element_value");
+                    expectedSymbol(AstNode::AnnotationElementValueKind, "annotationElementValue");
                 }
                 return false;
             }
-            (*yynode)->element_value = __node_7;
+            (*yynode)->elementValue = __node_7;
 
         }
         else
@@ -451,9 +451,9 @@ bool Parser::parseAnnotation_arguments(Annotation_argumentsAst **yynode)
     return true;
 }
 
-bool Parser::parseAnnotation_element_array_initializer(Annotation_element_array_initializerAst **yynode)
+bool Parser::parseAnnotationElementArrayInitializer(AnnotationElementArrayInitializerAst **yynode)
 {
-    *yynode = create<Annotation_element_array_initializerAst>();
+    *yynode = create<AnnotationElementArrayInitializerAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -499,16 +499,16 @@ bool Parser::parseAnnotation_element_array_initializer(Annotation_element_array_
             || yytoken == Token_LESS_THAN
             || yytoken == Token_TRUE)
         {
-            Annotation_element_array_valueAst *__node_8 = 0;
-            if (!parseAnnotation_element_array_value(&__node_8))
+            AnnotationElementArrayValueAst *__node_8 = 0;
+            if (!parseAnnotationElementArrayValue(&__node_8))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Annotation_element_array_valueKind, "annotation_element_array_value");
+                    expectedSymbol(AstNode::AnnotationElementArrayValueKind, "annotationElementArrayValue");
                 }
                 return false;
             }
-            (*yynode)->element_valueSequence = snoc((*yynode)->element_valueSequence, __node_8, memoryPool);
+            (*yynode)->elementValueSequence = snoc((*yynode)->elementValueSequence, __node_8, memoryPool);
 
             while (yytoken == Token_COMMA)
             {
@@ -526,16 +526,16 @@ bool Parser::parseAnnotation_element_array_initializer(Annotation_element_array_
                 {
                     break;
                 }
-                Annotation_element_array_valueAst *__node_9 = 0;
-                if (!parseAnnotation_element_array_value(&__node_9))
+                AnnotationElementArrayValueAst *__node_9 = 0;
+                if (!parseAnnotationElementArrayValue(&__node_9))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Annotation_element_array_valueKind, "annotation_element_array_value");
+                        expectedSymbol(AstNode::AnnotationElementArrayValueKind, "annotationElementArrayValue");
                     }
                     return false;
                 }
-                (*yynode)->element_valueSequence = snoc((*yynode)->element_valueSequence, __node_9, memoryPool);
+                (*yynode)->elementValueSequence = snoc((*yynode)->elementValueSequence, __node_9, memoryPool);
 
             }
         }
@@ -567,9 +567,9 @@ bool Parser::parseAnnotation_element_array_initializer(Annotation_element_array_
     return true;
 }
 
-bool Parser::parseAnnotation_element_array_value(Annotation_element_array_valueAst **yynode)
+bool Parser::parseAnnotationElementArrayValue(AnnotationElementArrayValueAst **yynode)
 {
-    *yynode = create<Annotation_element_array_valueAst>();
+    *yynode = create<AnnotationElementArrayValueAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -632,16 +632,16 @@ bool Parser::parseAnnotation_element_array_value(Annotation_element_array_valueA
             || yytoken == Token_LESS_THAN
             || yytoken == Token_TRUE)
         {
-            Conditional_expressionAst *__node_10 = 0;
-            if (!parseConditional_expression(&__node_10))
+            ConditionalExpressionAst *__node_10 = 0;
+            if (!parseConditionalExpression(&__node_10))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Conditional_expressionKind, "conditional_expression");
+                    expectedSymbol(AstNode::ConditionalExpressionKind, "conditionalExpression");
                 }
                 return false;
             }
-            (*yynode)->cond_expression = __node_10;
+            (*yynode)->conditionalExpression = __node_10;
 
         }
         else if (yytoken == Token_AT)
@@ -673,9 +673,9 @@ bool Parser::parseAnnotation_element_array_value(Annotation_element_array_valueA
     return true;
 }
 
-bool Parser::parseAnnotation_element_value(Annotation_element_valueAst **yynode)
+bool Parser::parseAnnotationElementValue(AnnotationElementValueAst **yynode)
 {
-    *yynode = create<Annotation_element_valueAst>();
+    *yynode = create<AnnotationElementValueAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -739,16 +739,16 @@ bool Parser::parseAnnotation_element_value(Annotation_element_valueAst **yynode)
             || yytoken == Token_LESS_THAN
             || yytoken == Token_TRUE)
         {
-            Conditional_expressionAst *__node_12 = 0;
-            if (!parseConditional_expression(&__node_12))
+            ConditionalExpressionAst *__node_12 = 0;
+            if (!parseConditionalExpression(&__node_12))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Conditional_expressionKind, "conditional_expression");
+                    expectedSymbol(AstNode::ConditionalExpressionKind, "conditionalExpression");
                 }
                 return false;
             }
-            (*yynode)->cond_expression = __node_12;
+            (*yynode)->conditionalExpression = __node_12;
 
         }
         else if (yytoken == Token_AT)
@@ -767,16 +767,16 @@ bool Parser::parseAnnotation_element_value(Annotation_element_valueAst **yynode)
         }
         else if (yytoken == Token_LBRACE)
         {
-            Annotation_element_array_initializerAst *__node_14 = 0;
-            if (!parseAnnotation_element_array_initializer(&__node_14))
+            AnnotationElementArrayInitializerAst *__node_14 = 0;
+            if (!parseAnnotationElementArrayInitializer(&__node_14))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Annotation_element_array_initializerKind, "annotation_element_array_initializer");
+                    expectedSymbol(AstNode::AnnotationElementArrayInitializerKind, "annotationElementArrayInitializer");
                 }
                 return false;
             }
-            (*yynode)->element_array_initializer = __node_14;
+            (*yynode)->elementArrayInitializer = __node_14;
 
         }
         else
@@ -794,9 +794,9 @@ bool Parser::parseAnnotation_element_value(Annotation_element_valueAst **yynode)
     return true;
 }
 
-bool Parser::parseAnnotation_element_value_pair(Annotation_element_value_pairAst **yynode)
+bool Parser::parseAnnotationElementValuePair(AnnotationElementValuePairAst **yynode)
 {
-    *yynode = create<Annotation_element_value_pairAst>();
+    *yynode = create<AnnotationElementValuePairAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -811,7 +811,7 @@ bool Parser::parseAnnotation_element_value_pair(Annotation_element_value_pairAst
             }
             return false;
         }
-        (*yynode)->element_name = __node_15;
+        (*yynode)->elementName = __node_15;
 
         if (yytoken != Token_ASSIGN)
         {
@@ -823,16 +823,16 @@ bool Parser::parseAnnotation_element_value_pair(Annotation_element_value_pairAst
         }
         yylex();
 
-        Annotation_element_valueAst *__node_16 = 0;
-        if (!parseAnnotation_element_value(&__node_16))
+        AnnotationElementValueAst *__node_16 = 0;
+        if (!parseAnnotationElementValue(&__node_16))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Annotation_element_valueKind, "annotation_element_value");
+                expectedSymbol(AstNode::AnnotationElementValueKind, "annotationElementValue");
             }
             return false;
         }
-        (*yynode)->element_value = __node_16;
+        (*yynode)->elementValue = __node_16;
 
     }
     else
@@ -845,9 +845,9 @@ bool Parser::parseAnnotation_element_value_pair(Annotation_element_value_pairAst
     return true;
 }
 
-bool Parser::parseAnnotation_method_declaration(Annotation_method_declarationAst **yynode, Optional_modifiersAst *modifiers, TypeAst *return_type)
+bool Parser::parseAnnotationMethodDeclaration(AnnotationMethodDeclarationAst **yynode, OptionalModifiersAst *modifiers, TypeAst *returnType)
 {
-    *yynode = create<Annotation_method_declarationAst>();
+    *yynode = create<AnnotationMethodDeclarationAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -855,9 +855,9 @@ bool Parser::parseAnnotation_method_declaration(Annotation_method_declarationAst
     if (modifiers && modifiers->startToken < (*yynode)->startToken)
         (*yynode)->startToken = modifiers->startToken;
 
-    (*yynode)->return_type = return_type;
-    if (return_type && return_type->startToken < (*yynode)->startToken)
-        (*yynode)->startToken = return_type->startToken;
+    (*yynode)->returnType = returnType;
+    if (returnType && returnType->startToken < (*yynode)->startToken)
+        (*yynode)->startToken = returnType->startToken;
 
     if (yytoken == Token_IDENTIFIER)
     {
@@ -870,7 +870,7 @@ bool Parser::parseAnnotation_method_declaration(Annotation_method_declarationAst
             }
             return false;
         }
-        (*yynode)->annotation_name = __node_17;
+        (*yynode)->annotationName = __node_17;
 
         if (yytoken != Token_LPAREN)
         {
@@ -904,16 +904,16 @@ bool Parser::parseAnnotation_method_declaration(Annotation_method_declarationAst
             }
             yylex();
 
-            Annotation_element_valueAst *__node_18 = 0;
-            if (!parseAnnotation_element_value(&__node_18))
+            AnnotationElementValueAst *__node_18 = 0;
+            if (!parseAnnotationElementValue(&__node_18))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Annotation_element_valueKind, "annotation_element_value");
+                    expectedSymbol(AstNode::AnnotationElementValueKind, "annotationElementValue");
                 }
                 return false;
             }
-            (*yynode)->annotation_element_value = __node_18;
+            (*yynode)->annotationElementValue = __node_18;
 
         }
         else if (true /*epsilon*/)
@@ -944,9 +944,9 @@ bool Parser::parseAnnotation_method_declaration(Annotation_method_declarationAst
     return true;
 }
 
-bool Parser::parseAnnotation_type_body(Annotation_type_bodyAst **yynode)
+bool Parser::parseAnnotationTypeBody(AnnotationTypeBodyAst **yynode)
 {
-    *yynode = create<Annotation_type_bodyAst>();
+    *yynode = create<AnnotationTypeBodyAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -992,12 +992,12 @@ bool Parser::parseAnnotation_type_body(Annotation_type_bodyAst **yynode)
             qint64 try_startToken_1 = tokenStream->index() - 1;
             ParserState *try_startState_1 = copyCurrentState();
             {
-                Annotation_type_fieldAst *__node_19 = 0;
-                if (!parseAnnotation_type_field(&__node_19))
+                AnnotationTypeFieldAst *__node_19 = 0;
+                if (!parseAnnotationTypeField(&__node_19))
                 {
                     goto __catch_1;
                 }
-                (*yynode)->annotation_type_fieldSequence = snoc((*yynode)->annotation_type_fieldSequence, __node_19, memoryPool);
+                (*yynode)->annotationTypeFieldSequence = snoc((*yynode)->annotationTypeFieldSequence, __node_19, memoryPool);
 
             }
             if (try_startState_1)
@@ -1069,9 +1069,9 @@ __catch_1:
     return true;
 }
 
-bool Parser::parseAnnotation_type_declaration(Annotation_type_declarationAst **yynode, Optional_modifiersAst *modifiers)
+bool Parser::parseAnnotationTypeDeclaration(AnnotationTypeDeclarationAst **yynode, OptionalModifiersAst *modifiers)
 {
-    *yynode = create<Annotation_type_declarationAst>();
+    *yynode = create<AnnotationTypeDeclarationAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -1110,14 +1110,14 @@ bool Parser::parseAnnotation_type_declaration(Annotation_type_declarationAst **y
             }
             return false;
         }
-        (*yynode)->annotation_type_name = __node_20;
+        (*yynode)->annotationTypeName = __node_20;
 
-        Annotation_type_bodyAst *__node_21 = 0;
-        if (!parseAnnotation_type_body(&__node_21))
+        AnnotationTypeBodyAst *__node_21 = 0;
+        if (!parseAnnotationTypeBody(&__node_21))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Annotation_type_bodyKind, "annotation_type_body");
+                expectedSymbol(AstNode::AnnotationTypeBodyKind, "annotationTypeBody");
             }
             return false;
         }
@@ -1134,9 +1134,9 @@ bool Parser::parseAnnotation_type_declaration(Annotation_type_declarationAst **y
     return true;
 }
 
-bool Parser::parseAnnotation_type_field(Annotation_type_fieldAst **yynode)
+bool Parser::parseAnnotationTypeField(AnnotationTypeFieldAst **yynode)
 {
-    *yynode = create<Annotation_type_fieldAst>();
+    *yynode = create<AnnotationTypeFieldAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -1167,11 +1167,11 @@ bool Parser::parseAnnotation_type_field(Annotation_type_fieldAst **yynode)
         || yytoken == Token_INTERFACE
         || yytoken == Token_ENUM)
     {
-        Optional_modifiersAst *modifiers = 0;
+        OptionalModifiersAst *modifiers = 0;
 
         TypeAst *type = 0;
 
-        const KDevPG::ListNode<Variable_declaratorAst *> *variable_declaratorSequence = 0;
+        const KDevPG::ListNode<VariableDeclaratorAst *> *variableDeclaratorSequence = 0;
 
         if (yytoken == Token_STATIC
             || yytoken == Token_ABSTRACT
@@ -1199,12 +1199,12 @@ bool Parser::parseAnnotation_type_field(Annotation_type_fieldAst **yynode)
             || yytoken == Token_INTERFACE
             || yytoken == Token_ENUM)
         {
-            Optional_modifiersAst *__node_22 = 0;
-            if (!parseOptional_modifiers(&__node_22))
+            OptionalModifiersAst *__node_22 = 0;
+            if (!parseOptionalModifiers(&__node_22))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Optional_modifiersKind, "optional_modifiers");
+                    expectedSymbol(AstNode::OptionalModifiersKind, "optionalModifiers");
                 }
                 return false;
             }
@@ -1212,58 +1212,58 @@ bool Parser::parseAnnotation_type_field(Annotation_type_fieldAst **yynode)
 
             if (yytoken == Token_CLASS)
             {
-                Class_declarationAst *__node_23 = 0;
-                if (!parseClass_declaration(&__node_23, modifiers))
+                ClassDeclarationAst *__node_23 = 0;
+                if (!parseClassDeclaration(&__node_23, modifiers))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Class_declarationKind, "class_declaration");
+                        expectedSymbol(AstNode::ClassDeclarationKind, "classDeclaration");
                     }
                     return false;
                 }
-                (*yynode)->class_declaration = __node_23;
+                (*yynode)->classDeclaration = __node_23;
 
             }
             else if (yytoken == Token_ENUM)
             {
-                Enum_declarationAst *__node_24 = 0;
-                if (!parseEnum_declaration(&__node_24, modifiers))
+                EnumDeclarationAst *__node_24 = 0;
+                if (!parseEnumDeclaration(&__node_24, modifiers))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Enum_declarationKind, "enum_declaration");
+                        expectedSymbol(AstNode::EnumDeclarationKind, "enumDeclaration");
                     }
                     return false;
                 }
-                (*yynode)->enum_declaration = __node_24;
+                (*yynode)->enumDeclaration = __node_24;
 
             }
             else if (yytoken == Token_INTERFACE)
             {
-                Interface_declarationAst *__node_25 = 0;
-                if (!parseInterface_declaration(&__node_25, modifiers))
+                InterfaceDeclarationAst *__node_25 = 0;
+                if (!parseInterfaceDeclaration(&__node_25, modifiers))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Interface_declarationKind, "interface_declaration");
+                        expectedSymbol(AstNode::InterfaceDeclarationKind, "interfaceDeclaration");
                     }
                     return false;
                 }
-                (*yynode)->interface_declaration = __node_25;
+                (*yynode)->interfaceDeclaration = __node_25;
 
             }
             else if (yytoken == Token_AT)
             {
-                Annotation_type_declarationAst *__node_26 = 0;
-                if (!parseAnnotation_type_declaration(&__node_26, modifiers))
+                AnnotationTypeDeclarationAst *__node_26 = 0;
+                if (!parseAnnotationTypeDeclaration(&__node_26, modifiers))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Annotation_type_declarationKind, "annotation_type_declaration");
+                        expectedSymbol(AstNode::AnnotationTypeDeclarationKind, "annotationTypeDeclaration");
                     }
                     return false;
                 }
-                (*yynode)->annotation_type_declaration = __node_26;
+                (*yynode)->annotationTypeDeclaration = __node_26;
 
             }
             else if (yytoken == Token_IDENTIFIER
@@ -1290,30 +1290,30 @@ bool Parser::parseAnnotation_type_field(Annotation_type_fieldAst **yynode)
 
                 if ((yytoken == Token_IDENTIFIER) && ( LA(2).kind == Token_LPAREN ))
                 {
-                    Annotation_method_declarationAst *__node_28 = 0;
-                    if (!parseAnnotation_method_declaration(&__node_28,  modifiers, type ))
+                    AnnotationMethodDeclarationAst *__node_28 = 0;
+                    if (!parseAnnotationMethodDeclaration(&__node_28,  modifiers, type ))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Annotation_method_declarationKind, "annotation_method_declaration");
+                            expectedSymbol(AstNode::AnnotationMethodDeclarationKind, "annotationMethodDeclaration");
                         }
                         return false;
                     }
-                    (*yynode)->method_declaration = __node_28;
+                    (*yynode)->methodDeclaration = __node_28;
 
                 }
                 else if (yytoken == Token_IDENTIFIER)
                 {
-                    Variable_declaratorAst *__node_29 = 0;
-                    if (!parseVariable_declarator(&__node_29))
+                    VariableDeclaratorAst *__node_29 = 0;
+                    if (!parseVariableDeclarator(&__node_29))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Variable_declaratorKind, "variable_declarator");
+                            expectedSymbol(AstNode::VariableDeclaratorKind, "variableDeclarator");
                         }
                         return false;
                     }
-                    variable_declaratorSequence = snoc(variable_declaratorSequence, __node_29, memoryPool);
+                    variableDeclaratorSequence = snoc(variableDeclaratorSequence, __node_29, memoryPool);
 
                     while (yytoken == Token_COMMA)
                     {
@@ -1327,16 +1327,16 @@ bool Parser::parseAnnotation_type_field(Annotation_type_fieldAst **yynode)
                         }
                         yylex();
 
-                        Variable_declaratorAst *__node_30 = 0;
-                        if (!parseVariable_declarator(&__node_30))
+                        VariableDeclaratorAst *__node_30 = 0;
+                        if (!parseVariableDeclarator(&__node_30))
                         {
                             if (!mBlockErrors)
                             {
-                                expectedSymbol(AstNode::Variable_declaratorKind, "variable_declarator");
+                                expectedSymbol(AstNode::VariableDeclaratorKind, "variableDeclarator");
                             }
                             return false;
                         }
-                        variable_declaratorSequence = snoc(variable_declaratorSequence, __node_30, memoryPool);
+                        variableDeclaratorSequence = snoc(variableDeclaratorSequence, __node_30, memoryPool);
 
                     }
                     if (yytoken != Token_SEMICOLON)
@@ -1349,18 +1349,18 @@ bool Parser::parseAnnotation_type_field(Annotation_type_fieldAst **yynode)
                     }
                     yylex();
 
-                    Variable_declaration_dataAst *__node_31 = 0;
-                    if (!parseVariable_declaration_data(&__node_31,
-                                                        modifiers, type, variable_declaratorSequence
-                                                       ))
+                    VariableDeclarationDataAst *__node_31 = 0;
+                    if (!parseVariableDeclarationData(&__node_31,
+                                                      modifiers, type, variableDeclaratorSequence
+                                                     ))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Variable_declaration_dataKind, "variable_declaration_data");
+                            expectedSymbol(AstNode::VariableDeclarationDataKind, "variableDeclarationData");
                         }
                         return false;
                     }
-                    (*yynode)->constant_declaration = __node_31;
+                    (*yynode)->constantDeclaration = __node_31;
 
                 }
                 else
@@ -1401,9 +1401,9 @@ bool Parser::parseAnnotation_type_field(Annotation_type_fieldAst **yynode)
     return true;
 }
 
-bool Parser::parseArray_access(Array_accessAst **yynode)
+bool Parser::parseArrayAccess(ArrayAccessAst **yynode)
 {
-    *yynode = create<Array_accessAst>();
+    *yynode = create<ArrayAccessAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -1428,7 +1428,7 @@ bool Parser::parseArray_access(Array_accessAst **yynode)
             }
             return false;
         }
-        (*yynode)->array_index_expression = __node_32;
+        (*yynode)->arrayIndexExpression = __node_32;
 
         if (yytoken != Token_RBRACKET)
         {
@@ -1451,9 +1451,9 @@ bool Parser::parseArray_access(Array_accessAst **yynode)
     return true;
 }
 
-bool Parser::parseArray_creator_rest(Array_creator_restAst **yynode)
+bool Parser::parseArrayCreatorRest(ArrayCreatorRestAst **yynode)
 {
-    *yynode = create<Array_creator_restAst>();
+    *yynode = create<ArrayCreatorRestAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -1461,27 +1461,27 @@ bool Parser::parseArray_creator_rest(Array_creator_restAst **yynode)
     {
         if ((yytoken == Token_LBRACKET) && ( LA(2).kind == Token_RBRACKET ))
         {
-            Mandatory_declarator_bracketsAst *__node_33 = 0;
-            if (!parseMandatory_declarator_brackets(&__node_33))
+            MandatoryDeclaratorBracketsAst *__node_33 = 0;
+            if (!parseMandatoryDeclaratorBrackets(&__node_33))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Mandatory_declarator_bracketsKind, "mandatory_declarator_brackets");
+                    expectedSymbol(AstNode::MandatoryDeclaratorBracketsKind, "mandatoryDeclaratorBrackets");
                 }
                 return false;
             }
-            (*yynode)->mandatory_declarator_brackets = __node_33;
+            (*yynode)->mandatoryDeclaratorBrackets = __node_33;
 
-            Variable_array_initializerAst *__node_34 = 0;
-            if (!parseVariable_array_initializer(&__node_34))
+            VariableArrayInitializerAst *__node_34 = 0;
+            if (!parseVariableArrayInitializer(&__node_34))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Variable_array_initializerKind, "variable_array_initializer");
+                    expectedSymbol(AstNode::VariableArrayInitializerKind, "variableArrayInitializer");
                 }
                 return false;
             }
-            (*yynode)->array_initializer = __node_34;
+            (*yynode)->arrayInitializer = __node_34;
 
         }
         else if (yytoken == Token_LBRACKET)
@@ -1505,7 +1505,7 @@ bool Parser::parseArray_creator_rest(Array_creator_restAst **yynode)
                 }
                 return false;
             }
-            (*yynode)->index_expressionSequence = snoc((*yynode)->index_expressionSequence, __node_35, memoryPool);
+            (*yynode)->indexExpressionSequence = snoc((*yynode)->indexExpressionSequence, __node_35, memoryPool);
 
             if (yytoken != Token_RBRACKET)
             {
@@ -1542,7 +1542,7 @@ bool Parser::parseArray_creator_rest(Array_creator_restAst **yynode)
                     }
                     return false;
                 }
-                (*yynode)->index_expressionSequence = snoc((*yynode)->index_expressionSequence, __node_36, memoryPool);
+                (*yynode)->indexExpressionSequence = snoc((*yynode)->indexExpressionSequence, __node_36, memoryPool);
 
                 if (yytoken != Token_RBRACKET)
                 {
@@ -1555,16 +1555,16 @@ bool Parser::parseArray_creator_rest(Array_creator_restAst **yynode)
                 yylex();
 
             }
-            Optional_declarator_bracketsAst *__node_37 = 0;
-            if (!parseOptional_declarator_brackets(&__node_37))
+            OptionalDeclaratorBracketsAst *__node_37 = 0;
+            if (!parseOptionalDeclaratorBrackets(&__node_37))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Optional_declarator_bracketsKind, "optional_declarator_brackets");
+                    expectedSymbol(AstNode::OptionalDeclaratorBracketsKind, "optionalDeclaratorBrackets");
                 }
                 return false;
             }
-            (*yynode)->optional_declarator_brackets = __node_37;
+            (*yynode)->optionalDeclaratorBrackets = __node_37;
 
         }
         else
@@ -1582,35 +1582,35 @@ bool Parser::parseArray_creator_rest(Array_creator_restAst **yynode)
     return true;
 }
 
-bool Parser::parseArray_type_dot_class(Array_type_dot_classAst **yynode)
+bool Parser::parseArrayTypeDotClass(ArrayTypeDotClassAst **yynode)
 {
-    *yynode = create<Array_type_dot_classAst>();
+    *yynode = create<ArrayTypeDotClassAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
     if (yytoken == Token_IDENTIFIER)
     {
-        Qualified_identifierAst *__node_38 = 0;
-        if (!parseQualified_identifier(&__node_38))
+        QualifiedIdentifierAst *__node_38 = 0;
+        if (!parseQualifiedIdentifier(&__node_38))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Qualified_identifierKind, "qualified_identifier");
+                expectedSymbol(AstNode::QualifiedIdentifierKind, "qualifiedIdentifier");
             }
             return false;
         }
-        (*yynode)->qualified_identifier = __node_38;
+        (*yynode)->qualifiedIdentifier = __node_38;
 
-        Mandatory_declarator_bracketsAst *__node_39 = 0;
-        if (!parseMandatory_declarator_brackets(&__node_39))
+        MandatoryDeclaratorBracketsAst *__node_39 = 0;
+        if (!parseMandatoryDeclaratorBrackets(&__node_39))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Mandatory_declarator_bracketsKind, "mandatory_declarator_brackets");
+                expectedSymbol(AstNode::MandatoryDeclaratorBracketsKind, "mandatoryDeclaratorBrackets");
             }
             return false;
         }
-        (*yynode)->declarator_brackets = __node_39;
+        (*yynode)->declaratorBrackets = __node_39;
 
         if (yytoken != Token_DOT)
         {
@@ -1643,9 +1643,9 @@ bool Parser::parseArray_type_dot_class(Array_type_dot_classAst **yynode)
     return true;
 }
 
-bool Parser::parseAssert_statement(Assert_statementAst **yynode)
+bool Parser::parseAssertStatement(AssertStatementAst **yynode)
 {
-    *yynode = create<Assert_statementAst>();
+    *yynode = create<AssertStatementAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -1724,9 +1724,9 @@ bool Parser::parseAssert_statement(Assert_statementAst **yynode)
     return true;
 }
 
-bool Parser::parseBit_and_expression(Bit_and_expressionAst **yynode)
+bool Parser::parseBitAndExpression(BitAndExpressionAst **yynode)
 {
-    *yynode = create<Bit_and_expressionAst>();
+    *yynode = create<BitAndExpressionAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -1759,12 +1759,12 @@ bool Parser::parseBit_and_expression(Bit_and_expressionAst **yynode)
         || yytoken == Token_LESS_THAN
         || yytoken == Token_TRUE)
     {
-        Equality_expressionAst *__node_42 = 0;
-        if (!parseEquality_expression(&__node_42))
+        EqualityExpressionAst *__node_42 = 0;
+        if (!parseEqualityExpression(&__node_42))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Equality_expressionKind, "equality_expression");
+                expectedSymbol(AstNode::EqualityExpressionKind, "equalityExpression");
             }
             return false;
         }
@@ -1782,12 +1782,12 @@ bool Parser::parseBit_and_expression(Bit_and_expressionAst **yynode)
             }
             yylex();
 
-            Equality_expressionAst *__node_43 = 0;
-            if (!parseEquality_expression(&__node_43))
+            EqualityExpressionAst *__node_43 = 0;
+            if (!parseEqualityExpression(&__node_43))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Equality_expressionKind, "equality_expression");
+                    expectedSymbol(AstNode::EqualityExpressionKind, "equalityExpression");
                 }
                 return false;
             }
@@ -1805,9 +1805,9 @@ bool Parser::parseBit_and_expression(Bit_and_expressionAst **yynode)
     return true;
 }
 
-bool Parser::parseBit_or_expression(Bit_or_expressionAst **yynode)
+bool Parser::parseBitOrExpression(BitOrExpressionAst **yynode)
 {
-    *yynode = create<Bit_or_expressionAst>();
+    *yynode = create<BitOrExpressionAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -1840,12 +1840,12 @@ bool Parser::parseBit_or_expression(Bit_or_expressionAst **yynode)
         || yytoken == Token_LESS_THAN
         || yytoken == Token_TRUE)
     {
-        Bit_xor_expressionAst *__node_44 = 0;
-        if (!parseBit_xor_expression(&__node_44))
+        BitXOrExpressionAst *__node_44 = 0;
+        if (!parseBitXOrExpression(&__node_44))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Bit_xor_expressionKind, "bit_xor_expression");
+                expectedSymbol(AstNode::BitXOrExpressionKind, "bitXOrExpression");
             }
             return false;
         }
@@ -1863,12 +1863,12 @@ bool Parser::parseBit_or_expression(Bit_or_expressionAst **yynode)
             }
             yylex();
 
-            Bit_xor_expressionAst *__node_45 = 0;
-            if (!parseBit_xor_expression(&__node_45))
+            BitXOrExpressionAst *__node_45 = 0;
+            if (!parseBitXOrExpression(&__node_45))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Bit_xor_expressionKind, "bit_xor_expression");
+                    expectedSymbol(AstNode::BitXOrExpressionKind, "bitXOrExpression");
                 }
                 return false;
             }
@@ -1886,9 +1886,9 @@ bool Parser::parseBit_or_expression(Bit_or_expressionAst **yynode)
     return true;
 }
 
-bool Parser::parseBit_xor_expression(Bit_xor_expressionAst **yynode)
+bool Parser::parseBitXOrExpression(BitXOrExpressionAst **yynode)
 {
-    *yynode = create<Bit_xor_expressionAst>();
+    *yynode = create<BitXOrExpressionAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -1921,12 +1921,12 @@ bool Parser::parseBit_xor_expression(Bit_xor_expressionAst **yynode)
         || yytoken == Token_LESS_THAN
         || yytoken == Token_TRUE)
     {
-        Bit_and_expressionAst *__node_46 = 0;
-        if (!parseBit_and_expression(&__node_46))
+        BitAndExpressionAst *__node_46 = 0;
+        if (!parseBitAndExpression(&__node_46))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Bit_and_expressionKind, "bit_and_expression");
+                expectedSymbol(AstNode::BitAndExpressionKind, "bitAndExpression");
             }
             return false;
         }
@@ -1944,12 +1944,12 @@ bool Parser::parseBit_xor_expression(Bit_xor_expressionAst **yynode)
             }
             yylex();
 
-            Bit_and_expressionAst *__node_47 = 0;
-            if (!parseBit_and_expression(&__node_47))
+            BitAndExpressionAst *__node_47 = 0;
+            if (!parseBitAndExpression(&__node_47))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Bit_and_expressionKind, "bit_and_expression");
+                    expectedSymbol(AstNode::BitAndExpressionKind, "bitAndExpression");
                 }
                 return false;
             }
@@ -2045,8 +2045,8 @@ bool Parser::parseBlock(BlockAst **yynode)
             qint64 try_startToken_2 = tokenStream->index() - 1;
             ParserState *try_startState_2 = copyCurrentState();
             {
-                Block_statementAst *__node_48 = 0;
-                if (!parseBlock_statement(&__node_48))
+                BlockStatementAst *__node_48 = 0;
+                if (!parseBlockStatement(&__node_48))
                 {
                     goto __catch_2;
                 }
@@ -2152,9 +2152,9 @@ __catch_2:
     return true;
 }
 
-bool Parser::parseBlock_statement(Block_statementAst **yynode)
+bool Parser::parseBlockStatement(BlockStatementAst **yynode)
 {
-    *yynode = create<Block_statementAst>();
+    *yynode = create<BlockStatementAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -2215,18 +2215,18 @@ bool Parser::parseBlock_statement(Block_statementAst **yynode)
         || yytoken == Token_ASSERT
         || yytoken == Token_NATIVE)
     {
-        Optional_modifiersAst *modifiers = 0;
+        OptionalModifiersAst *modifiers = 0;
 
         bool blockErrors_3 = blockErrors(true);
         qint64 try_startToken_3 = tokenStream->index() - 1;
         ParserState *try_startState_3 = copyCurrentState();
         {
-            Variable_declaration_statementAst *__node_49 = 0;
-            if (!parseVariable_declaration_statement(&__node_49))
+            VariableDeclarationStatementAst *__node_49 = 0;
+            if (!parseVariableDeclarationStatement(&__node_49))
             {
                 goto __catch_3;
             }
-            (*yynode)->variable_declaration_statement = __node_49;
+            (*yynode)->variableDeclarationStatement = __node_49;
 
         }
         blockErrors(blockErrors_3);
@@ -2289,12 +2289,12 @@ __catch_3:
                                                   (yytoken == Token_SYNCHRONIZED && LA(2).kind == Token_LPAREN)
                                                 ))
             {
-                Embedded_statementAst *__node_50 = 0;
-                if (!parseEmbedded_statement(&__node_50))
+                EmbeddedStatementAst *__node_50 = 0;
+                if (!parseEmbeddedStatement(&__node_50))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Embedded_statementKind, "embedded_statement");
+                        expectedSymbol(AstNode::EmbeddedStatementKind, "embeddedStatement");
                     }
                     return false;
                 }
@@ -2317,12 +2317,12 @@ __catch_3:
                      || yytoken == Token_ABSTRACT
                      || yytoken == Token_INTERFACE)
             {
-                Optional_modifiersAst *__node_51 = 0;
-                if (!parseOptional_modifiers(&__node_51))
+                OptionalModifiersAst *__node_51 = 0;
+                if (!parseOptionalModifiers(&__node_51))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Optional_modifiersKind, "optional_modifiers");
+                        expectedSymbol(AstNode::OptionalModifiersKind, "optionalModifiers");
                     }
                     return false;
                 }
@@ -2330,58 +2330,58 @@ __catch_3:
 
                 if (yytoken == Token_CLASS)
                 {
-                    Class_declarationAst *__node_52 = 0;
-                    if (!parseClass_declaration(&__node_52, modifiers))
+                    ClassDeclarationAst *__node_52 = 0;
+                    if (!parseClassDeclaration(&__node_52, modifiers))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Class_declarationKind, "class_declaration");
+                            expectedSymbol(AstNode::ClassDeclarationKind, "classDeclaration");
                         }
                         return false;
                     }
-                    (*yynode)->class_declaration = __node_52;
+                    (*yynode)->classDeclaration = __node_52;
 
                 }
                 else if (yytoken == Token_ENUM)
                 {
-                    Enum_declarationAst *__node_53 = 0;
-                    if (!parseEnum_declaration(&__node_53, modifiers))
+                    EnumDeclarationAst *__node_53 = 0;
+                    if (!parseEnumDeclaration(&__node_53, modifiers))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Enum_declarationKind, "enum_declaration");
+                            expectedSymbol(AstNode::EnumDeclarationKind, "enumDeclaration");
                         }
                         return false;
                     }
-                    (*yynode)->enum_declaration = __node_53;
+                    (*yynode)->enumDeclaration = __node_53;
 
                 }
                 else if (yytoken == Token_INTERFACE)
                 {
-                    Interface_declarationAst *__node_54 = 0;
-                    if (!parseInterface_declaration(&__node_54, modifiers))
+                    InterfaceDeclarationAst *__node_54 = 0;
+                    if (!parseInterfaceDeclaration(&__node_54, modifiers))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Interface_declarationKind, "interface_declaration");
+                            expectedSymbol(AstNode::InterfaceDeclarationKind, "interfaceDeclaration");
                         }
                         return false;
                     }
-                    (*yynode)->interface_declaration = __node_54;
+                    (*yynode)->interfaceDeclaration = __node_54;
 
                 }
                 else if (yytoken == Token_AT)
                 {
-                    Annotation_type_declarationAst *__node_55 = 0;
-                    if (!parseAnnotation_type_declaration(&__node_55, modifiers))
+                    AnnotationTypeDeclarationAst *__node_55 = 0;
+                    if (!parseAnnotationTypeDeclaration(&__node_55, modifiers))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Annotation_type_declarationKind, "annotation_type_declaration");
+                            expectedSymbol(AstNode::AnnotationTypeDeclarationKind, "annotationTypeDeclaration");
                         }
                         return false;
                     }
-                    (*yynode)->annotation_type_declaration = __node_55;
+                    (*yynode)->annotationTypeDeclaration = __node_55;
 
                 }
                 else
@@ -2406,9 +2406,9 @@ __catch_3:
     return true;
 }
 
-bool Parser::parseBreak_statement(Break_statementAst **yynode)
+bool Parser::parseBreakStatement(BreakStatementAst **yynode)
 {
-    *yynode = create<Break_statementAst>();
+    *yynode = create<BreakStatementAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -2466,9 +2466,9 @@ bool Parser::parseBreak_statement(Break_statementAst **yynode)
     return true;
 }
 
-bool Parser::parseBuiltin_type(Builtin_typeAst **yynode)
+bool Parser::parseBuiltInType(BuiltInTypeAst **yynode)
 {
-    *yynode = create<Builtin_typeAst>();
+    *yynode = create<BuiltInTypeAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -2623,9 +2623,9 @@ bool Parser::parseBuiltin_type(Builtin_typeAst **yynode)
     return true;
 }
 
-bool Parser::parseBuiltin_type_dot_class(Builtin_type_dot_classAst **yynode)
+bool Parser::parseBuiltInTypeDotClass(BuiltInTypeDotClassAst **yynode)
 {
-    *yynode = create<Builtin_type_dot_classAst>();
+    *yynode = create<BuiltInTypeDotClassAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -2639,16 +2639,16 @@ bool Parser::parseBuiltin_type_dot_class(Builtin_type_dot_classAst **yynode)
         || yytoken == Token_BYTE
         || yytoken == Token_CHAR)
     {
-        Optional_array_builtin_typeAst *__node_57 = 0;
-        if (!parseOptional_array_builtin_type(&__node_57))
+        OptionalArrayBuiltInTypeAst *__node_57 = 0;
+        if (!parseOptionalArrayBuiltInType(&__node_57))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Optional_array_builtin_typeKind, "optional_array_builtin_type");
+                expectedSymbol(AstNode::OptionalArrayBuiltInTypeKind, "optionalArrayBuiltInType");
             }
             return false;
         }
-        (*yynode)->builtin_type = __node_57;
+        (*yynode)->builtInType = __node_57;
 
         if (yytoken != Token_DOT)
         {
@@ -2681,9 +2681,9 @@ bool Parser::parseBuiltin_type_dot_class(Builtin_type_dot_classAst **yynode)
     return true;
 }
 
-bool Parser::parseCast_expression(Cast_expressionAst **yynode)
+bool Parser::parseCastExpression(CastExpressionAst **yynode)
 {
-    *yynode = create<Cast_expressionAst>();
+    *yynode = create<CastExpressionAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -2709,16 +2709,16 @@ bool Parser::parseCast_expression(Cast_expressionAst **yynode)
             || yytoken == Token_BYTE
             || yytoken == Token_CHAR)
         {
-            Optional_array_builtin_typeAst *__node_58 = 0;
-            if (!parseOptional_array_builtin_type(&__node_58))
+            OptionalArrayBuiltInTypeAst *__node_58 = 0;
+            if (!parseOptionalArrayBuiltInType(&__node_58))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Optional_array_builtin_typeKind, "optional_array_builtin_type");
+                    expectedSymbol(AstNode::OptionalArrayBuiltInTypeKind, "optionalArrayBuiltInType");
                 }
                 return false;
             }
-            (*yynode)->builtin_type = __node_58;
+            (*yynode)->builtInType = __node_58;
 
             if (yytoken != Token_RPAREN)
             {
@@ -2730,30 +2730,30 @@ bool Parser::parseCast_expression(Cast_expressionAst **yynode)
             }
             yylex();
 
-            Unary_expressionAst *__node_59 = 0;
-            if (!parseUnary_expression(&__node_59))
+            UnaryExpressionAst *__node_59 = 0;
+            if (!parseUnaryExpression(&__node_59))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Unary_expressionKind, "unary_expression");
+                    expectedSymbol(AstNode::UnaryExpressionKind, "unaryExpression");
                 }
                 return false;
             }
-            (*yynode)->builtin_casted_expression = __node_59;
+            (*yynode)->builtinCastedExpression = __node_59;
 
         }
         else if (yytoken == Token_IDENTIFIER)
         {
-            Class_typeAst *__node_60 = 0;
-            if (!parseClass_type(&__node_60))
+            ClassTypeAst *__node_60 = 0;
+            if (!parseClassType(&__node_60))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Class_typeKind, "class_type");
+                    expectedSymbol(AstNode::ClassTypeKind, "classType");
                 }
                 return false;
             }
-            (*yynode)->class_type = __node_60;
+            (*yynode)->classType = __node_60;
 
             if (yytoken != Token_RPAREN)
             {
@@ -2765,16 +2765,16 @@ bool Parser::parseCast_expression(Cast_expressionAst **yynode)
             }
             yylex();
 
-            Unary_expression_not_plusminusAst *__node_61 = 0;
-            if (!parseUnary_expression_not_plusminus(&__node_61))
+            UnaryExpressionNotPlusMinusAst *__node_61 = 0;
+            if (!parseUnaryExpressionNotPlusMinus(&__node_61))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Unary_expression_not_plusminusKind, "unary_expression_not_plusminus");
+                    expectedSymbol(AstNode::UnaryExpressionNotPlusMinusKind, "unaryExpressionNotPlusMinus");
                 }
                 return false;
             }
-            (*yynode)->class_casted_expression = __node_61;
+            (*yynode)->classCastedExpression = __node_61;
 
         }
         else
@@ -2792,15 +2792,15 @@ bool Parser::parseCast_expression(Cast_expressionAst **yynode)
     return true;
 }
 
-bool Parser::parseCatch_clause(Catch_clauseAst **yynode)
+bool Parser::parseCatchClause(CatchClauseAst **yynode)
 {
-    *yynode = create<Catch_clauseAst>();
+    *yynode = create<CatchClauseAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
     if (yytoken == Token_CATCH)
     {
-        Parameter_declarationAst *exception_parameter = 0;
+        ParameterDeclarationAst *exceptionParameter = 0;
 
         if (yytoken != Token_CATCH)
         {
@@ -2822,16 +2822,16 @@ bool Parser::parseCatch_clause(Catch_clauseAst **yynode)
         }
         yylex();
 
-        Parameter_declarationAst *__node_62 = 0;
-        if (!parseParameter_declaration(&__node_62))
+        ParameterDeclarationAst *__node_62 = 0;
+        if (!parseParameterDeclaration(&__node_62))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Parameter_declarationKind, "parameter_declaration");
+                expectedSymbol(AstNode::ParameterDeclarationKind, "parameterDeclaration");
             }
             return false;
         }
-        exception_parameter = __node_62;
+        exceptionParameter = __node_62;
 
         if (yytoken != Token_RPAREN)
         {
@@ -2843,16 +2843,16 @@ bool Parser::parseCatch_clause(Catch_clauseAst **yynode)
         }
         yylex();
 
-        Variable_declaration_split_dataAst *__node_63 = 0;
-        if (!parseVariable_declaration_split_data(&__node_63, exception_parameter, 0))
+        VariableDeclarationSplitDataAst *__node_63 = 0;
+        if (!parseVariableDeclarationSplitData(&__node_63, exceptionParameter, 0))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Variable_declaration_split_dataKind, "variable_declaration_split_data");
+                expectedSymbol(AstNode::VariableDeclarationSplitDataKind, "variableDeclarationSplitData");
             }
             return false;
         }
-        (*yynode)->exception_declaration = __node_63;
+        (*yynode)->exceptionDeclaration = __node_63;
 
         BlockAst *__node_64 = 0;
         if (!parseBlock(&__node_64))
@@ -2876,9 +2876,9 @@ bool Parser::parseCatch_clause(Catch_clauseAst **yynode)
     return true;
 }
 
-bool Parser::parseClass_access_data(Class_access_dataAst **yynode)
+bool Parser::parseClassAccessData(ClassAccessDataAst **yynode)
 {
-    *yynode = create<Class_access_dataAst>();
+    *yynode = create<ClassAccessDataAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -2938,9 +2938,9 @@ bool Parser::parseClass_access_data(Class_access_dataAst **yynode)
     return true;
 }
 
-bool Parser::parseClass_body(Class_bodyAst **yynode)
+bool Parser::parseClassBody(ClassBodyAst **yynode)
 {
-    *yynode = create<Class_bodyAst>();
+    *yynode = create<ClassBodyAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -2988,8 +2988,8 @@ bool Parser::parseClass_body(Class_bodyAst **yynode)
             qint64 try_startToken_4 = tokenStream->index() - 1;
             ParserState *try_startState_4 = copyCurrentState();
             {
-                Class_fieldAst *__node_65 = 0;
-                if (!parseClass_field(&__node_65))
+                ClassFieldAst *__node_65 = 0;
+                if (!parseClassField(&__node_65))
                 {
                     goto __catch_4;
                 }
@@ -3067,9 +3067,9 @@ __catch_4:
     return true;
 }
 
-bool Parser::parseClass_declaration(Class_declarationAst **yynode, Optional_modifiersAst *modifiers)
+bool Parser::parseClassDeclaration(ClassDeclarationAst **yynode, OptionalModifiersAst *modifiers)
 {
-    *yynode = create<Class_declarationAst>();
+    *yynode = create<ClassDeclarationAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -3098,20 +3098,20 @@ bool Parser::parseClass_declaration(Class_declarationAst **yynode, Optional_modi
             }
             return false;
         }
-        (*yynode)->class_name = __node_66;
+        (*yynode)->className = __node_66;
 
         if ((yytoken == Token_LESS_THAN) && ( compatibilityMode() >= Java15Compatibility ))
         {
-            Type_parametersAst *__node_67 = 0;
-            if (!parseType_parameters(&__node_67))
+            TypeParametersAst *__node_67 = 0;
+            if (!parseTypeParameters(&__node_67))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Type_parametersKind, "type_parameters");
+                    expectedSymbol(AstNode::TypeParametersKind, "typeParameters");
                 }
                 return false;
             }
-            (*yynode)->type_parameters = __node_67;
+            (*yynode)->typeParameters = __node_67;
 
         }
         else if (true /*epsilon*/)
@@ -3123,12 +3123,12 @@ bool Parser::parseClass_declaration(Class_declarationAst **yynode, Optional_modi
         }
         if (yytoken == Token_EXTENDS)
         {
-            Class_extends_clauseAst *__node_68 = 0;
-            if (!parseClass_extends_clause(&__node_68))
+            ClassExtendsClauseAst *__node_68 = 0;
+            if (!parseClassExtendsClause(&__node_68))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Class_extends_clauseKind, "class_extends_clause");
+                    expectedSymbol(AstNode::ClassExtendsClauseKind, "classExtendsClause");
                 }
                 return false;
             }
@@ -3144,12 +3144,12 @@ bool Parser::parseClass_declaration(Class_declarationAst **yynode, Optional_modi
         }
         if (yytoken == Token_IMPLEMENTS)
         {
-            Implements_clauseAst *__node_69 = 0;
-            if (!parseImplements_clause(&__node_69))
+            ImplementsClauseAst *__node_69 = 0;
+            if (!parseImplementsClause(&__node_69))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Implements_clauseKind, "implements_clause");
+                    expectedSymbol(AstNode::ImplementsClauseKind, "implementsClause");
                 }
                 return false;
             }
@@ -3163,12 +3163,12 @@ bool Parser::parseClass_declaration(Class_declarationAst **yynode, Optional_modi
         {
             return false;
         }
-        Class_bodyAst *__node_70 = 0;
-        if (!parseClass_body(&__node_70))
+        ClassBodyAst *__node_70 = 0;
+        if (!parseClassBody(&__node_70))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Class_bodyKind, "class_body");
+                expectedSymbol(AstNode::ClassBodyKind, "classBody");
             }
             return false;
         }
@@ -3185,9 +3185,9 @@ bool Parser::parseClass_declaration(Class_declarationAst **yynode, Optional_modi
     return true;
 }
 
-bool Parser::parseClass_extends_clause(Class_extends_clauseAst **yynode)
+bool Parser::parseClassExtendsClause(ClassExtendsClauseAst **yynode)
 {
-    *yynode = create<Class_extends_clauseAst>();
+    *yynode = create<ClassExtendsClauseAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -3203,12 +3203,12 @@ bool Parser::parseClass_extends_clause(Class_extends_clauseAst **yynode)
         }
         yylex();
 
-        Class_or_interface_type_nameAst *__node_71 = 0;
-        if (!parseClass_or_interface_type_name(&__node_71))
+        ClassOrInterfaceTypeNameAst *__node_71 = 0;
+        if (!parseClassOrInterfaceTypeName(&__node_71))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Class_or_interface_type_nameKind, "class_or_interface_type_name");
+                expectedSymbol(AstNode::ClassOrInterfaceTypeNameKind, "classOrInterfaceTypeName");
             }
             return false;
         }
@@ -3225,9 +3225,9 @@ bool Parser::parseClass_extends_clause(Class_extends_clauseAst **yynode)
     return true;
 }
 
-bool Parser::parseClass_field(Class_fieldAst **yynode)
+bool Parser::parseClassField(ClassFieldAst **yynode)
 {
-    *yynode = create<Class_fieldAst>();
+    *yynode = create<ClassFieldAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -3260,13 +3260,13 @@ bool Parser::parseClass_field(Class_fieldAst **yynode)
         || yytoken == Token_ENUM
         || yytoken == Token_LBRACE)
     {
-        Optional_modifiersAst *modifiers = 0;
+        OptionalModifiersAst *modifiers = 0;
 
-        Type_parametersAst *type_parameters = 0;
+        TypeParametersAst *typeParameters = 0;
 
         TypeAst *type = 0;
 
-        const KDevPG::ListNode<Variable_declaratorAst *> *variable_declaratorSequence = 0;
+        const KDevPG::ListNode<VariableDeclaratorAst *> *variableDeclaratorSequence = 0;
 
         if ((yytoken == Token_STATIC
              || yytoken == Token_ABSTRACT
@@ -3295,12 +3295,12 @@ bool Parser::parseClass_field(Class_fieldAst **yynode)
              || yytoken == Token_LESS_THAN
              || yytoken == Token_ENUM) && ( !(yytoken == Token_STATIC && LA(2).kind == Token_LBRACE) ))
         {
-            Optional_modifiersAst *__node_72 = 0;
-            if (!parseOptional_modifiers(&__node_72))
+            OptionalModifiersAst *__node_72 = 0;
+            if (!parseOptionalModifiers(&__node_72))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Optional_modifiersKind, "optional_modifiers");
+                    expectedSymbol(AstNode::OptionalModifiersKind, "optionalModifiers");
                 }
                 return false;
             }
@@ -3308,58 +3308,58 @@ bool Parser::parseClass_field(Class_fieldAst **yynode)
 
             if (yytoken == Token_CLASS)
             {
-                Class_declarationAst *__node_73 = 0;
-                if (!parseClass_declaration(&__node_73, modifiers))
+                ClassDeclarationAst *__node_73 = 0;
+                if (!parseClassDeclaration(&__node_73, modifiers))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Class_declarationKind, "class_declaration");
+                        expectedSymbol(AstNode::ClassDeclarationKind, "classDeclaration");
                     }
                     return false;
                 }
-                (*yynode)->class_declaration = __node_73;
+                (*yynode)->classDeclaration = __node_73;
 
             }
             else if (yytoken == Token_ENUM)
             {
-                Enum_declarationAst *__node_74 = 0;
-                if (!parseEnum_declaration(&__node_74, modifiers))
+                EnumDeclarationAst *__node_74 = 0;
+                if (!parseEnumDeclaration(&__node_74, modifiers))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Enum_declarationKind, "enum_declaration");
+                        expectedSymbol(AstNode::EnumDeclarationKind, "enumDeclaration");
                     }
                     return false;
                 }
-                (*yynode)->enum_declaration = __node_74;
+                (*yynode)->enumDeclaration = __node_74;
 
             }
             else if (yytoken == Token_INTERFACE)
             {
-                Interface_declarationAst *__node_75 = 0;
-                if (!parseInterface_declaration(&__node_75, modifiers))
+                InterfaceDeclarationAst *__node_75 = 0;
+                if (!parseInterfaceDeclaration(&__node_75, modifiers))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Interface_declarationKind, "interface_declaration");
+                        expectedSymbol(AstNode::InterfaceDeclarationKind, "interfaceDeclaration");
                     }
                     return false;
                 }
-                (*yynode)->interface_declaration = __node_75;
+                (*yynode)->interfaceDeclaration = __node_75;
 
             }
             else if (yytoken == Token_AT)
             {
-                Annotation_type_declarationAst *__node_76 = 0;
-                if (!parseAnnotation_type_declaration(&__node_76, modifiers))
+                AnnotationTypeDeclarationAst *__node_76 = 0;
+                if (!parseAnnotationTypeDeclaration(&__node_76, modifiers))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Annotation_type_declarationKind, "annotation_type_declaration");
+                        expectedSymbol(AstNode::AnnotationTypeDeclarationKind, "annotationTypeDeclaration");
                     }
                     return false;
                 }
-                (*yynode)->annotation_type_declaration = __node_76;
+                (*yynode)->annotationTypeDeclaration = __node_76;
 
             }
             else if (yytoken == Token_IDENTIFIER
@@ -3376,16 +3376,16 @@ bool Parser::parseClass_field(Class_fieldAst **yynode)
             {
                 if ((yytoken == Token_LESS_THAN) && ( compatibilityMode() >= Java15Compatibility ))
                 {
-                    Type_parametersAst *__node_77 = 0;
-                    if (!parseType_parameters(&__node_77))
+                    TypeParametersAst *__node_77 = 0;
+                    if (!parseTypeParameters(&__node_77))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Type_parametersKind, "type_parameters");
+                            expectedSymbol(AstNode::TypeParametersKind, "typeParameters");
                         }
                         return false;
                     }
-                    type_parameters = __node_77;
+                    typeParameters = __node_77;
 
                 }
                 else if (true /*epsilon*/)
@@ -3397,18 +3397,18 @@ bool Parser::parseClass_field(Class_fieldAst **yynode)
                 }
                 if ((yytoken == Token_IDENTIFIER) && ( LA(2).kind == Token_LPAREN ))
                 {
-                    Constructor_declarationAst *__node_78 = 0;
-                    if (!parseConstructor_declaration(&__node_78,
-                                                      modifiers, type_parameters
-                                                     ))
+                    ConstructorDeclarationAst *__node_78 = 0;
+                    if (!parseConstructorDeclaration(&__node_78,
+                                                     modifiers, typeParameters
+                                                    ))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Constructor_declarationKind, "constructor_declaration");
+                            expectedSymbol(AstNode::ConstructorDeclarationKind, "constructorDeclaration");
                         }
                         return false;
                     }
-                    (*yynode)->constructor_declaration = __node_78;
+                    (*yynode)->constructorDeclaration = __node_78;
 
                 }
                 else if (yytoken == Token_IDENTIFIER
@@ -3435,32 +3435,32 @@ bool Parser::parseClass_field(Class_fieldAst **yynode)
 
                     if ((yytoken == Token_IDENTIFIER) && ( LA(2).kind == Token_LPAREN ))
                     {
-                        Method_declarationAst *__node_80 = 0;
-                        if (!parseMethod_declaration(&__node_80,
-                                                     modifiers, type_parameters, type
-                                                    ))
+                        MethodDeclarationAst *__node_80 = 0;
+                        if (!parseMethodDeclaration(&__node_80,
+                                                    modifiers, typeParameters, type
+                                                   ))
                         {
                             if (!mBlockErrors)
                             {
-                                expectedSymbol(AstNode::Method_declarationKind, "method_declaration");
+                                expectedSymbol(AstNode::MethodDeclarationKind, "methodDeclaration");
                             }
                             return false;
                         }
-                        (*yynode)->method_declaration = __node_80;
+                        (*yynode)->methodDeclaration = __node_80;
 
                     }
-                    else if ((yytoken == Token_IDENTIFIER) && ( type_parameters == 0 ))
+                    else if ((yytoken == Token_IDENTIFIER) && ( typeParameters == 0 ))
                     {
-                        Variable_declaratorAst *__node_81 = 0;
-                        if (!parseVariable_declarator(&__node_81))
+                        VariableDeclaratorAst *__node_81 = 0;
+                        if (!parseVariableDeclarator(&__node_81))
                         {
                             if (!mBlockErrors)
                             {
-                                expectedSymbol(AstNode::Variable_declaratorKind, "variable_declarator");
+                                expectedSymbol(AstNode::VariableDeclaratorKind, "variableDeclarator");
                             }
                             return false;
                         }
-                        variable_declaratorSequence = snoc(variable_declaratorSequence, __node_81, memoryPool);
+                        variableDeclaratorSequence = snoc(variableDeclaratorSequence, __node_81, memoryPool);
 
                         while (yytoken == Token_COMMA)
                         {
@@ -3474,16 +3474,16 @@ bool Parser::parseClass_field(Class_fieldAst **yynode)
                             }
                             yylex();
 
-                            Variable_declaratorAst *__node_82 = 0;
-                            if (!parseVariable_declarator(&__node_82))
+                            VariableDeclaratorAst *__node_82 = 0;
+                            if (!parseVariableDeclarator(&__node_82))
                             {
                                 if (!mBlockErrors)
                                 {
-                                    expectedSymbol(AstNode::Variable_declaratorKind, "variable_declarator");
+                                    expectedSymbol(AstNode::VariableDeclaratorKind, "variableDeclarator");
                                 }
                                 return false;
                             }
-                            variable_declaratorSequence = snoc(variable_declaratorSequence, __node_82, memoryPool);
+                            variableDeclaratorSequence = snoc(variableDeclaratorSequence, __node_82, memoryPool);
 
                         }
                         if (yytoken != Token_SEMICOLON)
@@ -3496,18 +3496,18 @@ bool Parser::parseClass_field(Class_fieldAst **yynode)
                         }
                         yylex();
 
-                        Variable_declaration_dataAst *__node_83 = 0;
-                        if (!parseVariable_declaration_data(&__node_83,
-                                                            modifiers, type, variable_declaratorSequence
-                                                           ))
+                        VariableDeclarationDataAst *__node_83 = 0;
+                        if (!parseVariableDeclarationData(&__node_83,
+                                                          modifiers, type, variableDeclaratorSequence
+                                                         ))
                         {
                             if (!mBlockErrors)
                             {
-                                expectedSymbol(AstNode::Variable_declaration_dataKind, "variable_declaration_data");
+                                expectedSymbol(AstNode::VariableDeclarationDataKind, "variableDeclarationData");
                             }
                             return false;
                         }
-                        (*yynode)->variable_declaration = __node_83;
+                        (*yynode)->variableDeclaration = __node_83;
 
                     }
                     else if (yytoken == Token_SEMICOLON)
@@ -3551,7 +3551,7 @@ bool Parser::parseClass_field(Class_fieldAst **yynode)
                 }
                 return false;
             }
-            (*yynode)->instance_initializer_block = __node_84;
+            (*yynode)->instanceInitializerBlock = __node_84;
 
         }
         else if (yytoken == Token_STATIC)
@@ -3575,7 +3575,7 @@ bool Parser::parseClass_field(Class_fieldAst **yynode)
                 }
                 return false;
             }
-            (*yynode)->static_initializer_block = __node_85;
+            (*yynode)->staticInitializerBlock = __node_85;
 
         }
         else if (yytoken == Token_SEMICOLON)
@@ -3606,20 +3606,20 @@ bool Parser::parseClass_field(Class_fieldAst **yynode)
     return true;
 }
 
-bool Parser::parseClass_or_interface_type_name(Class_or_interface_type_nameAst **yynode)
+bool Parser::parseClassOrInterfaceTypeName(ClassOrInterfaceTypeNameAst **yynode)
 {
-    *yynode = create<Class_or_interface_type_nameAst>();
+    *yynode = create<ClassOrInterfaceTypeNameAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
     if (yytoken == Token_IDENTIFIER)
     {
-        Class_or_interface_type_name_partAst *__node_86 = 0;
-        if (!parseClass_or_interface_type_name_part(&__node_86))
+        ClassOrInterfaceTypeNamePartAst *__node_86 = 0;
+        if (!parseClassOrInterfaceTypeNamePart(&__node_86))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Class_or_interface_type_name_partKind, "class_or_interface_type_name_part");
+                expectedSymbol(AstNode::ClassOrInterfaceTypeNamePartKind, "classOrInterfaceTypeNamePart");
             }
             return false;
         }
@@ -3637,12 +3637,12 @@ bool Parser::parseClass_or_interface_type_name(Class_or_interface_type_nameAst *
             }
             yylex();
 
-            Class_or_interface_type_name_partAst *__node_87 = 0;
-            if (!parseClass_or_interface_type_name_part(&__node_87))
+            ClassOrInterfaceTypeNamePartAst *__node_87 = 0;
+            if (!parseClassOrInterfaceTypeNamePart(&__node_87))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Class_or_interface_type_name_partKind, "class_or_interface_type_name_part");
+                    expectedSymbol(AstNode::ClassOrInterfaceTypeNamePartKind, "classOrInterfaceTypeNamePart");
                 }
                 return false;
             }
@@ -3660,9 +3660,9 @@ bool Parser::parseClass_or_interface_type_name(Class_or_interface_type_nameAst *
     return true;
 }
 
-bool Parser::parseClass_or_interface_type_name_part(Class_or_interface_type_name_partAst **yynode)
+bool Parser::parseClassOrInterfaceTypeNamePart(ClassOrInterfaceTypeNamePartAst **yynode)
 {
-    *yynode = create<Class_or_interface_type_name_partAst>();
+    *yynode = create<ClassOrInterfaceTypeNamePartAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -3681,16 +3681,16 @@ bool Parser::parseClass_or_interface_type_name_part(Class_or_interface_type_name
 
         if ((yytoken == Token_LESS_THAN) && ( compatibilityMode() >= Java15Compatibility ))
         {
-            Type_argumentsAst *__node_89 = 0;
-            if (!parseType_arguments(&__node_89))
+            TypeArgumentsAst *__node_89 = 0;
+            if (!parseTypeArguments(&__node_89))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Type_argumentsKind, "type_arguments");
+                    expectedSymbol(AstNode::TypeArgumentsKind, "typeArguments");
                 }
                 return false;
             }
-            (*yynode)->type_arguments = __node_89;
+            (*yynode)->typeArguments = __node_89;
 
         }
         else if (true /*epsilon*/)
@@ -3711,35 +3711,35 @@ bool Parser::parseClass_or_interface_type_name_part(Class_or_interface_type_name
     return true;
 }
 
-bool Parser::parseClass_type(Class_typeAst **yynode)
+bool Parser::parseClassType(ClassTypeAst **yynode)
 {
-    *yynode = create<Class_typeAst>();
+    *yynode = create<ClassTypeAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
     if (yytoken == Token_IDENTIFIER)
     {
-        Class_or_interface_type_nameAst *__node_90 = 0;
-        if (!parseClass_or_interface_type_name(&__node_90))
+        ClassOrInterfaceTypeNameAst *__node_90 = 0;
+        if (!parseClassOrInterfaceTypeName(&__node_90))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Class_or_interface_type_nameKind, "class_or_interface_type_name");
+                expectedSymbol(AstNode::ClassOrInterfaceTypeNameKind, "classOrInterfaceTypeName");
             }
             return false;
         }
         (*yynode)->type = __node_90;
 
-        Optional_declarator_bracketsAst *__node_91 = 0;
-        if (!parseOptional_declarator_brackets(&__node_91))
+        OptionalDeclaratorBracketsAst *__node_91 = 0;
+        if (!parseOptionalDeclaratorBrackets(&__node_91))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Optional_declarator_bracketsKind, "optional_declarator_brackets");
+                expectedSymbol(AstNode::OptionalDeclaratorBracketsKind, "optionalDeclaratorBrackets");
             }
             return false;
         }
-        (*yynode)->declarator_brackets = __node_91;
+        (*yynode)->declaratorBrackets = __node_91;
 
     }
     else
@@ -3752,9 +3752,9 @@ bool Parser::parseClass_type(Class_typeAst **yynode)
     return true;
 }
 
-bool Parser::parseCompilation_unit(Compilation_unitAst **yynode)
+bool Parser::parseCompilationUnit(CompilationUnitAst **yynode)
 {
-    *yynode = create<Compilation_unitAst>();
+    *yynode = create<CompilationUnitAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -3782,12 +3782,12 @@ bool Parser::parseCompilation_unit(Compilation_unitAst **yynode)
         qint64 try_startToken_5 = tokenStream->index() - 1;
         ParserState *try_startState_5 = copyCurrentState();
         {
-            Package_declarationAst *__node_92 = 0;
-            if (!parsePackage_declaration(&__node_92))
+            PackageDeclarationAst *__node_92 = 0;
+            if (!parsePackageDeclaration(&__node_92))
             {
                 goto __catch_5;
             }
-            (*yynode)->package_declaration = __node_92;
+            (*yynode)->packageDeclaration = __node_92;
 
         }
         blockErrors(blockErrors_5);
@@ -3812,12 +3812,12 @@ __catch_5:
             qint64 try_startToken_6 = tokenStream->index() - 1;
             ParserState *try_startState_6 = copyCurrentState();
             {
-                Import_declarationAst *__node_93 = 0;
-                if (!parseImport_declaration(&__node_93))
+                ImportDeclarationAst *__node_93 = 0;
+                if (!parseImportDeclaration(&__node_93))
                 {
                     goto __catch_6;
                 }
-                (*yynode)->import_declarationSequence = snoc((*yynode)->import_declarationSequence, __node_93, memoryPool);
+                (*yynode)->importDeclarationSequence = snoc((*yynode)->importDeclarationSequence, __node_93, memoryPool);
 
             }
             if (try_startState_6)
@@ -3879,12 +3879,12 @@ __catch_6:
             qint64 try_startToken_7 = tokenStream->index() - 1;
             ParserState *try_startState_7 = copyCurrentState();
             {
-                Type_declarationAst *__node_94 = 0;
-                if (!parseType_declaration(&__node_94))
+                TypeDeclarationAst *__node_94 = 0;
+                if (!parseTypeDeclaration(&__node_94))
                 {
                     goto __catch_7;
                 }
-                (*yynode)->type_declarationSequence = snoc((*yynode)->type_declarationSequence, __node_94, memoryPool);
+                (*yynode)->typeDeclarationSequence = snoc((*yynode)->typeDeclarationSequence, __node_94, memoryPool);
 
             }
             if (try_startState_7)
@@ -3940,9 +3940,9 @@ __catch_7:
     return true;
 }
 
-bool Parser::parseConditional_expression(Conditional_expressionAst **yynode)
+bool Parser::parseConditionalExpression(ConditionalExpressionAst **yynode)
 {
-    *yynode = create<Conditional_expressionAst>();
+    *yynode = create<ConditionalExpressionAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -3975,16 +3975,16 @@ bool Parser::parseConditional_expression(Conditional_expressionAst **yynode)
         || yytoken == Token_LESS_THAN
         || yytoken == Token_TRUE)
     {
-        Logical_or_expressionAst *__node_95 = 0;
-        if (!parseLogical_or_expression(&__node_95))
+        LogicalOrExpressionAst *__node_95 = 0;
+        if (!parseLogicalOrExpression(&__node_95))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Logical_or_expressionKind, "logical_or_expression");
+                expectedSymbol(AstNode::LogicalOrExpressionKind, "logicalOrExpression");
             }
             return false;
         }
-        (*yynode)->logical_or_expression = __node_95;
+        (*yynode)->logicalOrExpression = __node_95;
 
         if (yytoken == Token_QUESTION)
         {
@@ -4007,7 +4007,7 @@ bool Parser::parseConditional_expression(Conditional_expressionAst **yynode)
                 }
                 return false;
             }
-            (*yynode)->if_expression = __node_96;
+            (*yynode)->ifExpression = __node_96;
 
             if (yytoken != Token_COLON)
             {
@@ -4019,16 +4019,16 @@ bool Parser::parseConditional_expression(Conditional_expressionAst **yynode)
             }
             yylex();
 
-            Conditional_expressionAst *__node_97 = 0;
-            if (!parseConditional_expression(&__node_97))
+            ConditionalExpressionAst *__node_97 = 0;
+            if (!parseConditionalExpression(&__node_97))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Conditional_expressionKind, "conditional_expression");
+                    expectedSymbol(AstNode::ConditionalExpressionKind, "conditionalExpression");
                 }
                 return false;
             }
-            (*yynode)->else_expression = __node_97;
+            (*yynode)->elseExpression = __node_97;
 
         }
         else if (true /*epsilon*/)
@@ -4049,9 +4049,9 @@ bool Parser::parseConditional_expression(Conditional_expressionAst **yynode)
     return true;
 }
 
-bool Parser::parseConstructor_declaration(Constructor_declarationAst **yynode, Optional_modifiersAst *modifiers, Type_parametersAst *type_parameters)
+bool Parser::parseConstructorDeclaration(ConstructorDeclarationAst **yynode, OptionalModifiersAst *modifiers, TypeParametersAst *typeParameters)
 {
-    *yynode = create<Constructor_declarationAst>();
+    *yynode = create<ConstructorDeclarationAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -4059,9 +4059,9 @@ bool Parser::parseConstructor_declaration(Constructor_declarationAst **yynode, O
     if (modifiers && modifiers->startToken < (*yynode)->startToken)
         (*yynode)->startToken = modifiers->startToken;
 
-    (*yynode)->type_parameters = type_parameters;
-    if (type_parameters && type_parameters->startToken < (*yynode)->startToken)
-        (*yynode)->startToken = type_parameters->startToken;
+    (*yynode)->typeParameters = typeParameters;
+    if (typeParameters && typeParameters->startToken < (*yynode)->startToken)
+        (*yynode)->startToken = typeParameters->startToken;
 
     if (yytoken == Token_IDENTIFIER)
     {
@@ -4074,7 +4074,7 @@ bool Parser::parseConstructor_declaration(Constructor_declarationAst **yynode, O
             }
             return false;
         }
-        (*yynode)->class_name = __node_98;
+        (*yynode)->className = __node_98;
 
         if (yytoken != Token_LPAREN)
         {
@@ -4086,12 +4086,12 @@ bool Parser::parseConstructor_declaration(Constructor_declarationAst **yynode, O
         }
         yylex();
 
-        Optional_parameter_declaration_listAst *__node_99 = 0;
-        if (!parseOptional_parameter_declaration_list(&__node_99))
+        OptionalParameterDeclarationListAst *__node_99 = 0;
+        if (!parseOptionalParameterDeclarationList(&__node_99))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Optional_parameter_declaration_listKind, "optional_parameter_declaration_list");
+                expectedSymbol(AstNode::OptionalParameterDeclarationListKind, "optionalParameterDeclarationList");
             }
             return false;
         }
@@ -4109,16 +4109,16 @@ bool Parser::parseConstructor_declaration(Constructor_declarationAst **yynode, O
 
         if (yytoken == Token_THROWS)
         {
-            Throws_clauseAst *__node_100 = 0;
-            if (!parseThrows_clause(&__node_100))
+            ThrowsClauseAst *__node_100 = 0;
+            if (!parseThrowsClause(&__node_100))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Throws_clauseKind, "throws_clause");
+                    expectedSymbol(AstNode::ThrowsClauseKind, "throwsClause");
                 }
                 return false;
             }
-            (*yynode)->throws_clause = __node_100;
+            (*yynode)->throwsClause = __node_100;
 
         }
         else if (true /*epsilon*/)
@@ -4150,9 +4150,9 @@ bool Parser::parseConstructor_declaration(Constructor_declarationAst **yynode, O
     return true;
 }
 
-bool Parser::parseContinue_statement(Continue_statementAst **yynode)
+bool Parser::parseContinueStatement(ContinueStatementAst **yynode)
 {
-    *yynode = create<Continue_statementAst>();
+    *yynode = create<ContinueStatementAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -4210,9 +4210,9 @@ bool Parser::parseContinue_statement(Continue_statementAst **yynode)
     return true;
 }
 
-bool Parser::parseDo_while_statement(Do_while_statementAst **yynode)
+bool Parser::parseDoWhileStatement(DoWhileStatementAst **yynode)
 {
-    *yynode = create<Do_while_statementAst>();
+    *yynode = create<DoWhileStatementAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -4228,12 +4228,12 @@ bool Parser::parseDo_while_statement(Do_while_statementAst **yynode)
         }
         yylex();
 
-        Embedded_statementAst *__node_103 = 0;
-        if (!parseEmbedded_statement(&__node_103))
+        EmbeddedStatementAst *__node_103 = 0;
+        if (!parseEmbeddedStatement(&__node_103))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Embedded_statementKind, "embedded_statement");
+                expectedSymbol(AstNode::EmbeddedStatementKind, "embeddedStatement");
             }
             return false;
         }
@@ -4301,9 +4301,9 @@ bool Parser::parseDo_while_statement(Do_while_statementAst **yynode)
     return true;
 }
 
-bool Parser::parseEmbedded_statement(Embedded_statementAst **yynode)
+bool Parser::parseEmbeddedStatement(EmbeddedStatementAst **yynode)
 {
-    *yynode = create<Embedded_statementAst>();
+    *yynode = create<EmbeddedStatementAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -4366,170 +4366,170 @@ bool Parser::parseEmbedded_statement(Embedded_statementAst **yynode)
         }
         else if (yytoken == Token_ASSERT)
         {
-            Assert_statementAst *__node_106 = 0;
-            if (!parseAssert_statement(&__node_106))
+            AssertStatementAst *__node_106 = 0;
+            if (!parseAssertStatement(&__node_106))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Assert_statementKind, "assert_statement");
+                    expectedSymbol(AstNode::AssertStatementKind, "assertStatement");
                 }
                 return false;
             }
-            (*yynode)->assert_statement = __node_106;
+            (*yynode)->assertStatement = __node_106;
 
         }
         else if (yytoken == Token_IF)
         {
-            If_statementAst *__node_107 = 0;
-            if (!parseIf_statement(&__node_107))
+            IfStatementAst *__node_107 = 0;
+            if (!parseIfStatement(&__node_107))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::If_statementKind, "if_statement");
+                    expectedSymbol(AstNode::IfStatementKind, "ifStatement");
                 }
                 return false;
             }
-            (*yynode)->if_statement = __node_107;
+            (*yynode)->ifStatement = __node_107;
 
         }
         else if (yytoken == Token_FOR)
         {
-            For_statementAst *__node_108 = 0;
-            if (!parseFor_statement(&__node_108))
+            ForStatementAst *__node_108 = 0;
+            if (!parseForStatement(&__node_108))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::For_statementKind, "for_statement");
+                    expectedSymbol(AstNode::ForStatementKind, "forStatement");
                 }
                 return false;
             }
-            (*yynode)->for_statement = __node_108;
+            (*yynode)->forStatement = __node_108;
 
         }
         else if (yytoken == Token_WHILE)
         {
-            While_statementAst *__node_109 = 0;
-            if (!parseWhile_statement(&__node_109))
+            WhileStatementAst *__node_109 = 0;
+            if (!parseWhileStatement(&__node_109))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::While_statementKind, "while_statement");
+                    expectedSymbol(AstNode::WhileStatementKind, "whileStatement");
                 }
                 return false;
             }
-            (*yynode)->while_statement = __node_109;
+            (*yynode)->whileStatement = __node_109;
 
         }
         else if (yytoken == Token_DO)
         {
-            Do_while_statementAst *__node_110 = 0;
-            if (!parseDo_while_statement(&__node_110))
+            DoWhileStatementAst *__node_110 = 0;
+            if (!parseDoWhileStatement(&__node_110))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Do_while_statementKind, "do_while_statement");
+                    expectedSymbol(AstNode::DoWhileStatementKind, "doWhileStatement");
                 }
                 return false;
             }
-            (*yynode)->do_while_statement = __node_110;
+            (*yynode)->doWhileStatement = __node_110;
 
         }
         else if (yytoken == Token_TRY)
         {
-            Try_statementAst *__node_111 = 0;
-            if (!parseTry_statement(&__node_111))
+            TryStatementAst *__node_111 = 0;
+            if (!parseTryStatement(&__node_111))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Try_statementKind, "try_statement");
+                    expectedSymbol(AstNode::TryStatementKind, "tryStatement");
                 }
                 return false;
             }
-            (*yynode)->try_statement = __node_111;
+            (*yynode)->tryStatement = __node_111;
 
         }
         else if (yytoken == Token_SWITCH)
         {
-            Switch_statementAst *__node_112 = 0;
-            if (!parseSwitch_statement(&__node_112))
+            SwitchStatementAst *__node_112 = 0;
+            if (!parseSwitchStatement(&__node_112))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Switch_statementKind, "switch_statement");
+                    expectedSymbol(AstNode::SwitchStatementKind, "switchStatement");
                 }
                 return false;
             }
-            (*yynode)->switch_statement = __node_112;
+            (*yynode)->switchStatement = __node_112;
 
         }
         else if (yytoken == Token_SYNCHRONIZED)
         {
-            Synchronized_statementAst *__node_113 = 0;
-            if (!parseSynchronized_statement(&__node_113))
+            SynchronizedStatementAst *__node_113 = 0;
+            if (!parseSynchronizedStatement(&__node_113))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Synchronized_statementKind, "synchronized_statement");
+                    expectedSymbol(AstNode::SynchronizedStatementKind, "synchronizedStatement");
                 }
                 return false;
             }
-            (*yynode)->synchronized_statement = __node_113;
+            (*yynode)->synchronizedStatement = __node_113;
 
         }
         else if (yytoken == Token_RETURN)
         {
-            Return_statementAst *__node_114 = 0;
-            if (!parseReturn_statement(&__node_114))
+            ReturnStatementAst *__node_114 = 0;
+            if (!parseReturnStatement(&__node_114))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Return_statementKind, "return_statement");
+                    expectedSymbol(AstNode::ReturnStatementKind, "returnStatement");
                 }
                 return false;
             }
-            (*yynode)->return_statement = __node_114;
+            (*yynode)->returnStatement = __node_114;
 
         }
         else if (yytoken == Token_THROW)
         {
-            Throw_statementAst *__node_115 = 0;
-            if (!parseThrow_statement(&__node_115))
+            ThrowStatementAst *__node_115 = 0;
+            if (!parseThrowStatement(&__node_115))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Throw_statementKind, "throw_statement");
+                    expectedSymbol(AstNode::ThrowStatementKind, "throwStatement");
                 }
                 return false;
             }
-            (*yynode)->throw_statement = __node_115;
+            (*yynode)->throwStatement = __node_115;
 
         }
         else if (yytoken == Token_BREAK)
         {
-            Break_statementAst *__node_116 = 0;
-            if (!parseBreak_statement(&__node_116))
+            BreakStatementAst *__node_116 = 0;
+            if (!parseBreakStatement(&__node_116))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Break_statementKind, "break_statement");
+                    expectedSymbol(AstNode::BreakStatementKind, "breakStatement");
                 }
                 return false;
             }
-            (*yynode)->break_statement = __node_116;
+            (*yynode)->breakStatement = __node_116;
 
         }
         else if (yytoken == Token_CONTINUE)
         {
-            Continue_statementAst *__node_117 = 0;
-            if (!parseContinue_statement(&__node_117))
+            ContinueStatementAst *__node_117 = 0;
+            if (!parseContinueStatement(&__node_117))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Continue_statementKind, "continue_statement");
+                    expectedSymbol(AstNode::ContinueStatementKind, "continueStatement");
                 }
                 return false;
             }
-            (*yynode)->continue_statement = __node_117;
+            (*yynode)->continueStatement = __node_117;
 
         }
         else if (yytoken == Token_SEMICOLON)
@@ -4547,16 +4547,16 @@ bool Parser::parseEmbedded_statement(Embedded_statementAst **yynode)
         }
         else if ((yytoken == Token_IDENTIFIER) && ( LA(2).kind == Token_COLON ))
         {
-            Labeled_statementAst *__node_118 = 0;
-            if (!parseLabeled_statement(&__node_118))
+            LabeledStatementAst *__node_118 = 0;
+            if (!parseLabeledStatement(&__node_118))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Labeled_statementKind, "labeled_statement");
+                    expectedSymbol(AstNode::LabeledStatementKind, "labeledStatement");
                 }
                 return false;
             }
-            (*yynode)->labeled_statement = __node_118;
+            (*yynode)->labeledStatement = __node_118;
 
         }
         else if (yytoken == Token_DECREMENT
@@ -4588,16 +4588,16 @@ bool Parser::parseEmbedded_statement(Embedded_statementAst **yynode)
                  || yytoken == Token_LESS_THAN
                  || yytoken == Token_TRUE)
         {
-            Statement_expressionAst *__node_119 = 0;
-            if (!parseStatement_expression(&__node_119))
+            StatementExpressionAst *__node_119 = 0;
+            if (!parseStatementExpression(&__node_119))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Statement_expressionKind, "statement_expression");
+                    expectedSymbol(AstNode::StatementExpressionKind, "statementExpression");
                 }
                 return false;
             }
-            (*yynode)->expression_statement = __node_119;
+            (*yynode)->expressionStatement = __node_119;
 
             if (yytoken != Token_SEMICOLON)
             {
@@ -4625,9 +4625,9 @@ bool Parser::parseEmbedded_statement(Embedded_statementAst **yynode)
     return true;
 }
 
-bool Parser::parseEnum_body(Enum_bodyAst **yynode)
+bool Parser::parseEnumBody(EnumBodyAst **yynode)
 {
-    *yynode = create<Enum_bodyAst>();
+    *yynode = create<EnumBodyAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -4649,12 +4649,12 @@ bool Parser::parseEnum_body(Enum_bodyAst **yynode)
             qint64 try_startToken_8 = tokenStream->index() - 1;
             ParserState *try_startState_8 = copyCurrentState();
             {
-                Enum_constantAst *__node_120 = 0;
-                if (!parseEnum_constant(&__node_120))
+                EnumConstantAst *__node_120 = 0;
+                if (!parseEnumConstant(&__node_120))
                 {
                     goto __catch_8;
                 }
-                (*yynode)->enum_constantSequence = snoc((*yynode)->enum_constantSequence, __node_120, memoryPool);
+                (*yynode)->enumConstantSequence = snoc((*yynode)->enumConstantSequence, __node_120, memoryPool);
 
             }
             if (try_startState_8)
@@ -4699,12 +4699,12 @@ __catch_8:
                 qint64 try_startToken_9 = tokenStream->index() - 1;
                 ParserState *try_startState_9 = copyCurrentState();
                 {
-                    Enum_constantAst *__node_121 = 0;
-                    if (!parseEnum_constant(&__node_121))
+                    EnumConstantAst *__node_121 = 0;
+                    if (!parseEnumConstant(&__node_121))
                     {
                         goto __catch_9;
                     }
-                    (*yynode)->enum_constantSequence = snoc((*yynode)->enum_constantSequence, __node_121, memoryPool);
+                    (*yynode)->enumConstantSequence = snoc((*yynode)->enumConstantSequence, __node_121, memoryPool);
 
                 }
                 if (try_startState_9)
@@ -4783,12 +4783,12 @@ __catch_9:
                 qint64 try_startToken_10 = tokenStream->index() - 1;
                 ParserState *try_startState_10 = copyCurrentState();
                 {
-                    Class_fieldAst *__node_122 = 0;
-                    if (!parseClass_field(&__node_122))
+                    ClassFieldAst *__node_122 = 0;
+                    if (!parseClassField(&__node_122))
                     {
                         goto __catch_10;
                     }
-                    (*yynode)->class_fieldSequence = snoc((*yynode)->class_fieldSequence, __node_122, memoryPool);
+                    (*yynode)->classFieldSequence = snoc((*yynode)->classFieldSequence, __node_122, memoryPool);
 
                 }
                 if (try_startState_10)
@@ -4870,9 +4870,9 @@ __catch_10:
     return true;
 }
 
-bool Parser::parseEnum_constant(Enum_constantAst **yynode)
+bool Parser::parseEnumConstant(EnumConstantAst **yynode)
 {
-    *yynode = create<Enum_constantAst>();
+    *yynode = create<EnumConstantAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -4938,12 +4938,12 @@ __catch_11:
             }
             yylex();
 
-            Optional_argument_listAst *__node_125 = 0;
-            if (!parseOptional_argument_list(&__node_125))
+            OptionalArgumentListAst *__node_125 = 0;
+            if (!parseOptionalArgumentList(&__node_125))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Optional_argument_listKind, "optional_argument_list");
+                    expectedSymbol(AstNode::OptionalArgumentListKind, "optionalArgumentList");
                 }
                 return false;
             }
@@ -4969,12 +4969,12 @@ __catch_11:
         }
         if (yytoken == Token_LBRACE)
         {
-            Enum_constant_bodyAst *__node_126 = 0;
-            if (!parseEnum_constant_body(&__node_126))
+            EnumConstantBodyAst *__node_126 = 0;
+            if (!parseEnumConstantBody(&__node_126))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Enum_constant_bodyKind, "enum_constant_body");
+                    expectedSymbol(AstNode::EnumConstantBodyKind, "enumConstantBody");
                 }
                 return false;
             }
@@ -4999,9 +4999,9 @@ __catch_11:
     return true;
 }
 
-bool Parser::parseEnum_constant_body(Enum_constant_bodyAst **yynode)
+bool Parser::parseEnumConstantBody(EnumConstantBodyAst **yynode)
 {
-    *yynode = create<Enum_constant_bodyAst>();
+    *yynode = create<EnumConstantBodyAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -5049,8 +5049,8 @@ bool Parser::parseEnum_constant_body(Enum_constant_bodyAst **yynode)
             qint64 try_startToken_12 = tokenStream->index() - 1;
             ParserState *try_startState_12 = copyCurrentState();
             {
-                Enum_constant_fieldAst *__node_127 = 0;
-                if (!parseEnum_constant_field(&__node_127))
+                EnumConstantFieldAst *__node_127 = 0;
+                if (!parseEnumConstantField(&__node_127))
                 {
                     goto __catch_12;
                 }
@@ -5128,9 +5128,9 @@ __catch_12:
     return true;
 }
 
-bool Parser::parseEnum_constant_field(Enum_constant_fieldAst **yynode)
+bool Parser::parseEnumConstantField(EnumConstantFieldAst **yynode)
 {
-    *yynode = create<Enum_constant_fieldAst>();
+    *yynode = create<EnumConstantFieldAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -5163,13 +5163,13 @@ bool Parser::parseEnum_constant_field(Enum_constant_fieldAst **yynode)
         || yytoken == Token_ENUM
         || yytoken == Token_LBRACE)
     {
-        Optional_modifiersAst *modifiers = 0;
+        OptionalModifiersAst *modifiers = 0;
 
-        Type_parametersAst *type_parameters = 0;
+        TypeParametersAst *typeParameters = 0;
 
         TypeAst *type = 0;
 
-        const KDevPG::ListNode<Variable_declaratorAst *> *variable_declaratorSequence = 0;
+        const KDevPG::ListNode<VariableDeclaratorAst *> *variableDeclaratorSequence = 0;
 
         if (yytoken == Token_STATIC
             || yytoken == Token_ABSTRACT
@@ -5198,12 +5198,12 @@ bool Parser::parseEnum_constant_field(Enum_constant_fieldAst **yynode)
             || yytoken == Token_LESS_THAN
             || yytoken == Token_ENUM)
         {
-            Optional_modifiersAst *__node_128 = 0;
-            if (!parseOptional_modifiers(&__node_128))
+            OptionalModifiersAst *__node_128 = 0;
+            if (!parseOptionalModifiers(&__node_128))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Optional_modifiersKind, "optional_modifiers");
+                    expectedSymbol(AstNode::OptionalModifiersKind, "optionalModifiers");
                 }
                 return false;
             }
@@ -5211,58 +5211,58 @@ bool Parser::parseEnum_constant_field(Enum_constant_fieldAst **yynode)
 
             if (yytoken == Token_CLASS)
             {
-                Class_declarationAst *__node_129 = 0;
-                if (!parseClass_declaration(&__node_129, modifiers))
+                ClassDeclarationAst *__node_129 = 0;
+                if (!parseClassDeclaration(&__node_129, modifiers))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Class_declarationKind, "class_declaration");
+                        expectedSymbol(AstNode::ClassDeclarationKind, "classDeclaration");
                     }
                     return false;
                 }
-                (*yynode)->class_declaration = __node_129;
+                (*yynode)->classDeclaration = __node_129;
 
             }
             else if (yytoken == Token_ENUM)
             {
-                Enum_declarationAst *__node_130 = 0;
-                if (!parseEnum_declaration(&__node_130, modifiers))
+                EnumDeclarationAst *__node_130 = 0;
+                if (!parseEnumDeclaration(&__node_130, modifiers))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Enum_declarationKind, "enum_declaration");
+                        expectedSymbol(AstNode::EnumDeclarationKind, "enumDeclaration");
                     }
                     return false;
                 }
-                (*yynode)->enum_declaration = __node_130;
+                (*yynode)->enumDeclaration = __node_130;
 
             }
             else if (yytoken == Token_INTERFACE)
             {
-                Interface_declarationAst *__node_131 = 0;
-                if (!parseInterface_declaration(&__node_131, modifiers))
+                InterfaceDeclarationAst *__node_131 = 0;
+                if (!parseInterfaceDeclaration(&__node_131, modifiers))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Interface_declarationKind, "interface_declaration");
+                        expectedSymbol(AstNode::InterfaceDeclarationKind, "interfaceDeclaration");
                     }
                     return false;
                 }
-                (*yynode)->interface_declaration = __node_131;
+                (*yynode)->interfaceDeclaration = __node_131;
 
             }
             else if (yytoken == Token_AT)
             {
-                Annotation_type_declarationAst *__node_132 = 0;
-                if (!parseAnnotation_type_declaration(&__node_132, modifiers))
+                AnnotationTypeDeclarationAst *__node_132 = 0;
+                if (!parseAnnotationTypeDeclaration(&__node_132, modifiers))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Annotation_type_declarationKind, "annotation_type_declaration");
+                        expectedSymbol(AstNode::AnnotationTypeDeclarationKind, "annotationTypeDeclaration");
                     }
                     return false;
                 }
-                (*yynode)->annotation_type_declaration = __node_132;
+                (*yynode)->annotationTypeDeclaration = __node_132;
 
             }
             else if (yytoken == Token_IDENTIFIER
@@ -5279,16 +5279,16 @@ bool Parser::parseEnum_constant_field(Enum_constant_fieldAst **yynode)
             {
                 if ((yytoken == Token_LESS_THAN) && ( compatibilityMode() >= Java15Compatibility ))
                 {
-                    Type_parametersAst *__node_133 = 0;
-                    if (!parseType_parameters(&__node_133))
+                    TypeParametersAst *__node_133 = 0;
+                    if (!parseTypeParameters(&__node_133))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Type_parametersKind, "type_parameters");
+                            expectedSymbol(AstNode::TypeParametersKind, "typeParameters");
                         }
                         return false;
                     }
-                    type_parameters = __node_133;
+                    typeParameters = __node_133;
 
                 }
                 else if (true /*epsilon*/)
@@ -5311,32 +5311,32 @@ bool Parser::parseEnum_constant_field(Enum_constant_fieldAst **yynode)
 
                 if ((yytoken == Token_IDENTIFIER) && ( LA(2).kind == Token_LPAREN ))
                 {
-                    Method_declarationAst *__node_135 = 0;
-                    if (!parseMethod_declaration(&__node_135,
-                                                 modifiers, type_parameters, type
-                                                ))
+                    MethodDeclarationAst *__node_135 = 0;
+                    if (!parseMethodDeclaration(&__node_135,
+                                                modifiers, typeParameters, type
+                                               ))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Method_declarationKind, "method_declaration");
+                            expectedSymbol(AstNode::MethodDeclarationKind, "methodDeclaration");
                         }
                         return false;
                     }
-                    (*yynode)->method_declaration = __node_135;
+                    (*yynode)->methodDeclaration = __node_135;
 
                 }
-                else if ((yytoken == Token_IDENTIFIER) && ( type_parameters == 0 ))
+                else if ((yytoken == Token_IDENTIFIER) && ( typeParameters == 0 ))
                 {
-                    Variable_declaratorAst *__node_136 = 0;
-                    if (!parseVariable_declarator(&__node_136))
+                    VariableDeclaratorAst *__node_136 = 0;
+                    if (!parseVariableDeclarator(&__node_136))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Variable_declaratorKind, "variable_declarator");
+                            expectedSymbol(AstNode::VariableDeclaratorKind, "variableDeclarator");
                         }
                         return false;
                     }
-                    variable_declaratorSequence = snoc(variable_declaratorSequence, __node_136, memoryPool);
+                    variableDeclaratorSequence = snoc(variableDeclaratorSequence, __node_136, memoryPool);
 
                     while (yytoken == Token_COMMA)
                     {
@@ -5350,16 +5350,16 @@ bool Parser::parseEnum_constant_field(Enum_constant_fieldAst **yynode)
                         }
                         yylex();
 
-                        Variable_declaratorAst *__node_137 = 0;
-                        if (!parseVariable_declarator(&__node_137))
+                        VariableDeclaratorAst *__node_137 = 0;
+                        if (!parseVariableDeclarator(&__node_137))
                         {
                             if (!mBlockErrors)
                             {
-                                expectedSymbol(AstNode::Variable_declaratorKind, "variable_declarator");
+                                expectedSymbol(AstNode::VariableDeclaratorKind, "variableDeclarator");
                             }
                             return false;
                         }
-                        variable_declaratorSequence = snoc(variable_declaratorSequence, __node_137, memoryPool);
+                        variableDeclaratorSequence = snoc(variableDeclaratorSequence, __node_137, memoryPool);
 
                     }
                     if (yytoken != Token_SEMICOLON)
@@ -5372,18 +5372,18 @@ bool Parser::parseEnum_constant_field(Enum_constant_fieldAst **yynode)
                     }
                     yylex();
 
-                    Variable_declaration_dataAst *__node_138 = 0;
-                    if (!parseVariable_declaration_data(&__node_138,
-                                                        modifiers, type, variable_declaratorSequence
-                                                       ))
+                    VariableDeclarationDataAst *__node_138 = 0;
+                    if (!parseVariableDeclarationData(&__node_138,
+                                                      modifiers, type, variableDeclaratorSequence
+                                                     ))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Variable_declaration_dataKind, "variable_declaration_data");
+                            expectedSymbol(AstNode::VariableDeclarationDataKind, "variableDeclarationData");
                         }
                         return false;
                     }
-                    (*yynode)->variable_declaration = __node_138;
+                    (*yynode)->variableDeclaration = __node_138;
 
                 }
                 else if (yytoken == Token_SEMICOLON)
@@ -5422,7 +5422,7 @@ bool Parser::parseEnum_constant_field(Enum_constant_fieldAst **yynode)
                 }
                 return false;
             }
-            (*yynode)->instance_initializer_block = __node_139;
+            (*yynode)->instanceInitializerBlock = __node_139;
 
         }
         else if (yytoken == Token_SEMICOLON)
@@ -5453,9 +5453,9 @@ bool Parser::parseEnum_constant_field(Enum_constant_fieldAst **yynode)
     return true;
 }
 
-bool Parser::parseEnum_declaration(Enum_declarationAst **yynode, Optional_modifiersAst *modifiers)
+bool Parser::parseEnumDeclaration(EnumDeclarationAst **yynode, OptionalModifiersAst *modifiers)
 {
-    *yynode = create<Enum_declarationAst>();
+    *yynode = create<EnumDeclarationAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -5484,16 +5484,16 @@ bool Parser::parseEnum_declaration(Enum_declarationAst **yynode, Optional_modifi
             }
             return false;
         }
-        (*yynode)->enum_name = __node_140;
+        (*yynode)->enumName = __node_140;
 
         if (yytoken == Token_IMPLEMENTS)
         {
-            Implements_clauseAst *__node_141 = 0;
-            if (!parseImplements_clause(&__node_141))
+            ImplementsClauseAst *__node_141 = 0;
+            if (!parseImplementsClause(&__node_141))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Implements_clauseKind, "implements_clause");
+                    expectedSymbol(AstNode::ImplementsClauseKind, "implementsClause");
                 }
                 return false;
             }
@@ -5507,12 +5507,12 @@ bool Parser::parseEnum_declaration(Enum_declarationAst **yynode, Optional_modifi
         {
             return false;
         }
-        Enum_bodyAst *__node_142 = 0;
-        if (!parseEnum_body(&__node_142))
+        EnumBodyAst *__node_142 = 0;
+        if (!parseEnumBody(&__node_142))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Enum_bodyKind, "enum_body");
+                expectedSymbol(AstNode::EnumBodyKind, "enumBody");
             }
             return false;
         }
@@ -5529,9 +5529,9 @@ bool Parser::parseEnum_declaration(Enum_declarationAst **yynode, Optional_modifi
     return true;
 }
 
-bool Parser::parseEquality_expression(Equality_expressionAst **yynode)
+bool Parser::parseEqualityExpression(EqualityExpressionAst **yynode)
 {
-    *yynode = create<Equality_expressionAst>();
+    *yynode = create<EqualityExpressionAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -5564,12 +5564,12 @@ bool Parser::parseEquality_expression(Equality_expressionAst **yynode)
         || yytoken == Token_LESS_THAN
         || yytoken == Token_TRUE)
     {
-        Relational_expressionAst *__node_143 = 0;
-        if (!parseRelational_expression(&__node_143))
+        RelationalExpressionAst *__node_143 = 0;
+        if (!parseRelationalExpression(&__node_143))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Relational_expressionKind, "relational_expression");
+                expectedSymbol(AstNode::RelationalExpressionKind, "relationalExpression");
             }
             return false;
         }
@@ -5578,16 +5578,16 @@ bool Parser::parseEquality_expression(Equality_expressionAst **yynode)
         while (yytoken == Token_EQUAL
                || yytoken == Token_NOT_EQUAL)
         {
-            Equality_expression_restAst *__node_144 = 0;
-            if (!parseEquality_expression_rest(&__node_144))
+            EqualityExpressionRestAst *__node_144 = 0;
+            if (!parseEqualityExpressionRest(&__node_144))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Equality_expression_restKind, "equality_expression_rest");
+                    expectedSymbol(AstNode::EqualityExpressionRestKind, "equalityExpressionRest");
                 }
                 return false;
             }
-            (*yynode)->additional_expressionSequence = snoc((*yynode)->additional_expressionSequence, __node_144, memoryPool);
+            (*yynode)->additionalExpressionSequence = snoc((*yynode)->additionalExpressionSequence, __node_144, memoryPool);
 
         }
     }
@@ -5601,9 +5601,9 @@ bool Parser::parseEquality_expression(Equality_expressionAst **yynode)
     return true;
 }
 
-bool Parser::parseEquality_expression_rest(Equality_expression_restAst **yynode)
+bool Parser::parseEqualityExpressionRest(EqualityExpressionRestAst **yynode)
 {
-    *yynode = create<Equality_expression_restAst>();
+    *yynode = create<EqualityExpressionRestAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -5622,7 +5622,7 @@ bool Parser::parseEquality_expression_rest(Equality_expression_restAst **yynode)
             }
             yylex();
 
-            (*yynode)->equality_operator = EqualityOperatorEqual;
+            (*yynode)->equalityOperator = EqualityOperatorEqual;
         }
         else if (yytoken == Token_NOT_EQUAL)
         {
@@ -5636,18 +5636,18 @@ bool Parser::parseEquality_expression_rest(Equality_expression_restAst **yynode)
             }
             yylex();
 
-            (*yynode)->equality_operator = EqualityOperatorNotEqual;
+            (*yynode)->equalityOperator = EqualityOperatorNotEqual;
         }
         else
         {
             return false;
         }
-        Relational_expressionAst *__node_145 = 0;
-        if (!parseRelational_expression(&__node_145))
+        RelationalExpressionAst *__node_145 = 0;
+        if (!parseRelationalExpression(&__node_145))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Relational_expressionKind, "relational_expression");
+                expectedSymbol(AstNode::RelationalExpressionKind, "relationalExpression");
             }
             return false;
         }
@@ -5699,16 +5699,16 @@ bool Parser::parseExpression(ExpressionAst **yynode)
         || yytoken == Token_LESS_THAN
         || yytoken == Token_TRUE)
     {
-        Conditional_expressionAst *__node_146 = 0;
-        if (!parseConditional_expression(&__node_146))
+        ConditionalExpressionAst *__node_146 = 0;
+        if (!parseConditionalExpression(&__node_146))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Conditional_expressionKind, "conditional_expression");
+                expectedSymbol(AstNode::ConditionalExpressionKind, "conditionalExpression");
             }
             return false;
         }
-        (*yynode)->conditional_expression = __node_146;
+        (*yynode)->conditionalExpression = __node_146;
 
         if (yytoken == Token_STAR_ASSIGN
             || yytoken == Token_BIT_OR_ASSIGN
@@ -5735,7 +5735,7 @@ bool Parser::parseExpression(ExpressionAst **yynode)
                 }
                 yylex();
 
-                (*yynode)->assignment_operator = AssignmentOperatorPlain;
+                (*yynode)->assignmentOperator = AssignmentOperatorPlain;
             }
             else if (yytoken == Token_PLUS_ASSIGN)
             {
@@ -5749,7 +5749,7 @@ bool Parser::parseExpression(ExpressionAst **yynode)
                 }
                 yylex();
 
-                (*yynode)->assignment_operator = AssignmentOperatorPlus;
+                (*yynode)->assignmentOperator = AssignmentOperatorPlus;
             }
             else if (yytoken == Token_MINUS_ASSIGN)
             {
@@ -5763,7 +5763,7 @@ bool Parser::parseExpression(ExpressionAst **yynode)
                 }
                 yylex();
 
-                (*yynode)->assignment_operator = AssignmentOperatorMinus;
+                (*yynode)->assignmentOperator = AssignmentOperatorMinus;
             }
             else if (yytoken == Token_STAR_ASSIGN)
             {
@@ -5777,7 +5777,7 @@ bool Parser::parseExpression(ExpressionAst **yynode)
                 }
                 yylex();
 
-                (*yynode)->assignment_operator = AssignmentOperatorStar;
+                (*yynode)->assignmentOperator = AssignmentOperatorStar;
             }
             else if (yytoken == Token_SLASH_ASSIGN)
             {
@@ -5791,7 +5791,7 @@ bool Parser::parseExpression(ExpressionAst **yynode)
                 }
                 yylex();
 
-                (*yynode)->assignment_operator = AssignmentOperatorSlash;
+                (*yynode)->assignmentOperator = AssignmentOperatorSlash;
             }
             else if (yytoken == Token_BIT_AND_ASSIGN)
             {
@@ -5805,7 +5805,7 @@ bool Parser::parseExpression(ExpressionAst **yynode)
                 }
                 yylex();
 
-                (*yynode)->assignment_operator = AssignmentOperatorBitAnd;
+                (*yynode)->assignmentOperator = AssignmentOperatorBitAnd;
             }
             else if (yytoken == Token_BIT_OR_ASSIGN)
             {
@@ -5819,7 +5819,7 @@ bool Parser::parseExpression(ExpressionAst **yynode)
                 }
                 yylex();
 
-                (*yynode)->assignment_operator = AssignmentOperatorBitOr;
+                (*yynode)->assignmentOperator = AssignmentOperatorBitOr;
             }
             else if (yytoken == Token_BIT_XOR_ASSIGN)
             {
@@ -5833,7 +5833,7 @@ bool Parser::parseExpression(ExpressionAst **yynode)
                 }
                 yylex();
 
-                (*yynode)->assignment_operator = AssignmentOperatorBitXOr;
+                (*yynode)->assignmentOperator = AssignmentOperatorBitXOr;
             }
             else if (yytoken == Token_REMAINDER_ASSIGN)
             {
@@ -5847,7 +5847,7 @@ bool Parser::parseExpression(ExpressionAst **yynode)
                 }
                 yylex();
 
-                (*yynode)->assignment_operator = AssignmentOperatorRemainder;
+                (*yynode)->assignmentOperator = AssignmentOperatorRemainder;
             }
             else if (yytoken == Token_LSHIFT_ASSIGN)
             {
@@ -5861,7 +5861,7 @@ bool Parser::parseExpression(ExpressionAst **yynode)
                 }
                 yylex();
 
-                (*yynode)->assignment_operator = AssignmentOperatorLShift;
+                (*yynode)->assignmentOperator = AssignmentOperatorLShift;
             }
             else if (yytoken == Token_SIGNED_RSHIFT_ASSIGN)
             {
@@ -5875,7 +5875,7 @@ bool Parser::parseExpression(ExpressionAst **yynode)
                 }
                 yylex();
 
-                (*yynode)->assignment_operator = AssignmentOperatorRShiftSigned;
+                (*yynode)->assignmentOperator = AssignmentOperatorRShiftSigned;
             }
             else if (yytoken == Token_UNSIGNED_RSHIFT_ASSIGN)
             {
@@ -5889,7 +5889,7 @@ bool Parser::parseExpression(ExpressionAst **yynode)
                 }
                 yylex();
 
-                (*yynode)->assignment_operator = AssignmentOperatorRShiftUnsigned;
+                (*yynode)->assignmentOperator = AssignmentOperatorRShiftUnsigned;
             }
             else
             {
@@ -5904,12 +5904,12 @@ bool Parser::parseExpression(ExpressionAst **yynode)
                 }
                 return false;
             }
-            (*yynode)->assignment_expression = __node_147;
+            (*yynode)->assignmentExpression = __node_147;
 
         }
         else if (true /*epsilon*/)
         {
-            (*yynode)->assignment_operator = AssignmentOperatorNone;
+            (*yynode)->assignmentOperator = AssignmentOperatorNone;
         }
         else
         {
@@ -5926,9 +5926,9 @@ bool Parser::parseExpression(ExpressionAst **yynode)
     return true;
 }
 
-bool Parser::parseFor_clause_traditional_rest(For_clause_traditional_restAst **yynode)
+bool Parser::parseForClauseTraditionalRest(ForClauseTraditionalRestAst **yynode)
 {
-    *yynode = create<For_clause_traditional_restAst>();
+    *yynode = create<ForClauseTraditionalRestAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -5982,7 +5982,7 @@ bool Parser::parseFor_clause_traditional_rest(For_clause_traditional_restAst **y
                 }
                 return false;
             }
-            (*yynode)->for_condition = __node_148;
+            (*yynode)->forCondition = __node_148;
 
         }
         else if (true /*epsilon*/)
@@ -6031,16 +6031,16 @@ bool Parser::parseFor_clause_traditional_rest(For_clause_traditional_restAst **y
             || yytoken == Token_LESS_THAN
             || yytoken == Token_TRUE)
         {
-            Statement_expressionAst *__node_149 = 0;
-            if (!parseStatement_expression(&__node_149))
+            StatementExpressionAst *__node_149 = 0;
+            if (!parseStatementExpression(&__node_149))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Statement_expressionKind, "statement_expression");
+                    expectedSymbol(AstNode::StatementExpressionKind, "statementExpression");
                 }
                 return false;
             }
-            (*yynode)->for_update_expressionSequence = snoc((*yynode)->for_update_expressionSequence, __node_149, memoryPool);
+            (*yynode)->forUpdateExpressionSequence = snoc((*yynode)->forUpdateExpressionSequence, __node_149, memoryPool);
 
             while (yytoken == Token_COMMA)
             {
@@ -6054,16 +6054,16 @@ bool Parser::parseFor_clause_traditional_rest(For_clause_traditional_restAst **y
                 }
                 yylex();
 
-                Statement_expressionAst *__node_150 = 0;
-                if (!parseStatement_expression(&__node_150))
+                StatementExpressionAst *__node_150 = 0;
+                if (!parseStatementExpression(&__node_150))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Statement_expressionKind, "statement_expression");
+                        expectedSymbol(AstNode::StatementExpressionKind, "statementExpression");
                     }
                     return false;
                 }
-                (*yynode)->for_update_expressionSequence = snoc((*yynode)->for_update_expressionSequence, __node_150, memoryPool);
+                (*yynode)->forUpdateExpressionSequence = snoc((*yynode)->forUpdateExpressionSequence, __node_150, memoryPool);
 
             }
         }
@@ -6085,9 +6085,9 @@ bool Parser::parseFor_clause_traditional_rest(For_clause_traditional_restAst **y
     return true;
 }
 
-bool Parser::parseFor_control(For_controlAst **yynode)
+bool Parser::parseForControl(ForControlAst **yynode)
 {
-    *yynode = create<For_controlAst>();
+    *yynode = create<ForControlAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -6133,11 +6133,11 @@ bool Parser::parseFor_control(For_controlAst **yynode)
         || yytoken == Token_INTEGER_LITERAL
         || yytoken == Token_NATIVE)
     {
-        Parameter_declarationAst *vardecl_start_or_foreach_parameter = 0;
+        ParameterDeclarationAst *variableDeclarationStartOrForeachParameter = 0;
 
-        ExpressionAst *iterable_expression = 0;
+        ExpressionAst *iterableExpression = 0;
 
-        Variable_declaration_restAst *variable_declaration_rest = 0;
+        VariableDeclarationRestAst *variableDeclarationRest = 0;
 
         if (yytoken == Token_DECREMENT
             || yytoken == Token_CHAR
@@ -6184,12 +6184,12 @@ bool Parser::parseFor_control(For_controlAst **yynode)
             qint64 try_startToken_13 = tokenStream->index() - 1;
             ParserState *try_startState_13 = copyCurrentState();
             {
-                Parameter_declarationAst *__node_151 = 0;
-                if (!parseParameter_declaration(&__node_151))
+                ParameterDeclarationAst *__node_151 = 0;
+                if (!parseParameterDeclaration(&__node_151))
                 {
                     goto __catch_13;
                 }
-                vardecl_start_or_foreach_parameter = __node_151;
+                variableDeclarationStartOrForeachParameter = __node_151;
 
                 if ((yytoken == Token_COLON) && ( compatibilityMode() >= Java15Compatibility ))
                 {
@@ -6202,44 +6202,44 @@ bool Parser::parseFor_control(For_controlAst **yynode)
                     {
                         goto __catch_13;
                     }
-                    iterable_expression = __node_152;
+                    iterableExpression = __node_152;
 
-                    Foreach_declaration_dataAst *__node_153 = 0;
-                    if (!parseForeach_declaration_data(&__node_153,
-                                                       vardecl_start_or_foreach_parameter, iterable_expression
-                                                      ))
+                    ForeachDeclarationDataAst *__node_153 = 0;
+                    if (!parseForeachDeclarationData(&__node_153,
+                                                     variableDeclarationStartOrForeachParameter, iterableExpression
+                                                    ))
                     {
                         goto __catch_13;
                     }
-                    (*yynode)->foreach_declaration = __node_153;
+                    (*yynode)->foreachDeclaration = __node_153;
 
                 }
                 else if (yytoken == Token_COMMA
                          || yytoken == Token_ASSIGN
                          || yytoken == Token_SEMICOLON)
                 {
-                    Variable_declaration_restAst *__node_154 = 0;
-                    if (!parseVariable_declaration_rest(&__node_154))
+                    VariableDeclarationRestAst *__node_154 = 0;
+                    if (!parseVariableDeclarationRest(&__node_154))
                     {
                         goto __catch_13;
                     }
-                    variable_declaration_rest = __node_154;
+                    variableDeclarationRest = __node_154;
 
-                    Variable_declaration_split_dataAst *__node_155 = 0;
-                    if (!parseVariable_declaration_split_data(&__node_155,
-                            vardecl_start_or_foreach_parameter, variable_declaration_rest
-                                                             ))
+                    VariableDeclarationSplitDataAst *__node_155 = 0;
+                    if (!parseVariableDeclarationSplitData(&__node_155,
+                                                           variableDeclarationStartOrForeachParameter, variableDeclarationRest
+                                                          ))
                     {
                         goto __catch_13;
                     }
-                    (*yynode)->variable_declaration = __node_155;
+                    (*yynode)->variableDeclaration = __node_155;
 
-                    For_clause_traditional_restAst *__node_156 = 0;
-                    if (!parseFor_clause_traditional_rest(&__node_156))
+                    ForClauseTraditionalRestAst *__node_156 = 0;
+                    if (!parseForClauseTraditionalRest(&__node_156))
                     {
                         goto __catch_13;
                     }
-                    (*yynode)->traditional_for_rest = __node_156;
+                    (*yynode)->traditionalForRest = __node_156;
 
                 }
                 else
@@ -6262,16 +6262,16 @@ __catch_13:
                 blockErrors(blockErrors_13);
                 rewind(try_startToken_13);
 
-                Statement_expressionAst *__node_157 = 0;
-                if (!parseStatement_expression(&__node_157))
+                StatementExpressionAst *__node_157 = 0;
+                if (!parseStatementExpression(&__node_157))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Statement_expressionKind, "statement_expression");
+                        expectedSymbol(AstNode::StatementExpressionKind, "statementExpression");
                     }
                     return false;
                 }
-                (*yynode)->statement_expressionSequence = snoc((*yynode)->statement_expressionSequence, __node_157, memoryPool);
+                (*yynode)->statementExpressionSequence = snoc((*yynode)->statementExpressionSequence, __node_157, memoryPool);
 
                 while (yytoken == Token_COMMA)
                 {
@@ -6285,44 +6285,44 @@ __catch_13:
                     }
                     yylex();
 
-                    Statement_expressionAst *__node_158 = 0;
-                    if (!parseStatement_expression(&__node_158))
+                    StatementExpressionAst *__node_158 = 0;
+                    if (!parseStatementExpression(&__node_158))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Statement_expressionKind, "statement_expression");
+                            expectedSymbol(AstNode::StatementExpressionKind, "statementExpression");
                         }
                         return false;
                     }
-                    (*yynode)->statement_expressionSequence = snoc((*yynode)->statement_expressionSequence, __node_158, memoryPool);
+                    (*yynode)->statementExpressionSequence = snoc((*yynode)->statementExpressionSequence, __node_158, memoryPool);
 
                 }
-                For_clause_traditional_restAst *__node_159 = 0;
-                if (!parseFor_clause_traditional_rest(&__node_159))
+                ForClauseTraditionalRestAst *__node_159 = 0;
+                if (!parseForClauseTraditionalRest(&__node_159))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::For_clause_traditional_restKind, "for_clause_traditional_rest");
+                        expectedSymbol(AstNode::ForClauseTraditionalRestKind, "forClauseTraditionalRest");
                     }
                     return false;
                 }
-                (*yynode)->traditional_for_rest = __node_159;
+                (*yynode)->traditionalForRest = __node_159;
 
             }
 
         }
         else if (yytoken == Token_SEMICOLON)
         {
-            For_clause_traditional_restAst *__node_160 = 0;
-            if (!parseFor_clause_traditional_rest(&__node_160))
+            ForClauseTraditionalRestAst *__node_160 = 0;
+            if (!parseForClauseTraditionalRest(&__node_160))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::For_clause_traditional_restKind, "for_clause_traditional_rest");
+                    expectedSymbol(AstNode::ForClauseTraditionalRestKind, "forClauseTraditionalRest");
                 }
                 return false;
             }
-            (*yynode)->traditional_for_rest = __node_160;
+            (*yynode)->traditionalForRest = __node_160;
 
         }
         else
@@ -6340,9 +6340,9 @@ __catch_13:
     return true;
 }
 
-bool Parser::parseFor_statement(For_statementAst **yynode)
+bool Parser::parseForStatement(ForStatementAst **yynode)
 {
-    *yynode = create<For_statementAst>();
+    *yynode = create<ForStatementAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -6368,16 +6368,16 @@ bool Parser::parseFor_statement(For_statementAst **yynode)
         }
         yylex();
 
-        For_controlAst *__node_161 = 0;
-        if (!parseFor_control(&__node_161))
+        ForControlAst *__node_161 = 0;
+        if (!parseForControl(&__node_161))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::For_controlKind, "for_control");
+                expectedSymbol(AstNode::ForControlKind, "forControl");
             }
             return false;
         }
-        (*yynode)->for_control = __node_161;
+        (*yynode)->forControl = __node_161;
 
         if (yytoken != Token_RPAREN)
         {
@@ -6389,16 +6389,16 @@ bool Parser::parseFor_statement(For_statementAst **yynode)
         }
         yylex();
 
-        Embedded_statementAst *__node_162 = 0;
-        if (!parseEmbedded_statement(&__node_162))
+        EmbeddedStatementAst *__node_162 = 0;
+        if (!parseEmbeddedStatement(&__node_162))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Embedded_statementKind, "embedded_statement");
+                expectedSymbol(AstNode::EmbeddedStatementKind, "embeddedStatement");
             }
             return false;
         }
-        (*yynode)->for_body = __node_162;
+        (*yynode)->forBody = __node_162;
 
     }
     else
@@ -6411,19 +6411,19 @@ bool Parser::parseFor_statement(For_statementAst **yynode)
     return true;
 }
 
-bool Parser::parseForeach_declaration_data(Foreach_declaration_dataAst **yynode, Parameter_declarationAst *foreach_parameter, ExpressionAst *iterable_expression)
+bool Parser::parseForeachDeclarationData(ForeachDeclarationDataAst **yynode, ParameterDeclarationAst *foreachParameter, ExpressionAst *iterableExpression)
 {
-    *yynode = create<Foreach_declaration_dataAst>();
+    *yynode = create<ForeachDeclarationDataAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
-    (*yynode)->foreach_parameter = foreach_parameter;
-    if (foreach_parameter && foreach_parameter->startToken < (*yynode)->startToken)
-        (*yynode)->startToken = foreach_parameter->startToken;
+    (*yynode)->foreachParameter = foreachParameter;
+    if (foreachParameter && foreachParameter->startToken < (*yynode)->startToken)
+        (*yynode)->startToken = foreachParameter->startToken;
 
-    (*yynode)->iterable_expression = iterable_expression;
-    if (iterable_expression && iterable_expression->startToken < (*yynode)->startToken)
-        (*yynode)->startToken = iterable_expression->startToken;
+    (*yynode)->iterableExpression = iterableExpression;
+    if (iterableExpression && iterableExpression->startToken < (*yynode)->startToken)
+        (*yynode)->startToken = iterableExpression->startToken;
 
     if (true /*epsilon*/ || yytoken == Token_EOF
         || yytoken == Token_RPAREN)
@@ -6470,9 +6470,9 @@ bool Parser::parseIdentifier(IdentifierAst **yynode)
     return true;
 }
 
-bool Parser::parseIf_statement(If_statementAst **yynode)
+bool Parser::parseIfStatement(IfStatementAst **yynode)
 {
-    *yynode = create<If_statementAst>();
+    *yynode = create<IfStatementAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -6519,16 +6519,16 @@ bool Parser::parseIf_statement(If_statementAst **yynode)
         }
         yylex();
 
-        Embedded_statementAst *__node_164 = 0;
-        if (!parseEmbedded_statement(&__node_164))
+        EmbeddedStatementAst *__node_164 = 0;
+        if (!parseEmbeddedStatement(&__node_164))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Embedded_statementKind, "embedded_statement");
+                expectedSymbol(AstNode::EmbeddedStatementKind, "embeddedStatement");
             }
             return false;
         }
-        (*yynode)->if_body = __node_164;
+        (*yynode)->ifBody = __node_164;
 
         if (yytoken == Token_ELSE)
         {
@@ -6542,16 +6542,16 @@ bool Parser::parseIf_statement(If_statementAst **yynode)
             }
             yylex();
 
-            Embedded_statementAst *__node_165 = 0;
-            if (!parseEmbedded_statement(&__node_165))
+            EmbeddedStatementAst *__node_165 = 0;
+            if (!parseEmbeddedStatement(&__node_165))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Embedded_statementKind, "embedded_statement");
+                    expectedSymbol(AstNode::EmbeddedStatementKind, "embeddedStatement");
                 }
                 return false;
             }
-            (*yynode)->else_body = __node_165;
+            (*yynode)->elseBody = __node_165;
 
         }
         else if (true /*epsilon*/)
@@ -6572,9 +6572,9 @@ bool Parser::parseIf_statement(If_statementAst **yynode)
     return true;
 }
 
-bool Parser::parseImplements_clause(Implements_clauseAst **yynode)
+bool Parser::parseImplementsClause(ImplementsClauseAst **yynode)
 {
-    *yynode = create<Implements_clauseAst>();
+    *yynode = create<ImplementsClauseAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -6590,12 +6590,12 @@ bool Parser::parseImplements_clause(Implements_clauseAst **yynode)
         }
         yylex();
 
-        Class_or_interface_type_nameAst *__node_166 = 0;
-        if (!parseClass_or_interface_type_name(&__node_166))
+        ClassOrInterfaceTypeNameAst *__node_166 = 0;
+        if (!parseClassOrInterfaceTypeName(&__node_166))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Class_or_interface_type_nameKind, "class_or_interface_type_name");
+                expectedSymbol(AstNode::ClassOrInterfaceTypeNameKind, "classOrInterfaceTypeName");
             }
             return false;
         }
@@ -6613,12 +6613,12 @@ bool Parser::parseImplements_clause(Implements_clauseAst **yynode)
             }
             yylex();
 
-            Class_or_interface_type_nameAst *__node_167 = 0;
-            if (!parseClass_or_interface_type_name(&__node_167))
+            ClassOrInterfaceTypeNameAst *__node_167 = 0;
+            if (!parseClassOrInterfaceTypeName(&__node_167))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Class_or_interface_type_nameKind, "class_or_interface_type_name");
+                    expectedSymbol(AstNode::ClassOrInterfaceTypeNameKind, "classOrInterfaceTypeName");
                 }
                 return false;
             }
@@ -6636,9 +6636,9 @@ bool Parser::parseImplements_clause(Implements_clauseAst **yynode)
     return true;
 }
 
-bool Parser::parseImport_declaration(Import_declarationAst **yynode)
+bool Parser::parseImportDeclaration(ImportDeclarationAst **yynode)
 {
-    *yynode = create<Import_declarationAst>();
+    *yynode = create<ImportDeclarationAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -6666,26 +6666,26 @@ bool Parser::parseImport_declaration(Import_declarationAst **yynode)
             }
             yylex();
 
-            (*yynode)->static_import = true;
+            (*yynode)->staticImport = true;
         }
         else if (true /*epsilon*/)
         {
-            (*yynode)->static_import = false;
+            (*yynode)->staticImport = false;
         }
         else
         {
             return false;
         }
-        Qualified_identifier_with_optional_starAst *__node_168 = 0;
-        if (!parseQualified_identifier_with_optional_star(&__node_168))
+        QualifiedIdentifierWithOptionalStarAst *__node_168 = 0;
+        if (!parseQualifiedIdentifierWithOptionalStar(&__node_168))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Qualified_identifier_with_optional_starKind, "qualified_identifier_with_optional_star");
+                expectedSymbol(AstNode::QualifiedIdentifierWithOptionalStarKind, "qualifiedIdentifierWithOptionalStar");
             }
             return false;
         }
-        (*yynode)->identifier_name = __node_168;
+        (*yynode)->identifierName = __node_168;
 
         if (yytoken != Token_SEMICOLON)
         {
@@ -6708,9 +6708,9 @@ bool Parser::parseImport_declaration(Import_declarationAst **yynode)
     return true;
 }
 
-bool Parser::parseInterface_body(Interface_bodyAst **yynode)
+bool Parser::parseInterfaceBody(InterfaceBodyAst **yynode)
 {
-    *yynode = create<Interface_bodyAst>();
+    *yynode = create<InterfaceBodyAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -6757,8 +6757,8 @@ bool Parser::parseInterface_body(Interface_bodyAst **yynode)
             qint64 try_startToken_14 = tokenStream->index() - 1;
             ParserState *try_startState_14 = copyCurrentState();
             {
-                Interface_fieldAst *__node_169 = 0;
-                if (!parseInterface_field(&__node_169))
+                InterfaceFieldAst *__node_169 = 0;
+                if (!parseInterfaceField(&__node_169))
                 {
                     goto __catch_14;
                 }
@@ -6835,9 +6835,9 @@ __catch_14:
     return true;
 }
 
-bool Parser::parseInterface_declaration(Interface_declarationAst **yynode, Optional_modifiersAst *modifiers)
+bool Parser::parseInterfaceDeclaration(InterfaceDeclarationAst **yynode, OptionalModifiersAst *modifiers)
 {
-    *yynode = create<Interface_declarationAst>();
+    *yynode = create<InterfaceDeclarationAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -6866,20 +6866,20 @@ bool Parser::parseInterface_declaration(Interface_declarationAst **yynode, Optio
             }
             return false;
         }
-        (*yynode)->interface_name = __node_170;
+        (*yynode)->interfaceName = __node_170;
 
         if ((yytoken == Token_LESS_THAN) && ( compatibilityMode() >= Java15Compatibility ))
         {
-            Type_parametersAst *__node_171 = 0;
-            if (!parseType_parameters(&__node_171))
+            TypeParametersAst *__node_171 = 0;
+            if (!parseTypeParameters(&__node_171))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Type_parametersKind, "type_parameters");
+                    expectedSymbol(AstNode::TypeParametersKind, "typeParameters");
                 }
                 return false;
             }
-            (*yynode)->type_parameters = __node_171;
+            (*yynode)->typeParameters = __node_171;
 
         }
         else if (true /*epsilon*/)
@@ -6891,12 +6891,12 @@ bool Parser::parseInterface_declaration(Interface_declarationAst **yynode, Optio
         }
         if (yytoken == Token_EXTENDS)
         {
-            Interface_extends_clauseAst *__node_172 = 0;
-            if (!parseInterface_extends_clause(&__node_172))
+            InterfaceExtendsClauseAst *__node_172 = 0;
+            if (!parseInterfaceExtendsClause(&__node_172))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Interface_extends_clauseKind, "interface_extends_clause");
+                    expectedSymbol(AstNode::InterfaceExtendsClauseKind, "interfaceExtendsClause");
                 }
                 return false;
             }
@@ -6910,12 +6910,12 @@ bool Parser::parseInterface_declaration(Interface_declarationAst **yynode, Optio
         {
             return false;
         }
-        Interface_bodyAst *__node_173 = 0;
-        if (!parseInterface_body(&__node_173))
+        InterfaceBodyAst *__node_173 = 0;
+        if (!parseInterfaceBody(&__node_173))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Interface_bodyKind, "interface_body");
+                expectedSymbol(AstNode::InterfaceBodyKind, "interfaceBody");
             }
             return false;
         }
@@ -6932,9 +6932,9 @@ bool Parser::parseInterface_declaration(Interface_declarationAst **yynode, Optio
     return true;
 }
 
-bool Parser::parseInterface_extends_clause(Interface_extends_clauseAst **yynode)
+bool Parser::parseInterfaceExtendsClause(InterfaceExtendsClauseAst **yynode)
 {
-    *yynode = create<Interface_extends_clauseAst>();
+    *yynode = create<InterfaceExtendsClauseAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -6950,12 +6950,12 @@ bool Parser::parseInterface_extends_clause(Interface_extends_clauseAst **yynode)
         }
         yylex();
 
-        Class_or_interface_type_nameAst *__node_174 = 0;
-        if (!parseClass_or_interface_type_name(&__node_174))
+        ClassOrInterfaceTypeNameAst *__node_174 = 0;
+        if (!parseClassOrInterfaceTypeName(&__node_174))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Class_or_interface_type_nameKind, "class_or_interface_type_name");
+                expectedSymbol(AstNode::ClassOrInterfaceTypeNameKind, "classOrInterfaceTypeName");
             }
             return false;
         }
@@ -6973,12 +6973,12 @@ bool Parser::parseInterface_extends_clause(Interface_extends_clauseAst **yynode)
             }
             yylex();
 
-            Class_or_interface_type_nameAst *__node_175 = 0;
-            if (!parseClass_or_interface_type_name(&__node_175))
+            ClassOrInterfaceTypeNameAst *__node_175 = 0;
+            if (!parseClassOrInterfaceTypeName(&__node_175))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Class_or_interface_type_nameKind, "class_or_interface_type_name");
+                    expectedSymbol(AstNode::ClassOrInterfaceTypeNameKind, "classOrInterfaceTypeName");
                 }
                 return false;
             }
@@ -6996,9 +6996,9 @@ bool Parser::parseInterface_extends_clause(Interface_extends_clauseAst **yynode)
     return true;
 }
 
-bool Parser::parseInterface_field(Interface_fieldAst **yynode)
+bool Parser::parseInterfaceField(InterfaceFieldAst **yynode)
 {
-    *yynode = create<Interface_fieldAst>();
+    *yynode = create<InterfaceFieldAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -7030,13 +7030,13 @@ bool Parser::parseInterface_field(Interface_fieldAst **yynode)
         || yytoken == Token_LESS_THAN
         || yytoken == Token_ENUM)
     {
-        Optional_modifiersAst *modifiers = 0;
+        OptionalModifiersAst *modifiers = 0;
 
-        Type_parametersAst *type_parameters = 0;
+        TypeParametersAst *typeParameters = 0;
 
         TypeAst *type = 0;
 
-        const KDevPG::ListNode<Variable_declaratorAst *> *variable_declaratorSequence = 0;
+        const KDevPG::ListNode<VariableDeclaratorAst *> *variableDeclaratorSequence = 0;
 
         if (yytoken == Token_STATIC
             || yytoken == Token_ABSTRACT
@@ -7065,12 +7065,12 @@ bool Parser::parseInterface_field(Interface_fieldAst **yynode)
             || yytoken == Token_LESS_THAN
             || yytoken == Token_ENUM)
         {
-            Optional_modifiersAst *__node_176 = 0;
-            if (!parseOptional_modifiers(&__node_176))
+            OptionalModifiersAst *__node_176 = 0;
+            if (!parseOptionalModifiers(&__node_176))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Optional_modifiersKind, "optional_modifiers");
+                    expectedSymbol(AstNode::OptionalModifiersKind, "optionalModifiers");
                 }
                 return false;
             }
@@ -7078,58 +7078,58 @@ bool Parser::parseInterface_field(Interface_fieldAst **yynode)
 
             if (yytoken == Token_CLASS)
             {
-                Class_declarationAst *__node_177 = 0;
-                if (!parseClass_declaration(&__node_177, modifiers))
+                ClassDeclarationAst *__node_177 = 0;
+                if (!parseClassDeclaration(&__node_177, modifiers))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Class_declarationKind, "class_declaration");
+                        expectedSymbol(AstNode::ClassDeclarationKind, "classDeclaration");
                     }
                     return false;
                 }
-                (*yynode)->class_declaration = __node_177;
+                (*yynode)->classDeclaration = __node_177;
 
             }
             else if (yytoken == Token_ENUM)
             {
-                Enum_declarationAst *__node_178 = 0;
-                if (!parseEnum_declaration(&__node_178, modifiers))
+                EnumDeclarationAst *__node_178 = 0;
+                if (!parseEnumDeclaration(&__node_178, modifiers))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Enum_declarationKind, "enum_declaration");
+                        expectedSymbol(AstNode::EnumDeclarationKind, "enumDeclaration");
                     }
                     return false;
                 }
-                (*yynode)->enum_declaration = __node_178;
+                (*yynode)->enumDeclaration = __node_178;
 
             }
             else if (yytoken == Token_INTERFACE)
             {
-                Interface_declarationAst *__node_179 = 0;
-                if (!parseInterface_declaration(&__node_179, modifiers))
+                InterfaceDeclarationAst *__node_179 = 0;
+                if (!parseInterfaceDeclaration(&__node_179, modifiers))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Interface_declarationKind, "interface_declaration");
+                        expectedSymbol(AstNode::InterfaceDeclarationKind, "interfaceDeclaration");
                     }
                     return false;
                 }
-                (*yynode)->interface_declaration = __node_179;
+                (*yynode)->interfaceDeclaration = __node_179;
 
             }
             else if (yytoken == Token_AT)
             {
-                Annotation_type_declarationAst *__node_180 = 0;
-                if (!parseAnnotation_type_declaration(&__node_180, modifiers))
+                AnnotationTypeDeclarationAst *__node_180 = 0;
+                if (!parseAnnotationTypeDeclaration(&__node_180, modifiers))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Annotation_type_declarationKind, "annotation_type_declaration");
+                        expectedSymbol(AstNode::AnnotationTypeDeclarationKind, "annotationTypeDeclaration");
                     }
                     return false;
                 }
-                (*yynode)->annotation_type_declaration = __node_180;
+                (*yynode)->annotationTypeDeclaration = __node_180;
 
             }
             else if (yytoken == Token_IDENTIFIER
@@ -7144,21 +7144,21 @@ bool Parser::parseInterface_field(Interface_fieldAst **yynode)
                      || yytoken == Token_CHAR
                      || yytoken == Token_LESS_THAN)
             {
-                bool has_type_parameters = false;
+                bool hasTypeParameters = false;
                 if ((yytoken == Token_LESS_THAN) && ( compatibilityMode() >= Java15Compatibility ))
                 {
-                    Type_parametersAst *__node_181 = 0;
-                    if (!parseType_parameters(&__node_181))
+                    TypeParametersAst *__node_181 = 0;
+                    if (!parseTypeParameters(&__node_181))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Type_parametersKind, "type_parameters");
+                            expectedSymbol(AstNode::TypeParametersKind, "typeParameters");
                         }
                         return false;
                     }
-                    type_parameters = __node_181;
+                    typeParameters = __node_181;
 
-                    has_type_parameters = true;
+                    hasTypeParameters = true;
                 }
                 else if (true /*epsilon*/)
                 {
@@ -7180,32 +7180,32 @@ bool Parser::parseInterface_field(Interface_fieldAst **yynode)
 
                 if ((yytoken == Token_IDENTIFIER) && ( LA(2).kind == Token_LPAREN ))
                 {
-                    Interface_method_declarationAst *__node_183 = 0;
-                    if (!parseInterface_method_declaration(&__node_183,
-                                                           modifiers, type_parameters, type
-                                                          ))
+                    InterfaceMethodDeclarationAst *__node_183 = 0;
+                    if (!parseInterfaceMethodDeclaration(&__node_183,
+                                                         modifiers, typeParameters, type
+                                                        ))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Interface_method_declarationKind, "interface_method_declaration");
+                            expectedSymbol(AstNode::InterfaceMethodDeclarationKind, "interfaceMethodDeclaration");
                         }
                         return false;
                     }
-                    (*yynode)->interface_method_declaration = __node_183;
+                    (*yynode)->interfaceMethodDeclaration = __node_183;
 
                 }
-                else if ((yytoken == Token_IDENTIFIER) && ( type_parameters == 0 ))
+                else if ((yytoken == Token_IDENTIFIER) && ( typeParameters == 0 ))
                 {
-                    Variable_declaratorAst *__node_184 = 0;
-                    if (!parseVariable_declarator(&__node_184))
+                    VariableDeclaratorAst *__node_184 = 0;
+                    if (!parseVariableDeclarator(&__node_184))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Variable_declaratorKind, "variable_declarator");
+                            expectedSymbol(AstNode::VariableDeclaratorKind, "variableDeclarator");
                         }
                         return false;
                     }
-                    variable_declaratorSequence = snoc(variable_declaratorSequence, __node_184, memoryPool);
+                    variableDeclaratorSequence = snoc(variableDeclaratorSequence, __node_184, memoryPool);
 
                     while (yytoken == Token_COMMA)
                     {
@@ -7219,16 +7219,16 @@ bool Parser::parseInterface_field(Interface_fieldAst **yynode)
                         }
                         yylex();
 
-                        Variable_declaratorAst *__node_185 = 0;
-                        if (!parseVariable_declarator(&__node_185))
+                        VariableDeclaratorAst *__node_185 = 0;
+                        if (!parseVariableDeclarator(&__node_185))
                         {
                             if (!mBlockErrors)
                             {
-                                expectedSymbol(AstNode::Variable_declaratorKind, "variable_declarator");
+                                expectedSymbol(AstNode::VariableDeclaratorKind, "variableDeclarator");
                             }
                             return false;
                         }
-                        variable_declaratorSequence = snoc(variable_declaratorSequence, __node_185, memoryPool);
+                        variableDeclaratorSequence = snoc(variableDeclaratorSequence, __node_185, memoryPool);
 
                     }
                     if (yytoken != Token_SEMICOLON)
@@ -7241,18 +7241,18 @@ bool Parser::parseInterface_field(Interface_fieldAst **yynode)
                     }
                     yylex();
 
-                    Variable_declaration_dataAst *__node_186 = 0;
-                    if (!parseVariable_declaration_data(&__node_186,
-                                                        modifiers, type, variable_declaratorSequence
-                                                       ))
+                    VariableDeclarationDataAst *__node_186 = 0;
+                    if (!parseVariableDeclarationData(&__node_186,
+                                                      modifiers, type, variableDeclaratorSequence
+                                                     ))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Variable_declaration_dataKind, "variable_declaration_data");
+                            expectedSymbol(AstNode::VariableDeclarationDataKind, "variableDeclarationData");
                         }
                         return false;
                     }
-                    (*yynode)->variable_declaration = __node_186;
+                    (*yynode)->variableDeclaration = __node_186;
 
                 }
                 else if (yytoken == Token_SEMICOLON)
@@ -7308,9 +7308,9 @@ bool Parser::parseInterface_field(Interface_fieldAst **yynode)
     return true;
 }
 
-bool Parser::parseInterface_method_declaration(Interface_method_declarationAst **yynode, Optional_modifiersAst *modifiers, Type_parametersAst *type_parameters, TypeAst *return_type)
+bool Parser::parseInterfaceMethodDeclaration(InterfaceMethodDeclarationAst **yynode, OptionalModifiersAst *modifiers, TypeParametersAst *typeParameters, TypeAst *returnType)
 {
-    *yynode = create<Interface_method_declarationAst>();
+    *yynode = create<InterfaceMethodDeclarationAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -7318,13 +7318,13 @@ bool Parser::parseInterface_method_declaration(Interface_method_declarationAst *
     if (modifiers && modifiers->startToken < (*yynode)->startToken)
         (*yynode)->startToken = modifiers->startToken;
 
-    (*yynode)->type_parameters = type_parameters;
-    if (type_parameters && type_parameters->startToken < (*yynode)->startToken)
-        (*yynode)->startToken = type_parameters->startToken;
+    (*yynode)->typeParameters = typeParameters;
+    if (typeParameters && typeParameters->startToken < (*yynode)->startToken)
+        (*yynode)->startToken = typeParameters->startToken;
 
-    (*yynode)->return_type = return_type;
-    if (return_type && return_type->startToken < (*yynode)->startToken)
-        (*yynode)->startToken = return_type->startToken;
+    (*yynode)->returnType = returnType;
+    if (returnType && returnType->startToken < (*yynode)->startToken)
+        (*yynode)->startToken = returnType->startToken;
 
     if (yytoken == Token_IDENTIFIER)
     {
@@ -7337,7 +7337,7 @@ bool Parser::parseInterface_method_declaration(Interface_method_declarationAst *
             }
             return false;
         }
-        (*yynode)->method_name = __node_187;
+        (*yynode)->methodName = __node_187;
 
         if (yytoken != Token_LPAREN)
         {
@@ -7349,12 +7349,12 @@ bool Parser::parseInterface_method_declaration(Interface_method_declarationAst *
         }
         yylex();
 
-        Optional_parameter_declaration_listAst *__node_188 = 0;
-        if (!parseOptional_parameter_declaration_list(&__node_188))
+        OptionalParameterDeclarationListAst *__node_188 = 0;
+        if (!parseOptionalParameterDeclarationList(&__node_188))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Optional_parameter_declaration_listKind, "optional_parameter_declaration_list");
+                expectedSymbol(AstNode::OptionalParameterDeclarationListKind, "optionalParameterDeclarationList");
             }
             return false;
         }
@@ -7370,29 +7370,29 @@ bool Parser::parseInterface_method_declaration(Interface_method_declarationAst *
         }
         yylex();
 
-        Optional_declarator_bracketsAst *__node_189 = 0;
-        if (!parseOptional_declarator_brackets(&__node_189))
+        OptionalDeclaratorBracketsAst *__node_189 = 0;
+        if (!parseOptionalDeclaratorBrackets(&__node_189))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Optional_declarator_bracketsKind, "optional_declarator_brackets");
+                expectedSymbol(AstNode::OptionalDeclaratorBracketsKind, "optionalDeclaratorBrackets");
             }
             return false;
         }
-        (*yynode)->declarator_brackets = __node_189;
+        (*yynode)->declaratorBrackets = __node_189;
 
         if (yytoken == Token_THROWS)
         {
-            Throws_clauseAst *__node_190 = 0;
-            if (!parseThrows_clause(&__node_190))
+            ThrowsClauseAst *__node_190 = 0;
+            if (!parseThrowsClause(&__node_190))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Throws_clauseKind, "throws_clause");
+                    expectedSymbol(AstNode::ThrowsClauseKind, "throwsClause");
                 }
                 return false;
             }
-            (*yynode)->throws_clause = __node_190;
+            (*yynode)->throwsClause = __node_190;
 
         }
         else if (true /*epsilon*/)
@@ -7423,9 +7423,9 @@ bool Parser::parseInterface_method_declaration(Interface_method_declarationAst *
     return true;
 }
 
-bool Parser::parseLabeled_statement(Labeled_statementAst **yynode)
+bool Parser::parseLabeledStatement(LabeledStatementAst **yynode)
 {
-    *yynode = create<Labeled_statementAst>();
+    *yynode = create<LabeledStatementAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -7452,12 +7452,12 @@ bool Parser::parseLabeled_statement(Labeled_statementAst **yynode)
         }
         yylex();
 
-        Embedded_statementAst *__node_192 = 0;
-        if (!parseEmbedded_statement(&__node_192))
+        EmbeddedStatementAst *__node_192 = 0;
+        if (!parseEmbeddedStatement(&__node_192))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Embedded_statementKind, "embedded_statement");
+                expectedSymbol(AstNode::EmbeddedStatementKind, "embeddedStatement");
             }
             return false;
         }
@@ -7479,10 +7479,10 @@ bool Parser::parseLiteral(LiteralAst **yynode)
     *yynode = create<LiteralAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
-    (*yynode)->integer_literal = -1;
-    (*yynode)->floating_point_literal = -1;
-    (*yynode)->character_literal = -1;
-    (*yynode)->string_literal = -1;
+    (*yynode)->integerLiteral = -1;
+    (*yynode)->floatingPointLiteral = -1;
+    (*yynode)->characterLiteral = -1;
+    (*yynode)->stringLiteral = -1;
 
     if (yytoken == Token_TRUE
         || yytoken == Token_INTEGER_LITERAL
@@ -7504,7 +7504,7 @@ bool Parser::parseLiteral(LiteralAst **yynode)
             }
             yylex();
 
-            (*yynode)->literal_type = LiteralTrue;
+            (*yynode)->literalType = LiteralTrue;
         }
         else if (yytoken == Token_FALSE)
         {
@@ -7518,7 +7518,7 @@ bool Parser::parseLiteral(LiteralAst **yynode)
             }
             yylex();
 
-            (*yynode)->literal_type = LiteralFalse;
+            (*yynode)->literalType = LiteralFalse;
         }
         else if (yytoken == Token_NULL)
         {
@@ -7532,7 +7532,7 @@ bool Parser::parseLiteral(LiteralAst **yynode)
             }
             yylex();
 
-            (*yynode)->literal_type = LiteralNull;
+            (*yynode)->literalType = LiteralNull;
         }
         else if (yytoken == Token_INTEGER_LITERAL)
         {
@@ -7544,10 +7544,10 @@ bool Parser::parseLiteral(LiteralAst **yynode)
                 }
                 return false;
             }
-            (*yynode)->integer_literal = tokenStream->index() - 1;
+            (*yynode)->integerLiteral = tokenStream->index() - 1;
             yylex();
 
-            (*yynode)->literal_type = LiteralInteger;
+            (*yynode)->literalType = LiteralInteger;
         }
         else if (yytoken == Token_FLOATING_POINT_LITERAL)
         {
@@ -7559,10 +7559,10 @@ bool Parser::parseLiteral(LiteralAst **yynode)
                 }
                 return false;
             }
-            (*yynode)->floating_point_literal = tokenStream->index() - 1;
+            (*yynode)->floatingPointLiteral = tokenStream->index() - 1;
             yylex();
 
-            (*yynode)->literal_type = LiteralFloatingPoint;
+            (*yynode)->literalType = LiteralFloatingPoint;
         }
         else if (yytoken == Token_CHARACTER_LITERAL)
         {
@@ -7574,10 +7574,10 @@ bool Parser::parseLiteral(LiteralAst **yynode)
                 }
                 return false;
             }
-            (*yynode)->character_literal = tokenStream->index() - 1;
+            (*yynode)->characterLiteral = tokenStream->index() - 1;
             yylex();
 
-            (*yynode)->literal_type = LiteralCharacter;
+            (*yynode)->literalType = LiteralCharacter;
         }
         else if (yytoken == Token_STRING_LITERAL)
         {
@@ -7589,10 +7589,10 @@ bool Parser::parseLiteral(LiteralAst **yynode)
                 }
                 return false;
             }
-            (*yynode)->string_literal = tokenStream->index() - 1;
+            (*yynode)->stringLiteral = tokenStream->index() - 1;
             yylex();
 
-            (*yynode)->literal_type = LiteralString;
+            (*yynode)->literalType = LiteralString;
         }
         else
         {
@@ -7609,9 +7609,9 @@ bool Parser::parseLiteral(LiteralAst **yynode)
     return true;
 }
 
-bool Parser::parseLogical_and_expression(Logical_and_expressionAst **yynode)
+bool Parser::parseLogicalAndExpression(LogicalAndExpressionAst **yynode)
 {
-    *yynode = create<Logical_and_expressionAst>();
+    *yynode = create<LogicalAndExpressionAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -7644,12 +7644,12 @@ bool Parser::parseLogical_and_expression(Logical_and_expressionAst **yynode)
         || yytoken == Token_LESS_THAN
         || yytoken == Token_TRUE)
     {
-        Bit_or_expressionAst *__node_193 = 0;
-        if (!parseBit_or_expression(&__node_193))
+        BitOrExpressionAst *__node_193 = 0;
+        if (!parseBitOrExpression(&__node_193))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Bit_or_expressionKind, "bit_or_expression");
+                expectedSymbol(AstNode::BitOrExpressionKind, "bitOrExpression");
             }
             return false;
         }
@@ -7667,12 +7667,12 @@ bool Parser::parseLogical_and_expression(Logical_and_expressionAst **yynode)
             }
             yylex();
 
-            Bit_or_expressionAst *__node_194 = 0;
-            if (!parseBit_or_expression(&__node_194))
+            BitOrExpressionAst *__node_194 = 0;
+            if (!parseBitOrExpression(&__node_194))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Bit_or_expressionKind, "bit_or_expression");
+                    expectedSymbol(AstNode::BitOrExpressionKind, "bitOrExpression");
                 }
                 return false;
             }
@@ -7690,9 +7690,9 @@ bool Parser::parseLogical_and_expression(Logical_and_expressionAst **yynode)
     return true;
 }
 
-bool Parser::parseLogical_or_expression(Logical_or_expressionAst **yynode)
+bool Parser::parseLogicalOrExpression(LogicalOrExpressionAst **yynode)
 {
-    *yynode = create<Logical_or_expressionAst>();
+    *yynode = create<LogicalOrExpressionAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -7725,12 +7725,12 @@ bool Parser::parseLogical_or_expression(Logical_or_expressionAst **yynode)
         || yytoken == Token_LESS_THAN
         || yytoken == Token_TRUE)
     {
-        Logical_and_expressionAst *__node_195 = 0;
-        if (!parseLogical_and_expression(&__node_195))
+        LogicalAndExpressionAst *__node_195 = 0;
+        if (!parseLogicalAndExpression(&__node_195))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Logical_and_expressionKind, "logical_and_expression");
+                expectedSymbol(AstNode::LogicalAndExpressionKind, "logicalAndExpression");
             }
             return false;
         }
@@ -7748,12 +7748,12 @@ bool Parser::parseLogical_or_expression(Logical_or_expressionAst **yynode)
             }
             yylex();
 
-            Logical_and_expressionAst *__node_196 = 0;
-            if (!parseLogical_and_expression(&__node_196))
+            LogicalAndExpressionAst *__node_196 = 0;
+            if (!parseLogicalAndExpression(&__node_196))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Logical_and_expressionKind, "logical_and_expression");
+                    expectedSymbol(AstNode::LogicalAndExpressionKind, "logicalAndExpression");
                 }
                 return false;
             }
@@ -7771,9 +7771,9 @@ bool Parser::parseLogical_or_expression(Logical_or_expressionAst **yynode)
     return true;
 }
 
-bool Parser::parseMandatory_array_builtin_type(Mandatory_array_builtin_typeAst **yynode)
+bool Parser::parseMandatoryArrayBuiltInType(MandatoryArrayBuiltInTypeAst **yynode)
 {
-    *yynode = create<Mandatory_array_builtin_typeAst>();
+    *yynode = create<MandatoryArrayBuiltInTypeAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -7787,27 +7787,27 @@ bool Parser::parseMandatory_array_builtin_type(Mandatory_array_builtin_typeAst *
         || yytoken == Token_BYTE
         || yytoken == Token_CHAR)
     {
-        Builtin_typeAst *__node_197 = 0;
-        if (!parseBuiltin_type(&__node_197))
+        BuiltInTypeAst *__node_197 = 0;
+        if (!parseBuiltInType(&__node_197))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Builtin_typeKind, "builtin_type");
+                expectedSymbol(AstNode::BuiltInTypeKind, "builtInType");
             }
             return false;
         }
         (*yynode)->type = __node_197;
 
-        Mandatory_declarator_bracketsAst *__node_198 = 0;
-        if (!parseMandatory_declarator_brackets(&__node_198))
+        MandatoryDeclaratorBracketsAst *__node_198 = 0;
+        if (!parseMandatoryDeclaratorBrackets(&__node_198))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Mandatory_declarator_bracketsKind, "mandatory_declarator_brackets");
+                expectedSymbol(AstNode::MandatoryDeclaratorBracketsKind, "mandatoryDeclaratorBrackets");
             }
             return false;
         }
-        (*yynode)->declarator_brackets = __node_198;
+        (*yynode)->declaratorBrackets = __node_198;
 
     }
     else
@@ -7820,9 +7820,9 @@ bool Parser::parseMandatory_array_builtin_type(Mandatory_array_builtin_typeAst *
     return true;
 }
 
-bool Parser::parseMandatory_declarator_brackets(Mandatory_declarator_bracketsAst **yynode)
+bool Parser::parseMandatoryDeclaratorBrackets(MandatoryDeclaratorBracketsAst **yynode)
 {
-    *yynode = create<Mandatory_declarator_bracketsAst>();
+    *yynode = create<MandatoryDeclaratorBracketsAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -7850,7 +7850,7 @@ bool Parser::parseMandatory_declarator_brackets(Mandatory_declarator_bracketsAst
             }
             yylex();
 
-            (*yynode)->bracket_count++;
+            (*yynode)->bracketCount++;
         }
         while (yytoken == Token_LBRACKET);
     }
@@ -7864,19 +7864,19 @@ bool Parser::parseMandatory_declarator_brackets(Mandatory_declarator_bracketsAst
     return true;
 }
 
-bool Parser::parseMethod_call_data(Method_call_dataAst **yynode, Non_wildcard_type_argumentsAst *type_arguments, IdentifierAst *method_name, Optional_argument_listAst *arguments)
+bool Parser::parseMethodCallData(MethodCallDataAst **yynode, NonWildcardTypeArgumentsAst *typeArguments, IdentifierAst *methodName, OptionalArgumentListAst *arguments)
 {
-    *yynode = create<Method_call_dataAst>();
+    *yynode = create<MethodCallDataAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
-    (*yynode)->type_arguments = type_arguments;
-    if (type_arguments && type_arguments->startToken < (*yynode)->startToken)
-        (*yynode)->startToken = type_arguments->startToken;
+    (*yynode)->typeArguments = typeArguments;
+    if (typeArguments && typeArguments->startToken < (*yynode)->startToken)
+        (*yynode)->startToken = typeArguments->startToken;
 
-    (*yynode)->method_name = method_name;
-    if (method_name && method_name->startToken < (*yynode)->startToken)
-        (*yynode)->startToken = method_name->startToken;
+    (*yynode)->methodName = methodName;
+    if (methodName && methodName->startToken < (*yynode)->startToken)
+        (*yynode)->startToken = methodName->startToken;
 
     (*yynode)->arguments = arguments;
     if (arguments && arguments->startToken < (*yynode)->startToken)
@@ -7938,9 +7938,9 @@ bool Parser::parseMethod_call_data(Method_call_dataAst **yynode, Non_wildcard_ty
     return true;
 }
 
-bool Parser::parseMethod_declaration(Method_declarationAst **yynode, Optional_modifiersAst *modifiers, Type_parametersAst *type_parameters, TypeAst *return_type)
+bool Parser::parseMethodDeclaration(MethodDeclarationAst **yynode, OptionalModifiersAst *modifiers, TypeParametersAst *typeParameters, TypeAst *returnType)
 {
-    *yynode = create<Method_declarationAst>();
+    *yynode = create<MethodDeclarationAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -7948,13 +7948,13 @@ bool Parser::parseMethod_declaration(Method_declarationAst **yynode, Optional_mo
     if (modifiers && modifiers->startToken < (*yynode)->startToken)
         (*yynode)->startToken = modifiers->startToken;
 
-    (*yynode)->type_parameters = type_parameters;
-    if (type_parameters && type_parameters->startToken < (*yynode)->startToken)
-        (*yynode)->startToken = type_parameters->startToken;
+    (*yynode)->typeParameters = typeParameters;
+    if (typeParameters && typeParameters->startToken < (*yynode)->startToken)
+        (*yynode)->startToken = typeParameters->startToken;
 
-    (*yynode)->return_type = return_type;
-    if (return_type && return_type->startToken < (*yynode)->startToken)
-        (*yynode)->startToken = return_type->startToken;
+    (*yynode)->returnType = returnType;
+    if (returnType && returnType->startToken < (*yynode)->startToken)
+        (*yynode)->startToken = returnType->startToken;
 
     if (yytoken == Token_IDENTIFIER)
     {
@@ -7967,7 +7967,7 @@ bool Parser::parseMethod_declaration(Method_declarationAst **yynode, Optional_mo
             }
             return false;
         }
-        (*yynode)->method_name = __node_199;
+        (*yynode)->methodName = __node_199;
 
         if (yytoken != Token_LPAREN)
         {
@@ -7979,12 +7979,12 @@ bool Parser::parseMethod_declaration(Method_declarationAst **yynode, Optional_mo
         }
         yylex();
 
-        Optional_parameter_declaration_listAst *__node_200 = 0;
-        if (!parseOptional_parameter_declaration_list(&__node_200))
+        OptionalParameterDeclarationListAst *__node_200 = 0;
+        if (!parseOptionalParameterDeclarationList(&__node_200))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Optional_parameter_declaration_listKind, "optional_parameter_declaration_list");
+                expectedSymbol(AstNode::OptionalParameterDeclarationListKind, "optionalParameterDeclarationList");
             }
             return false;
         }
@@ -8000,29 +8000,29 @@ bool Parser::parseMethod_declaration(Method_declarationAst **yynode, Optional_mo
         }
         yylex();
 
-        Optional_declarator_bracketsAst *__node_201 = 0;
-        if (!parseOptional_declarator_brackets(&__node_201))
+        OptionalDeclaratorBracketsAst *__node_201 = 0;
+        if (!parseOptionalDeclaratorBrackets(&__node_201))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Optional_declarator_bracketsKind, "optional_declarator_brackets");
+                expectedSymbol(AstNode::OptionalDeclaratorBracketsKind, "optionalDeclaratorBrackets");
             }
             return false;
         }
-        (*yynode)->declarator_brackets = __node_201;
+        (*yynode)->declaratorBrackets = __node_201;
 
         if (yytoken == Token_THROWS)
         {
-            Throws_clauseAst *__node_202 = 0;
-            if (!parseThrows_clause(&__node_202))
+            ThrowsClauseAst *__node_202 = 0;
+            if (!parseThrowsClause(&__node_202))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Throws_clauseKind, "throws_clause");
+                    expectedSymbol(AstNode::ThrowsClauseKind, "throwsClause");
                 }
                 return false;
             }
-            (*yynode)->throws_clause = __node_202;
+            (*yynode)->throwsClause = __node_202;
 
         }
         else if (true /*epsilon*/)
@@ -8074,9 +8074,9 @@ bool Parser::parseMethod_declaration(Method_declarationAst **yynode, Optional_mo
     return true;
 }
 
-bool Parser::parseMultiplicative_expression(Multiplicative_expressionAst **yynode)
+bool Parser::parseMultiplicativeExpression(MultiplicativeExpressionAst **yynode)
 {
-    *yynode = create<Multiplicative_expressionAst>();
+    *yynode = create<MultiplicativeExpressionAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -8109,12 +8109,12 @@ bool Parser::parseMultiplicative_expression(Multiplicative_expressionAst **yynod
         || yytoken == Token_LESS_THAN
         || yytoken == Token_TRUE)
     {
-        Unary_expressionAst *__node_204 = 0;
-        if (!parseUnary_expression(&__node_204))
+        UnaryExpressionAst *__node_204 = 0;
+        if (!parseUnaryExpression(&__node_204))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Unary_expressionKind, "unary_expression");
+                expectedSymbol(AstNode::UnaryExpressionKind, "unaryExpression");
             }
             return false;
         }
@@ -8124,16 +8124,16 @@ bool Parser::parseMultiplicative_expression(Multiplicative_expressionAst **yynod
                || yytoken == Token_REMAINDER
                || yytoken == Token_SLASH)
         {
-            Multiplicative_expression_restAst *__node_205 = 0;
-            if (!parseMultiplicative_expression_rest(&__node_205))
+            MultiplicativeExpressionRestAst *__node_205 = 0;
+            if (!parseMultiplicativeExpressionRest(&__node_205))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Multiplicative_expression_restKind, "multiplicative_expression_rest");
+                    expectedSymbol(AstNode::MultiplicativeExpressionRestKind, "multiplicativeExpressionRest");
                 }
                 return false;
             }
-            (*yynode)->additional_expressionSequence = snoc((*yynode)->additional_expressionSequence, __node_205, memoryPool);
+            (*yynode)->additionalExpressionSequence = snoc((*yynode)->additionalExpressionSequence, __node_205, memoryPool);
 
         }
     }
@@ -8147,9 +8147,9 @@ bool Parser::parseMultiplicative_expression(Multiplicative_expressionAst **yynod
     return true;
 }
 
-bool Parser::parseMultiplicative_expression_rest(Multiplicative_expression_restAst **yynode)
+bool Parser::parseMultiplicativeExpressionRest(MultiplicativeExpressionRestAst **yynode)
 {
-    *yynode = create<Multiplicative_expression_restAst>();
+    *yynode = create<MultiplicativeExpressionRestAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -8169,7 +8169,7 @@ bool Parser::parseMultiplicative_expression_rest(Multiplicative_expression_restA
             }
             yylex();
 
-            (*yynode)->multiplicative_operator = MultiplicativeOperatorStar;
+            (*yynode)->multiplicativeOperator = MultiplicativeOperatorStar;
         }
         else if (yytoken == Token_SLASH)
         {
@@ -8183,7 +8183,7 @@ bool Parser::parseMultiplicative_expression_rest(Multiplicative_expression_restA
             }
             yylex();
 
-            (*yynode)->multiplicative_operator = MultiplicativeOperatorSlash;
+            (*yynode)->multiplicativeOperator = MultiplicativeOperatorSlash;
         }
         else if (yytoken == Token_REMAINDER)
         {
@@ -8197,18 +8197,18 @@ bool Parser::parseMultiplicative_expression_rest(Multiplicative_expression_restA
             }
             yylex();
 
-            (*yynode)->multiplicative_operator = MultiplicativeOperatorRemainder;
+            (*yynode)->multiplicativeOperator = MultiplicativeOperatorRemainder;
         }
         else
         {
             return false;
         }
-        Unary_expressionAst *__node_206 = 0;
-        if (!parseUnary_expression(&__node_206))
+        UnaryExpressionAst *__node_206 = 0;
+        if (!parseUnaryExpression(&__node_206))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Unary_expressionKind, "unary_expression");
+                expectedSymbol(AstNode::UnaryExpressionKind, "unaryExpression");
             }
             return false;
         }
@@ -8225,9 +8225,9 @@ bool Parser::parseMultiplicative_expression_rest(Multiplicative_expression_restA
     return true;
 }
 
-bool Parser::parseNew_expression(New_expressionAst **yynode)
+bool Parser::parseNewExpression(NewExpressionAst **yynode)
 {
-    *yynode = create<New_expressionAst>();
+    *yynode = create<NewExpressionAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -8245,16 +8245,16 @@ bool Parser::parseNew_expression(New_expressionAst **yynode)
 
         if ((yytoken == Token_LESS_THAN) && ( compatibilityMode() >= Java15Compatibility ))
         {
-            Non_wildcard_type_argumentsAst *__node_207 = 0;
-            if (!parseNon_wildcard_type_arguments(&__node_207))
+            NonWildcardTypeArgumentsAst *__node_207 = 0;
+            if (!parseNonWildcardTypeArguments(&__node_207))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Non_wildcard_type_argumentsKind, "non_wildcard_type_arguments");
+                    expectedSymbol(AstNode::NonWildcardTypeArgumentsKind, "nonWildcardTypeArguments");
                 }
                 return false;
             }
-            (*yynode)->type_arguments = __node_207;
+            (*yynode)->typeArguments = __node_207;
 
         }
         else if (true /*epsilon*/)
@@ -8264,12 +8264,12 @@ bool Parser::parseNew_expression(New_expressionAst **yynode)
         {
             return false;
         }
-        Non_array_typeAst *__node_208 = 0;
-        if (!parseNon_array_type(&__node_208))
+        NonArrayTypeAst *__node_208 = 0;
+        if (!parseNonArrayType(&__node_208))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Non_array_typeKind, "non_array_type");
+                expectedSymbol(AstNode::NonArrayTypeKind, "nonArrayType");
             }
             return false;
         }
@@ -8287,16 +8287,16 @@ bool Parser::parseNew_expression(New_expressionAst **yynode)
             }
             yylex();
 
-            Optional_argument_listAst *__node_209 = 0;
-            if (!parseOptional_argument_list(&__node_209))
+            OptionalArgumentListAst *__node_209 = 0;
+            if (!parseOptionalArgumentList(&__node_209))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Optional_argument_listKind, "optional_argument_list");
+                    expectedSymbol(AstNode::OptionalArgumentListKind, "optionalArgumentList");
                 }
                 return false;
             }
-            (*yynode)->class_constructor_arguments = __node_209;
+            (*yynode)->classConstructorArguments = __node_209;
 
             if (yytoken != Token_RPAREN)
             {
@@ -8310,16 +8310,16 @@ bool Parser::parseNew_expression(New_expressionAst **yynode)
 
             if (yytoken == Token_LBRACE)
             {
-                Class_bodyAst *__node_210 = 0;
-                if (!parseClass_body(&__node_210))
+                ClassBodyAst *__node_210 = 0;
+                if (!parseClassBody(&__node_210))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Class_bodyKind, "class_body");
+                        expectedSymbol(AstNode::ClassBodyKind, "classBody");
                     }
                     return false;
                 }
-                (*yynode)->class_body = __node_210;
+                (*yynode)->classBody = __node_210;
 
             }
             else if (true /*epsilon*/)
@@ -8332,16 +8332,16 @@ bool Parser::parseNew_expression(New_expressionAst **yynode)
         }
         else if (yytoken == Token_LBRACKET)
         {
-            Array_creator_restAst *__node_211 = 0;
-            if (!parseArray_creator_rest(&__node_211))
+            ArrayCreatorRestAst *__node_211 = 0;
+            if (!parseArrayCreatorRest(&__node_211))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Array_creator_restKind, "array_creator_rest");
+                    expectedSymbol(AstNode::ArrayCreatorRestKind, "arrayCreatorRest");
                 }
                 return false;
             }
-            (*yynode)->array_creator_rest = __node_211;
+            (*yynode)->arrayCreatorRest = __node_211;
 
         }
         else
@@ -8359,9 +8359,9 @@ bool Parser::parseNew_expression(New_expressionAst **yynode)
     return true;
 }
 
-bool Parser::parseNon_array_type(Non_array_typeAst **yynode)
+bool Parser::parseNonArrayType(NonArrayTypeAst **yynode)
 {
-    *yynode = create<Non_array_typeAst>();
+    *yynode = create<NonArrayTypeAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -8378,16 +8378,16 @@ bool Parser::parseNon_array_type(Non_array_typeAst **yynode)
     {
         if (yytoken == Token_IDENTIFIER)
         {
-            Class_or_interface_type_nameAst *__node_212 = 0;
-            if (!parseClass_or_interface_type_name(&__node_212))
+            ClassOrInterfaceTypeNameAst *__node_212 = 0;
+            if (!parseClassOrInterfaceTypeName(&__node_212))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Class_or_interface_type_nameKind, "class_or_interface_type_name");
+                    expectedSymbol(AstNode::ClassOrInterfaceTypeNameKind, "classOrInterfaceTypeName");
                 }
                 return false;
             }
-            (*yynode)->class_or_interface_type = __node_212;
+            (*yynode)->classOrInterfaceType = __node_212;
 
         }
         else if (yytoken == Token_VOID
@@ -8400,16 +8400,16 @@ bool Parser::parseNon_array_type(Non_array_typeAst **yynode)
                  || yytoken == Token_BYTE
                  || yytoken == Token_CHAR)
         {
-            Builtin_typeAst *__node_213 = 0;
-            if (!parseBuiltin_type(&__node_213))
+            BuiltInTypeAst *__node_213 = 0;
+            if (!parseBuiltInType(&__node_213))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Builtin_typeKind, "builtin_type");
+                    expectedSymbol(AstNode::BuiltInTypeKind, "builtInType");
                 }
                 return false;
             }
-            (*yynode)->builtin_type = __node_213;
+            (*yynode)->builtInType = __node_213;
 
         }
         else
@@ -8427,9 +8427,9 @@ bool Parser::parseNon_array_type(Non_array_typeAst **yynode)
     return true;
 }
 
-bool Parser::parseNon_wildcard_type_arguments(Non_wildcard_type_argumentsAst **yynode)
+bool Parser::parseNonWildcardTypeArguments(NonWildcardTypeArgumentsAst **yynode)
 {
-    *yynode = create<Non_wildcard_type_argumentsAst>();
+    *yynode = create<NonWildcardTypeArgumentsAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -8447,16 +8447,16 @@ bool Parser::parseNon_wildcard_type_arguments(Non_wildcard_type_argumentsAst **y
 
         int currentLtLevel = m_state.ltCounter;
         m_state.ltCounter++;
-        Type_argument_typeAst *__node_214 = 0;
-        if (!parseType_argument_type(&__node_214))
+        TypeArgumentTypeAst *__node_214 = 0;
+        if (!parseTypeArgumentType(&__node_214))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Type_argument_typeKind, "type_argument_type");
+                expectedSymbol(AstNode::TypeArgumentTypeKind, "typeArgumentType");
             }
             return false;
         }
-        (*yynode)->type_argument_typeSequence = snoc((*yynode)->type_argument_typeSequence, __node_214, memoryPool);
+        (*yynode)->typeArgumentTypeSequence = snoc((*yynode)->typeArgumentTypeSequence, __node_214, memoryPool);
 
         while (yytoken == Token_COMMA)
         {
@@ -8474,28 +8474,28 @@ bool Parser::parseNon_wildcard_type_arguments(Non_wildcard_type_argumentsAst **y
             }
             yylex();
 
-            Type_argument_typeAst *__node_215 = 0;
-            if (!parseType_argument_type(&__node_215))
+            TypeArgumentTypeAst *__node_215 = 0;
+            if (!parseTypeArgumentType(&__node_215))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Type_argument_typeKind, "type_argument_type");
+                    expectedSymbol(AstNode::TypeArgumentTypeKind, "typeArgumentType");
                 }
                 return false;
             }
-            (*yynode)->type_argument_typeSequence = snoc((*yynode)->type_argument_typeSequence, __node_215, memoryPool);
+            (*yynode)->typeArgumentTypeSequence = snoc((*yynode)->typeArgumentTypeSequence, __node_215, memoryPool);
 
         }
         if (yytoken == Token_SIGNED_RSHIFT
             || yytoken == Token_GREATER_THAN
             || yytoken == Token_UNSIGNED_RSHIFT)
         {
-            Type_arguments_or_parameters_endAst *__node_216 = 0;
-            if (!parseType_arguments_or_parameters_end(&__node_216))
+            TypeArgumentsOrParametersEndAst *__node_216 = 0;
+            if (!parseTypeArgumentsOrParametersEnd(&__node_216))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Type_arguments_or_parameters_endKind, "type_arguments_or_parameters_end");
+                    expectedSymbol(AstNode::TypeArgumentsOrParametersEndKind, "typeArgumentsOrParametersEnd");
                 }
                 return false;
             }
@@ -8526,9 +8526,9 @@ bool Parser::parseNon_wildcard_type_arguments(Non_wildcard_type_argumentsAst **y
     return true;
 }
 
-bool Parser::parseOptional_argument_list(Optional_argument_listAst **yynode)
+bool Parser::parseOptionalArgumentList(OptionalArgumentListAst **yynode)
 {
-    *yynode = create<Optional_argument_listAst>();
+    *yynode = create<OptionalArgumentListAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -8657,9 +8657,9 @@ __catch_15:
     return true;
 }
 
-bool Parser::parseOptional_array_builtin_type(Optional_array_builtin_typeAst **yynode)
+bool Parser::parseOptionalArrayBuiltInType(OptionalArrayBuiltInTypeAst **yynode)
 {
-    *yynode = create<Optional_array_builtin_typeAst>();
+    *yynode = create<OptionalArrayBuiltInTypeAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -8673,27 +8673,27 @@ bool Parser::parseOptional_array_builtin_type(Optional_array_builtin_typeAst **y
         || yytoken == Token_BYTE
         || yytoken == Token_CHAR)
     {
-        Builtin_typeAst *__node_219 = 0;
-        if (!parseBuiltin_type(&__node_219))
+        BuiltInTypeAst *__node_219 = 0;
+        if (!parseBuiltInType(&__node_219))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Builtin_typeKind, "builtin_type");
+                expectedSymbol(AstNode::BuiltInTypeKind, "builtInType");
             }
             return false;
         }
         (*yynode)->type = __node_219;
 
-        Optional_declarator_bracketsAst *__node_220 = 0;
-        if (!parseOptional_declarator_brackets(&__node_220))
+        OptionalDeclaratorBracketsAst *__node_220 = 0;
+        if (!parseOptionalDeclaratorBrackets(&__node_220))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Optional_declarator_bracketsKind, "optional_declarator_brackets");
+                expectedSymbol(AstNode::OptionalDeclaratorBracketsKind, "optionalDeclaratorBrackets");
             }
             return false;
         }
-        (*yynode)->declarator_brackets = __node_220;
+        (*yynode)->declaratorBrackets = __node_220;
 
     }
     else
@@ -8706,9 +8706,9 @@ bool Parser::parseOptional_array_builtin_type(Optional_array_builtin_typeAst **y
     return true;
 }
 
-bool Parser::parseOptional_declarator_brackets(Optional_declarator_bracketsAst **yynode)
+bool Parser::parseOptionalDeclaratorBrackets(OptionalDeclaratorBracketsAst **yynode)
 {
-    *yynode = create<Optional_declarator_bracketsAst>();
+    *yynode = create<OptionalDeclaratorBracketsAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -8797,7 +8797,7 @@ bool Parser::parseOptional_declarator_brackets(Optional_declarator_bracketsAst *
             }
             yylex();
 
-            (*yynode)->bracket_count++;
+            (*yynode)->bracketCount++;
         }
     }
     else
@@ -8810,9 +8810,9 @@ bool Parser::parseOptional_declarator_brackets(Optional_declarator_bracketsAst *
     return true;
 }
 
-bool Parser::parseOptional_modifiers(Optional_modifiersAst **yynode)
+bool Parser::parseOptionalModifiers(OptionalModifiersAst **yynode)
 {
-    *yynode = create<Optional_modifiersAst>();
+    *yynode = create<OptionalModifiersAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -9025,7 +9025,7 @@ bool Parser::parseOptional_modifiers(Optional_modifiersAst **yynode)
                     {
                         goto __catch_16;
                     }
-                    (*yynode)->mod_annotationSequence = snoc((*yynode)->mod_annotationSequence, __node_221, memoryPool);
+                    (*yynode)->modifierAnnotationSequence = snoc((*yynode)->modifierAnnotationSequence, __node_221, memoryPool);
 
                 }
                 if (try_startState_16)
@@ -9092,9 +9092,9 @@ __catch_16:
     return true;
 }
 
-bool Parser::parseOptional_parameter_declaration_list(Optional_parameter_declaration_listAst **yynode)
+bool Parser::parseOptionalParameterDeclarationList(OptionalParameterDeclarationListAst **yynode)
 {
-    *yynode = create<Optional_parameter_declaration_listAst>();
+    *yynode = create<OptionalParameterDeclarationListAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -9112,7 +9112,7 @@ bool Parser::parseOptional_parameter_declaration_list(Optional_parameter_declara
         || yytoken == Token_FINAL || yytoken == Token_EOF
         || yytoken == Token_RPAREN)
     {
-        bool ellipsis_occurred = false;
+        bool ellipsisOccurred = false;
         if (yytoken == Token_IDENTIFIER
             || yytoken == Token_VOID
             || yytoken == Token_DOUBLE
@@ -9126,20 +9126,20 @@ bool Parser::parseOptional_parameter_declaration_list(Optional_parameter_declara
             || yytoken == Token_CHAR
             || yytoken == Token_FINAL)
         {
-            Parameter_declaration_ellipsisAst *__node_222 = 0;
-            if (!parseParameter_declaration_ellipsis(&__node_222, &ellipsis_occurred))
+            ParameterDeclarationEllipsisAst *__node_222 = 0;
+            if (!parseParameterDeclarationEllipsis(&__node_222, &ellipsisOccurred))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Parameter_declaration_ellipsisKind, "parameter_declaration_ellipsis");
+                    expectedSymbol(AstNode::ParameterDeclarationEllipsisKind, "parameterDeclarationEllipsis");
                 }
                 return false;
             }
-            (*yynode)->parameter_declarationSequence = snoc((*yynode)->parameter_declarationSequence, __node_222, memoryPool);
+            (*yynode)->parameterDeclarationSequence = snoc((*yynode)->parameterDeclarationSequence, __node_222, memoryPool);
 
             while (yytoken == Token_COMMA)
             {
-                if ( ellipsis_occurred == true )
+                if ( ellipsisOccurred == true )
                 {
                     break;
                 }
@@ -9153,16 +9153,16 @@ bool Parser::parseOptional_parameter_declaration_list(Optional_parameter_declara
                 }
                 yylex();
 
-                Parameter_declaration_ellipsisAst *__node_223 = 0;
-                if (!parseParameter_declaration_ellipsis(&__node_223, &ellipsis_occurred))
+                ParameterDeclarationEllipsisAst *__node_223 = 0;
+                if (!parseParameterDeclarationEllipsis(&__node_223, &ellipsisOccurred))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Parameter_declaration_ellipsisKind, "parameter_declaration_ellipsis");
+                        expectedSymbol(AstNode::ParameterDeclarationEllipsisKind, "parameterDeclarationEllipsis");
                     }
                     return false;
                 }
-                (*yynode)->parameter_declarationSequence = snoc((*yynode)->parameter_declarationSequence, __node_223, memoryPool);
+                (*yynode)->parameterDeclarationSequence = snoc((*yynode)->parameterDeclarationSequence, __node_223, memoryPool);
 
             }
         }
@@ -9184,9 +9184,9 @@ bool Parser::parseOptional_parameter_declaration_list(Optional_parameter_declara
     return true;
 }
 
-bool Parser::parseOptional_parameter_modifiers(Optional_parameter_modifiersAst **yynode)
+bool Parser::parseOptionalParameterModifiers(OptionalParameterModifiersAst **yynode)
 {
-    *yynode = create<Optional_parameter_modifiersAst>();
+    *yynode = create<OptionalParameterModifiersAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -9203,7 +9203,7 @@ bool Parser::parseOptional_parameter_modifiers(Optional_parameter_modifiersAst *
         || yytoken == Token_BYTE
         || yytoken == Token_CHAR)
     {
-        (*yynode)->has_mod_final = false;
+        (*yynode)->hasModifierFinal = false;
         while (yytoken == Token_AT
                || yytoken == Token_FINAL)
         {
@@ -9219,7 +9219,7 @@ bool Parser::parseOptional_parameter_modifiers(Optional_parameter_modifiersAst *
                 }
                 yylex();
 
-                (*yynode)->has_mod_final = true;
+                (*yynode)->hasModifierFinal = true;
             }
             else if (yytoken == Token_AT)
             {
@@ -9231,7 +9231,7 @@ bool Parser::parseOptional_parameter_modifiers(Optional_parameter_modifiersAst *
                     {
                         goto __catch_17;
                     }
-                    (*yynode)->mod_annotationSequence = snoc((*yynode)->mod_annotationSequence, __node_224, memoryPool);
+                    (*yynode)->modifierAnnotationSequence = snoc((*yynode)->modifierAnnotationSequence, __node_224, memoryPool);
 
                 }
                 if (try_startState_17)
@@ -9284,9 +9284,9 @@ __catch_17:
     return true;
 }
 
-bool Parser::parsePackage_declaration(Package_declarationAst **yynode)
+bool Parser::parsePackageDeclaration(PackageDeclarationAst **yynode)
 {
-    *yynode = create<Package_declarationAst>();
+    *yynode = create<PackageDeclarationAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -9339,16 +9339,16 @@ __catch_18:
         }
         yylex();
 
-        Qualified_identifierAst *__node_226 = 0;
-        if (!parseQualified_identifier(&__node_226))
+        QualifiedIdentifierAst *__node_226 = 0;
+        if (!parseQualifiedIdentifier(&__node_226))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Qualified_identifierKind, "qualified_identifier");
+                expectedSymbol(AstNode::QualifiedIdentifierKind, "qualifiedIdentifier");
             }
             return false;
         }
-        (*yynode)->package_name = __node_226;
+        (*yynode)->packageName = __node_226;
 
         if (yytoken != Token_SEMICOLON)
         {
@@ -9371,9 +9371,9 @@ __catch_18:
     return true;
 }
 
-bool Parser::parseParameter_declaration(Parameter_declarationAst **yynode)
+bool Parser::parseParameterDeclaration(ParameterDeclarationAst **yynode)
 {
-    *yynode = create<Parameter_declarationAst>();
+    *yynode = create<ParameterDeclarationAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -9400,16 +9400,16 @@ bool Parser::parseParameter_declaration(Parameter_declarationAst **yynode)
         || yytoken == Token_SHORT
         || yytoken == Token_PROTECTED)
     {
-        Optional_modifiersAst *__node_227 = 0;
-        if (!parseOptional_modifiers(&__node_227))
+        OptionalModifiersAst *__node_227 = 0;
+        if (!parseOptionalModifiers(&__node_227))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Optional_modifiersKind, "optional_modifiers");
+                expectedSymbol(AstNode::OptionalModifiersKind, "optionalModifiers");
             }
             return false;
         }
-        (*yynode)->parameter_modifiers = __node_227;
+        (*yynode)->parameterModifiers = __node_227;
 
         TypeAst *__node_228 = 0;
         if (!parseType(&__node_228))
@@ -9431,18 +9431,18 @@ bool Parser::parseParameter_declaration(Parameter_declarationAst **yynode)
             }
             return false;
         }
-        (*yynode)->variable_name = __node_229;
+        (*yynode)->variableName = __node_229;
 
-        Optional_declarator_bracketsAst *__node_230 = 0;
-        if (!parseOptional_declarator_brackets(&__node_230))
+        OptionalDeclaratorBracketsAst *__node_230 = 0;
+        if (!parseOptionalDeclaratorBrackets(&__node_230))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Optional_declarator_bracketsKind, "optional_declarator_brackets");
+                expectedSymbol(AstNode::OptionalDeclaratorBracketsKind, "optionalDeclaratorBrackets");
             }
             return false;
         }
-        (*yynode)->declarator_brackets = __node_230;
+        (*yynode)->declaratorBrackets = __node_230;
 
     }
     else
@@ -9455,9 +9455,9 @@ bool Parser::parseParameter_declaration(Parameter_declarationAst **yynode)
     return true;
 }
 
-bool Parser::parseParameter_declaration_ellipsis(Parameter_declaration_ellipsisAst **yynode, bool* ellipsis_occurred)
+bool Parser::parseParameterDeclarationEllipsis(ParameterDeclarationEllipsisAst **yynode, bool* ellipsisOccurred)
 {
-    *yynode = create<Parameter_declaration_ellipsisAst>();
+    *yynode = create<ParameterDeclarationEllipsisAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -9474,16 +9474,16 @@ bool Parser::parseParameter_declaration_ellipsis(Parameter_declaration_ellipsisA
         || yytoken == Token_CHAR
         || yytoken == Token_FINAL)
     {
-        Optional_parameter_modifiersAst *__node_231 = 0;
-        if (!parseOptional_parameter_modifiers(&__node_231))
+        OptionalParameterModifiersAst *__node_231 = 0;
+        if (!parseOptionalParameterModifiers(&__node_231))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Optional_parameter_modifiersKind, "optional_parameter_modifiers");
+                expectedSymbol(AstNode::OptionalParameterModifiersKind, "optionalParameterModifiers");
             }
             return false;
         }
-        (*yynode)->parameter_modifiers = __node_231;
+        (*yynode)->parameterModifiers = __node_231;
 
         TypeAst *__node_232 = 0;
         if (!parseType(&__node_232))
@@ -9508,12 +9508,12 @@ bool Parser::parseParameter_declaration_ellipsis(Parameter_declaration_ellipsisA
             }
             yylex();
 
-            (*yynode)->has_ellipsis = true;
-            *ellipsis_occurred = true;
+            (*yynode)->hasEllipsis = true;
+            *ellipsisOccurred = true;
         }
         else if (true /*epsilon*/)
         {
-            (*yynode)->has_ellipsis = false;
+            (*yynode)->hasEllipsis = false;
         }
         else
         {
@@ -9528,18 +9528,18 @@ bool Parser::parseParameter_declaration_ellipsis(Parameter_declaration_ellipsisA
             }
             return false;
         }
-        (*yynode)->variable_name = __node_233;
+        (*yynode)->variableName = __node_233;
 
-        Optional_declarator_bracketsAst *__node_234 = 0;
-        if (!parseOptional_declarator_brackets(&__node_234))
+        OptionalDeclaratorBracketsAst *__node_234 = 0;
+        if (!parseOptionalDeclaratorBrackets(&__node_234))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Optional_declarator_bracketsKind, "optional_declarator_brackets");
+                expectedSymbol(AstNode::OptionalDeclaratorBracketsKind, "optionalDeclaratorBrackets");
             }
             return false;
         }
-        (*yynode)->declarator_brackets = __node_234;
+        (*yynode)->declaratorBrackets = __node_234;
 
     }
     else
@@ -9552,9 +9552,9 @@ bool Parser::parseParameter_declaration_ellipsis(Parameter_declaration_ellipsisA
     return true;
 }
 
-bool Parser::parsePostfix_operator(Postfix_operatorAst **yynode)
+bool Parser::parsePostfixOperator(PostfixOperatorAst **yynode)
 {
-    *yynode = create<Postfix_operatorAst>();
+    *yynode = create<PostfixOperatorAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -9573,7 +9573,7 @@ bool Parser::parsePostfix_operator(Postfix_operatorAst **yynode)
             }
             yylex();
 
-            (*yynode)->postfix_operator = PostfixOperatorIncrement;
+            (*yynode)->postfixOperator = PostfixOperatorIncrement;
         }
         else if (yytoken == Token_DECREMENT)
         {
@@ -9587,7 +9587,7 @@ bool Parser::parsePostfix_operator(Postfix_operatorAst **yynode)
             }
             yylex();
 
-            (*yynode)->postfix_operator = PostfixOperatorDecrement;
+            (*yynode)->postfixOperator = PostfixOperatorDecrement;
         }
         else
         {
@@ -9604,9 +9604,9 @@ bool Parser::parsePostfix_operator(Postfix_operatorAst **yynode)
     return true;
 }
 
-bool Parser::parsePrimary_atom(Primary_atomAst **yynode)
+bool Parser::parsePrimaryAtom(PrimaryAtomAst **yynode)
 {
-    *yynode = create<Primary_atomAst>();
+    *yynode = create<PrimaryAtomAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -9633,11 +9633,11 @@ bool Parser::parsePrimary_atom(Primary_atomAst **yynode)
         || yytoken == Token_TRUE
         || yytoken == Token_LESS_THAN)
     {
-        Optional_argument_listAst *arguments = 0;
+        OptionalArgumentListAst *arguments = 0;
 
-        Super_suffixAst *super_suffix = 0;
+        SuperSuffixAst *superSuffix = 0;
 
-        Non_wildcard_type_argumentsAst *type_arguments = 0;
+        NonWildcardTypeArgumentsAst *typeArguments = 0;
 
         IdentifierAst *identifier = 0;
 
@@ -9663,16 +9663,16 @@ bool Parser::parsePrimary_atom(Primary_atomAst **yynode)
         }
         else if (yytoken == Token_NEW)
         {
-            New_expressionAst *__node_236 = 0;
-            if (!parseNew_expression(&__node_236))
+            NewExpressionAst *__node_236 = 0;
+            if (!parseNewExpression(&__node_236))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::New_expressionKind, "new_expression");
+                    expectedSymbol(AstNode::NewExpressionKind, "newExpression");
                 }
                 return false;
             }
-            (*yynode)->new_expression = __node_236;
+            (*yynode)->newExpression = __node_236;
 
         }
         else if (yytoken == Token_LPAREN)
@@ -9696,7 +9696,7 @@ bool Parser::parsePrimary_atom(Primary_atomAst **yynode)
                 }
                 return false;
             }
-            (*yynode)->parenthesis_expression = __node_237;
+            (*yynode)->parenthesisExpression = __node_237;
 
             if (yytoken != Token_RPAREN)
             {
@@ -9719,16 +9719,16 @@ bool Parser::parsePrimary_atom(Primary_atomAst **yynode)
                  || yytoken == Token_BYTE
                  || yytoken == Token_CHAR)
         {
-            Builtin_type_dot_classAst *__node_238 = 0;
-            if (!parseBuiltin_type_dot_class(&__node_238))
+            BuiltInTypeDotClassAst *__node_238 = 0;
+            if (!parseBuiltInTypeDotClass(&__node_238))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Builtin_type_dot_classKind, "builtin_type_dot_class");
+                    expectedSymbol(AstNode::BuiltInTypeDotClassKind, "builtInTypeDotClass");
                 }
                 return false;
             }
-            (*yynode)->builtin_type_dot_class = __node_238;
+            (*yynode)->builtInTypeDotClass = __node_238;
 
         }
         else if (yytoken == Token_THIS)
@@ -9755,12 +9755,12 @@ bool Parser::parsePrimary_atom(Primary_atomAst **yynode)
                 }
                 yylex();
 
-                Optional_argument_listAst *__node_239 = 0;
-                if (!parseOptional_argument_list(&__node_239))
+                OptionalArgumentListAst *__node_239 = 0;
+                if (!parseOptionalArgumentList(&__node_239))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Optional_argument_listKind, "optional_argument_list");
+                        expectedSymbol(AstNode::OptionalArgumentListKind, "optionalArgumentList");
                     }
                     return false;
                 }
@@ -9776,30 +9776,30 @@ bool Parser::parsePrimary_atom(Primary_atomAst **yynode)
                 }
                 yylex();
 
-                This_call_dataAst *__node_240 = 0;
-                if (!parseThis_call_data(&__node_240,  0 /* no type arguments */, arguments ))
+                ThisCallDataAst *__node_240 = 0;
+                if (!parseThisCallData(&__node_240,  0 /* no type arguments */, arguments ))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::This_call_dataKind, "this_call_data");
+                        expectedSymbol(AstNode::ThisCallDataKind, "thisCallData");
                     }
                     return false;
                 }
-                (*yynode)->this_call = __node_240;
+                (*yynode)->thisCall = __node_240;
 
             }
             else if (true /*epsilon*/)
             {
-                This_access_dataAst *__node_241 = 0;
-                if (!parseThis_access_data(&__node_241))
+                ThisAccessDataAst *__node_241 = 0;
+                if (!parseThisAccessData(&__node_241))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::This_access_dataKind, "this_access_data");
+                        expectedSymbol(AstNode::ThisAccessDataKind, "thisAccessData");
                     }
                     return false;
                 }
-                (*yynode)->this_access = __node_241;
+                (*yynode)->thisAccess = __node_241;
 
             }
             else
@@ -9819,41 +9819,41 @@ bool Parser::parsePrimary_atom(Primary_atomAst **yynode)
             }
             yylex();
 
-            Super_suffixAst *__node_242 = 0;
-            if (!parseSuper_suffix(&__node_242))
+            SuperSuffixAst *__node_242 = 0;
+            if (!parseSuperSuffix(&__node_242))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Super_suffixKind, "super_suffix");
+                    expectedSymbol(AstNode::SuperSuffixKind, "superSuffix");
                 }
                 return false;
             }
-            super_suffix = __node_242;
+            superSuffix = __node_242;
 
-            Super_access_dataAst *__node_243 = 0;
-            if (!parseSuper_access_data(&__node_243,  0 /* no type arguments */, super_suffix ))
+            SuperAccessDataAst *__node_243 = 0;
+            if (!parseSuperAccessData(&__node_243,  0 /* no type arguments */, superSuffix ))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Super_access_dataKind, "super_access_data");
+                    expectedSymbol(AstNode::SuperAccessDataKind, "superAccessData");
                 }
                 return false;
             }
-            (*yynode)->super_access = __node_243;
+            (*yynode)->superAccess = __node_243;
 
         }
         else if ((yytoken == Token_LESS_THAN) && ( compatibilityMode() >= Java15Compatibility ))
         {
-            Non_wildcard_type_argumentsAst *__node_244 = 0;
-            if (!parseNon_wildcard_type_arguments(&__node_244))
+            NonWildcardTypeArgumentsAst *__node_244 = 0;
+            if (!parseNonWildcardTypeArguments(&__node_244))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Non_wildcard_type_argumentsKind, "non_wildcard_type_arguments");
+                    expectedSymbol(AstNode::NonWildcardTypeArgumentsKind, "nonWildcardTypeArguments");
                 }
                 return false;
             }
-            type_arguments = __node_244;
+            typeArguments = __node_244;
 
             if (yytoken == Token_SUPER)
             {
@@ -9867,27 +9867,27 @@ bool Parser::parsePrimary_atom(Primary_atomAst **yynode)
                 }
                 yylex();
 
-                Super_suffixAst *__node_245 = 0;
-                if (!parseSuper_suffix(&__node_245))
+                SuperSuffixAst *__node_245 = 0;
+                if (!parseSuperSuffix(&__node_245))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Super_suffixKind, "super_suffix");
+                        expectedSymbol(AstNode::SuperSuffixKind, "superSuffix");
                     }
                     return false;
                 }
-                super_suffix = __node_245;
+                superSuffix = __node_245;
 
-                Super_access_dataAst *__node_246 = 0;
-                if (!parseSuper_access_data(&__node_246,  type_arguments, super_suffix ))
+                SuperAccessDataAst *__node_246 = 0;
+                if (!parseSuperAccessData(&__node_246,  typeArguments, superSuffix ))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Super_access_dataKind, "super_access_data");
+                        expectedSymbol(AstNode::SuperAccessDataKind, "superAccessData");
                     }
                     return false;
                 }
-                (*yynode)->super_access = __node_246;
+                (*yynode)->superAccess = __node_246;
 
             }
             else if (yytoken == Token_THIS)
@@ -9912,12 +9912,12 @@ bool Parser::parsePrimary_atom(Primary_atomAst **yynode)
                 }
                 yylex();
 
-                Optional_argument_listAst *__node_247 = 0;
-                if (!parseOptional_argument_list(&__node_247))
+                OptionalArgumentListAst *__node_247 = 0;
+                if (!parseOptionalArgumentList(&__node_247))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Optional_argument_listKind, "optional_argument_list");
+                        expectedSymbol(AstNode::OptionalArgumentListKind, "optionalArgumentList");
                     }
                     return false;
                 }
@@ -9933,16 +9933,16 @@ bool Parser::parsePrimary_atom(Primary_atomAst **yynode)
                 }
                 yylex();
 
-                This_call_dataAst *__node_248 = 0;
-                if (!parseThis_call_data(&__node_248,  type_arguments, arguments ))
+                ThisCallDataAst *__node_248 = 0;
+                if (!parseThisCallData(&__node_248,  typeArguments, arguments ))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::This_call_dataKind, "this_call_data");
+                        expectedSymbol(AstNode::ThisCallDataKind, "thisCallData");
                     }
                     return false;
                 }
-                (*yynode)->this_call = __node_248;
+                (*yynode)->thisCall = __node_248;
 
             }
             else if (yytoken == Token_IDENTIFIER)
@@ -9968,12 +9968,12 @@ bool Parser::parsePrimary_atom(Primary_atomAst **yynode)
                 }
                 yylex();
 
-                Optional_argument_listAst *__node_250 = 0;
-                if (!parseOptional_argument_list(&__node_250))
+                OptionalArgumentListAst *__node_250 = 0;
+                if (!parseOptionalArgumentList(&__node_250))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Optional_argument_listKind, "optional_argument_list");
+                        expectedSymbol(AstNode::OptionalArgumentListKind, "optionalArgumentList");
                     }
                     return false;
                 }
@@ -9989,16 +9989,16 @@ bool Parser::parsePrimary_atom(Primary_atomAst **yynode)
                 }
                 yylex();
 
-                Method_call_dataAst *__node_251 = 0;
-                if (!parseMethod_call_data(&__node_251,  type_arguments, identifier, arguments ))
+                MethodCallDataAst *__node_251 = 0;
+                if (!parseMethodCallData(&__node_251,  typeArguments, identifier, arguments ))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Method_call_dataKind, "method_call_data");
+                        expectedSymbol(AstNode::MethodCallDataKind, "methodCallData");
                     }
                     return false;
                 }
-                (*yynode)->method_call = __node_251;
+                (*yynode)->methodCall = __node_251;
 
             }
             else
@@ -10012,12 +10012,12 @@ bool Parser::parsePrimary_atom(Primary_atomAst **yynode)
             qint64 try_startToken_19 = tokenStream->index() - 1;
             ParserState *try_startState_19 = copyCurrentState();
             {
-                Array_type_dot_classAst *__node_252 = 0;
-                if (!parseArray_type_dot_class(&__node_252))
+                ArrayTypeDotClassAst *__node_252 = 0;
+                if (!parseArrayTypeDotClass(&__node_252))
                 {
                     goto __catch_19;
                 }
-                (*yynode)->array_type_dot_class = __node_252;
+                (*yynode)->arrayTypeDotClass = __node_252;
 
             }
             blockErrors(blockErrors_19);
@@ -10058,12 +10058,12 @@ __catch_19:
                     }
                     yylex();
 
-                    Optional_argument_listAst *__node_254 = 0;
-                    if (!parseOptional_argument_list(&__node_254))
+                    OptionalArgumentListAst *__node_254 = 0;
+                    if (!parseOptionalArgumentList(&__node_254))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Optional_argument_listKind, "optional_argument_list");
+                            expectedSymbol(AstNode::OptionalArgumentListKind, "optionalArgumentList");
                         }
                         return false;
                     }
@@ -10079,32 +10079,32 @@ __catch_19:
                     }
                     yylex();
 
-                    Method_call_dataAst *__node_255 = 0;
-                    if (!parseMethod_call_data(&__node_255,
-                                               0 /* no type arguments */, identifier, arguments
-                                              ))
+                    MethodCallDataAst *__node_255 = 0;
+                    if (!parseMethodCallData(&__node_255,
+                                             0 /* no type arguments */, identifier, arguments
+                                            ))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Method_call_dataKind, "method_call_data");
+                            expectedSymbol(AstNode::MethodCallDataKind, "methodCallData");
                         }
                         return false;
                     }
-                    (*yynode)->method_call = __node_255;
+                    (*yynode)->methodCall = __node_255;
 
                 }
                 else if (true /*epsilon*/)
                 {
-                    Simple_name_access_dataAst *__node_256 = 0;
-                    if (!parseSimple_name_access_data(&__node_256,  identifier ))
+                    SimpleNameAccessDataAst *__node_256 = 0;
+                    if (!parseSimpleNameAccessData(&__node_256,  identifier ))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Simple_name_access_dataKind, "simple_name_access_data");
+                            expectedSymbol(AstNode::SimpleNameAccessDataKind, "simpleNameAccessData");
                         }
                         return false;
                     }
-                    (*yynode)->simple_name_access = __node_256;
+                    (*yynode)->simpleNameAccess = __node_256;
 
                 }
                 else
@@ -10129,9 +10129,9 @@ __catch_19:
     return true;
 }
 
-bool Parser::parsePrimary_expression(Primary_expressionAst **yynode)
+bool Parser::parsePrimaryExpression(PrimaryExpressionAst **yynode)
 {
-    *yynode = create<Primary_expressionAst>();
+    *yynode = create<PrimaryExpressionAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -10158,26 +10158,26 @@ bool Parser::parsePrimary_expression(Primary_expressionAst **yynode)
         || yytoken == Token_TRUE
         || yytoken == Token_LESS_THAN)
     {
-        Primary_atomAst *__node_257 = 0;
-        if (!parsePrimary_atom(&__node_257))
+        PrimaryAtomAst *__node_257 = 0;
+        if (!parsePrimaryAtom(&__node_257))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Primary_atomKind, "primary_atom");
+                expectedSymbol(AstNode::PrimaryAtomKind, "primaryAtom");
             }
             return false;
         }
-        (*yynode)->primary_atom = __node_257;
+        (*yynode)->primaryAtom = __node_257;
 
         while (yytoken == Token_LBRACKET
                || yytoken == Token_DOT)
         {
-            Primary_selectorAst *__node_258 = 0;
-            if (!parsePrimary_selector(&__node_258))
+            PrimarySelectorAst *__node_258 = 0;
+            if (!parsePrimarySelector(&__node_258))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Primary_selectorKind, "primary_selector");
+                    expectedSymbol(AstNode::PrimarySelectorKind, "primarySelector");
                 }
                 return false;
             }
@@ -10195,9 +10195,9 @@ bool Parser::parsePrimary_expression(Primary_expressionAst **yynode)
     return true;
 }
 
-bool Parser::parsePrimary_selector(Primary_selectorAst **yynode)
+bool Parser::parsePrimarySelector(PrimarySelectorAst **yynode)
 {
-    *yynode = create<Primary_selectorAst>();
+    *yynode = create<PrimarySelectorAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -10206,11 +10206,11 @@ bool Parser::parsePrimary_selector(Primary_selectorAst **yynode)
     {
         IdentifierAst *identifier = 0;
 
-        Non_wildcard_type_argumentsAst *type_arguments = 0;
+        NonWildcardTypeArgumentsAst *typeArguments = 0;
 
-        Super_suffixAst *super_suffix = 0;
+        SuperSuffixAst *superSuffix = 0;
 
-        Optional_argument_listAst *arguments = 0;
+        OptionalArgumentListAst *arguments = 0;
 
         if (yytoken == Token_DOT)
         {
@@ -10236,16 +10236,16 @@ bool Parser::parsePrimary_selector(Primary_selectorAst **yynode)
                 }
                 yylex();
 
-                Class_access_dataAst *__node_259 = 0;
-                if (!parseClass_access_data(&__node_259))
+                ClassAccessDataAst *__node_259 = 0;
+                if (!parseClassAccessData(&__node_259))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Class_access_dataKind, "class_access_data");
+                        expectedSymbol(AstNode::ClassAccessDataKind, "classAccessData");
                     }
                     return false;
                 }
-                (*yynode)->class_access = __node_259;
+                (*yynode)->classAccess = __node_259;
 
             }
             else if (yytoken == Token_THIS)
@@ -10260,30 +10260,30 @@ bool Parser::parsePrimary_selector(Primary_selectorAst **yynode)
                 }
                 yylex();
 
-                This_access_dataAst *__node_260 = 0;
-                if (!parseThis_access_data(&__node_260))
+                ThisAccessDataAst *__node_260 = 0;
+                if (!parseThisAccessData(&__node_260))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::This_access_dataKind, "this_access_data");
+                        expectedSymbol(AstNode::ThisAccessDataKind, "thisAccessData");
                     }
                     return false;
                 }
-                (*yynode)->this_access = __node_260;
+                (*yynode)->thisAccess = __node_260;
 
             }
             else if (yytoken == Token_NEW)
             {
-                New_expressionAst *__node_261 = 0;
-                if (!parseNew_expression(&__node_261))
+                NewExpressionAst *__node_261 = 0;
+                if (!parseNewExpression(&__node_261))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::New_expressionKind, "new_expression");
+                        expectedSymbol(AstNode::NewExpressionKind, "newExpression");
                     }
                     return false;
                 }
-                (*yynode)->new_expression = __node_261;
+                (*yynode)->newExpression = __node_261;
 
             }
             else if ((yytoken == Token_IDENTIFIER) && ( LA(2).kind != Token_LPAREN ))
@@ -10299,16 +10299,16 @@ bool Parser::parsePrimary_selector(Primary_selectorAst **yynode)
                 }
                 identifier = __node_262;
 
-                Simple_name_access_dataAst *__node_263 = 0;
-                if (!parseSimple_name_access_data(&__node_263,  identifier ))
+                SimpleNameAccessDataAst *__node_263 = 0;
+                if (!parseSimpleNameAccessData(&__node_263,  identifier ))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Simple_name_access_dataKind, "simple_name_access_data");
+                        expectedSymbol(AstNode::SimpleNameAccessDataKind, "simpleNameAccessData");
                     }
                     return false;
                 }
-                (*yynode)->simple_name_access = __node_263;
+                (*yynode)->simpleNameAccess = __node_263;
 
             }
             else if (yytoken == Token_IDENTIFIER
@@ -10317,16 +10317,16 @@ bool Parser::parsePrimary_selector(Primary_selectorAst **yynode)
             {
                 if ((yytoken == Token_LESS_THAN) && ( compatibilityMode() >= Java15Compatibility ))
                 {
-                    Non_wildcard_type_argumentsAst *__node_264 = 0;
-                    if (!parseNon_wildcard_type_arguments(&__node_264))
+                    NonWildcardTypeArgumentsAst *__node_264 = 0;
+                    if (!parseNonWildcardTypeArguments(&__node_264))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Non_wildcard_type_argumentsKind, "non_wildcard_type_arguments");
+                            expectedSymbol(AstNode::NonWildcardTypeArgumentsKind, "nonWildcardTypeArguments");
                         }
                         return false;
                     }
-                    type_arguments = __node_264;
+                    typeArguments = __node_264;
 
                 }
                 else if (true /*epsilon*/)
@@ -10348,27 +10348,27 @@ bool Parser::parsePrimary_selector(Primary_selectorAst **yynode)
                     }
                     yylex();
 
-                    Super_suffixAst *__node_265 = 0;
-                    if (!parseSuper_suffix(&__node_265))
+                    SuperSuffixAst *__node_265 = 0;
+                    if (!parseSuperSuffix(&__node_265))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Super_suffixKind, "super_suffix");
+                            expectedSymbol(AstNode::SuperSuffixKind, "superSuffix");
                         }
                         return false;
                     }
-                    super_suffix = __node_265;
+                    superSuffix = __node_265;
 
-                    Super_access_dataAst *__node_266 = 0;
-                    if (!parseSuper_access_data(&__node_266,  type_arguments, super_suffix ))
+                    SuperAccessDataAst *__node_266 = 0;
+                    if (!parseSuperAccessData(&__node_266,  typeArguments, superSuffix ))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Super_access_dataKind, "super_access_data");
+                            expectedSymbol(AstNode::SuperAccessDataKind, "superAccessData");
                         }
                         return false;
                     }
-                    (*yynode)->super_access = __node_266;
+                    (*yynode)->superAccess = __node_266;
 
                 }
                 else if (yytoken == Token_IDENTIFIER)
@@ -10394,12 +10394,12 @@ bool Parser::parsePrimary_selector(Primary_selectorAst **yynode)
                     }
                     yylex();
 
-                    Optional_argument_listAst *__node_268 = 0;
-                    if (!parseOptional_argument_list(&__node_268))
+                    OptionalArgumentListAst *__node_268 = 0;
+                    if (!parseOptionalArgumentList(&__node_268))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Optional_argument_listKind, "optional_argument_list");
+                            expectedSymbol(AstNode::OptionalArgumentListKind, "optionalArgumentList");
                         }
                         return false;
                     }
@@ -10415,16 +10415,16 @@ bool Parser::parsePrimary_selector(Primary_selectorAst **yynode)
                     }
                     yylex();
 
-                    Method_call_dataAst *__node_269 = 0;
-                    if (!parseMethod_call_data(&__node_269,  type_arguments, identifier, arguments ))
+                    MethodCallDataAst *__node_269 = 0;
+                    if (!parseMethodCallData(&__node_269,  typeArguments, identifier, arguments ))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Method_call_dataKind, "method_call_data");
+                            expectedSymbol(AstNode::MethodCallDataKind, "methodCallData");
                         }
                         return false;
                     }
-                    (*yynode)->method_call = __node_269;
+                    (*yynode)->methodCall = __node_269;
 
                 }
                 else
@@ -10439,16 +10439,16 @@ bool Parser::parsePrimary_selector(Primary_selectorAst **yynode)
         }
         else if (yytoken == Token_LBRACKET)
         {
-            Array_accessAst *__node_270 = 0;
-            if (!parseArray_access(&__node_270))
+            ArrayAccessAst *__node_270 = 0;
+            if (!parseArrayAccess(&__node_270))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Array_accessKind, "array_access");
+                    expectedSymbol(AstNode::ArrayAccessKind, "arrayAccess");
                 }
                 return false;
             }
-            (*yynode)->array_access = __node_270;
+            (*yynode)->arrayAccess = __node_270;
 
         }
         else
@@ -10466,9 +10466,9 @@ bool Parser::parsePrimary_selector(Primary_selectorAst **yynode)
     return true;
 }
 
-bool Parser::parseQualified_identifier(Qualified_identifierAst **yynode)
+bool Parser::parseQualifiedIdentifier(QualifiedIdentifierAst **yynode)
 {
-    *yynode = create<Qualified_identifierAst>();
+    *yynode = create<QualifiedIdentifierAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -10520,9 +10520,9 @@ bool Parser::parseQualified_identifier(Qualified_identifierAst **yynode)
     return true;
 }
 
-bool Parser::parseQualified_identifier_with_optional_star(Qualified_identifier_with_optional_starAst **yynode)
+bool Parser::parseQualifiedIdentifierWithOptionalStar(QualifiedIdentifierWithOptionalStarAst **yynode)
 {
-    *yynode = create<Qualified_identifier_with_optional_starAst>();
+    *yynode = create<QualifiedIdentifierWithOptionalStarAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -10539,7 +10539,7 @@ bool Parser::parseQualified_identifier_with_optional_star(Qualified_identifier_w
         }
         (*yynode)->nameSequence = snoc((*yynode)->nameSequence, __node_273, memoryPool);
 
-        (*yynode)->has_star = false;
+        (*yynode)->hasStar = false;
         while (yytoken == Token_DOT)
         {
             if (yytoken != Token_DOT)
@@ -10578,7 +10578,7 @@ bool Parser::parseQualified_identifier_with_optional_star(Qualified_identifier_w
                 }
                 yylex();
 
-                (*yynode)->has_star = true;
+                (*yynode)->hasStar = true;
                 break;
             }
             else
@@ -10597,9 +10597,9 @@ bool Parser::parseQualified_identifier_with_optional_star(Qualified_identifier_w
     return true;
 }
 
-bool Parser::parseRelational_expression(Relational_expressionAst **yynode)
+bool Parser::parseRelationalExpression(RelationalExpressionAst **yynode)
 {
-    *yynode = create<Relational_expressionAst>();
+    *yynode = create<RelationalExpressionAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -10632,12 +10632,12 @@ bool Parser::parseRelational_expression(Relational_expressionAst **yynode)
         || yytoken == Token_LESS_THAN
         || yytoken == Token_TRUE)
     {
-        Shift_expressionAst *__node_275 = 0;
-        if (!parseShift_expression(&__node_275))
+        ShiftExpressionAst *__node_275 = 0;
+        if (!parseShiftExpression(&__node_275))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Shift_expressionKind, "shift_expression");
+                expectedSymbol(AstNode::ShiftExpressionKind, "shiftExpression");
             }
             return false;
         }
@@ -10650,16 +10650,16 @@ bool Parser::parseRelational_expression(Relational_expressionAst **yynode)
         {
             do
             {
-                Relational_expression_restAst *__node_276 = 0;
-                if (!parseRelational_expression_rest(&__node_276))
+                RelationalExpressionRestAst *__node_276 = 0;
+                if (!parseRelationalExpressionRest(&__node_276))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Relational_expression_restKind, "relational_expression_rest");
+                        expectedSymbol(AstNode::RelationalExpressionRestKind, "relationalExpressionRest");
                     }
                     return false;
                 }
-                (*yynode)->additional_expressionSequence = snoc((*yynode)->additional_expressionSequence, __node_276, memoryPool);
+                (*yynode)->additionalExpressionSequence = snoc((*yynode)->additionalExpressionSequence, __node_276, memoryPool);
 
             }
             while (yytoken == Token_GREATER_EQUAL
@@ -10688,7 +10688,7 @@ bool Parser::parseRelational_expression(Relational_expressionAst **yynode)
                 }
                 return false;
             }
-            (*yynode)->instanceof_type = __node_277;
+            (*yynode)->instanceofType = __node_277;
 
         }
         else if (true /*epsilon*/)
@@ -10709,9 +10709,9 @@ bool Parser::parseRelational_expression(Relational_expressionAst **yynode)
     return true;
 }
 
-bool Parser::parseRelational_expression_rest(Relational_expression_restAst **yynode)
+bool Parser::parseRelationalExpressionRest(RelationalExpressionRestAst **yynode)
 {
-    *yynode = create<Relational_expression_restAst>();
+    *yynode = create<RelationalExpressionRestAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -10732,7 +10732,7 @@ bool Parser::parseRelational_expression_rest(Relational_expression_restAst **yyn
             }
             yylex();
 
-            (*yynode)->relational_operator = RelationalOperatorLessThan;
+            (*yynode)->relationalOperator = RelationalOperatorLessThan;
         }
         else if (yytoken == Token_GREATER_THAN)
         {
@@ -10746,7 +10746,7 @@ bool Parser::parseRelational_expression_rest(Relational_expression_restAst **yyn
             }
             yylex();
 
-            (*yynode)->relational_operator = RelationalOperatorGreaterThan;
+            (*yynode)->relationalOperator = RelationalOperatorGreaterThan;
         }
         else if (yytoken == Token_LESS_EQUAL)
         {
@@ -10760,7 +10760,7 @@ bool Parser::parseRelational_expression_rest(Relational_expression_restAst **yyn
             }
             yylex();
 
-            (*yynode)->relational_operator = RelationalOperatorLessEqual;
+            (*yynode)->relationalOperator = RelationalOperatorLessEqual;
         }
         else if (yytoken == Token_GREATER_EQUAL)
         {
@@ -10774,18 +10774,18 @@ bool Parser::parseRelational_expression_rest(Relational_expression_restAst **yyn
             }
             yylex();
 
-            (*yynode)->relational_operator = RelationalOperatorGreaterEqual;
+            (*yynode)->relationalOperator = RelationalOperatorGreaterEqual;
         }
         else
         {
             return false;
         }
-        Shift_expressionAst *__node_278 = 0;
-        if (!parseShift_expression(&__node_278))
+        ShiftExpressionAst *__node_278 = 0;
+        if (!parseShiftExpression(&__node_278))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Shift_expressionKind, "shift_expression");
+                expectedSymbol(AstNode::ShiftExpressionKind, "shiftExpression");
             }
             return false;
         }
@@ -10802,9 +10802,9 @@ bool Parser::parseRelational_expression_rest(Relational_expression_restAst **yyn
     return true;
 }
 
-bool Parser::parseReturn_statement(Return_statementAst **yynode)
+bool Parser::parseReturnStatement(ReturnStatementAst **yynode)
 {
-    *yynode = create<Return_statementAst>();
+    *yynode = create<ReturnStatementAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -10858,7 +10858,7 @@ bool Parser::parseReturn_statement(Return_statementAst **yynode)
                 }
                 return false;
             }
-            (*yynode)->return_expression = __node_279;
+            (*yynode)->returnExpression = __node_279;
 
         }
         else if (true /*epsilon*/)
@@ -10889,9 +10889,9 @@ bool Parser::parseReturn_statement(Return_statementAst **yynode)
     return true;
 }
 
-bool Parser::parseShift_expression(Shift_expressionAst **yynode)
+bool Parser::parseShiftExpression(ShiftExpressionAst **yynode)
 {
-    *yynode = create<Shift_expressionAst>();
+    *yynode = create<ShiftExpressionAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -10924,12 +10924,12 @@ bool Parser::parseShift_expression(Shift_expressionAst **yynode)
         || yytoken == Token_LESS_THAN
         || yytoken == Token_TRUE)
     {
-        Additive_expressionAst *__node_280 = 0;
-        if (!parseAdditive_expression(&__node_280))
+        AdditiveExpressionAst *__node_280 = 0;
+        if (!parseAdditiveExpression(&__node_280))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Additive_expressionKind, "additive_expression");
+                expectedSymbol(AstNode::AdditiveExpressionKind, "additiveExpression");
             }
             return false;
         }
@@ -10939,16 +10939,16 @@ bool Parser::parseShift_expression(Shift_expressionAst **yynode)
                || yytoken == Token_LSHIFT
                || yytoken == Token_UNSIGNED_RSHIFT)
         {
-            Shift_expression_restAst *__node_281 = 0;
-            if (!parseShift_expression_rest(&__node_281))
+            ShiftExpressionRestAst *__node_281 = 0;
+            if (!parseShiftExpressionRest(&__node_281))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Shift_expression_restKind, "shift_expression_rest");
+                    expectedSymbol(AstNode::ShiftExpressionRestKind, "shiftExpressionRest");
                 }
                 return false;
             }
-            (*yynode)->additional_expressionSequence = snoc((*yynode)->additional_expressionSequence, __node_281, memoryPool);
+            (*yynode)->additionalExpressionSequence = snoc((*yynode)->additionalExpressionSequence, __node_281, memoryPool);
 
         }
     }
@@ -10962,9 +10962,9 @@ bool Parser::parseShift_expression(Shift_expressionAst **yynode)
     return true;
 }
 
-bool Parser::parseShift_expression_rest(Shift_expression_restAst **yynode)
+bool Parser::parseShiftExpressionRest(ShiftExpressionRestAst **yynode)
 {
-    *yynode = create<Shift_expression_restAst>();
+    *yynode = create<ShiftExpressionRestAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -10984,7 +10984,7 @@ bool Parser::parseShift_expression_rest(Shift_expression_restAst **yynode)
             }
             yylex();
 
-            (*yynode)->shift_operator = ShiftOperatorLShift;
+            (*yynode)->shiftOperator = ShiftOperatorLShift;
         }
         else if (yytoken == Token_SIGNED_RSHIFT)
         {
@@ -10998,7 +10998,7 @@ bool Parser::parseShift_expression_rest(Shift_expression_restAst **yynode)
             }
             yylex();
 
-            (*yynode)->shift_operator = ShiftOperatorRShiftSigned;
+            (*yynode)->shiftOperator = ShiftOperatorRShiftSigned;
         }
         else if (yytoken == Token_UNSIGNED_RSHIFT)
         {
@@ -11012,18 +11012,18 @@ bool Parser::parseShift_expression_rest(Shift_expression_restAst **yynode)
             }
             yylex();
 
-            (*yynode)->shift_operator = ShiftOperatorRShiftUnsigned;
+            (*yynode)->shiftOperator = ShiftOperatorRShiftUnsigned;
         }
         else
         {
             return false;
         }
-        Additive_expressionAst *__node_282 = 0;
-        if (!parseAdditive_expression(&__node_282))
+        AdditiveExpressionAst *__node_282 = 0;
+        if (!parseAdditiveExpression(&__node_282))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Additive_expressionKind, "additive_expression");
+                expectedSymbol(AstNode::AdditiveExpressionKind, "additiveExpression");
             }
             return false;
         }
@@ -11040,9 +11040,9 @@ bool Parser::parseShift_expression_rest(Shift_expression_restAst **yynode)
     return true;
 }
 
-bool Parser::parseSimple_name_access_data(Simple_name_access_dataAst **yynode, IdentifierAst *name)
+bool Parser::parseSimpleNameAccessData(SimpleNameAccessDataAst **yynode, IdentifierAst *name)
 {
-    *yynode = create<Simple_name_access_dataAst>();
+    *yynode = create<SimpleNameAccessDataAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -11106,9 +11106,9 @@ bool Parser::parseSimple_name_access_data(Simple_name_access_dataAst **yynode, I
     return true;
 }
 
-bool Parser::parseStatement_expression(Statement_expressionAst **yynode)
+bool Parser::parseStatementExpression(StatementExpressionAst **yynode)
 {
-    *yynode = create<Statement_expressionAst>();
+    *yynode = create<StatementExpressionAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -11163,19 +11163,19 @@ bool Parser::parseStatement_expression(Statement_expressionAst **yynode)
     return true;
 }
 
-bool Parser::parseSuper_access_data(Super_access_dataAst **yynode, Non_wildcard_type_argumentsAst *type_arguments, Super_suffixAst *super_suffix)
+bool Parser::parseSuperAccessData(SuperAccessDataAst **yynode, NonWildcardTypeArgumentsAst *typeArguments, SuperSuffixAst *superSuffix)
 {
-    *yynode = create<Super_access_dataAst>();
+    *yynode = create<SuperAccessDataAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
-    (*yynode)->type_arguments = type_arguments;
-    if (type_arguments && type_arguments->startToken < (*yynode)->startToken)
-        (*yynode)->startToken = type_arguments->startToken;
+    (*yynode)->typeArguments = typeArguments;
+    if (typeArguments && typeArguments->startToken < (*yynode)->startToken)
+        (*yynode)->startToken = typeArguments->startToken;
 
-    (*yynode)->super_suffix = super_suffix;
-    if (super_suffix && super_suffix->startToken < (*yynode)->startToken)
-        (*yynode)->startToken = super_suffix->startToken;
+    (*yynode)->superSuffix = superSuffix;
+    if (superSuffix && superSuffix->startToken < (*yynode)->startToken)
+        (*yynode)->startToken = superSuffix->startToken;
 
     if (true /*epsilon*/ || yytoken == Token_UNSIGNED_RSHIFT
         || yytoken == Token_DECREMENT
@@ -11233,9 +11233,9 @@ bool Parser::parseSuper_access_data(Super_access_dataAst **yynode, Non_wildcard_
     return true;
 }
 
-bool Parser::parseSuper_suffix(Super_suffixAst **yynode)
+bool Parser::parseSuperSuffix(SuperSuffixAst **yynode)
 {
-    *yynode = create<Super_suffixAst>();
+    *yynode = create<SuperSuffixAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -11244,9 +11244,9 @@ bool Parser::parseSuper_suffix(Super_suffixAst **yynode)
     {
         IdentifierAst *identifier = 0;
 
-        Non_wildcard_type_argumentsAst *type_arguments = 0;
+        NonWildcardTypeArgumentsAst *typeArguments = 0;
 
-        Optional_argument_listAst *arguments = 0;
+        OptionalArgumentListAst *arguments = 0;
 
         if (yytoken == Token_LPAREN)
         {
@@ -11260,16 +11260,16 @@ bool Parser::parseSuper_suffix(Super_suffixAst **yynode)
             }
             yylex();
 
-            Optional_argument_listAst *__node_284 = 0;
-            if (!parseOptional_argument_list(&__node_284))
+            OptionalArgumentListAst *__node_284 = 0;
+            if (!parseOptionalArgumentList(&__node_284))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Optional_argument_listKind, "optional_argument_list");
+                    expectedSymbol(AstNode::OptionalArgumentListKind, "optionalArgumentList");
                 }
                 return false;
             }
-            (*yynode)->constructor_arguments = __node_284;
+            (*yynode)->constructorArguments = __node_284;
 
             if (yytoken != Token_RPAREN)
             {
@@ -11307,16 +11307,16 @@ bool Parser::parseSuper_suffix(Super_suffixAst **yynode)
                 }
                 identifier = __node_285;
 
-                Simple_name_access_dataAst *__node_286 = 0;
-                if (!parseSimple_name_access_data(&__node_286,  identifier ))
+                SimpleNameAccessDataAst *__node_286 = 0;
+                if (!parseSimpleNameAccessData(&__node_286,  identifier ))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Simple_name_access_dataKind, "simple_name_access_data");
+                        expectedSymbol(AstNode::SimpleNameAccessDataKind, "simpleNameAccessData");
                     }
                     return false;
                 }
-                (*yynode)->simple_name_access = __node_286;
+                (*yynode)->simpleNameAccess = __node_286;
 
             }
             else if (yytoken == Token_IDENTIFIER
@@ -11324,16 +11324,16 @@ bool Parser::parseSuper_suffix(Super_suffixAst **yynode)
             {
                 if ((yytoken == Token_LESS_THAN) && ( compatibilityMode() >= Java15Compatibility ))
                 {
-                    Non_wildcard_type_argumentsAst *__node_287 = 0;
-                    if (!parseNon_wildcard_type_arguments(&__node_287))
+                    NonWildcardTypeArgumentsAst *__node_287 = 0;
+                    if (!parseNonWildcardTypeArguments(&__node_287))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Non_wildcard_type_argumentsKind, "non_wildcard_type_arguments");
+                            expectedSymbol(AstNode::NonWildcardTypeArgumentsKind, "nonWildcardTypeArguments");
                         }
                         return false;
                     }
-                    type_arguments = __node_287;
+                    typeArguments = __node_287;
 
                 }
                 else if (true /*epsilon*/)
@@ -11364,12 +11364,12 @@ bool Parser::parseSuper_suffix(Super_suffixAst **yynode)
                 }
                 yylex();
 
-                Optional_argument_listAst *__node_289 = 0;
-                if (!parseOptional_argument_list(&__node_289))
+                OptionalArgumentListAst *__node_289 = 0;
+                if (!parseOptionalArgumentList(&__node_289))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Optional_argument_listKind, "optional_argument_list");
+                        expectedSymbol(AstNode::OptionalArgumentListKind, "optionalArgumentList");
                     }
                     return false;
                 }
@@ -11385,16 +11385,16 @@ bool Parser::parseSuper_suffix(Super_suffixAst **yynode)
                 }
                 yylex();
 
-                Method_call_dataAst *__node_290 = 0;
-                if (!parseMethod_call_data(&__node_290,  type_arguments, identifier, arguments ))
+                MethodCallDataAst *__node_290 = 0;
+                if (!parseMethodCallData(&__node_290,  typeArguments, identifier, arguments ))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Method_call_dataKind, "method_call_data");
+                        expectedSymbol(AstNode::MethodCallDataKind, "methodCallData");
                     }
                     return false;
                 }
-                (*yynode)->method_call = __node_290;
+                (*yynode)->methodCall = __node_290;
 
             }
             else
@@ -11417,9 +11417,9 @@ bool Parser::parseSuper_suffix(Super_suffixAst **yynode)
     return true;
 }
 
-bool Parser::parseSwitch_label(Switch_labelAst **yynode)
+bool Parser::parseSwitchLabel(SwitchLabelAst **yynode)
 {
-    *yynode = create<Switch_labelAst>();
+    *yynode = create<SwitchLabelAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -11447,9 +11447,9 @@ bool Parser::parseSwitch_label(Switch_labelAst **yynode)
                 }
                 return false;
             }
-            (*yynode)->case_expression = __node_291;
+            (*yynode)->caseExpression = __node_291;
 
-            (*yynode)->branch_type = BranchCase;
+            (*yynode)->branchType = BranchCase;
         }
         else if (yytoken == Token_DEFAULT)
         {
@@ -11463,7 +11463,7 @@ bool Parser::parseSwitch_label(Switch_labelAst **yynode)
             }
             yylex();
 
-            (*yynode)->branch_type = BranchDefault;
+            (*yynode)->branchType = BranchDefault;
         }
         else
         {
@@ -11490,9 +11490,9 @@ bool Parser::parseSwitch_label(Switch_labelAst **yynode)
     return true;
 }
 
-bool Parser::parseSwitch_section(Switch_sectionAst **yynode)
+bool Parser::parseSwitchSection(SwitchSectionAst **yynode)
 {
-    *yynode = create<Switch_sectionAst>();
+    *yynode = create<SwitchSectionAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -11501,12 +11501,12 @@ bool Parser::parseSwitch_section(Switch_sectionAst **yynode)
     {
         do
         {
-            Switch_labelAst *__node_292 = 0;
-            if (!parseSwitch_label(&__node_292))
+            SwitchLabelAst *__node_292 = 0;
+            if (!parseSwitchLabel(&__node_292))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Switch_labelKind, "switch_label");
+                    expectedSymbol(AstNode::SwitchLabelKind, "switchLabel");
                 }
                 return false;
             }
@@ -11575,8 +11575,8 @@ bool Parser::parseSwitch_section(Switch_sectionAst **yynode)
             qint64 try_startToken_20 = tokenStream->index() - 1;
             ParserState *try_startState_20 = copyCurrentState();
             {
-                Block_statementAst *__node_293 = 0;
-                if (!parseBlock_statement(&__node_293))
+                BlockStatementAst *__node_293 = 0;
+                if (!parseBlockStatement(&__node_293))
                 {
                     goto __catch_20;
                 }
@@ -11675,9 +11675,9 @@ __catch_20:
     return true;
 }
 
-bool Parser::parseSwitch_statement(Switch_statementAst **yynode)
+bool Parser::parseSwitchStatement(SwitchStatementAst **yynode)
 {
-    *yynode = create<Switch_statementAst>();
+    *yynode = create<SwitchStatementAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -11712,7 +11712,7 @@ bool Parser::parseSwitch_statement(Switch_statementAst **yynode)
             }
             return false;
         }
-        (*yynode)->switch_expression = __node_294;
+        (*yynode)->switchExpression = __node_294;
 
         if (yytoken != Token_RPAREN)
         {
@@ -11740,12 +11740,12 @@ bool Parser::parseSwitch_statement(Switch_statementAst **yynode)
             qint64 try_startToken_21 = tokenStream->index() - 1;
             ParserState *try_startState_21 = copyCurrentState();
             {
-                Switch_sectionAst *__node_295 = 0;
-                if (!parseSwitch_section(&__node_295))
+                SwitchSectionAst *__node_295 = 0;
+                if (!parseSwitchSection(&__node_295))
                 {
                     goto __catch_21;
                 }
-                (*yynode)->switch_sectionSequence = snoc((*yynode)->switch_sectionSequence, __node_295, memoryPool);
+                (*yynode)->switchSectionSequence = snoc((*yynode)->switchSectionSequence, __node_295, memoryPool);
 
             }
             if (try_startState_21)
@@ -11793,9 +11793,9 @@ __catch_21:
     return true;
 }
 
-bool Parser::parseSynchronized_statement(Synchronized_statementAst **yynode)
+bool Parser::parseSynchronizedStatement(SynchronizedStatementAst **yynode)
 {
-    *yynode = create<Synchronized_statementAst>();
+    *yynode = create<SynchronizedStatementAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -11830,7 +11830,7 @@ bool Parser::parseSynchronized_statement(Synchronized_statementAst **yynode)
             }
             return false;
         }
-        (*yynode)->locked_type = __node_296;
+        (*yynode)->lockedType = __node_296;
 
         if (yytoken != Token_RPAREN)
         {
@@ -11851,7 +11851,7 @@ bool Parser::parseSynchronized_statement(Synchronized_statementAst **yynode)
             }
             return false;
         }
-        (*yynode)->synchronized_body = __node_297;
+        (*yynode)->synchronizedBody = __node_297;
 
     }
     else
@@ -11864,9 +11864,9 @@ bool Parser::parseSynchronized_statement(Synchronized_statementAst **yynode)
     return true;
 }
 
-bool Parser::parseThis_access_data(This_access_dataAst **yynode)
+bool Parser::parseThisAccessData(ThisAccessDataAst **yynode)
 {
-    *yynode = create<This_access_dataAst>();
+    *yynode = create<ThisAccessDataAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -11926,15 +11926,15 @@ bool Parser::parseThis_access_data(This_access_dataAst **yynode)
     return true;
 }
 
-bool Parser::parseThis_call_data(This_call_dataAst **yynode, Non_wildcard_type_argumentsAst *type_arguments, Optional_argument_listAst *arguments)
+bool Parser::parseThisCallData(ThisCallDataAst **yynode, NonWildcardTypeArgumentsAst *typeArguments, OptionalArgumentListAst *arguments)
 {
-    *yynode = create<This_call_dataAst>();
+    *yynode = create<ThisCallDataAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
-    (*yynode)->type_arguments = type_arguments;
-    if (type_arguments && type_arguments->startToken < (*yynode)->startToken)
-        (*yynode)->startToken = type_arguments->startToken;
+    (*yynode)->typeArguments = typeArguments;
+    if (typeArguments && typeArguments->startToken < (*yynode)->startToken)
+        (*yynode)->startToken = typeArguments->startToken;
 
     (*yynode)->arguments = arguments;
     if (arguments && arguments->startToken < (*yynode)->startToken)
@@ -11996,9 +11996,9 @@ bool Parser::parseThis_call_data(This_call_dataAst **yynode, Non_wildcard_type_a
     return true;
 }
 
-bool Parser::parseThrow_statement(Throw_statementAst **yynode)
+bool Parser::parseThrowStatement(ThrowStatementAst **yynode)
 {
-    *yynode = create<Throw_statementAst>();
+    *yynode = create<ThrowStatementAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -12046,9 +12046,9 @@ bool Parser::parseThrow_statement(Throw_statementAst **yynode)
     return true;
 }
 
-bool Parser::parseThrows_clause(Throws_clauseAst **yynode)
+bool Parser::parseThrowsClause(ThrowsClauseAst **yynode)
 {
-    *yynode = create<Throws_clauseAst>();
+    *yynode = create<ThrowsClauseAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -12064,12 +12064,12 @@ bool Parser::parseThrows_clause(Throws_clauseAst **yynode)
         }
         yylex();
 
-        Qualified_identifierAst *__node_299 = 0;
-        if (!parseQualified_identifier(&__node_299))
+        QualifiedIdentifierAst *__node_299 = 0;
+        if (!parseQualifiedIdentifier(&__node_299))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Qualified_identifierKind, "qualified_identifier");
+                expectedSymbol(AstNode::QualifiedIdentifierKind, "qualifiedIdentifier");
             }
             return false;
         }
@@ -12087,12 +12087,12 @@ bool Parser::parseThrows_clause(Throws_clauseAst **yynode)
             }
             yylex();
 
-            Qualified_identifierAst *__node_300 = 0;
-            if (!parseQualified_identifier(&__node_300))
+            QualifiedIdentifierAst *__node_300 = 0;
+            if (!parseQualifiedIdentifier(&__node_300))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Qualified_identifierKind, "qualified_identifier");
+                    expectedSymbol(AstNode::QualifiedIdentifierKind, "qualifiedIdentifier");
                 }
                 return false;
             }
@@ -12110,9 +12110,9 @@ bool Parser::parseThrows_clause(Throws_clauseAst **yynode)
     return true;
 }
 
-bool Parser::parseTry_statement(Try_statementAst **yynode)
+bool Parser::parseTryStatement(TryStatementAst **yynode)
 {
-    *yynode = create<Try_statementAst>();
+    *yynode = create<TryStatementAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -12137,22 +12137,22 @@ bool Parser::parseTry_statement(Try_statementAst **yynode)
             }
             return false;
         }
-        (*yynode)->try_body = __node_301;
+        (*yynode)->tryBody = __node_301;
 
         if (yytoken == Token_CATCH)
         {
             do
             {
-                Catch_clauseAst *__node_302 = 0;
-                if (!parseCatch_clause(&__node_302))
+                CatchClauseAst *__node_302 = 0;
+                if (!parseCatchClause(&__node_302))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Catch_clauseKind, "catch_clause");
+                        expectedSymbol(AstNode::CatchClauseKind, "catchClause");
                     }
                     return false;
                 }
-                (*yynode)->catch_clauseSequence = snoc((*yynode)->catch_clauseSequence, __node_302, memoryPool);
+                (*yynode)->catchClauseSequence = snoc((*yynode)->catchClauseSequence, __node_302, memoryPool);
 
             }
             while (yytoken == Token_CATCH);
@@ -12177,7 +12177,7 @@ bool Parser::parseTry_statement(Try_statementAst **yynode)
                     }
                     return false;
                 }
-                (*yynode)->finally_body = __node_303;
+                (*yynode)->finallyBody = __node_303;
 
             }
             else if (true /*epsilon*/)
@@ -12209,7 +12209,7 @@ bool Parser::parseTry_statement(Try_statementAst **yynode)
                 }
                 return false;
             }
-            (*yynode)->finally_body = __node_304;
+            (*yynode)->finallyBody = __node_304;
 
         }
         else
@@ -12246,16 +12246,16 @@ bool Parser::parseType(TypeAst **yynode)
     {
         if (yytoken == Token_IDENTIFIER)
         {
-            Class_typeAst *__node_305 = 0;
-            if (!parseClass_type(&__node_305))
+            ClassTypeAst *__node_305 = 0;
+            if (!parseClassType(&__node_305))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Class_typeKind, "class_type");
+                    expectedSymbol(AstNode::ClassTypeKind, "classType");
                 }
                 return false;
             }
-            (*yynode)->class_type = __node_305;
+            (*yynode)->classType = __node_305;
 
         }
         else if (yytoken == Token_VOID
@@ -12268,16 +12268,16 @@ bool Parser::parseType(TypeAst **yynode)
                  || yytoken == Token_BYTE
                  || yytoken == Token_CHAR)
         {
-            Optional_array_builtin_typeAst *__node_306 = 0;
-            if (!parseOptional_array_builtin_type(&__node_306))
+            OptionalArrayBuiltInTypeAst *__node_306 = 0;
+            if (!parseOptionalArrayBuiltInType(&__node_306))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Optional_array_builtin_typeKind, "optional_array_builtin_type");
+                    expectedSymbol(AstNode::OptionalArrayBuiltInTypeKind, "optionalArrayBuiltInType");
                 }
                 return false;
             }
-            (*yynode)->builtin_type = __node_306;
+            (*yynode)->builtInType = __node_306;
 
         }
         else
@@ -12295,9 +12295,9 @@ bool Parser::parseType(TypeAst **yynode)
     return true;
 }
 
-bool Parser::parseType_argument(Type_argumentAst **yynode)
+bool Parser::parseTypeArgument(TypeArgumentAst **yynode)
 {
-    *yynode = create<Type_argumentAst>();
+    *yynode = create<TypeArgumentAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -12324,30 +12324,30 @@ bool Parser::parseType_argument(Type_argumentAst **yynode)
             || yytoken == Token_BYTE
             || yytoken == Token_CHAR)
         {
-            Type_argument_typeAst *__node_307 = 0;
-            if (!parseType_argument_type(&__node_307))
+            TypeArgumentTypeAst *__node_307 = 0;
+            if (!parseTypeArgumentType(&__node_307))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Type_argument_typeKind, "type_argument_type");
+                    expectedSymbol(AstNode::TypeArgumentTypeKind, "typeArgumentType");
                 }
                 return false;
             }
-            (*yynode)->type_argument_type = __node_307;
+            (*yynode)->typeArgumentType = __node_307;
 
         }
         else if (yytoken == Token_QUESTION)
         {
-            Wildcard_typeAst *__node_308 = 0;
-            if (!parseWildcard_type(&__node_308))
+            WildcardTypeAst *__node_308 = 0;
+            if (!parseWildcardType(&__node_308))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Wildcard_typeKind, "wildcard_type");
+                    expectedSymbol(AstNode::WildcardTypeKind, "wildcardType");
                 }
                 return false;
             }
-            (*yynode)->wildcard_type = __node_308;
+            (*yynode)->wildcardType = __node_308;
 
         }
         else
@@ -12365,9 +12365,9 @@ bool Parser::parseType_argument(Type_argumentAst **yynode)
     return true;
 }
 
-bool Parser::parseType_argument_type(Type_argument_typeAst **yynode)
+bool Parser::parseTypeArgumentType(TypeArgumentTypeAst **yynode)
 {
-    *yynode = create<Type_argument_typeAst>();
+    *yynode = create<TypeArgumentTypeAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -12384,16 +12384,16 @@ bool Parser::parseType_argument_type(Type_argument_typeAst **yynode)
     {
         if (yytoken == Token_IDENTIFIER)
         {
-            Class_typeAst *__node_309 = 0;
-            if (!parseClass_type(&__node_309))
+            ClassTypeAst *__node_309 = 0;
+            if (!parseClassType(&__node_309))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Class_typeKind, "class_type");
+                    expectedSymbol(AstNode::ClassTypeKind, "classType");
                 }
                 return false;
             }
-            (*yynode)->class_type = __node_309;
+            (*yynode)->classType = __node_309;
 
         }
         else if (yytoken == Token_VOID
@@ -12406,16 +12406,16 @@ bool Parser::parseType_argument_type(Type_argument_typeAst **yynode)
                  || yytoken == Token_BYTE
                  || yytoken == Token_CHAR)
         {
-            Mandatory_array_builtin_typeAst *__node_310 = 0;
-            if (!parseMandatory_array_builtin_type(&__node_310))
+            MandatoryArrayBuiltInTypeAst *__node_310 = 0;
+            if (!parseMandatoryArrayBuiltInType(&__node_310))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Mandatory_array_builtin_typeKind, "mandatory_array_builtin_type");
+                    expectedSymbol(AstNode::MandatoryArrayBuiltInTypeKind, "mandatoryArrayBuiltInType");
                 }
                 return false;
             }
-            (*yynode)->mandatory_array_builtin_type = __node_310;
+            (*yynode)->mandatoryArrayBuiltInType = __node_310;
 
         }
         else
@@ -12433,9 +12433,9 @@ bool Parser::parseType_argument_type(Type_argument_typeAst **yynode)
     return true;
 }
 
-bool Parser::parseType_arguments(Type_argumentsAst **yynode)
+bool Parser::parseTypeArguments(TypeArgumentsAst **yynode)
 {
-    *yynode = create<Type_argumentsAst>();
+    *yynode = create<TypeArgumentsAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -12453,16 +12453,16 @@ bool Parser::parseType_arguments(Type_argumentsAst **yynode)
 
         int currentLtLevel = m_state.ltCounter;
         m_state.ltCounter++;
-        Type_argumentAst *__node_311 = 0;
-        if (!parseType_argument(&__node_311))
+        TypeArgumentAst *__node_311 = 0;
+        if (!parseTypeArgument(&__node_311))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Type_argumentKind, "type_argument");
+                expectedSymbol(AstNode::TypeArgumentKind, "typeArgument");
             }
             return false;
         }
-        (*yynode)->type_argumentSequence = snoc((*yynode)->type_argumentSequence, __node_311, memoryPool);
+        (*yynode)->typeArgumentSequence = snoc((*yynode)->typeArgumentSequence, __node_311, memoryPool);
 
         while (yytoken == Token_COMMA)
         {
@@ -12480,28 +12480,28 @@ bool Parser::parseType_arguments(Type_argumentsAst **yynode)
             }
             yylex();
 
-            Type_argumentAst *__node_312 = 0;
-            if (!parseType_argument(&__node_312))
+            TypeArgumentAst *__node_312 = 0;
+            if (!parseTypeArgument(&__node_312))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Type_argumentKind, "type_argument");
+                    expectedSymbol(AstNode::TypeArgumentKind, "typeArgument");
                 }
                 return false;
             }
-            (*yynode)->type_argumentSequence = snoc((*yynode)->type_argumentSequence, __node_312, memoryPool);
+            (*yynode)->typeArgumentSequence = snoc((*yynode)->typeArgumentSequence, __node_312, memoryPool);
 
         }
         if (yytoken == Token_SIGNED_RSHIFT
             || yytoken == Token_GREATER_THAN
             || yytoken == Token_UNSIGNED_RSHIFT)
         {
-            Type_arguments_or_parameters_endAst *__node_313 = 0;
-            if (!parseType_arguments_or_parameters_end(&__node_313))
+            TypeArgumentsOrParametersEndAst *__node_313 = 0;
+            if (!parseTypeArgumentsOrParametersEnd(&__node_313))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Type_arguments_or_parameters_endKind, "type_arguments_or_parameters_end");
+                    expectedSymbol(AstNode::TypeArgumentsOrParametersEndKind, "typeArgumentsOrParametersEnd");
                 }
                 return false;
             }
@@ -12532,9 +12532,9 @@ bool Parser::parseType_arguments(Type_argumentsAst **yynode)
     return true;
 }
 
-bool Parser::parseType_arguments_or_parameters_end(Type_arguments_or_parameters_endAst **yynode)
+bool Parser::parseTypeArgumentsOrParametersEnd(TypeArgumentsOrParametersEndAst **yynode)
 {
-    *yynode = create<Type_arguments_or_parameters_endAst>();
+    *yynode = create<TypeArgumentsOrParametersEndAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -12599,9 +12599,9 @@ bool Parser::parseType_arguments_or_parameters_end(Type_arguments_or_parameters_
     return true;
 }
 
-bool Parser::parseType_declaration(Type_declarationAst **yynode)
+bool Parser::parseTypeDeclaration(TypeDeclarationAst **yynode)
 {
-    *yynode = create<Type_declarationAst>();
+    *yynode = create<TypeDeclarationAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -12622,7 +12622,7 @@ bool Parser::parseType_declaration(Type_declarationAst **yynode)
         || yytoken == Token_ABSTRACT
         || yytoken == Token_INTERFACE)
     {
-        Optional_modifiersAst *modifiers = 0;
+        OptionalModifiersAst *modifiers = 0;
 
         if (yytoken == Token_STATIC
             || yytoken == Token_PROTECTED
@@ -12640,12 +12640,12 @@ bool Parser::parseType_declaration(Type_declarationAst **yynode)
             || yytoken == Token_ABSTRACT
             || yytoken == Token_INTERFACE)
         {
-            Optional_modifiersAst *__node_314 = 0;
-            if (!parseOptional_modifiers(&__node_314))
+            OptionalModifiersAst *__node_314 = 0;
+            if (!parseOptionalModifiers(&__node_314))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Optional_modifiersKind, "optional_modifiers");
+                    expectedSymbol(AstNode::OptionalModifiersKind, "optionalModifiers");
                 }
                 return false;
             }
@@ -12653,58 +12653,58 @@ bool Parser::parseType_declaration(Type_declarationAst **yynode)
 
             if (yytoken == Token_CLASS)
             {
-                Class_declarationAst *__node_315 = 0;
-                if (!parseClass_declaration(&__node_315, modifiers))
+                ClassDeclarationAst *__node_315 = 0;
+                if (!parseClassDeclaration(&__node_315, modifiers))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Class_declarationKind, "class_declaration");
+                        expectedSymbol(AstNode::ClassDeclarationKind, "classDeclaration");
                     }
                     return false;
                 }
-                (*yynode)->class_declaration = __node_315;
+                (*yynode)->classDeclaration = __node_315;
 
             }
             else if (yytoken == Token_ENUM)
             {
-                Enum_declarationAst *__node_316 = 0;
-                if (!parseEnum_declaration(&__node_316, modifiers))
+                EnumDeclarationAst *__node_316 = 0;
+                if (!parseEnumDeclaration(&__node_316, modifiers))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Enum_declarationKind, "enum_declaration");
+                        expectedSymbol(AstNode::EnumDeclarationKind, "enumDeclaration");
                     }
                     return false;
                 }
-                (*yynode)->enum_declaration = __node_316;
+                (*yynode)->enumDeclaration = __node_316;
 
             }
             else if (yytoken == Token_INTERFACE)
             {
-                Interface_declarationAst *__node_317 = 0;
-                if (!parseInterface_declaration(&__node_317, modifiers))
+                InterfaceDeclarationAst *__node_317 = 0;
+                if (!parseInterfaceDeclaration(&__node_317, modifiers))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Interface_declarationKind, "interface_declaration");
+                        expectedSymbol(AstNode::InterfaceDeclarationKind, "interfaceDeclaration");
                     }
                     return false;
                 }
-                (*yynode)->interface_declaration = __node_317;
+                (*yynode)->interfaceDeclaration = __node_317;
 
             }
             else if (yytoken == Token_AT)
             {
-                Annotation_type_declarationAst *__node_318 = 0;
-                if (!parseAnnotation_type_declaration(&__node_318, modifiers))
+                AnnotationTypeDeclarationAst *__node_318 = 0;
+                if (!parseAnnotationTypeDeclaration(&__node_318, modifiers))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Annotation_type_declarationKind, "annotation_type_declaration");
+                        expectedSymbol(AstNode::AnnotationTypeDeclarationKind, "annotationTypeDeclaration");
                     }
                     return false;
                 }
-                (*yynode)->annotation_type_declaration = __node_318;
+                (*yynode)->annotationTypeDeclaration = __node_318;
 
             }
             else
@@ -12740,9 +12740,9 @@ bool Parser::parseType_declaration(Type_declarationAst **yynode)
     return true;
 }
 
-bool Parser::parseType_parameter(Type_parameterAst **yynode)
+bool Parser::parseTypeParameter(TypeParameterAst **yynode)
 {
-    *yynode = create<Type_parameterAst>();
+    *yynode = create<TypeParameterAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -12771,16 +12771,16 @@ bool Parser::parseType_parameter(Type_parameterAst **yynode)
             }
             yylex();
 
-            Class_or_interface_type_nameAst *__node_320 = 0;
-            if (!parseClass_or_interface_type_name(&__node_320))
+            ClassOrInterfaceTypeNameAst *__node_320 = 0;
+            if (!parseClassOrInterfaceTypeName(&__node_320))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Class_or_interface_type_nameKind, "class_or_interface_type_name");
+                    expectedSymbol(AstNode::ClassOrInterfaceTypeNameKind, "classOrInterfaceTypeName");
                 }
                 return false;
             }
-            (*yynode)->extends_typeSequence = snoc((*yynode)->extends_typeSequence, __node_320, memoryPool);
+            (*yynode)->extendsTypeSequence = snoc((*yynode)->extendsTypeSequence, __node_320, memoryPool);
 
             while (yytoken == Token_BIT_AND)
             {
@@ -12794,16 +12794,16 @@ bool Parser::parseType_parameter(Type_parameterAst **yynode)
                 }
                 yylex();
 
-                Class_or_interface_type_nameAst *__node_321 = 0;
-                if (!parseClass_or_interface_type_name(&__node_321))
+                ClassOrInterfaceTypeNameAst *__node_321 = 0;
+                if (!parseClassOrInterfaceTypeName(&__node_321))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Class_or_interface_type_nameKind, "class_or_interface_type_name");
+                        expectedSymbol(AstNode::ClassOrInterfaceTypeNameKind, "classOrInterfaceTypeName");
                     }
                     return false;
                 }
-                (*yynode)->extends_typeSequence = snoc((*yynode)->extends_typeSequence, __node_321, memoryPool);
+                (*yynode)->extendsTypeSequence = snoc((*yynode)->extendsTypeSequence, __node_321, memoryPool);
 
             }
         }
@@ -12825,9 +12825,9 @@ bool Parser::parseType_parameter(Type_parameterAst **yynode)
     return true;
 }
 
-bool Parser::parseType_parameters(Type_parametersAst **yynode)
+bool Parser::parseTypeParameters(TypeParametersAst **yynode)
 {
-    *yynode = create<Type_parametersAst>();
+    *yynode = create<TypeParametersAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -12845,16 +12845,16 @@ bool Parser::parseType_parameters(Type_parametersAst **yynode)
 
         int currentLtLevel = m_state.ltCounter;
         m_state.ltCounter++;
-        Type_parameterAst *__node_322 = 0;
-        if (!parseType_parameter(&__node_322))
+        TypeParameterAst *__node_322 = 0;
+        if (!parseTypeParameter(&__node_322))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Type_parameterKind, "type_parameter");
+                expectedSymbol(AstNode::TypeParameterKind, "typeParameter");
             }
             return false;
         }
-        (*yynode)->type_parameterSequence = snoc((*yynode)->type_parameterSequence, __node_322, memoryPool);
+        (*yynode)->typeParameterSequence = snoc((*yynode)->typeParameterSequence, __node_322, memoryPool);
 
         while (yytoken == Token_COMMA)
         {
@@ -12868,28 +12868,28 @@ bool Parser::parseType_parameters(Type_parametersAst **yynode)
             }
             yylex();
 
-            Type_parameterAst *__node_323 = 0;
-            if (!parseType_parameter(&__node_323))
+            TypeParameterAst *__node_323 = 0;
+            if (!parseTypeParameter(&__node_323))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Type_parameterKind, "type_parameter");
+                    expectedSymbol(AstNode::TypeParameterKind, "typeParameter");
                 }
                 return false;
             }
-            (*yynode)->type_parameterSequence = snoc((*yynode)->type_parameterSequence, __node_323, memoryPool);
+            (*yynode)->typeParameterSequence = snoc((*yynode)->typeParameterSequence, __node_323, memoryPool);
 
         }
         if (yytoken == Token_SIGNED_RSHIFT
             || yytoken == Token_GREATER_THAN
             || yytoken == Token_UNSIGNED_RSHIFT)
         {
-            Type_arguments_or_parameters_endAst *__node_324 = 0;
-            if (!parseType_arguments_or_parameters_end(&__node_324))
+            TypeArgumentsOrParametersEndAst *__node_324 = 0;
+            if (!parseTypeArgumentsOrParametersEnd(&__node_324))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Type_arguments_or_parameters_endKind, "type_arguments_or_parameters_end");
+                    expectedSymbol(AstNode::TypeArgumentsOrParametersEndKind, "typeArgumentsOrParametersEnd");
                 }
                 return false;
             }
@@ -12920,9 +12920,9 @@ bool Parser::parseType_parameters(Type_parametersAst **yynode)
     return true;
 }
 
-bool Parser::parseUnary_expression(Unary_expressionAst **yynode)
+bool Parser::parseUnaryExpression(UnaryExpressionAst **yynode)
 {
-    *yynode = create<Unary_expressionAst>();
+    *yynode = create<UnaryExpressionAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -12967,18 +12967,18 @@ bool Parser::parseUnary_expression(Unary_expressionAst **yynode)
             }
             yylex();
 
-            Unary_expressionAst *__node_325 = 0;
-            if (!parseUnary_expression(&__node_325))
+            UnaryExpressionAst *__node_325 = 0;
+            if (!parseUnaryExpression(&__node_325))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Unary_expressionKind, "unary_expression");
+                    expectedSymbol(AstNode::UnaryExpressionKind, "unaryExpression");
                 }
                 return false;
             }
-            (*yynode)->unary_expression = __node_325;
+            (*yynode)->unaryExpression = __node_325;
 
-            (*yynode)->rule_type = UnaryExpressionIncrement;
+            (*yynode)->ruleType = UnaryExpressionIncrement;
         }
         else if (yytoken == Token_DECREMENT)
         {
@@ -12992,18 +12992,18 @@ bool Parser::parseUnary_expression(Unary_expressionAst **yynode)
             }
             yylex();
 
-            Unary_expressionAst *__node_326 = 0;
-            if (!parseUnary_expression(&__node_326))
+            UnaryExpressionAst *__node_326 = 0;
+            if (!parseUnaryExpression(&__node_326))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Unary_expressionKind, "unary_expression");
+                    expectedSymbol(AstNode::UnaryExpressionKind, "unaryExpression");
                 }
                 return false;
             }
-            (*yynode)->unary_expression = __node_326;
+            (*yynode)->unaryExpression = __node_326;
 
-            (*yynode)->rule_type = UnaryExpressionDecrement;
+            (*yynode)->ruleType = UnaryExpressionDecrement;
         }
         else if (yytoken == Token_MINUS)
         {
@@ -13017,18 +13017,18 @@ bool Parser::parseUnary_expression(Unary_expressionAst **yynode)
             }
             yylex();
 
-            Unary_expressionAst *__node_327 = 0;
-            if (!parseUnary_expression(&__node_327))
+            UnaryExpressionAst *__node_327 = 0;
+            if (!parseUnaryExpression(&__node_327))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Unary_expressionKind, "unary_expression");
+                    expectedSymbol(AstNode::UnaryExpressionKind, "unaryExpression");
                 }
                 return false;
             }
-            (*yynode)->unary_expression = __node_327;
+            (*yynode)->unaryExpression = __node_327;
 
-            (*yynode)->rule_type = UnaryExpressionMinus;
+            (*yynode)->ruleType = UnaryExpressionMinus;
         }
         else if (yytoken == Token_PLUS)
         {
@@ -13042,18 +13042,18 @@ bool Parser::parseUnary_expression(Unary_expressionAst **yynode)
             }
             yylex();
 
-            Unary_expressionAst *__node_328 = 0;
-            if (!parseUnary_expression(&__node_328))
+            UnaryExpressionAst *__node_328 = 0;
+            if (!parseUnaryExpression(&__node_328))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Unary_expressionKind, "unary_expression");
+                    expectedSymbol(AstNode::UnaryExpressionKind, "unaryExpression");
                 }
                 return false;
             }
-            (*yynode)->unary_expression = __node_328;
+            (*yynode)->unaryExpression = __node_328;
 
-            (*yynode)->rule_type = UnaryExpressionPlus;
+            (*yynode)->ruleType = UnaryExpressionPlus;
         }
         else if (yytoken == Token_IDENTIFIER
                  || yytoken == Token_LONG
@@ -13080,18 +13080,18 @@ bool Parser::parseUnary_expression(Unary_expressionAst **yynode)
                  || yytoken == Token_TRUE
                  || yytoken == Token_LESS_THAN)
         {
-            Unary_expression_not_plusminusAst *__node_329 = 0;
-            if (!parseUnary_expression_not_plusminus(&__node_329))
+            UnaryExpressionNotPlusMinusAst *__node_329 = 0;
+            if (!parseUnaryExpressionNotPlusMinus(&__node_329))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Unary_expression_not_plusminusKind, "unary_expression_not_plusminus");
+                    expectedSymbol(AstNode::UnaryExpressionNotPlusMinusKind, "unaryExpressionNotPlusMinus");
                 }
                 return false;
             }
-            (*yynode)->unary_expression_not_plusminus = __node_329;
+            (*yynode)->unaryExpressionNotPlusMinus = __node_329;
 
-            (*yynode)->rule_type = UnaryExpressionNotPlusMinus;
+            (*yynode)->ruleType = UnaryExpressionNotPlusMinus;
         }
         else
         {
@@ -13108,9 +13108,9 @@ bool Parser::parseUnary_expression(Unary_expressionAst **yynode)
     return true;
 }
 
-bool Parser::parseUnary_expression_not_plusminus(Unary_expression_not_plusminusAst **yynode)
+bool Parser::parseUnaryExpressionNotPlusMinus(UnaryExpressionNotPlusMinusAst **yynode)
 {
-    *yynode = create<Unary_expression_not_plusminusAst>();
+    *yynode = create<UnaryExpressionNotPlusMinusAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -13151,18 +13151,18 @@ bool Parser::parseUnary_expression_not_plusminus(Unary_expression_not_plusminusA
             }
             yylex();
 
-            Unary_expressionAst *__node_330 = 0;
-            if (!parseUnary_expression(&__node_330))
+            UnaryExpressionAst *__node_330 = 0;
+            if (!parseUnaryExpression(&__node_330))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Unary_expressionKind, "unary_expression");
+                    expectedSymbol(AstNode::UnaryExpressionKind, "unaryExpression");
                 }
                 return false;
             }
-            (*yynode)->bitwise_not_expression = __node_330;
+            (*yynode)->bitwiseNotExpression = __node_330;
 
-            (*yynode)->rule_type = UnaryExpressionBitwiseNot;
+            (*yynode)->ruleType = UnaryExpressionBitwiseNot;
         }
         else if (yytoken == Token_BANG)
         {
@@ -13176,18 +13176,18 @@ bool Parser::parseUnary_expression_not_plusminus(Unary_expression_not_plusminusA
             }
             yylex();
 
-            Unary_expressionAst *__node_331 = 0;
-            if (!parseUnary_expression(&__node_331))
+            UnaryExpressionAst *__node_331 = 0;
+            if (!parseUnaryExpression(&__node_331))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Unary_expressionKind, "unary_expression");
+                    expectedSymbol(AstNode::UnaryExpressionKind, "unaryExpression");
                 }
                 return false;
             }
             (*yynode)->logical_not_expression = __node_331;
 
-            (*yynode)->rule_type = UnaryExpressionLogicalNot;
+            (*yynode)->ruleType = UnaryExpressionLogicalNot;
         }
         else if (yytoken == Token_IDENTIFIER
                  || yytoken == Token_LONG
@@ -13216,14 +13216,14 @@ bool Parser::parseUnary_expression_not_plusminus(Unary_expression_not_plusminusA
             qint64 try_startToken_22 = tokenStream->index() - 1;
             ParserState *try_startState_22 = copyCurrentState();
             {
-                Cast_expressionAst *__node_332 = 0;
-                if (!parseCast_expression(&__node_332))
+                CastExpressionAst *__node_332 = 0;
+                if (!parseCastExpression(&__node_332))
                 {
                     goto __catch_22;
                 }
-                (*yynode)->cast_expression = __node_332;
+                (*yynode)->castExpression = __node_332;
 
-                (*yynode)->rule_type = UnaryExpressionCast;
+                (*yynode)->ruleType = UnaryExpressionCast;
             }
             blockErrors(blockErrors_22);
             if (try_startState_22)
@@ -13240,33 +13240,33 @@ __catch_22:
                 blockErrors(blockErrors_22);
                 rewind(try_startToken_22);
 
-                Primary_expressionAst *__node_333 = 0;
-                if (!parsePrimary_expression(&__node_333))
+                PrimaryExpressionAst *__node_333 = 0;
+                if (!parsePrimaryExpression(&__node_333))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Primary_expressionKind, "primary_expression");
+                        expectedSymbol(AstNode::PrimaryExpressionKind, "primaryExpression");
                     }
                     return false;
                 }
-                (*yynode)->primary_expression = __node_333;
+                (*yynode)->primaryExpression = __node_333;
 
                 while (yytoken == Token_DECREMENT
                        || yytoken == Token_INCREMENT)
                 {
-                    Postfix_operatorAst *__node_334 = 0;
-                    if (!parsePostfix_operator(&__node_334))
+                    PostfixOperatorAst *__node_334 = 0;
+                    if (!parsePostfixOperator(&__node_334))
                     {
                         if (!mBlockErrors)
                         {
-                            expectedSymbol(AstNode::Postfix_operatorKind, "postfix_operator");
+                            expectedSymbol(AstNode::PostfixOperatorKind, "postfixOperator");
                         }
                         return false;
                     }
-                    (*yynode)->postfix_operatorSequence = snoc((*yynode)->postfix_operatorSequence, __node_334, memoryPool);
+                    (*yynode)->postfixOperatorSequence = snoc((*yynode)->postfixOperatorSequence, __node_334, memoryPool);
 
                 }
-                (*yynode)->rule_type = UnaryExpressionPrimary;
+                (*yynode)->ruleType = UnaryExpressionPrimary;
             }
 
         }
@@ -13285,9 +13285,9 @@ __catch_22:
     return true;
 }
 
-bool Parser::parseVariable_array_initializer(Variable_array_initializerAst **yynode)
+bool Parser::parseVariableArrayInitializer(VariableArrayInitializerAst **yynode)
 {
-    *yynode = create<Variable_array_initializerAst>();
+    *yynode = create<VariableArrayInitializerAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -13333,16 +13333,16 @@ bool Parser::parseVariable_array_initializer(Variable_array_initializerAst **yyn
             || yytoken == Token_TRUE
             || yytoken == Token_LBRACE)
         {
-            Variable_initializerAst *__node_335 = 0;
-            if (!parseVariable_initializer(&__node_335))
+            VariableInitializerAst *__node_335 = 0;
+            if (!parseVariableInitializer(&__node_335))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Variable_initializerKind, "variable_initializer");
+                    expectedSymbol(AstNode::VariableInitializerKind, "variableInitializer");
                 }
                 return false;
             }
-            (*yynode)->variable_initializerSequence = snoc((*yynode)->variable_initializerSequence, __node_335, memoryPool);
+            (*yynode)->variableInitializerSequence = snoc((*yynode)->variableInitializerSequence, __node_335, memoryPool);
 
             while (yytoken == Token_COMMA)
             {
@@ -13360,16 +13360,16 @@ bool Parser::parseVariable_array_initializer(Variable_array_initializerAst **yyn
                 {
                     break;
                 }
-                Variable_initializerAst *__node_336 = 0;
-                if (!parseVariable_initializer(&__node_336))
+                VariableInitializerAst *__node_336 = 0;
+                if (!parseVariableInitializer(&__node_336))
                 {
                     if (!mBlockErrors)
                     {
-                        expectedSymbol(AstNode::Variable_initializerKind, "variable_initializer");
+                        expectedSymbol(AstNode::VariableInitializerKind, "variableInitializer");
                     }
                     return false;
                 }
-                (*yynode)->variable_initializerSequence = snoc((*yynode)->variable_initializerSequence, __node_336, memoryPool);
+                (*yynode)->variableInitializerSequence = snoc((*yynode)->variableInitializerSequence, __node_336, memoryPool);
 
             }
         }
@@ -13401,9 +13401,9 @@ bool Parser::parseVariable_array_initializer(Variable_array_initializerAst **yyn
     return true;
 }
 
-bool Parser::parseVariable_declaration(Variable_declarationAst **yynode)
+bool Parser::parseVariableDeclaration(VariableDeclarationAst **yynode)
 {
-    *yynode = create<Variable_declarationAst>();
+    *yynode = create<VariableDeclarationAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -13430,18 +13430,18 @@ bool Parser::parseVariable_declaration(Variable_declarationAst **yynode)
         || yytoken == Token_SHORT
         || yytoken == Token_PROTECTED)
     {
-        Optional_modifiersAst *modifiers = 0;
+        OptionalModifiersAst *modifiers = 0;
 
         TypeAst *type = 0;
 
-        const KDevPG::ListNode<Variable_declaratorAst *> *variable_declaratorSequence = 0;
+        const KDevPG::ListNode<VariableDeclaratorAst *> *variableDeclaratorSequence = 0;
 
-        Optional_modifiersAst *__node_337 = 0;
-        if (!parseOptional_modifiers(&__node_337))
+        OptionalModifiersAst *__node_337 = 0;
+        if (!parseOptionalModifiers(&__node_337))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Optional_modifiersKind, "optional_modifiers");
+                expectedSymbol(AstNode::OptionalModifiersKind, "optionalModifiers");
             }
             return false;
         }
@@ -13458,16 +13458,16 @@ bool Parser::parseVariable_declaration(Variable_declarationAst **yynode)
         }
         type = __node_338;
 
-        Variable_declaratorAst *__node_339 = 0;
-        if (!parseVariable_declarator(&__node_339))
+        VariableDeclaratorAst *__node_339 = 0;
+        if (!parseVariableDeclarator(&__node_339))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Variable_declaratorKind, "variable_declarator");
+                expectedSymbol(AstNode::VariableDeclaratorKind, "variableDeclarator");
             }
             return false;
         }
-        variable_declaratorSequence = snoc(variable_declaratorSequence, __node_339, memoryPool);
+        variableDeclaratorSequence = snoc(variableDeclaratorSequence, __node_339, memoryPool);
 
         while (yytoken == Token_COMMA)
         {
@@ -13481,26 +13481,26 @@ bool Parser::parseVariable_declaration(Variable_declarationAst **yynode)
             }
             yylex();
 
-            Variable_declaratorAst *__node_340 = 0;
-            if (!parseVariable_declarator(&__node_340))
+            VariableDeclaratorAst *__node_340 = 0;
+            if (!parseVariableDeclarator(&__node_340))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Variable_declaratorKind, "variable_declarator");
+                    expectedSymbol(AstNode::VariableDeclaratorKind, "variableDeclarator");
                 }
                 return false;
             }
-            variable_declaratorSequence = snoc(variable_declaratorSequence, __node_340, memoryPool);
+            variableDeclaratorSequence = snoc(variableDeclaratorSequence, __node_340, memoryPool);
 
         }
-        Variable_declaration_dataAst *__node_341 = 0;
-        if (!parseVariable_declaration_data(&__node_341,
-                                            modifiers, type, variable_declaratorSequence
-                                           ))
+        VariableDeclarationDataAst *__node_341 = 0;
+        if (!parseVariableDeclarationData(&__node_341,
+                                          modifiers, type, variableDeclaratorSequence
+                                         ))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Variable_declaration_dataKind, "variable_declaration_data");
+                expectedSymbol(AstNode::VariableDeclarationDataKind, "variableDeclarationData");
             }
             return false;
         }
@@ -13517,9 +13517,9 @@ bool Parser::parseVariable_declaration(Variable_declarationAst **yynode)
     return true;
 }
 
-bool Parser::parseVariable_declaration_data(Variable_declaration_dataAst **yynode, Optional_modifiersAst *modifiers, TypeAst *type, const KDevPG::ListNode<Variable_declaratorAst *> *declaratorSequence)
+bool Parser::parseVariableDeclarationData(VariableDeclarationDataAst **yynode, OptionalModifiersAst *modifiers, TypeAst *type, const KDevPG::ListNode<VariableDeclaratorAst *> *declaratorSequence)
 {
-    *yynode = create<Variable_declaration_dataAst>();
+    *yynode = create<VariableDeclarationDataAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -13577,9 +13577,9 @@ bool Parser::parseVariable_declaration_data(Variable_declaration_dataAst **yynod
     return true;
 }
 
-bool Parser::parseVariable_declaration_rest(Variable_declaration_restAst **yynode)
+bool Parser::parseVariableDeclarationRest(VariableDeclarationRestAst **yynode)
 {
-    *yynode = create<Variable_declaration_restAst>();
+    *yynode = create<VariableDeclarationRestAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -13599,16 +13599,16 @@ bool Parser::parseVariable_declaration_rest(Variable_declaration_restAst **yynod
             }
             yylex();
 
-            Variable_initializerAst *__node_342 = 0;
-            if (!parseVariable_initializer(&__node_342))
+            VariableInitializerAst *__node_342 = 0;
+            if (!parseVariableInitializer(&__node_342))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Variable_initializerKind, "variable_initializer");
+                    expectedSymbol(AstNode::VariableInitializerKind, "variableInitializer");
                 }
                 return false;
             }
-            (*yynode)->first_initializer = __node_342;
+            (*yynode)->firstInitializer = __node_342;
 
         }
         else if (true /*epsilon*/)
@@ -13630,16 +13630,16 @@ bool Parser::parseVariable_declaration_rest(Variable_declaration_restAst **yynod
             }
             yylex();
 
-            Variable_declaratorAst *__node_343 = 0;
-            if (!parseVariable_declarator(&__node_343))
+            VariableDeclaratorAst *__node_343 = 0;
+            if (!parseVariableDeclarator(&__node_343))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Variable_declaratorKind, "variable_declarator");
+                    expectedSymbol(AstNode::VariableDeclaratorKind, "variableDeclarator");
                 }
                 return false;
             }
-            (*yynode)->variable_declaratorSequence = snoc((*yynode)->variable_declaratorSequence, __node_343, memoryPool);
+            (*yynode)->variableDeclaratorSequence = snoc((*yynode)->variableDeclaratorSequence, __node_343, memoryPool);
 
         }
     }
@@ -13653,34 +13653,30 @@ bool Parser::parseVariable_declaration_rest(Variable_declaration_restAst **yynod
     return true;
 }
 
-bool Parser::parseVariable_declaration_split_data(Variable_declaration_split_dataAst **yynode, Parameter_declarationAst *parameter_declaration, Variable_declaration_restAst *rest)
+bool Parser::parseVariableDeclarationSplitData(VariableDeclarationSplitDataAst **yynode, ParameterDeclarationAst *parameterDeclaration, VariableDeclarationRestAst *rest)
 {
-    *yynode = create<Variable_declaration_split_dataAst>();
+    *yynode = create<VariableDeclarationSplitDataAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
-    const KDevPG::ListNode<Variable_declaratorAst *> *declaratorSequence = 0;
+    const KDevPG::ListNode<VariableDeclaratorAst *> *declaratorSequence = 0;
 
     if (true /*epsilon*/ || yytoken == Token_EOF
         || yytoken == Token_SEMICOLON
         || yytoken == Token_LBRACE)
     {
 
-        Variable_declaratorAst* declarator = create<Variable_declaratorAst>();
-        declarator->variable_name       = parameter_declaration->variable_name;
-        declarator->declarator_brackets = parameter_declaration->declarator_brackets;
-
-        if (rest)
-            declarator->initializer         = rest->first_initializer;
-        else
-            declarator->initializer         = 0;
+        VariableDeclaratorAst* declarator = create<VariableDeclaratorAst>();
+        declarator->variableName       = parameterDeclaration->variableName;
+        declarator->declaratorBrackets = parameterDeclaration->declaratorBrackets;
+        declarator->initializer        = rest ? rest->firstInitializer : 0;
 
         declaratorSequence = snoc(declaratorSequence, declarator, memoryPool);
 
-        if (rest && rest->variable_declaratorSequence)
+        if (rest && rest->variableDeclaratorSequence)
         {
-            const KDevPG::ListNode<Variable_declaratorAst*> *__it
-            = rest->variable_declaratorSequence->front(), *__end = __it;
+            const KDevPG::ListNode<VariableDeclaratorAst*> *__it
+            = rest->variableDeclaratorSequence->front(), *__end = __it;
 
             do
             {
@@ -13689,15 +13685,15 @@ bool Parser::parseVariable_declaration_split_data(Variable_declaration_split_dat
             }
             while (__it != __end);
         }
-        Variable_declaration_dataAst *__node_344 = 0;
-        if (!parseVariable_declaration_data(&__node_344,
-                                            parameter_declaration->parameter_modifiers, parameter_declaration->type,
-                                            declaratorSequence
-                                           ))
+        VariableDeclarationDataAst *__node_344 = 0;
+        if (!parseVariableDeclarationData(&__node_344,
+                                          parameterDeclaration->parameterModifiers, parameterDeclaration->type,
+                                          declaratorSequence
+                                         ))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Variable_declaration_dataKind, "variable_declaration_data");
+                expectedSymbol(AstNode::VariableDeclarationDataKind, "variableDeclarationData");
             }
             return false;
         }
@@ -13716,9 +13712,9 @@ bool Parser::parseVariable_declaration_split_data(Variable_declaration_split_dat
     return true;
 }
 
-bool Parser::parseVariable_declaration_statement(Variable_declaration_statementAst **yynode)
+bool Parser::parseVariableDeclarationStatement(VariableDeclarationStatementAst **yynode)
 {
-    *yynode = create<Variable_declaration_statementAst>();
+    *yynode = create<VariableDeclarationStatementAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -13745,16 +13741,16 @@ bool Parser::parseVariable_declaration_statement(Variable_declaration_statementA
         || yytoken == Token_SHORT
         || yytoken == Token_PROTECTED)
     {
-        Variable_declarationAst *__node_345 = 0;
-        if (!parseVariable_declaration(&__node_345))
+        VariableDeclarationAst *__node_345 = 0;
+        if (!parseVariableDeclaration(&__node_345))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Variable_declarationKind, "variable_declaration");
+                expectedSymbol(AstNode::VariableDeclarationKind, "variableDeclaration");
             }
             return false;
         }
-        (*yynode)->variable_declaration = __node_345;
+        (*yynode)->variableDeclaration = __node_345;
 
         if (yytoken != Token_SEMICOLON)
         {
@@ -13777,9 +13773,9 @@ bool Parser::parseVariable_declaration_statement(Variable_declaration_statementA
     return true;
 }
 
-bool Parser::parseVariable_declarator(Variable_declaratorAst **yynode)
+bool Parser::parseVariableDeclarator(VariableDeclaratorAst **yynode)
 {
-    *yynode = create<Variable_declaratorAst>();
+    *yynode = create<VariableDeclaratorAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -13794,18 +13790,18 @@ bool Parser::parseVariable_declarator(Variable_declaratorAst **yynode)
             }
             return false;
         }
-        (*yynode)->variable_name = __node_346;
+        (*yynode)->variableName = __node_346;
 
-        Optional_declarator_bracketsAst *__node_347 = 0;
-        if (!parseOptional_declarator_brackets(&__node_347))
+        OptionalDeclaratorBracketsAst *__node_347 = 0;
+        if (!parseOptionalDeclaratorBrackets(&__node_347))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Optional_declarator_bracketsKind, "optional_declarator_brackets");
+                expectedSymbol(AstNode::OptionalDeclaratorBracketsKind, "optionalDeclaratorBrackets");
             }
             return false;
         }
-        (*yynode)->declarator_brackets = __node_347;
+        (*yynode)->declaratorBrackets = __node_347;
 
         if (yytoken == Token_ASSIGN)
         {
@@ -13819,12 +13815,12 @@ bool Parser::parseVariable_declarator(Variable_declaratorAst **yynode)
             }
             yylex();
 
-            Variable_initializerAst *__node_348 = 0;
-            if (!parseVariable_initializer(&__node_348))
+            VariableInitializerAst *__node_348 = 0;
+            if (!parseVariableInitializer(&__node_348))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Variable_initializerKind, "variable_initializer");
+                    expectedSymbol(AstNode::VariableInitializerKind, "variableInitializer");
                 }
                 return false;
             }
@@ -13849,9 +13845,9 @@ bool Parser::parseVariable_declarator(Variable_declaratorAst **yynode)
     return true;
 }
 
-bool Parser::parseVariable_initializer(Variable_initializerAst **yynode)
+bool Parser::parseVariableInitializer(VariableInitializerAst **yynode)
 {
-    *yynode = create<Variable_initializerAst>();
+    *yynode = create<VariableInitializerAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -13928,16 +13924,16 @@ bool Parser::parseVariable_initializer(Variable_initializerAst **yynode)
         }
         else if (yytoken == Token_LBRACE)
         {
-            Variable_array_initializerAst *__node_350 = 0;
-            if (!parseVariable_array_initializer(&__node_350))
+            VariableArrayInitializerAst *__node_350 = 0;
+            if (!parseVariableArrayInitializer(&__node_350))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Variable_array_initializerKind, "variable_array_initializer");
+                    expectedSymbol(AstNode::VariableArrayInitializerKind, "variableArrayInitializer");
                 }
                 return false;
             }
-            (*yynode)->array_initializer = __node_350;
+            (*yynode)->arrayInitializer = __node_350;
 
         }
         else
@@ -13955,9 +13951,9 @@ bool Parser::parseVariable_initializer(Variable_initializerAst **yynode)
     return true;
 }
 
-bool Parser::parseWhile_statement(While_statementAst **yynode)
+bool Parser::parseWhileStatement(WhileStatementAst **yynode)
 {
-    *yynode = create<While_statementAst>();
+    *yynode = create<WhileStatementAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -14004,12 +14000,12 @@ bool Parser::parseWhile_statement(While_statementAst **yynode)
         }
         yylex();
 
-        Embedded_statementAst *__node_352 = 0;
-        if (!parseEmbedded_statement(&__node_352))
+        EmbeddedStatementAst *__node_352 = 0;
+        if (!parseEmbeddedStatement(&__node_352))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Embedded_statementKind, "embedded_statement");
+                expectedSymbol(AstNode::EmbeddedStatementKind, "embeddedStatement");
             }
             return false;
         }
@@ -14026,9 +14022,9 @@ bool Parser::parseWhile_statement(While_statementAst **yynode)
     return true;
 }
 
-bool Parser::parseWildcard_type(Wildcard_typeAst **yynode)
+bool Parser::parseWildcardType(WildcardTypeAst **yynode)
 {
-    *yynode = create<Wildcard_typeAst>();
+    *yynode = create<WildcardTypeAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -14047,12 +14043,12 @@ bool Parser::parseWildcard_type(Wildcard_typeAst **yynode)
         if (yytoken == Token_EXTENDS
             || yytoken == Token_SUPER)
         {
-            Wildcard_type_boundsAst *__node_353 = 0;
-            if (!parseWildcard_type_bounds(&__node_353))
+            WildcardTypeBoundsAst *__node_353 = 0;
+            if (!parseWildcardTypeBounds(&__node_353))
             {
                 if (!mBlockErrors)
                 {
-                    expectedSymbol(AstNode::Wildcard_type_boundsKind, "wildcard_type_bounds");
+                    expectedSymbol(AstNode::WildcardTypeBoundsKind, "wildcardTypeBounds");
                 }
                 return false;
             }
@@ -14077,9 +14073,9 @@ bool Parser::parseWildcard_type(Wildcard_typeAst **yynode)
     return true;
 }
 
-bool Parser::parseWildcard_type_bounds(Wildcard_type_boundsAst **yynode)
+bool Parser::parseWildcardTypeBounds(WildcardTypeBoundsAst **yynode)
 {
-    *yynode = create<Wildcard_type_boundsAst>();
+    *yynode = create<WildcardTypeBoundsAst>();
 
     (*yynode)->startToken = tokenStream->index() - 1;
 
@@ -14098,7 +14094,7 @@ bool Parser::parseWildcard_type_bounds(Wildcard_type_boundsAst **yynode)
             }
             yylex();
 
-            (*yynode)->extends_or_super = WildcardTypeExtends;
+            (*yynode)->extendsOrSuper = WildcardTypeExtends;
         }
         else if (yytoken == Token_SUPER)
         {
@@ -14112,18 +14108,18 @@ bool Parser::parseWildcard_type_bounds(Wildcard_type_boundsAst **yynode)
             }
             yylex();
 
-            (*yynode)->extends_or_super = WildcardTypeSuper;
+            (*yynode)->extendsOrSuper = WildcardTypeSuper;
         }
         else
         {
             return false;
         }
-        Class_typeAst *__node_354 = 0;
-        if (!parseClass_type(&__node_354))
+        ClassTypeAst *__node_354 = 0;
+        if (!parseClassType(&__node_354))
         {
             if (!mBlockErrors)
             {
-                expectedSymbol(AstNode::Class_typeKind, "class_type");
+                expectedSymbol(AstNode::ClassTypeKind, "classType");
             }
             return false;
         }

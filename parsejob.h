@@ -60,7 +60,7 @@ protected:
 
 private:
     ParseSession *m_session;
-    Compilation_unitAst *m_AST;
+    CompilationUnitAst *m_AST;
     bool m_readFromDisk;
 };
 

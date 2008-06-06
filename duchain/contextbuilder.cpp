@@ -400,15 +400,15 @@ bool ContextBuilder::smart() const {
   return m_editor->smart();
 }
 
-void ContextBuilder::visitClass_declaration(Class_declarationAst * node)
+void ContextBuilder::visitClassDeclaration(ClassDeclarationAst * node)
 {
   visitNode(node->modifiers);
-  visitNode(node->type_parameters);
+  visitNode(node->typeParameters);
   visitNode(node->extends);
   visitNode(node->implements);
 
-  //visitNode(node->class_name);
-  QualifiedIdentifier id = identifierForName(node->class_name);
+  //visitNode(node->className);
+  QualifiedIdentifier id = identifierForName(node->className);
 
   if (node->body) {
     DUContext* classContext = openContext(node->body, DUContext::Class, id);
@@ -419,17 +419,17 @@ void ContextBuilder::visitClass_declaration(Class_declarationAst * node)
   }
 }
 
-void ContextBuilder::visitMethod_declaration(Method_declarationAst * node)
+void ContextBuilder::visitMethodDeclaration(MethodDeclarationAst * node)
 {
   visitNode(node->modifiers);
-  visitNode(node->type_parameters);
+  visitNode(node->typeParameters);
 
   // Called by type builder
-  //visitNode(node->return_type);
+  //visitNode(node->returnType);
 
   // Called below
-  //visitNode(node->method_name);
-  QualifiedIdentifier id = identifierForName(node->method_name);
+  //visitNode(node->methodName);
+  QualifiedIdentifier id = identifierForName(node->methodName);
 
   DUContext* parameters = 0;
   if (node->parameters) {
@@ -438,8 +438,8 @@ void ContextBuilder::visitMethod_declaration(Method_declarationAst * node)
     closeContext();
   }
 
-  visitNode(node->declarator_brackets);
-  visitNode(node->throws_clause);
+  visitNode(node->declaratorBrackets);
+  visitNode(node->throwsClause);
 
   DUContext* body = openContext(node->body, DUContext::Function, id);
   if (parameters) {
@@ -452,27 +452,27 @@ void ContextBuilder::visitMethod_declaration(Method_declarationAst * node)
   closeContext();
 }
 
-void ContextBuilder::visitFor_statement(For_statementAst *node)
+void ContextBuilder::visitForStatement(ForStatementAst *node)
 {
   DUContext* control = 0;
-  if (node->for_control) {
-    control = openContext(node->for_control, DUContext::Other);
-    visitNode(node->for_control);
+  if (node->forControl) {
+    control = openContext(node->forControl, DUContext::Other);
+    visitNode(node->forControl);
     closeContext();
   }
 
-  if (node->for_body) {
-    DUContext* body = openContext(node->for_body, DUContext::Other);
+  if (node->forBody) {
+    DUContext* body = openContext(node->forBody, DUContext::Other);
     if (control) {
       DUChainWriteLocker lock(DUChain::lock());
       body->addImportedParentContext(control);
     }
-    visitNode(node->for_body);
+    visitNode(node->forBody);
     closeContext();
   }
 }
 
-void ContextBuilder::visitIf_statement(If_statementAst * node)
+void ContextBuilder::visitIfStatement(IfStatementAst * node)
 {
   DUContext* condition = 0;
   if (node->condition) {
@@ -481,38 +481,38 @@ void ContextBuilder::visitIf_statement(If_statementAst * node)
     closeContext();
   }
 
-  if (node->if_body) {
-    DUContext* body = openContext(node->if_body, DUContext::Other);
+  if (node->ifBody) {
+    DUContext* body = openContext(node->ifBody, DUContext::Other);
 
     if (condition) {
       DUChainWriteLocker lock(DUChain::lock());
       body->addImportedParentContext(condition);
     }
 
-    visitNode(node->if_body);
+    visitNode(node->ifBody);
     closeContext();
   }
 
-  if (node->else_body) {
-    DUContext* body = openContext(node->else_body, DUContext::Other);
+  if (node->elseBody) {
+    DUContext* body = openContext(node->elseBody, DUContext::Other);
 
     if (condition) {
       DUChainWriteLocker lock(DUChain::lock());
       body->addImportedParentContext(condition);
     }
 
-    visitNode(node->else_body);
+    visitNode(node->elseBody);
     closeContext();
   }
 }
 
-void java::ContextBuilder::visitConstructor_declaration(Constructor_declarationAst * node)
+void java::ContextBuilder::visitConstructorDeclaration(ConstructorDeclarationAst * node)
 {
   visitNode(node->modifiers);
-  visitNode(node->type_parameters);
+  visitNode(node->typeParameters);
 
-  //visitNode(node->class_name);
-  QualifiedIdentifier id = identifierForName(node->class_name);
+  //visitNode(node->className);
+  QualifiedIdentifier id = identifierForName(node->className);
 
   DUContext* parameters = 0;
   if (node->parameters) {
@@ -521,7 +521,7 @@ void java::ContextBuilder::visitConstructor_declaration(Constructor_declarationA
     closeContext();
   }
 
-  visitNode(node->throws_clause);
+  visitNode(node->throwsClause);
 
   if (node->body) {
     DUContext* body = openContext(node->body, DUContext::Class, id);
@@ -534,14 +534,14 @@ void java::ContextBuilder::visitConstructor_declaration(Constructor_declarationA
   }
 }
 
-void java::ContextBuilder::visitInterface_declaration(Interface_declarationAst * node)
+void java::ContextBuilder::visitInterfaceDeclaration(InterfaceDeclarationAst * node)
 {
   visitNode(node->modifiers);
 
-  //visitNode(node->interface_name);
-  QualifiedIdentifier id = identifierForName(node->interface_name);
+  //visitNode(node->interfaceName);
+  QualifiedIdentifier id = identifierForName(node->interfaceName);
 
-  visitNode(node->type_parameters);
+  visitNode(node->typeParameters);
   visitNode(node->extends);
 
   if (node->body) {

@@ -29,45 +29,44 @@
 
 
 -- 7 first/follow conflicts:
---  - The AT conflict in compilation_unit
---    (namely: package_declaration vs. type_declaration).
---    Needs LL(k), solved by lookahead_is_package_declaration().
---    (2 conflicts, which is actually only one)
---  - The DOT conflict in class_or_interface_type_name:
---    Caused by the may-end-with-epsilon type_arguments. It doesn't apply
+--  - The AT conflict in compilationUnit
+--    (namely: packageDeclaration vs. typeDeclaration).
+--    (manually solved, 2 conflicts - which is actually only one)
+--  - The DOT conflict in classOrInterfaceTypeName:
+--    Caused by the may-end-with-epsilon typeArguments. It doesn't apply
 --    at all, only kdevelop-pg thinks it does. Code segments...
 --    (done right by default, 1 conflict)
---  - The LBRACKET conflict in optional_declarator_brackets:
+--  - The LBRACKET conflict in optionalDeclaratorBrackets:
 --    No idea where it stems from, but I think it should be ok.
 --    (done right by default, 1 conflict)
---  - The COMMA conflict in type_arguments:
+--  - The COMMA conflict in typeArguments:
 --    the approach for catching ">" signs works this way, and the conflict
 --    is resolved by the trailing condition at the end of the rule.
 --    (manually resolved, 1 conflict)
---  - The LBRACKET conflict in array_creator_rest.
+--  - The LBRACKET conflict in arrayCreatorRest.
 --    (manually resolved, 1 conflict)
---  - The AT conflict in optional_modifiers.
+--  - The AT conflict in optionalModifiers.
 --    (manually resolved, 1 conflict)
 
 -- 12 first/first conflicts:
---  - The IDENTIFIER conflict in annotation_arguments
+--  - The IDENTIFIER conflict in annotationArguments
 --    (manually resolved, 1 conflict)
 --  - The IDENTIFIER conflicts in *_field,
 --    between the method name and variable name
 --    (manually resolved, 4 conflicts)
---  - The IDENTIFIER conflict in class_field
+--  - The IDENTIFIER conflict in classField
 --    (manually resolved, 1 conflict)
---  - The STATIC conflict in class_field
+--  - The STATIC conflict in classField
 --    (manually resolved, 1 conflict)
---  - The SYNCHRONIZED conflict in block_statement.
+--  - The SYNCHRONIZED conflict in blockStatement.
 --    (manually resolved, 1 conflict)
---  - The IDENTIFIER conflict (labels) in embedded_statement
+--  - The IDENTIFIER conflict (labels) in embeddedStatement
 --    (manually resolved, 1 conflict)
---  - The IDENTIFIER conflicts in primary_selector and super_suffix.
+--  - The IDENTIFIER conflicts in primarySelector and superSuffix.
 --    Could be written without conflict, but done on purpose to tell methods
 --    (with possible type arguments) and variables (without those) apart.
 --    (manually resolved, 2 identical conflicts)
---  - The LBRACKET conflict in array_creator_rest.
+--  - The LBRACKET conflict in arrayCreatorRest.
 --    This is by design and works as expected.
 --    (manually resolved, 1 conflict)
 
@@ -327,51 +326,51 @@ class DUContext;
 
 
    0 [: m_state.ltCounter = 0; :]
-   -- There is a conflict between package_declaration and type_declaration
+   -- There is a conflict between packageDeclaration and typeDeclaration
    -- (both can start with annotations) which requires arbitrary-length LL(k).
    -- The following construct uses backtracking with try/rollback to work
    -- around this issue.
-   try/rollback(package_declaration=package_declaration) catch(0)
-   try/recover(#import_declaration=import_declaration)*
-   try/recover(#type_declaration=type_declaration)*
--> compilation_unit ;;
+   try/rollback(packageDeclaration=packageDeclaration) catch(0)
+   try/recover(#importDeclaration=importDeclaration)*
+   try/recover(#typeDeclaration=typeDeclaration)*
+-> compilationUnit ;;
 
 
 
 -- A PACKAGE DECLARATION: optional annotations followed by "package",
 --                        then the package identifier.
 -- 1 first/first conflict, because annotation as well as "| 0"
--- inside of compilation_unit may both be 0. The ANTLR grammar
--- checks on ?[:annotations "package":] to do a package_declaration.
+-- inside of compilationUnit may both be 0. The ANTLR grammar
+-- checks on ?[:annotations "package":] to do a packageDeclaration.
 
    try/recover(#annotation=annotation)*
-   PACKAGE package_name=qualified_identifier SEMICOLON
--> package_declaration ;;
+   PACKAGE packageName=qualifiedIdentifier SEMICOLON
+-> packageDeclaration ;;
 
 
 -- An IMPORT DECLARATION is "import" followed by a package or type (=class) name.
 
    IMPORT
-   (  STATIC [: (*yynode)->static_import = true;  :]
-    | 0      [: (*yynode)->static_import = false; :]
+   (  STATIC [: (*yynode)->staticImport = true;  :]
+    | 0      [: (*yynode)->staticImport = false; :]
    )
-   identifier_name=qualified_identifier_with_optional_star SEMICOLON
--> import_declaration [
-     member variable static_import: bool;
+   identifierName=qualifiedIdentifierWithOptionalStar SEMICOLON
+-> importDeclaration [
+     member variable staticImport: bool;
 ] ;;
 
 
 -- A TYPE DECLARATION is either a class, interface, enum or annotation.
 
-   (  modifiers:optional_modifiers
-      (  class_declaration=class_declaration[modifiers]
-       | enum_declaration=enum_declaration[modifiers]
-       | interface_declaration=interface_declaration[modifiers]
-       | annotation_type_declaration=annotation_type_declaration[modifiers]
+   (  modifiers:optionalModifiers
+      (  classDeclaration=classDeclaration[modifiers]
+       | enumDeclaration=enumDeclaration[modifiers]
+       | interfaceDeclaration=interfaceDeclaration[modifiers]
+       | annotationTypeDeclaration=annotationTypeDeclaration[modifiers]
       )
     | SEMICOLON
    )
--> type_declaration ;;
+-> typeDeclaration ;;
 
 
 
@@ -380,148 +379,148 @@ class DUContext;
 -- or @Info("Jakob"), or just @Info, and are attached to a method,
 -- class, or package. @Info is equivalent to @Info().
 
-   AT type_name=qualified_identifier
-   (  LPAREN (args=annotation_arguments | 0) RPAREN
-        [: (*yynode)->has_parentheses = true; :]
-    | 0 [: (*yynode)->has_parentheses = false; :]
+   AT typeName=qualifiedIdentifier
+   (  LPAREN (args=annotationArguments | 0) RPAREN
+        [: (*yynode)->hasParentheses = true; :]
+    | 0 [: (*yynode)->hasParentheses = false; :]
    )
 -> annotation [
-     member variable has_parentheses: bool;
+     member variable hasParentheses: bool;
 ] ;;
 
  ( ( ?[: LA(2).kind == Token_ASSIGN :]
-     #value_pair=annotation_element_value_pair @ COMMA
+     #valuePair=annotationElementValuePair @ COMMA
    )
- | element_value=annotation_element_value  -- element_name is "value" here
+ | elementValue=annotationElementValue  -- elementName is "value" here
  )
--> annotation_arguments ;;
+-> annotationArguments ;;
 
-   element_name=identifier ASSIGN element_value=annotation_element_value
--> annotation_element_value_pair ;;
+   elementName=identifier ASSIGN elementValue=annotationElementValue
+-> annotationElementValuePair ;;
 
-   cond_expression=conditional_expression
+   conditionalExpression=conditionalExpression
  | annotation=annotation
- | element_array_initializer=annotation_element_array_initializer
--> annotation_element_value ;;
+ | elementArrayInitializer=annotationElementArrayInitializer
+-> annotationElementValue ;;
 
--- Same as annotation_element_value, but array_initializer is excluded.
+-- Same as annotationElementValue, but elementArrayInitializer is excluded.
 -- That's because nested annotation array initialisers are not valid.
 -- (The Java specification hides that in a short "discussion" area.)
 
-   cond_expression=conditional_expression
+   conditionalExpression=conditionalExpression
  | annotation=annotation
--> annotation_element_array_value ;;
+-> annotationElementArrayValue ;;
 
    LBRACE
-   (  #element_value=annotation_element_array_value
+   (  #elementValue=annotationElementArrayValue
       ( COMMA [: if (yytoken == Token_RBRACE) { break; } :]
-        #element_value=annotation_element_array_value
+        #elementValue=annotationElementArrayValue
       )*
     | 0
    )
    RBRACE
--> annotation_element_array_initializer ;;
+-> annotationElementArrayInitializer ;;
 
 
 
 
 -- Definition of a Java CLASS
 
-   CLASS class_name=identifier
+   CLASS className=identifier
    (  ?[: compatibilityMode() >= Java15Compatibility :]
-      type_parameters=type_parameters
+      typeParameters=typeParameters
     | 0
    )  -- in Java 1.5 or higher, it might have type parameters
-   (extends=class_extends_clause     | 0)  -- it might have a super class
-   (implements=implements_clause     | 0)  -- it might implement some interfaces
-   body=class_body
--> class_declaration [
-     argument member node modifiers: optional_modifiers;
+   (extends=classExtendsClause  | 0)  -- it might have a super class
+   (implements=implementsClause | 0)  -- it might implement some interfaces
+   body=classBody
+-> classDeclaration [
+     argument member node modifiers: optionalModifiers;
 ] ;;
 
 
 -- Definition of a Java INTERFACE
 
-   INTERFACE interface_name=identifier
+   INTERFACE interfaceName=identifier
    (  ?[: compatibilityMode() >= Java15Compatibility :]
-      type_parameters=type_parameters
+      typeParameters=typeParameters
     | 0
    )  -- in Java 1.5 or higher, it might have type parameters
-   (extends=interface_extends_clause | 0)  -- it might extend other interfaces
-   body=interface_body
--> interface_declaration [
-     argument member node modifiers: optional_modifiers;
+   (extends=interfaceExtendsClause | 0)  -- it might extend other interfaces
+   body=interfaceBody
+-> interfaceDeclaration [
+     argument member node modifiers: optionalModifiers;
 ] ;;
 
 
 -- Definition of ENUMERATIONs and ANNOTATION TYPEs
 
-   ENUM enum_name=identifier
-   (implements=implements_clause     | 0)  -- it might implement some interfaces
-   body=enum_body
--> enum_declaration [
-     argument member node modifiers: optional_modifiers;
+   ENUM enumName=identifier
+   (implements=implementsClause     | 0)  -- it might implement some interfaces
+   body=enumBody
+-> enumDeclaration [
+     argument member node modifiers: optionalModifiers;
 ] ;;
 
-   AT INTERFACE annotation_type_name=identifier
-   body=annotation_type_body
--> annotation_type_declaration [
-     argument member node modifiers: optional_modifiers;
+   AT INTERFACE annotationTypeName=identifier
+   body=annotationTypeBody
+-> annotationTypeDeclaration [
+     argument member node modifiers: optionalModifiers;
 ] ;;
 
 
 
 -- BODIES of classes, interfaces, annotation types and enums.
 
-   LBRACE try/recover(#declaration=class_field)* RBRACE
--> class_body ;;
+   LBRACE try/recover(#declaration=classField)* RBRACE
+-> classBody ;;
 
-   LBRACE try/recover(#declaration=interface_field)* RBRACE
--> interface_body ;;
+   LBRACE try/recover(#declaration=interfaceField)* RBRACE
+-> interfaceBody ;;
 
-   LBRACE try/recover(#annotation_type_field=annotation_type_field)* RBRACE
--> annotation_type_body ;;
+   LBRACE try/recover(#annotationTypeField=annotationTypeField)* RBRACE
+-> annotationTypeBody ;;
 
 -- In an enum body, you can have zero or more enum constants
 -- followed by any number of fields like a regular class.
 
    LBRACE
-   ( try/recover(#enum_constant=enum_constant)
+   ( try/recover(#enumConstant=enumConstant)
      ( COMMA [: if ( yytoken == Token_RBRACE || yytoken == Token_SEMICOLON )
                   { break; } :] -- if the list is over, then exit the loop
-       try/recover(#enum_constant=enum_constant)
+       try/recover(#enumConstant=enumConstant)
      )*
    | 0
    )
-   ( SEMICOLON try/recover(#class_field=class_field)* | 0 )
+   ( SEMICOLON try/recover(#classField=classField)* | 0 )
    RBRACE
--> enum_body ;;
+-> enumBody ;;
 
 -- An enum constant may have optional parameters and may have a class body
 
    try/recover(#annotation=annotation)* identifier=identifier
-   ( LPAREN arguments=optional_argument_list RPAREN | 0 )
-   ( body=enum_constant_body | 0 )
--> enum_constant ;;
+   ( LPAREN arguments=optionalArgumentList RPAREN | 0 )
+   ( body=enumConstantBody | 0 )
+-> enumConstant ;;
 
-   LBRACE try/recover(#declaration=enum_constant_field)* RBRACE
--> enum_constant_body ;;
+   LBRACE try/recover(#declaration=enumConstantField)* RBRACE
+-> enumConstantBody ;;
 
 
 
 -- Short CLAUSES used in various declarations
 
-   EXTENDS type=class_or_interface_type_name
--> class_extends_clause ;;
+   EXTENDS type=classOrInterfaceTypeName
+-> classExtendsClause ;;
 
-   EXTENDS #type=class_or_interface_type_name @ COMMA
--> interface_extends_clause ;;
+   EXTENDS #type=classOrInterfaceTypeName @ COMMA
+-> interfaceExtendsClause ;;
 
-   IMPLEMENTS #type=class_or_interface_type_name @ COMMA
--> implements_clause ;;
+   IMPLEMENTS #type=classOrInterfaceTypeName @ COMMA
+-> implementsClause ;;
 
-   THROWS #identifier=qualified_identifier @ COMMA
--> throws_clause ;;
+   THROWS #identifier=qualifiedIdentifier @ COMMA
+-> throwsClause ;;
 
 
 
@@ -534,28 +533,28 @@ class DUContext;
 -- and the grammar appendix. I chose the one from the body,
 -- which is the same that the ANTLR grammar also uses.
 
- ( modifiers:optional_modifiers
-   (  class_declaration=class_declaration[modifiers]
-    | enum_declaration=enum_declaration[modifiers]
-    | interface_declaration=interface_declaration[modifiers]
-    | annotation_type_declaration=annotation_type_declaration[modifiers]
+ ( modifiers:optionalModifiers
+   (  classDeclaration=classDeclaration[modifiers]
+    | enumDeclaration=enumDeclaration[modifiers]
+    | interfaceDeclaration=interfaceDeclaration[modifiers]
+    | annotationTypeDeclaration=annotationTypeDeclaration[modifiers]
     |
       type:type
       (                      -- annotation method without arguments:
          ?[: LA(2).kind == Token_LPAREN :] -- resolves the identifier conflict
                                       -- between method name and variable name
-         method_declaration=annotation_method_declaration[ modifiers, type ]
+         methodDeclaration=annotationMethodDeclaration[ modifiers, type ]
        |                     -- or a ConstantDeclaration:
-         #variable_declarator:variable_declarator @ COMMA
+         #variableDeclarator:variableDeclarator @ COMMA
          SEMICOLON
-         constant_declaration=variable_declaration_data[
-           modifiers, type, variable_declaratorSequence
+         constantDeclaration=variableDeclarationData[
+           modifiers, type, variableDeclaratorSequence
          ]
       )
    )
  | SEMICOLON
  )
--> annotation_type_field ;;
+-> annotationTypeField ;;
 
 
 -- A CLASS FIELD, representing the various things
@@ -563,23 +562,23 @@ class DUContext;
 
  ( ?[: !(yytoken == Token_STATIC && LA(2).kind == Token_LBRACE) :]
     -- resolves the 'static' conflict, see further down
-   modifiers:optional_modifiers
-   (  class_declaration=class_declaration[modifiers]
-    | enum_declaration=enum_declaration[modifiers]
-    | interface_declaration=interface_declaration[modifiers]
-    | annotation_type_declaration=annotation_type_declaration[modifiers]
+   modifiers:optionalModifiers
+   (  classDeclaration=classDeclaration[modifiers]
+    | enumDeclaration=enumDeclaration[modifiers]
+    | interfaceDeclaration=interfaceDeclaration[modifiers]
+    | annotationTypeDeclaration=annotationTypeDeclaration[modifiers]
     |
-      -- A generic method/ctor has the type_parameters before the return type.
+      -- A generic method/ctor has the typeParameters before the return type.
       -- This is not allowed for variable definitions, which is checked later.
       (  ?[: compatibilityMode() >= Java15Compatibility :]
-         type_parameters:type_parameters
+         typeParameters:typeParameters
        | 0
       )
       (  -- constructor declaration (without prepended type specification)
          ?[: LA(2).kind == Token_LPAREN :]
          -- resolves the identifier conflict with type
-         constructor_declaration=constructor_declaration[
-            modifiers, type_parameters
+         constructorDeclaration=constructorDeclaration[
+            modifiers, typeParameters
          ]
        |
          -- method or variable declaration
@@ -587,15 +586,15 @@ class DUContext;
          (
             ?[: LA(2).kind == Token_LPAREN :] -- resolves the identifier
                           -- conflict between method name and variable name
-            method_declaration=method_declaration[
-              modifiers, type_parameters, type
+            methodDeclaration=methodDeclaration[
+              modifiers, typeParameters, type
             ]
           |
-            ?[: type_parameters == 0 :]
-            #variable_declarator:variable_declarator @ COMMA
+            ?[: typeParameters == 0 :]
+            #variableDeclarator:variableDeclarator @ COMMA
             SEMICOLON
-            variable_declaration=variable_declaration_data[
-              modifiers, type, variable_declaratorSequence
+            variableDeclaration=variableDeclarationData[
+              modifiers, type, variableDeclaratorSequence
             ]
           |
             0 [: reportProblem( Error,
@@ -606,47 +605,47 @@ class DUContext;
       )
    )
  |
-   instance_initializer_block=block  -- "{...}" instance initializer
+   instanceInitializerBlock=block  -- "{...}" instance initializer
  |
    -- The static class initializer block ("static {...}") has a conflict with
    -- the modifiers from above, which can also be static. A block must always
    -- start with "{", so when encountering static, this can be used to resolve
    -- this conflict. (Lookahead done at the top of the rule.)
-   STATIC static_initializer_block=block
+   STATIC staticInitializerBlock=block
  |
    SEMICOLON
  )
--> class_field ;;
+-> classField ;;
 
 
 -- An ENUM CONSTANT FIELD is just like a class field but without
 -- the possibility of a constructor definition or a static initializer.
 
- ( modifiers:optional_modifiers
-   (  class_declaration=class_declaration[modifiers]
-    | enum_declaration=enum_declaration[modifiers]
-    | interface_declaration=interface_declaration[modifiers]
-    | annotation_type_declaration=annotation_type_declaration[modifiers]
+ ( modifiers:optionalModifiers
+   (  classDeclaration=classDeclaration[modifiers]
+    | enumDeclaration=enumDeclaration[modifiers]
+    | interfaceDeclaration=interfaceDeclaration[modifiers]
+    | annotationTypeDeclaration=annotationTypeDeclaration[modifiers]
     |
-      -- A generic method has the type_parameters before the return type.
+      -- A generic method has the typeParameters before the return type.
       -- This is not allowed for variable definitions, which is checked later.
       (  ?[: compatibilityMode() >= Java15Compatibility :]
-         type_parameters:type_parameters
+         typeParameters:typeParameters
        | 0
       )
       type:type
       (
          ?[: LA(2).kind == Token_LPAREN :] -- resolves the identifier conflict
                                       -- between method name and variable name
-         method_declaration=method_declaration[
-           modifiers, type_parameters, type
+         methodDeclaration=methodDeclaration[
+           modifiers, typeParameters, type
          ]
        |
-         ?[: type_parameters == 0 :]
-         #variable_declarator:variable_declarator @ COMMA
+         ?[: typeParameters == 0 :]
+         #variableDeclarator:variableDeclarator @ COMMA
          SEMICOLON
-         variable_declaration=variable_declaration_data[
-           modifiers, type, variable_declaratorSequence
+         variableDeclaration=variableDeclarationData[
+           modifiers, type, variableDeclaratorSequence
          ]
        |
          0 [: reportProblem( Error,
@@ -655,41 +654,41 @@ class DUContext;
          SEMICOLON -- not really needed, but avoids conflict warnings
       )
    )
- | instance_initializer_block=block  -- "{...}" instance initializer
+ | instanceInitializerBlock=block  -- "{...}" instance initializer
  | SEMICOLON
  )
--> enum_constant_field ;;
+-> enumConstantField ;;
 
 
 -- An INTERFACE FIELD is the same as an enum constant field but without
 -- the possibility of any initializers or method blocks.
 
- ( modifiers:optional_modifiers
-   (  class_declaration=class_declaration[modifiers]
-    | enum_declaration=enum_declaration[modifiers]
-    | interface_declaration=interface_declaration[modifiers]
-    | annotation_type_declaration=annotation_type_declaration[modifiers]
+ ( modifiers:optionalModifiers
+   (  classDeclaration=classDeclaration[modifiers]
+    | enumDeclaration=enumDeclaration[modifiers]
+    | interfaceDeclaration=interfaceDeclaration[modifiers]
+    | annotationTypeDeclaration=annotationTypeDeclaration[modifiers]
     |
-      -- A generic method has the type_parameters before the return type.
+      -- A generic method has the typeParameters before the return type.
       -- This is not allowed for variable definitions, which is checked later.
-      0 [: bool has_type_parameters = false; :]
+      0 [: bool hasTypeParameters = false; :]
       (  ?[: compatibilityMode() >= Java15Compatibility :]
-         type_parameters:type_parameters [: has_type_parameters = true; :]
+         typeParameters:typeParameters [: hasTypeParameters = true; :]
        | 0
       )
       type:type
       (
          ?[: LA(2).kind == Token_LPAREN :] -- resolves the identifier conflict
                                       -- between method name and variable name
-         interface_method_declaration=interface_method_declaration[
-           modifiers, type_parameters, type
+         interfaceMethodDeclaration=interfaceMethodDeclaration[
+           modifiers, typeParameters, type
          ]
        |
-         ?[: type_parameters == 0 :]
-         #variable_declarator:variable_declarator @ COMMA
+         ?[: typeParameters == 0 :]
+         #variableDeclarator:variableDeclarator @ COMMA
          SEMICOLON
-         variable_declaration=variable_declaration_data[
-           modifiers, type, variable_declaratorSequence
+         variableDeclaration=variableDeclarationData[
+           modifiers, type, variableDeclaratorSequence
          ]
        |
          0 [: reportProblem( Error,
@@ -700,52 +699,52 @@ class DUContext;
    )
  | SEMICOLON
  )
--> interface_field ;;
+-> interfaceField ;;
 
 
-   annotation_name=identifier
+   annotationName=identifier
    LPAREN RPAREN
-   -- declarator_brackets=optional_declarator_brackets -- ANTLR grammar's bug:
+   -- declaratorBrackets=optionalDeclaratorBrackets -- ANTLR grammar's bug:
    -- It's not in the Java Spec, and obviously has been copied
    -- from classField even if it doesn't belong here.
-   (DEFAULT annotation_element_value=annotation_element_value | 0)
+   (DEFAULT annotationElementValue=annotationElementValue | 0)
    SEMICOLON
--> annotation_method_declaration [
-     argument member node modifiers:           optional_modifiers;
-     argument member node return_type:         type;
+-> annotationMethodDeclaration [
+     argument member node modifiers:       optionalModifiers;
+     argument member node returnType:      type;
 ] ;;
 
-   class_name=identifier
-   LPAREN parameters=optional_parameter_declaration_list RPAREN
-   (throws_clause=throws_clause | 0)
+   className=identifier
+   LPAREN parameters=optionalParameterDeclarationList RPAREN
+   (throwsClause=throwsClause | 0)
    body=block
    -- leaving out explicit this(...) and super(...) invocations,
    -- these are just normal statements for this grammar
--> constructor_declaration [
-     argument member node modifiers:           optional_modifiers;
-     argument member node type_parameters:     type_parameters;
+-> constructorDeclaration [
+     argument member node modifiers:       optionalModifiers;
+     argument member node typeParameters:  typeParameters;
 ] ;;
 
-   method_name=identifier
-   LPAREN parameters=optional_parameter_declaration_list RPAREN
-   declarator_brackets=optional_declarator_brackets
-   (throws_clause=throws_clause | 0)
+   methodName=identifier
+   LPAREN parameters=optionalParameterDeclarationList RPAREN
+   declaratorBrackets=optionalDeclaratorBrackets
+   (throwsClause=throwsClause | 0)
    (body=block | SEMICOLON)  -- semicolons are used for abstract methods
--> method_declaration [
-     argument member node modifiers:           optional_modifiers;
-     argument member node type_parameters:     type_parameters;
-     argument member node return_type:         type;
+-> methodDeclaration [
+     argument member node modifiers:       optionalModifiers;
+     argument member node typeParameters:  typeParameters;
+     argument member node returnType:      type;
 ] ;;
 
-   method_name=identifier
-   LPAREN parameters=optional_parameter_declaration_list RPAREN
-   declarator_brackets=optional_declarator_brackets
-   (throws_clause=throws_clause | 0)
+   methodName=identifier
+   LPAREN parameters=optionalParameterDeclarationList RPAREN
+   declaratorBrackets=optionalDeclaratorBrackets
+   (throwsClause=throwsClause | 0)
    SEMICOLON
--> interface_method_declaration [
-     argument member node modifiers:           optional_modifiers;
-     argument member node type_parameters:     type_parameters;
-     argument member node return_type:         type;
+-> interfaceMethodDeclaration [
+     argument member node modifiers:       optionalModifiers;
+     argument member node typeParameters:  typeParameters;
+     argument member node returnType:      type;
 ] ;;
 
 
@@ -759,50 +758,50 @@ class DUContext;
 -- zero or more parameters, optionally ending with a variable-length parameter.
 -- It's not as hackish as it used to be, nevertheless it could still be nicer.
 
-   0 [: bool ellipsis_occurred = false; :]
+   0 [: bool ellipsisOccurred = false; :]
    (
-      #parameter_declaration=parameter_declaration_ellipsis[&ellipsis_occurred]
-      @ ( 0 [: if( ellipsis_occurred == true ) { break; } :]
-            -- Don't proceed after the ellipsis. If there's a cleaner way
-            -- to exit the loop when ellipsis_occurred == true,
-            -- please use that instead of this construct (see below).
+      #parameterDeclaration=parameterDeclarationEllipsis[&ellipsisOccurred]
+      @ ( 0 [: if( ellipsisOccurred == true ) { break; } :]
+            -- Don't proceed after the ellipsis. If you find a cleaner way
+            -- to exit the loop when ellipsisOccurred == true,
+            -- please use that one instead of this construct (see below).
           COMMA
         )
     |
       0
    )
--> optional_parameter_declaration_list ;;
+-> optionalParameterDeclarationList ;;
 
 -- How it _should_ look:
 --
---    0 [: bool ellipsis_occurred = false; :]
+--    0 [: bool ellipsisOccurred = false; :]
 --    (
---       #parameter_declaration=parameter_declaration_ellipsis[&ellipsis_occurred]
---       @ ( ?[: ellipsis_occurred == false :] COMMA )
+--       #parameterDeclaration=parameterDeclarationEllipsis[&ellipsisOccurred]
+--       @ ( ?[: ellipsisOccurred == false :] COMMA )
 --           -- kdev-pg dismisses this condition!
 --     |
 --       0
 --    )
--- -> optional_parameter_declaration_list ;;
+-- -> optionalParameterDeclarationList ;;
 
-   parameter_modifiers=optional_parameter_modifiers
+   parameterModifiers=optionalParameterModifiers
    type=type
-   (  ELLIPSIS [: (*yynode)->has_ellipsis = true; *ellipsis_occurred = true; :]
-    | 0        [: (*yynode)->has_ellipsis = false; :]
+   (  ELLIPSIS [: (*yynode)->hasEllipsis = true; *ellipsisOccurred = true; :]
+    | 0        [: (*yynode)->hasEllipsis = false; :]
    )
-   variable_name=identifier
-   declarator_brackets=optional_declarator_brackets
--> parameter_declaration_ellipsis [
-     member variable has_ellipsis: bool;
-     argument temporary variable ellipsis_occurred: bool*;
+   variableName=identifier
+   declaratorBrackets=optionalDeclaratorBrackets
+-> parameterDeclarationEllipsis [
+     member variable hasEllipsis:                  bool;
+     argument temporary variable ellipsisOccurred: bool*;
 ] ;;
 
-   0 [: (*yynode)->has_mod_final = false; :]
-   (  FINAL [: (*yynode)->has_mod_final = true; :]
-    | try/recover(#mod_annotation=annotation)
+   0 [: (*yynode)->hasModifierFinal = false; :]
+   (  FINAL [: (*yynode)->hasModifierFinal = true; :]
+    | try/recover(#modifierAnnotation=annotation)
    )*
--> optional_parameter_modifiers [
-     member variable has_mod_final: bool;
+-> optionalParameterModifiers [
+     member variable hasModifierFinal: bool;
 ] ;;
 
 
@@ -811,32 +810,32 @@ class DUContext;
 -- (not for declaring them, that's what parameter declaration lists are for).
 
    try/recover(#expression=expression @ COMMA) | 0
--> optional_argument_list ;;
+-> optionalArgumentList ;;
 
 
 
 -- The body of a CONSTRUCTOR METHOD is the same as a normal block, except that
 -- it's possible to have a constructor call like this(...) or super(...)
 -- at the beginning of the block. This causes a conflict which is difficult
--- to resolve, so class_field uses block instead of constructor_body.
+-- to resolve, so classField uses block instead of constructorBody.
 --
 --    LBRACE
---    ( try/recover(explicit_constructor_invocation=explicit_constructor_invocation)
+--    ( try/recover(explicitConstructorInvocation=explicitConstructorInvocation)
 --    | 0
 --    )
---    try/recover(#statement=embedded_statement)*
+--    try/recover(#statement=embeddedStatement)*
 --    RBRACE
--- -> constructor_body ;;
+-- -> constructorBody ;;
 --
 -- -- Catches obvious constructor calls, but not the expr.super(...) calls:
 --
 --    (  ?[: compatibilityMode() >= Java15Compatibility :]
---       type_arguments=type_arguments
+--       typeArguments=typeArguments
 --     | 0
 --    )
---    (invocated_constructor=THIS | invocated_constructor=SUPER)
---    LPAREN arguments=argument_list RPAREN SEMICOLON
--- -> explicit_constructor_invocation ;;
+--    (invocatedConstructor=THIS | invocatedConstructor=SUPER)
+--    LPAREN arguments=argumentList RPAREN SEMICOLON
+-- -> explicitConstructorInvocation ;;
 
 
 
@@ -849,13 +848,13 @@ class DUContext;
 -- determine the generic types allowed as type argument.
 
    LESS_THAN [: int currentLtLevel = m_state.ltCounter; m_state.ltCounter++; :]
-   #type_parameter=type_parameter @ COMMA
+   #typeParameter=typeParameter @ COMMA
    (
-      type_arguments_or_parameters_end
-    | 0  -- they can also be changed by type_parameter or type_argument
+      typeArgumentsOrParametersEnd
+    | 0  -- they can also be changed by typeParameter or typeArgument
    )
    -- make sure we have gobbled up enough '>' characters
-   -- if we are at the "top level" of nested type_parameters productions
+   -- if we are at the "top level" of nested typeParameters productions
    [: if (currentLtLevel == 0 && m_state.ltCounter != currentLtLevel ) {
         if (!mBlockErrors) {
           reportProblem(Error, "The amount of closing ``>'' characters is incorrect");
@@ -863,28 +862,28 @@ class DUContext;
         return false;
       }
    :]
--> type_parameters ;;
+-> typeParameters ;;
 
    identifier=identifier
-   (EXTENDS (#extends_type=class_or_interface_type_name @ BIT_AND) | 0)
--> type_parameter ;;
+   (EXTENDS (#extendsType=classOrInterfaceTypeName @ BIT_AND) | 0)
+-> typeParameter ;;
 
 
 -- TYPE ARGUMENTS are used in initializers, invocations, etc. to
 -- specify the exact types for this generic class/method instance.
 
    LESS_THAN [: int currentLtLevel = m_state.ltCounter; m_state.ltCounter++; :]
-   #type_argument=type_argument
+   #typeArgument=typeArgument
    ( -- only proceed when we are at the right nesting level:
      0 [: if( m_state.ltCounter != currentLtLevel + 1 ) { break; } :]
-     COMMA #type_argument=type_argument
+     COMMA #typeArgument=typeArgument
    )*
    (
-      type_arguments_or_parameters_end
-    | 0  -- they can also be changed by type_parameter or type_argument
+      typeArgumentsOrParametersEnd
+    | 0  -- they can also be changed by typeParameter or typeArgument
    )
    -- make sure we have gobbled up enough '>' characters
-   -- if we are at the "top level" of nested type_arguments productions
+   -- if we are at the "top level" of nested typeArguments productions
    [: if (currentLtLevel == 0 && m_state.ltCounter != currentLtLevel ) {
         if (!mBlockErrors) {
           reportProblem(Error, "The amount of closing ``>'' characters is incorrect");
@@ -892,20 +891,20 @@ class DUContext;
         return false;
       }
    :]
--> type_arguments ;;
+-> typeArguments ;;
 
    LESS_THAN [: int currentLtLevel = m_state.ltCounter; m_state.ltCounter++; :]
-   #type_argument_type=type_argument_type
+   #typeArgumentType=typeArgumentType
    ( -- only proceed when we are at the right nesting level:
      0 [: if( m_state.ltCounter != currentLtLevel + 1 ) { break; } :]
-     COMMA #type_argument_type=type_argument_type
+     COMMA #typeArgumentType=typeArgumentType
    )*
    (
-      type_arguments_or_parameters_end
-    | 0  -- they can also be changed by type_parameter or type_argument
+      typeArgumentsOrParametersEnd
+    | 0  -- they can also be changed by typeParameter or typeArgument
    )
    -- make sure we have gobbled up enough '>' characters
-   -- if we are at the "top level" of nested type_arguments productions
+   -- if we are at the "top level" of nested typeArguments productions
    [: if (currentLtLevel == 0 && m_state.ltCounter != currentLtLevel ) {
         if (!mBlockErrors) {
           reportProblem(Error, "The amount of closing ``>'' characters is incorrect");
@@ -913,35 +912,35 @@ class DUContext;
         return false;
       }
    :]
--> non_wildcard_type_arguments ;;
+-> nonWildcardTypeArguments ;;
 
-   type_argument_type=type_argument_type
- | wildcard_type=wildcard_type
--> type_argument ;;
+   typeArgumentType=typeArgumentType
+ | wildcardType=wildcardType
+-> typeArgument ;;
 
 -- Any type specification except primitive types is allowed as type argument.
 -- Arrays of primitive types are allowed nonetheless.
 
-   class_type=class_type
- | mandatory_array_builtin_type=mandatory_array_builtin_type
--> type_argument_type ;;
+   classType=classType
+ | mandatoryArrayBuiltInType=mandatoryArrayBuiltInType
+-> typeArgumentType ;;
 
-   QUESTION (bounds=wildcard_type_bounds | 0)
--> wildcard_type ;;
+   QUESTION (bounds=wildcardTypeBounds | 0)
+-> wildcardType ;;
 
-   (  EXTENDS [: (*yynode)->extends_or_super = WildcardTypeExtends; :]
-    | SUPER   [: (*yynode)->extends_or_super = WildcardTypeSuper;   :]
+   (  EXTENDS [: (*yynode)->extendsOrSuper = WildcardTypeExtends; :]
+    | SUPER   [: (*yynode)->extendsOrSuper = WildcardTypeSuper;   :]
    )
-   type=class_type
--> wildcard_type_bounds [
-     member variable extends_or_super: WildcardTypeBoundsEnum;
+   type=classType
+-> wildcardTypeBounds [
+     member variable extendsOrSuper: WildcardTypeBoundsEnum;
 ] ;;
 
 
    GREATER_THAN    [: m_state.ltCounter -= 1; :]  -- ">"
  | SIGNED_RSHIFT   [: m_state.ltCounter -= 2; :]  -- ">>"
  | UNSIGNED_RSHIFT [: m_state.ltCounter -= 3; :]  -- ">>>"
--> type_arguments_or_parameters_end ;;
+-> typeArgumentsOrParametersEnd ;;
 
 
 
@@ -956,7 +955,7 @@ class DUContext;
 --  - As a completely independent braced block of code inside a method,
 --    starting a new scope for variable definitions
 
-   LBRACE try/recover(#statement=block_statement)* RBRACE
+   LBRACE try/recover(#statement=blockStatement)* RBRACE
 -> block ;;
 
 -- A BLOCK STATEMENT is either an embedded statement, a variable declaration
@@ -965,25 +964,25 @@ class DUContext;
    -- Variable declarations, as well as expression statements, can start with
    -- class1<xxx>.bla or similar. This is only solvable with LL(k), so we need
    -- backtracking in form of the try/rollback() construct.
-   try/rollback(variable_declaration_statement=variable_declaration_statement)
+   try/rollback(variableDeclarationStatement=variableDeclarationStatement)
    catch(
       -- resolves the SYNCHRONIZED conflict between
-      -- synchronized_statement and modifier:
+      -- synchronizedStatement and modifier:
       ?[: (yytoken != Token_SYNCHRONIZED) ||
           (yytoken == Token_SYNCHRONIZED && LA(2).kind == Token_LPAREN)
         :]
-      statement=embedded_statement
+      statement=embeddedStatement
     |
       -- Inside a block, our four "complex types" can be declared
       -- (enums, nested classes and the likes...):
-      modifiers:optional_modifiers
-      (  class_declaration=class_declaration[modifiers]
-        | enum_declaration=enum_declaration[modifiers]
-        | interface_declaration=interface_declaration[modifiers]
-        | annotation_type_declaration=annotation_type_declaration[modifiers]
+      modifiers:optionalModifiers
+      (  classDeclaration=classDeclaration[modifiers]
+        | enumDeclaration=enumDeclaration[modifiers]
+        | interfaceDeclaration=interfaceDeclaration[modifiers]
+        | annotationTypeDeclaration=annotationTypeDeclaration[modifiers]
       )
    )
--> block_statement ;;
+-> blockStatement ;;
 
 
 
@@ -991,80 +990,76 @@ class DUContext;
 -- TODO: the modifiers need to be checked (after parsing) if they contain
 --       only the allowed modifiers, which is FINAL and annotations.
 
-   variable_declaration=variable_declaration SEMICOLON
--> variable_declaration_statement ;;
+   variableDeclaration=variableDeclaration SEMICOLON
+-> variableDeclarationStatement ;;
 
-   modifiers:optional_modifiers type:type
-   #variable_declarator:variable_declarator @ COMMA
-   data=variable_declaration_data[
-     modifiers, type, variable_declaratorSequence
+   modifiers:optionalModifiers type:type
+   #variableDeclarator:variableDeclarator @ COMMA
+   data=variableDeclarationData[
+     modifiers, type, variableDeclaratorSequence
    ]
--> variable_declaration ;;
+-> variableDeclaration ;;
 
    0
--> variable_declaration_data [
-     argument member node modifiers:   optional_modifiers;
+-> variableDeclarationData [
+     argument member node modifiers:   optionalModifiers;
      argument member node type:        type;
-     argument member node #declarator: variable_declarator;
+     argument member node #declarator: variableDeclarator;
 ] ;;
 
-   ( ASSIGN first_initializer=variable_initializer | 0 )
-   ( COMMA #variable_declarator=variable_declarator )*
--> variable_declaration_rest ;;
+   ( ASSIGN firstInitializer=variableInitializer | 0 )
+   ( COMMA #variableDeclarator=variableDeclarator )*
+-> variableDeclarationRest ;;
 
--- A VARIABLE DECLARATOR, as used in a variable_declaration or *_field
+-- A VARIABLE DECLARATOR, as used in a variableDeclaration or *Field
 
-   variable_name=identifier
-   declarator_brackets=optional_declarator_brackets
-   ( ASSIGN initializer=variable_initializer | 0 )
--> variable_declarator ;;
+   variableName=identifier
+   declaratorBrackets=optionalDeclaratorBrackets
+   ( ASSIGN initializer=variableInitializer | 0 )
+-> variableDeclarator ;;
 
-   ( expression=expression | array_initializer=variable_array_initializer )
--> variable_initializer ;;
+   ( expression=expression | arrayInitializer=variableArrayInitializer )
+-> variableInitializer ;;
 
    LBRACE
-   (  ( #variable_initializer=variable_initializer
+   (  ( #variableInitializer=variableInitializer
         ( COMMA [: if (yytoken == Token_RBRACE) { break; } :]
-          #variable_initializer=variable_initializer
+          #variableInitializer=variableInitializer
         )*
       )
     | 0
    )
    RBRACE
--> variable_array_initializer ;;
+-> variableArrayInitializer ;;
 
 
--- This PARAMETER DECLARATION rule is not used in optional_parameter_declaration_list,
--- and lacks the ellipsis possibility & handling. It's used in catch_clause
--- and in for_control.
+-- This PARAMETER DECLARATION rule is not used in optionalParameterDeclarationList,
+-- and lacks the ellipsis possibility & handling. It's used in catchClause
+-- and in forControl.
 
-   parameter_modifiers=optional_modifiers
+   parameterModifiers=optionalModifiers
    type=type
-   variable_name=identifier
-   declarator_brackets=optional_declarator_brackets
--> parameter_declaration ;;
+   variableName=identifier
+   declaratorBrackets=optionalDeclaratorBrackets
+-> parameterDeclaration ;;
 
 
 -- This rule, admittedly, runs deep into implementation details.
 -- But anyways, it helps transforming the ugly representation of variable
--- declarations in for_control and catch_clause to the standard format. Unity!
+-- declarations in forControl and catchClause to the standard format. Unity!
 
    0 [:
-     Variable_declaratorAst* declarator = create<Variable_declaratorAst>();
-     declarator->variable_name       = parameter_declaration->variable_name;
-     declarator->declarator_brackets = parameter_declaration->declarator_brackets;
-
-     if (rest)
-       declarator->initializer         = rest->first_initializer;
-     else
-       declarator->initializer         = 0;
+     VariableDeclaratorAst* declarator = create<VariableDeclaratorAst>();
+     declarator->variableName       = parameterDeclaration->variableName;
+     declarator->declaratorBrackets = parameterDeclaration->declaratorBrackets;
+     declarator->initializer        = rest ? rest->firstInitializer : 0;
 
      declaratorSequence = snoc(declaratorSequence, declarator, memoryPool);
 
-     if (rest && rest->variable_declaratorSequence)
+     if (rest && rest->variableDeclaratorSequence)
        {
-         const KDevPG::ListNode<Variable_declaratorAst*> *__it
-           = rest->variable_declaratorSequence->front(), *__end = __it;
+         const KDevPG::ListNode<VariableDeclaratorAst*> *__it
+           = rest->variableDeclaratorSequence->front(), *__end = __it;
 
          do {
              declaratorSequence = snoc(declaratorSequence, __it->element, memoryPool);
@@ -1072,14 +1067,14 @@ class DUContext;
          } while (__it != __end);
        }
    :]
-   data=variable_declaration_data[
-     parameter_declaration->parameter_modifiers, parameter_declaration->type,
+   data=variableDeclarationData[
+     parameterDeclaration->parameterModifiers, parameterDeclaration->type,
      declaratorSequence
    ]
--> variable_declaration_split_data [
-     argument temporary node parameter_declaration: parameter_declaration;
-     argument temporary node rest:                  variable_declaration_rest;
-     temporary node #declarator:                    variable_declarator;
+-> variableDeclarationSplitData [
+     argument temporary node parameterDeclaration: parameterDeclaration;
+     argument temporary node rest:                 variableDeclarationRest;
+     temporary node #declarator:                   variableDeclarator;
 ] ;;
 
 
@@ -1089,153 +1084,153 @@ class DUContext;
 -- even if delegating most of the work to its children.
 
  (
-   block=block  -- more block_statements within {} braces
- | assert_statement=assert_statement
- | if_statement=if_statement
- | for_statement=for_statement
- | while_statement=while_statement
- | do_while_statement=do_while_statement
- | try_statement=try_statement
- | switch_statement=switch_statement
- | synchronized_statement=synchronized_statement
- | return_statement=return_statement
- | throw_statement=throw_statement
- | break_statement=break_statement
- | continue_statement=continue_statement
+   block=block  -- more blockStatements within {} braces
+ | assertStatement=assertStatement
+ | ifStatement=ifStatement
+ | forStatement=forStatement
+ | whileStatement=whileStatement
+ | doWhileStatement=doWhileStatement
+ | tryStatement=tryStatement
+ | switchStatement=switchStatement
+ | synchronizedStatement=synchronizedStatement
+ | returnStatement=returnStatement
+ | throwStatement=throwStatement
+ | breakStatement=breakStatement
+ | continueStatement=continueStatement
  | SEMICOLON
  |
    ?[: LA(2).kind == Token_COLON :]
-   labeled_statement=labeled_statement
+   labeledStatement=labeledStatement
  |
    -- method call, assignment, etc.:
-   expression_statement=statement_expression SEMICOLON
+   expressionStatement=statementExpression SEMICOLON
  )
--> embedded_statement ;;
+-> embeddedStatement ;;
 
 
 -- Simple one-rule statements:
 
    ASSERT condition=expression
    (COLON message=expression | 0) SEMICOLON
--> assert_statement ;;
+-> assertStatement ;;
 
-   IF LPAREN condition=expression RPAREN if_body=embedded_statement
-   (ELSE else_body=embedded_statement | 0)
+   IF LPAREN condition=expression RPAREN ifBody=embeddedStatement
+   (ELSE elseBody=embeddedStatement | 0)
      -- the traditional "dangling-else" conflict:
      -- kdevelop-pg generates proper code here, matching as soon as possible.
--> if_statement ;;
+-> ifStatement ;;
 
-   WHILE LPAREN condition=expression RPAREN body=embedded_statement
--> while_statement ;;
+   WHILE LPAREN condition=expression RPAREN body=embeddedStatement
+-> whileStatement ;;
 
-   DO body=embedded_statement
+   DO body=embeddedStatement
    WHILE LPAREN condition=expression RPAREN SEMICOLON
--> do_while_statement ;;
+-> doWhileStatement ;;
 
-   SYNCHRONIZED LPAREN locked_type=expression RPAREN
-   synchronized_body=block
--> synchronized_statement ;;
+   SYNCHRONIZED LPAREN lockedType=expression RPAREN
+   synchronizedBody=block
+-> synchronizedStatement ;;
 
-   RETURN (return_expression=expression | 0) SEMICOLON
--> return_statement ;;
+   RETURN (returnExpression=expression | 0) SEMICOLON
+-> returnStatement ;;
 
    THROW exception=expression SEMICOLON
--> throw_statement ;;
+-> throwStatement ;;
 
    BREAK (label=identifier | 0) SEMICOLON
--> break_statement ;;
+-> breakStatement ;;
 
    CONTINUE (label=identifier | 0) SEMICOLON
--> continue_statement ;;
+-> continueStatement ;;
 
-   label=identifier COLON statement=embedded_statement
--> labeled_statement ;;
+   label=identifier COLON statement=embeddedStatement
+-> labeledStatement ;;
 
 
 -- The TRY STATEMENT, also known as try/catch/finally block.
 
-   TRY try_body=block
-   (  (#catch_clause=catch_clause)+ (FINALLY finally_body=block | 0)
-    | FINALLY finally_body=block
+   TRY tryBody=block
+   (  (#catchClause=catchClause)+ (FINALLY finallyBody=block | 0)
+    | FINALLY finallyBody=block
    )
--> try_statement ;;
+-> tryStatement ;;
 
-   CATCH LPAREN exception_parameter:parameter_declaration RPAREN
-   exception_declaration=variable_declaration_split_data[exception_parameter, 0]
+   CATCH LPAREN exceptionParameter:parameterDeclaration RPAREN
+   exceptionDeclaration=variableDeclarationSplitData[exceptionParameter, 0]
    body=block
--> catch_clause ;;
+-> catchClause ;;
 
 
 -- The SWITCH STATEMENT, consisting of a header and multiple
 -- "case x:" or "default:" switch statement groups.
 
-   SWITCH LPAREN switch_expression=expression RPAREN
-   LBRACE try/recover(#switch_section=switch_section)* RBRACE
--> switch_statement ;;
+   SWITCH LPAREN switchExpression=expression RPAREN
+   LBRACE try/recover(#switchSection=switchSection)* RBRACE
+-> switchStatement ;;
 
-   (#label=switch_label)+
-   try/recover(#statement=block_statement)*
--> switch_section ;;
+   (#label=switchLabel)+
+   try/recover(#statement=blockStatement)*
+-> switchSection ;;
 
-   (  CASE case_expression=expression
-      [: (*yynode)->branch_type = BranchCase;    :]
+   (  CASE caseExpression=expression
+      [: (*yynode)->branchType = BranchCase;    :]
     | DEFAULT
-      [: (*yynode)->branch_type = BranchDefault; :]
+      [: (*yynode)->branchType = BranchDefault; :]
    ) COLON
--> switch_label [
-     member variable branch_type: BranchTypeEnum;
+-> switchLabel [
+     member variable branchType: BranchTypeEnum;
 ] ;;
 
 
 
--- The FOR STATEMENT, including its problematic child for_control.
+-- The FOR STATEMENT, including its problematic child forControl.
 
-   FOR LPAREN for_control=for_control RPAREN for_body=embedded_statement
--> for_statement ;;
+   FOR LPAREN forControl=forControl RPAREN forBody=embeddedStatement
+-> forStatement ;;
 
 -- The FOR CONTROL is the three statements inside the for(...) parentheses,
 -- or the alternative foreach specifier. It has the same problematic conflict
--- between parameter_declaration and expression that block_statement also has
+-- between parameterDeclaration and expression that blockStatement also has
 -- and which is only solvable with arbitrary-length LL(k) and therefore needs
 -- backtracking with try/rollback.
 
  (
    try/rollback(
-     vardecl_start_or_foreach_parameter:parameter_declaration  -- "int i"
+     variableDeclarationStartOrForeachParameter:parameterDeclaration  -- "int i"
      (
          -- foreach: int i : intList.values()
          ?[: compatibilityMode() >= Java15Compatibility :]
-         COLON iterable_expression:expression
-         foreach_declaration=foreach_declaration_data[
-           vardecl_start_or_foreach_parameter, iterable_expression
+         COLON iterableExpression:expression
+         foreachDeclaration=foreachDeclarationData[
+           variableDeclarationStartOrForeachParameter, iterableExpression
          ]
        |
          -- traditional: int i = 0; i < size; i++
-         variable_declaration_rest:variable_declaration_rest  -- "= 0"
-         variable_declaration=variable_declaration_split_data[
-           vardecl_start_or_foreach_parameter, variable_declaration_rest
+         variableDeclarationRest:variableDeclarationRest  -- "= 0"
+         variableDeclaration=variableDeclarationSplitData[
+           variableDeclarationStartOrForeachParameter, variableDeclarationRest
          ]
-         traditional_for_rest=for_clause_traditional_rest  -- "; i < size; i++"
+         traditionalForRest=forClauseTraditionalRest     -- "; i < size; i++"
      )
    )
    catch(
-     #statement_expression=statement_expression @ COMMA
-     traditional_for_rest=for_clause_traditional_rest
+     #statementExpression=statementExpression @ COMMA
+     traditionalForRest=forClauseTraditionalRest
    )
  |
-   traditional_for_rest=for_clause_traditional_rest  -- only starting with ";"
+   traditionalForRest=forClauseTraditionalRest  -- only starting with ";"
  )
--> for_control ;;
+-> forControl ;;
 
    SEMICOLON
-   (for_condition=expression | 0) SEMICOLON                   -- "i < size;"
-   (#for_update_expression=statement_expression @ COMMA | 0)  -- "i++"
--> for_clause_traditional_rest ;;
+   (forCondition=expression | 0) SEMICOLON                 -- "i < size;"
+   (#forUpdateExpression=statementExpression @ COMMA | 0)  -- "i++"
+-> forClauseTraditionalRest ;;
 
    0
--> foreach_declaration_data [
-     argument member node foreach_parameter:   parameter_declaration;
-     argument member node iterable_expression: expression;
+-> foreachDeclarationData [
+     argument member node foreachParameter:   parameterDeclaration;
+     argument member node iterableExpression: expression;
 ] ;;
 
 
@@ -1273,204 +1268,204 @@ class DUContext;
 -- but it's just not feasible for LL(k) parsers to filter them out.
 
    expression=expression
--> statement_expression ;;
+-> statementExpression ;;
 
 
 -- So this is the actual EXPRESSION, also known as assignment expression.
 
-   conditional_expression=conditional_expression
+   conditionalExpression=conditionalExpression
    (
       (  ASSIGN
-           [: (*yynode)->assignment_operator = AssignmentOperatorPlain;          :]
+           [: (*yynode)->assignmentOperator = AssignmentOperatorPlain;          :]
        | PLUS_ASSIGN
-           [: (*yynode)->assignment_operator = AssignmentOperatorPlus;           :]
+           [: (*yynode)->assignmentOperator = AssignmentOperatorPlus;           :]
        | MINUS_ASSIGN
-           [: (*yynode)->assignment_operator = AssignmentOperatorMinus;          :]
+           [: (*yynode)->assignmentOperator = AssignmentOperatorMinus;          :]
        | STAR_ASSIGN
-           [: (*yynode)->assignment_operator = AssignmentOperatorStar;           :]
+           [: (*yynode)->assignmentOperator = AssignmentOperatorStar;           :]
        | SLASH_ASSIGN
-           [: (*yynode)->assignment_operator = AssignmentOperatorSlash;          :]
+           [: (*yynode)->assignmentOperator = AssignmentOperatorSlash;          :]
        | BIT_AND_ASSIGN
-           [: (*yynode)->assignment_operator = AssignmentOperatorBitAnd;         :]
+           [: (*yynode)->assignmentOperator = AssignmentOperatorBitAnd;         :]
        | BIT_OR_ASSIGN
-           [: (*yynode)->assignment_operator = AssignmentOperatorBitOr;          :]
+           [: (*yynode)->assignmentOperator = AssignmentOperatorBitOr;          :]
        | BIT_XOR_ASSIGN
-           [: (*yynode)->assignment_operator = AssignmentOperatorBitXOr;         :]
+           [: (*yynode)->assignmentOperator = AssignmentOperatorBitXOr;         :]
        | REMAINDER_ASSIGN
-           [: (*yynode)->assignment_operator = AssignmentOperatorRemainder;      :]
+           [: (*yynode)->assignmentOperator = AssignmentOperatorRemainder;      :]
        | LSHIFT_ASSIGN
-           [: (*yynode)->assignment_operator = AssignmentOperatorLShift;         :]
+           [: (*yynode)->assignmentOperator = AssignmentOperatorLShift;         :]
        | SIGNED_RSHIFT_ASSIGN
-           [: (*yynode)->assignment_operator = AssignmentOperatorRShiftSigned;   :]
+           [: (*yynode)->assignmentOperator = AssignmentOperatorRShiftSigned;   :]
        | UNSIGNED_RSHIFT_ASSIGN
-           [: (*yynode)->assignment_operator = AssignmentOperatorRShiftUnsigned; :]
+           [: (*yynode)->assignmentOperator = AssignmentOperatorRShiftUnsigned; :]
       )
-      assignment_expression=expression
+      assignmentExpression=expression
     |
-      0 [: (*yynode)->assignment_operator = AssignmentOperatorNone; :]
+      0 [: (*yynode)->assignmentOperator = AssignmentOperatorNone; :]
    )
 -> expression [
-     member variable assignment_operator: AssignmentOperatorEnum;
+     member variable assignmentOperator: AssignmentOperatorEnum;
 ] ;;
 
 
-   logical_or_expression=logical_or_expression
-   (  QUESTION if_expression=expression
-      COLON    else_expression=conditional_expression
+   logicalOrExpression=logicalOrExpression
+   (  QUESTION ifExpression=expression
+      COLON    elseExpression=conditionalExpression
     | 0
    )
--> conditional_expression ;;
+-> conditionalExpression ;;
 
-   #expression=logical_and_expression @ LOG_OR
--> logical_or_expression ;;
+   #expression=logicalAndExpression @ LOG_OR
+-> logicalOrExpression ;;
 
-   #expression=bit_or_expression @ LOG_AND
--> logical_and_expression ;;
+   #expression=bitOrExpression @ LOG_AND
+-> logicalAndExpression ;;
 
-   #expression=bit_xor_expression @ BIT_OR
--> bit_or_expression ;;
+   #expression=bitXOrExpression @ BIT_OR
+-> bitOrExpression ;;
 
-   #expression=bit_and_expression @ BIT_XOR
--> bit_xor_expression ;;
+   #expression=bitAndExpression @ BIT_XOR
+-> bitXOrExpression ;;
 
-   #expression=equality_expression @ BIT_AND
--> bit_and_expression ;;
+   #expression=equalityExpression @ BIT_AND
+-> bitAndExpression ;;
 
-   expression=relational_expression
-   (#additional_expression=equality_expression_rest)*
--> equality_expression ;;
+   expression=relationalExpression
+   (#additionalExpression=equalityExpressionRest)*
+-> equalityExpression ;;
 
-   (  EQUAL     [: (*yynode)->equality_operator = EqualityOperatorEqual;    :]
-    | NOT_EQUAL [: (*yynode)->equality_operator = EqualityOperatorNotEqual; :]
+   (  EQUAL     [: (*yynode)->equalityOperator = EqualityOperatorEqual;    :]
+    | NOT_EQUAL [: (*yynode)->equalityOperator = EqualityOperatorNotEqual; :]
    )
-   expression=relational_expression
--> equality_expression_rest [
-     member variable equality_operator: EqualityOperatorEnum;
+   expression=relationalExpression
+-> equalityExpressionRest [
+     member variable equalityOperator: EqualityOperatorEnum;
 ] ;;
 
-   expression=shift_expression
-   (  (#additional_expression=relational_expression_rest)+
-    | INSTANCEOF instanceof_type=type
+   expression=shiftExpression
+   (  (#additionalExpression=relationalExpressionRest)+
+    | INSTANCEOF instanceofType=type
     | 0
    )
--> relational_expression ;;
+-> relationalExpression ;;
 
-   (  LESS_THAN     [: (*yynode)->relational_operator = RelationalOperatorLessThan;     :]
-    | GREATER_THAN  [: (*yynode)->relational_operator = RelationalOperatorGreaterThan;  :]
-    | LESS_EQUAL    [: (*yynode)->relational_operator = RelationalOperatorLessEqual;    :]
-    | GREATER_EQUAL [: (*yynode)->relational_operator = RelationalOperatorGreaterEqual; :]
+   (  LESS_THAN     [: (*yynode)->relationalOperator = RelationalOperatorLessThan;     :]
+    | GREATER_THAN  [: (*yynode)->relationalOperator = RelationalOperatorGreaterThan;  :]
+    | LESS_EQUAL    [: (*yynode)->relationalOperator = RelationalOperatorLessEqual;    :]
+    | GREATER_EQUAL [: (*yynode)->relationalOperator = RelationalOperatorGreaterEqual; :]
    )
-   expression=shift_expression
--> relational_expression_rest [
-     member variable relational_operator: RelationalOperatorEnum;
+   expression=shiftExpression
+-> relationalExpressionRest [
+     member variable relationalOperator: RelationalOperatorEnum;
 ] ;;
 
-   expression=additive_expression
-   (#additional_expression=shift_expression_rest)*
--> shift_expression ;;
+   expression=additiveExpression
+   (#additionalExpression=shiftExpressionRest)*
+-> shiftExpression ;;
 
-   (  LSHIFT          [: (*yynode)->shift_operator = ShiftOperatorLShift;         :]
-    | SIGNED_RSHIFT   [: (*yynode)->shift_operator = ShiftOperatorRShiftSigned;   :]
-    | UNSIGNED_RSHIFT [: (*yynode)->shift_operator = ShiftOperatorRShiftUnsigned; :]
+   (  LSHIFT          [: (*yynode)->shiftOperator = ShiftOperatorLShift;         :]
+    | SIGNED_RSHIFT   [: (*yynode)->shiftOperator = ShiftOperatorRShiftSigned;   :]
+    | UNSIGNED_RSHIFT [: (*yynode)->shiftOperator = ShiftOperatorRShiftUnsigned; :]
    )
-   expression=additive_expression
--> shift_expression_rest [
-     member variable shift_operator: ShiftOperatorEnum;
+   expression=additiveExpression
+-> shiftExpressionRest [
+     member variable shiftOperator: ShiftOperatorEnum;
 ] ;;
 
-   expression=multiplicative_expression
-   (#additional_expression=additive_expression_rest)*
--> additive_expression ;;
+   expression=multiplicativeExpression
+   (#additionalExpression=additiveExpressionRest)*
+-> additiveExpression ;;
 
-   (  PLUS  [: (*yynode)->additive_operator = AdditiveOperatorPlus;  :]
-    | MINUS [: (*yynode)->additive_operator = AdditiveOperatorMinus; :]
+   (  PLUS  [: (*yynode)->additiveOperator = AdditiveOperatorPlus;  :]
+    | MINUS [: (*yynode)->additiveOperator = AdditiveOperatorMinus; :]
    )
-   expression=multiplicative_expression
--> additive_expression_rest [
-     member variable additive_operator: AdditiveOperatorEnum;
+   expression=multiplicativeExpression
+-> additiveExpressionRest [
+     member variable additiveOperator: AdditiveOperatorEnum;
 ] ;;
 
-   expression=unary_expression
-   (#additional_expression=multiplicative_expression_rest)*
--> multiplicative_expression ;;
+   expression=unaryExpression
+   (#additionalExpression=multiplicativeExpressionRest)*
+-> multiplicativeExpression ;;
 
-   (  STAR      [: (*yynode)->multiplicative_operator = MultiplicativeOperatorStar;      :]
-    | SLASH     [: (*yynode)->multiplicative_operator = MultiplicativeOperatorSlash;     :]
-    | REMAINDER [: (*yynode)->multiplicative_operator = MultiplicativeOperatorRemainder; :]
+   (  STAR      [: (*yynode)->multiplicativeOperator = MultiplicativeOperatorStar;      :]
+    | SLASH     [: (*yynode)->multiplicativeOperator = MultiplicativeOperatorSlash;     :]
+    | REMAINDER [: (*yynode)->multiplicativeOperator = MultiplicativeOperatorRemainder; :]
    )
-   expression=unary_expression
--> multiplicative_expression_rest [
-     member variable multiplicative_operator: MultiplicativeOperatorEnum;
+   expression=unaryExpression
+-> multiplicativeExpressionRest [
+     member variable multiplicativeOperator: MultiplicativeOperatorEnum;
 ] ;;
 
 
 -- The UNARY EXPRESSION and the its not-plusminus part are one rule in the
--- specification, but split apart for better cast_expression lookahead results.
+-- specification, but split apart for better castExpression lookahead results.
 
  (
-   INCREMENT unary_expression=unary_expression
-     [: (*yynode)->rule_type = UnaryExpressionIncrement; :]
- | DECREMENT unary_expression=unary_expression
-     [: (*yynode)->rule_type = UnaryExpressionDecrement; :]
- | MINUS unary_expression=unary_expression
-     [: (*yynode)->rule_type = UnaryExpressionMinus; :]
- | PLUS  unary_expression=unary_expression
-     [: (*yynode)->rule_type = UnaryExpressionPlus;  :]
- | unary_expression_not_plusminus=unary_expression_not_plusminus
-     [: (*yynode)->rule_type = UnaryExpressionNotPlusMinus; :]
+   INCREMENT unaryExpression=unaryExpression
+     [: (*yynode)->ruleType = UnaryExpressionIncrement;    :]
+ | DECREMENT unaryExpression=unaryExpression
+     [: (*yynode)->ruleType = UnaryExpressionDecrement;    :]
+ | MINUS unaryExpression=unaryExpression
+     [: (*yynode)->ruleType = UnaryExpressionMinus;        :]
+ | PLUS  unaryExpression=unaryExpression
+     [: (*yynode)->ruleType = UnaryExpressionPlus;         :]
+ | unaryExpressionNotPlusMinus=unaryExpressionNotPlusMinus
+     [: (*yynode)->ruleType = UnaryExpressionNotPlusMinus; :]
  )
--> unary_expression [
-     member variable rule_type: UnaryExpressionPlusMinusEnum;
+-> unaryExpression [
+     member variable ruleType: UnaryExpressionPlusMinusEnum;
 ] ;;
 
 
 -- So, up till now this was the easy stuff. Here comes another severe conflict
 -- in the grammar that can only be solved with LL(k).
 -- The conflict in this rule is the ambiguity between type casts (which
--- can be arbitrary class names within parentheses) and primary_expressions,
+-- can be arbitrary class names within parentheses) and primaryExpressions,
 -- which can also look that way from an LL(1) perspective.
 -- Using backtracking with try/rollback solves the problem.
 
  (
-   TILDE bitwise_not_expression=unary_expression
-     [: (*yynode)->rule_type = UnaryExpressionBitwiseNot; :]
- | BANG  logical_not_expression=unary_expression
-     [: (*yynode)->rule_type = UnaryExpressionLogicalNot; :]
+   TILDE bitwiseNotExpression=unaryExpression
+     [: (*yynode)->ruleType = UnaryExpressionBitwiseNot; :]
+ | BANG  logical_not_expression=unaryExpression
+     [: (*yynode)->ruleType = UnaryExpressionLogicalNot; :]
  |
    try/rollback(
-     cast_expression=cast_expression
-       [: (*yynode)->rule_type = UnaryExpressionCast;      :]
+     castExpression=castExpression
+       [: (*yynode)->ruleType = UnaryExpressionCast;      :]
    )
    catch (
-     primary_expression=primary_expression (#postfix_operator=postfix_operator)*
-       [: (*yynode)->rule_type = UnaryExpressionPrimary;   :]
+     primaryExpression=primaryExpression (#postfixOperator=postfixOperator)*
+       [: (*yynode)->ruleType = UnaryExpressionPrimary;   :]
    )
  )
--> unary_expression_not_plusminus [
-     member variable rule_type: UnaryExpressionNotPlusMinusEnum;
+-> unaryExpressionNotPlusMinus [
+     member variable ruleType: UnaryExpressionNotPlusMinusEnum;
 ] ;;
 
    LPAREN
-   (  builtin_type=optional_array_builtin_type RPAREN
-      builtin_casted_expression=unary_expression
+   (  builtInType=optionalArrayBuiltInType RPAREN
+      builtinCastedExpression=unaryExpression
     |
-      class_type=class_type RPAREN
-      class_casted_expression=unary_expression_not_plusminus
+      classType=classType RPAREN
+      classCastedExpression=unaryExpressionNotPlusMinus
    )
--> cast_expression ;;
+-> castExpression ;;
 
-   INCREMENT [: (*yynode)->postfix_operator = PostfixOperatorIncrement; :]
- | DECREMENT [: (*yynode)->postfix_operator = PostfixOperatorDecrement; :]
--> postfix_operator [
-     member variable postfix_operator: PostfixOperatorEnum;
+   INCREMENT [: (*yynode)->postfixOperator = PostfixOperatorIncrement; :]
+ | DECREMENT [: (*yynode)->postfixOperator = PostfixOperatorDecrement; :]
+-> postfixOperator [
+     member variable postfixOperator: PostfixOperatorEnum;
 ] ;;
 
 
 -- PRIMARY EXPRESSIONs: qualified names, array expressions,
 --                      method invocation, post increment/decrement
 
-   primary_atom=primary_atom (#selector=primary_selector)*
--> primary_expression ;;
+   primaryAtom=primaryAtom (#selector=primarySelector)*
+-> primaryExpression ;;
 
 -- SELECTORs appended to a primary atom can provide access to ".this" or
 -- ".super", create classes with ".new ClassName(...)", call methods with
@@ -1479,34 +1474,34 @@ class DUContext;
 
  (
    DOT
-   (  CLASS class_access=class_access_data -- empty rules, for having
-    | THIS this_access=this_access_data    -- a default visitor auto-generated.
-    | new_expression=new_expression
+   (  CLASS classAccess=classAccessData -- empty rules, for having
+    | THIS thisAccess=thisAccessData    -- a default visitor auto-generated.
+    | newExpression=newExpression
     |
       ?[: LA(2).kind != Token_LPAREN :]  -- member variable access
-      identifier:identifier           -- (no method call)
-      simple_name_access=simple_name_access_data[ identifier ]
+      identifier:identifier              -- (no method call)
+      simpleNameAccess=simpleNameAccessData[ identifier ]
     |
       -- method calls (including the "super" ones) may have type arguments
       (  ?[: compatibilityMode() >= Java15Compatibility :]
-         type_arguments:non_wildcard_type_arguments
+         typeArguments:nonWildcardTypeArguments
        | 0
       )
-      (  SUPER super_suffix:super_suffix
-         super_access=super_access_data[ type_arguments, super_suffix ]
+      (  SUPER superSuffix:superSuffix
+         superAccess=superAccessData[ typeArguments, superSuffix ]
        |
          identifier:identifier
-         LPAREN arguments:optional_argument_list RPAREN
-         method_call=method_call_data[ type_arguments, identifier, arguments ]
+         LPAREN arguments:optionalArgumentList RPAREN
+         methodCall=methodCallData[ typeArguments, identifier, arguments ]
       )
    )
  |
-   array_access=array_access
+   arrayAccess=arrayAccess
  )
--> primary_selector ;;
+-> primarySelector ;;
 
-   LBRACKET array_index_expression=expression RBRACKET
--> array_access ;;
+   LBRACKET arrayIndexExpression=expression RBRACKET
+-> arrayAccess ;;
 
 
 
@@ -1514,24 +1509,24 @@ class DUContext;
 --               a member variable of the super class.
 
  (
-   LPAREN constructor_arguments=optional_argument_list RPAREN  -- constructor call
+   LPAREN constructorArguments=optionalArgumentList RPAREN  -- constructor call
  |
    DOT  -- member access
    (  ?[: LA(2).kind != Token_LPAREN :]  -- member variable access (no method call)
       identifier:identifier
-      simple_name_access=simple_name_access_data[ identifier ]
+      simpleNameAccess=simpleNameAccessData[ identifier ]
     |
       -- method access (looks like super.methodName(...) in the end)
       (  ?[: compatibilityMode() >= Java15Compatibility :]
-         type_arguments:non_wildcard_type_arguments
+         typeArguments:nonWildcardTypeArguments
        | 0
       )
       identifier:identifier
-      LPAREN arguments:optional_argument_list RPAREN
-      method_call=method_call_data[ type_arguments, identifier, arguments ]
+      LPAREN arguments:optionalArgumentList RPAREN
+      methodCall=methodCallData[ typeArguments, identifier, arguments ]
    )
  )
--> super_suffix ;;
+-> superSuffix ;;
 
 
 
@@ -1540,94 +1535,94 @@ class DUContext;
 
  (
    literal=literal
- | new_expression=new_expression
- | LPAREN parenthesis_expression=expression RPAREN
+ | newExpression=newExpression
+ | LPAREN parenthesisExpression=expression RPAREN
  |
    -- stuff like int.class or int[].class
-   builtin_type_dot_class=builtin_type_dot_class
+   builtInTypeDotClass=builtInTypeDotClass
  |
    THIS
-   (  LPAREN arguments:optional_argument_list RPAREN
-      this_call=this_call_data[ 0 /* no type arguments */, arguments ]
+   (  LPAREN arguments:optionalArgumentList RPAREN
+      thisCall=thisCallData[ 0 /* no type arguments */, arguments ]
     |
-      this_access=this_access_data -- empty rule, for having a default visitor
+      thisAccess=thisAccessData -- empty rule, for having a default visitor
    )
  |
-   SUPER super_suffix:super_suffix
-   super_access=super_access_data[ 0 /* no type arguments */, super_suffix ]
+   SUPER superSuffix:superSuffix
+   superAccess=superAccessData[ 0 /* no type arguments */, superSuffix ]
  |
    ?[: compatibilityMode() >= Java15Compatibility :]
    -- generic method invocation with type arguments:
-   type_arguments:non_wildcard_type_arguments
+   typeArguments:nonWildcardTypeArguments
    (
-      SUPER super_suffix:super_suffix
-      super_access=super_access_data[ type_arguments, super_suffix ]
+      SUPER superSuffix:superSuffix
+      superAccess=superAccessData[ typeArguments, superSuffix ]
     |
-      THIS LPAREN arguments:optional_argument_list RPAREN
-      this_call=this_call_data[ type_arguments, arguments ]
+      THIS LPAREN arguments:optionalArgumentList RPAREN
+      thisCall=thisCallData[ typeArguments, arguments ]
     |
       identifier:identifier
-      LPAREN arguments:optional_argument_list RPAREN
-      method_call=method_call_data[ type_arguments, identifier, arguments ]
+      LPAREN arguments:optionalArgumentList RPAREN
+      methodCall=methodCallData[ typeArguments, identifier, arguments ]
    )
  |
    try/rollback(
      -- stuff like narf.zoht[][].class
-     array_type_dot_class=array_type_dot_class
+     arrayTypeDotClass=arrayTypeDotClass
    )
    catch (
      -- type names (normal) - either pure or as method
      identifier:identifier
      (
-         LPAREN arguments:optional_argument_list RPAREN
-         method_call=method_call_data[
+         LPAREN arguments:optionalArgumentList RPAREN
+         methodCall=methodCallData[
            0 /* no type arguments */, identifier, arguments
          ]
        |
-         simple_name_access=simple_name_access_data[ identifier ]
+         simpleNameAccess=simpleNameAccessData[ identifier ]
      )
    )
  )
--> primary_atom ;;
+-> primaryAtom ;;
 
 
-   builtin_type=optional_array_builtin_type DOT CLASS
--> builtin_type_dot_class ;;
+   builtInType=optionalArrayBuiltInType DOT CLASS
+-> builtInTypeDotClass ;;
 
-   qualified_identifier=qualified_identifier
-   declarator_brackets=mandatory_declarator_brackets DOT CLASS
--> array_type_dot_class ;;
+   qualifiedIdentifier=qualifiedIdentifier
+   declaratorBrackets=mandatoryDeclaratorBrackets DOT CLASS
+-> arrayTypeDotClass ;;
 
 
    0
--> method_call_data [
-     argument member node type_arguments: non_wildcard_type_arguments;
-     argument member node method_name:    identifier;
-     argument member node arguments:      optional_argument_list;
+-> methodCallData [
+     argument member node typeArguments: nonWildcardTypeArguments;
+     argument member node methodName:    identifier;
+     argument member node arguments:     optionalArgumentList;
 ] ;;
 
    0
--> this_call_data [
-     argument member node type_arguments: non_wildcard_type_arguments;
-     argument member node arguments:      optional_argument_list;
+-> thisCallData [
+     argument member node typeArguments: nonWildcardTypeArguments;
+     argument member node arguments:      optionalArgumentList;
 ] ;;
 
    0
--> this_access_data ;; -- probably the emptiest rule in the whole grammar ;)
+-> thisAccessData ;; -- probably the emptiest rule in the whole grammar ;)
    -- but kdev-pg creates a default visitor method, and that's why it's there
 
    0
--> class_access_data ;; -- hm maybe this rule is equally empty...
+-> classAccessData ;; -- hm maybe this rule is equally empty...
 
    0
--> super_access_data [
-     argument member node type_arguments: non_wildcard_type_arguments;
-     argument member node super_suffix:   super_suffix;
+-> superAccessData [
+     argument member node typeArguments: nonWildcardTypeArguments;
+     argument member node superSuffix:   superSuffix;
 ] ;;
 
    0
--> simple_name_access_data [
-     argument member node name:           identifier;
+-> simpleNameAccessData [
+     argument member node name:          identifier;
 ] ;;
 
 
@@ -1637,16 +1632,16 @@ class DUContext;
 
    NEW
    (  ?[: compatibilityMode() >= Java15Compatibility :]
-      type_arguments=non_wildcard_type_arguments
+      typeArguments=nonWildcardTypeArguments
     | 0
    )
-   type=non_array_type
-   (  LPAREN class_constructor_arguments=optional_argument_list RPAREN
-      (class_body=class_body | 0)
+   type=nonArrayType
+   (  LPAREN classConstructorArguments=optionalArgumentList RPAREN
+      (classBody=classBody | 0)
     |
-      array_creator_rest=array_creator_rest
+      arrayCreatorRest=arrayCreatorRest
    )
--> new_expression ;;
+-> newExpression ;;
 
 -- This array creator rest can be either
 -- a.) empty brackets with an optional initializer (e.g. "[][]{exp,exp}") or
@@ -1654,17 +1649,17 @@ class DUContext;
 
  (
    ?[: LA(2).kind == Token_RBRACKET :]
-   mandatory_declarator_brackets=mandatory_declarator_brackets
-   array_initializer=variable_array_initializer
+   mandatoryDeclaratorBrackets=mandatoryDeclaratorBrackets
+   arrayInitializer=variableArrayInitializer
  |
-   LBRACKET #index_expression=expression RBRACKET
+   LBRACKET #indexExpression=expression RBRACKET
    ( 0 [: if (LA(2).kind == Token_RBRACKET) { break; } :]
         -- exit the loop when noticing declarator brackets
-     LBRACKET #index_expression=expression RBRACKET
+     LBRACKET #indexExpression=expression RBRACKET
    )*
-   optional_declarator_brackets=optional_declarator_brackets
+   optionalDeclaratorBrackets=optionalDeclaratorBrackets
  )
--> array_creator_rest ;;
+-> arrayCreatorRest ;;
 
 
 
@@ -1675,26 +1670,26 @@ class DUContext;
 -- A TYPE is a type name with optionally appended brackets
 -- (which would make it an array type).
 
-   class_type=class_type
- | builtin_type=optional_array_builtin_type
+   classType=classType
+ | builtInType=optionalArrayBuiltInType
 -> type ;;
 
-   type=class_or_interface_type_name
-   declarator_brackets=optional_declarator_brackets
--> class_type ;;
+   type=classOrInterfaceTypeName
+   declaratorBrackets=optionalDeclaratorBrackets
+-> classType ;;
 
-   type=builtin_type declarator_brackets=optional_declarator_brackets
--> optional_array_builtin_type ;;
+   type=builtInType declaratorBrackets=optionalDeclaratorBrackets
+-> optionalArrayBuiltInType ;;
 
-   type=builtin_type declarator_brackets=mandatory_declarator_brackets
--> mandatory_array_builtin_type ;;
+   type=builtInType declaratorBrackets=mandatoryDeclaratorBrackets
+-> mandatoryArrayBuiltInType ;;
 
 
 -- A NON-ARRAY TYPE is just a type name, without appended brackets
 
-   class_or_interface_type=class_or_interface_type_name
- | builtin_type=builtin_type
--> non_array_type ;;
+   classOrInterfaceType=classOrInterfaceTypeName
+ | builtInType=builtInType
+-> nonArrayType ;;
 
 -- The primitive types. The Java specification doesn't include void here,
 -- but the ANTLR grammar works that way, and so does this one.
@@ -1708,48 +1703,48 @@ class DUContext;
  | FLOAT   [: (*yynode)->type = BuiltInTypeFloat;   :]
  | LONG    [: (*yynode)->type = BuiltInTypeLong;    :]
  | DOUBLE  [: (*yynode)->type = BuiltInTypeDouble;  :]
--> builtin_type [
+-> builtInType [
      member variable type: BuiltInTypeEnum;
 ] ;;
 
-   #part=class_or_interface_type_name_part @ DOT
--> class_or_interface_type_name ;;
+   #part=classOrInterfaceTypeNamePart @ DOT
+-> classOrInterfaceTypeName ;;
 
    identifier=identifier
    (  ?[: compatibilityMode() >= Java15Compatibility :]
-      type_arguments=type_arguments
+      typeArguments=typeArguments
     | 0
    )
--> class_or_interface_type_name_part ;;
+-> classOrInterfaceTypeNamePart ;;
 
 
 
 -- QUALIFIED identifiers are either qualified ones or raw identifiers.
 
    #name=identifier @ DOT
--> qualified_identifier ;;
+-> qualifiedIdentifier ;;
 
-   #name=identifier [: (*yynode)->has_star = false; :]
+   #name=identifier [: (*yynode)->hasStar = false; :]
    ( DOT (  #name=identifier
-          | STAR    [: (*yynode)->has_star = true; break; :]
+          | STAR    [: (*yynode)->hasStar = true; break; :]
                        -- break -> no more identifiers after the star
          )
    )*
--> qualified_identifier_with_optional_star [
-     member variable has_star: bool;
+-> qualifiedIdentifierWithOptionalStar [
+     member variable hasStar: bool;
 ] ;;
 
 -- Declarator brackets are part of a type specification, like String[][].
 -- They are always empty, only have to be counted.
 
-   ( LBRACKET RBRACKET [: (*yynode)->bracket_count++; :] )*
--> optional_declarator_brackets [
-     member variable bracket_count: int;
+   ( LBRACKET RBRACKET [: (*yynode)->bracketCount++; :] )*
+-> optionalDeclaratorBrackets [
+     member variable bracketCount: int;
 ] ;;
 
-   ( LBRACKET RBRACKET [: (*yynode)->bracket_count++; :] )+
--> mandatory_declarator_brackets [
-     member variable bracket_count: int;
+   ( LBRACKET RBRACKET [: (*yynode)->bracketCount++; :] )+
+-> mandatoryDeclaratorBrackets [
+     member variable bracketCount: int;
 ] ;;
 
 
@@ -1780,9 +1775,9 @@ class DUContext;
  -- This condition resolves the conflict between modifiers
  -- and annotation type declarations:
    0 [: if (yytoken == Token_AT && LA(2).kind == Token_INTERFACE) { break; } :]
-   try/recover(#mod_annotation=annotation)
+   try/recover(#modifierAnnotation=annotation)
  )*
--> optional_modifiers [
+-> optionalModifiers [
      member variable modifiers: unsigned int;
 ] ;;
 
@@ -1792,24 +1787,24 @@ class DUContext;
 -> identifier ;;
 
  (
-   TRUE   [: (*yynode)->literal_type = LiteralTrue;  :]
- | FALSE  [: (*yynode)->literal_type = LiteralFalse; :]
- | NULL   [: (*yynode)->literal_type = LiteralNull;  :]
+   TRUE   [: (*yynode)->literalType = LiteralTrue;  :]
+ | FALSE  [: (*yynode)->literalType = LiteralFalse; :]
+ | NULL   [: (*yynode)->literalType = LiteralNull;  :]
  |
-   integer_literal=INTEGER_LITERAL
-   [: (*yynode)->literal_type = LiteralInteger;  :]
+   integerLiteral=INTEGER_LITERAL
+   [: (*yynode)->literalType = LiteralInteger;  :]
  |
-   floating_point_literal=FLOATING_POINT_LITERAL
-   [: (*yynode)->literal_type = LiteralFloatingPoint;  :]
+   floatingPointLiteral=FLOATING_POINT_LITERAL
+   [: (*yynode)->literalType = LiteralFloatingPoint;  :]
  |
-   character_literal=CHARACTER_LITERAL
-   [: (*yynode)->literal_type = LiteralCharacter;  :]
+   characterLiteral=CHARACTER_LITERAL
+   [: (*yynode)->literalType = LiteralCharacter;  :]
  |
-   string_literal=STRING_LITERAL
-   [: (*yynode)->literal_type = LiteralString;  :]
+   stringLiteral=STRING_LITERAL
+   [: (*yynode)->literalType = LiteralString;  :]
  )
 -> literal [
-     member variable literal_type: LiteralTypeEnum;
+     member variable literalType: LiteralTypeEnum;
 ] ;;
 
 

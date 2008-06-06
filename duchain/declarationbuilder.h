@@ -72,15 +72,15 @@ public:
 
   //virtual void classTypeOpened(KDevelop::AbstractType::Ptr);
 
-  virtual void visitClass_declaration(Class_declarationAst *node);
-  virtual void visitMethod_declaration(Method_declarationAst *node);
-  virtual void visitInterface_method_declaration(Interface_method_declarationAst *node);
-  virtual void visitConstructor_declaration(Constructor_declarationAst *node);
-  virtual void visitInterface_declaration(Interface_declarationAst *node);
-  virtual void visitVariable_declaration(Variable_declarationAst *node);
-  virtual void visitVariable_declarator(Variable_declaratorAst *node);
-  virtual void visitParameter_declaration(Parameter_declarationAst *node);
-  virtual void visitParameter_declaration_ellipsis(Parameter_declaration_ellipsisAst *node);
+  virtual void visitClassDeclaration(ClassDeclarationAst *node);
+  virtual void visitMethodDeclaration(MethodDeclarationAst *node);
+  virtual void visitInterfaceMethodDeclaration(InterfaceMethodDeclarationAst *node);
+  virtual void visitConstructorDeclaration(ConstructorDeclarationAst *node);
+  virtual void visitInterfaceDeclaration(InterfaceDeclarationAst *node);
+  virtual void visitVariableDeclaration(VariableDeclarationAst *node);
+  virtual void visitVariableDeclarator(VariableDeclaratorAst *node);
+  virtual void visitParameterDeclaration(ParameterDeclarationAst *node);
+  virtual void visitParameterDeclarationEllipsis(ParameterDeclarationEllipsisAst *node);
 
 private:
   KDevelop::ForwardDeclaration* openForwardDeclaration(AstNode* name, AstNode* range);

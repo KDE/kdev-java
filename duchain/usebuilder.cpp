@@ -200,9 +200,9 @@ void UseBuilder::closeContext()
   m_skippedUses.pop();
 }
 
-void UseBuilder::visitSimple_name_access_data(Simple_name_access_dataAst * node)
+void UseBuilder::visitSimpleNameAccessData(SimpleNameAccessDataAst * node)
 {
   newUse(node->name);
 
-  UseBuilderBase::visitSimple_name_access_data(node);
+  UseBuilderBase::visitSimpleNameAccessData(node);
 }

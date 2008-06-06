@@ -151,8 +151,8 @@ void ParseJob::run()
         return abortJob();
 
     // 2) parse
-    Compilation_unitAst *ast = 0;
-    bool matched = javaParser.parseCompilation_unit( &ast );
+    CompilationUnitAst *ast = 0;
+    bool matched = javaParser.parseCompilationUnit( &ast );
     //m_AST->language = java();
 
     if ( abortRequested() )

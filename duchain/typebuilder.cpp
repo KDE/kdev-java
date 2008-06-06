@@ -509,9 +509,9 @@ void TypeBuilder::injectType(const AbstractType::Ptr& type, AstNode* node) {
   closeType();
 }
 
-void TypeBuilder::visitMethod_declaration(Method_declarationAst * node)
+void TypeBuilder::visitMethodDeclaration(MethodDeclarationAst * node)
 {
-  visitNode(node->return_type);
+  visitNode(node->returnType);
 
   FunctionType::Ptr functionType = FunctionType::Ptr(new FunctionType(parseModifiers(node->modifiers)));
 
@@ -520,12 +520,12 @@ void TypeBuilder::visitMethod_declaration(Method_declarationAst * node)
 
   openType(functionType, node);
 
-  TypeBuilderBase::visitMethod_declaration(node);
+  TypeBuilderBase::visitMethodDeclaration(node);
 
   closeType();
 }
 
-void TypeBuilder::visitConstructor_declaration(Constructor_declarationAst * node)
+void TypeBuilder::visitConstructorDeclaration(ConstructorDeclarationAst * node)
 {
   // TODO set constructor type
 
@@ -536,20 +536,20 @@ void TypeBuilder::visitConstructor_declaration(Constructor_declarationAst * node
 
   openType(functionType, node);
 
-  TypeBuilderBase::visitConstructor_declaration(node);
+  TypeBuilderBase::visitConstructorDeclaration(node);
 
   closeType();
 }
 
-void TypeBuilder::visitClass_declaration(Class_declarationAst *node)
+void TypeBuilder::visitClassDeclaration(ClassDeclarationAst *node)
 {
-  ClassType::Ptr classType = ClassType::Ptr(openClass(false, node->type_parameters));
+  ClassType::Ptr classType = ClassType::Ptr(openClass(false, node->typeParameters));
 
   openType(classType, node);
 
   classTypeOpened( TypeRepository::self()->registerType(currentAbstractType()) ); //This callback is needed, because the type of the class-declaration needs to be set early so the class can be referenced from within itself
 
-  TypeBuilderBase::visitClass_declaration(node);
+  TypeBuilderBase::visitClassDeclaration(node);
 
   // Prevent additional elements being added if this becomes the current type again
   classType->close();
@@ -557,15 +557,15 @@ void TypeBuilder::visitClass_declaration(Class_declarationAst *node)
   closeType();
 }
 
-void TypeBuilder::visitInterface_declaration(Interface_declarationAst * node)
+void TypeBuilder::visitInterfaceDeclaration(InterfaceDeclarationAst * node)
 {
-  ClassType::Ptr classType = ClassType::Ptr(openClass(true, node->type_parameters));
+  ClassType::Ptr classType = ClassType::Ptr(openClass(true, node->typeParameters));
 
   openType(classType, node);
 
   classTypeOpened( TypeRepository::self()->registerType(currentAbstractType()) ); //This callback is needed, because the type of the class-declaration needs to be set early so the class can be referenced from within itself
 
-  TypeBuilderBase::visitInterface_declaration(node);
+  TypeBuilderBase::visitInterfaceDeclaration(node);
 
   // Prevent additional elements being added if this becomes the current type again
   classType->close();
@@ -573,7 +573,7 @@ void TypeBuilder::visitInterface_declaration(Interface_declarationAst * node)
   closeType();
 }
 
-void TypeBuilder::visitBuiltin_type(Builtin_typeAst * node)
+void TypeBuilder::visitBuiltInType(BuiltInTypeAst * node)
 {
   bool openedType = false;
 
@@ -582,8 +582,8 @@ void TypeBuilder::visitBuiltin_type(Builtin_typeAst * node)
 
     switch (node->type) {
       case BuiltInTypeVoid:
-        type = IntegralType::TypeVoid;
-        break;
+          type = IntegralType::TypeVoid;
+          break;
       case BuiltInTypeBoolean:
           type = IntegralType::TypeBoolean;
           break;
@@ -625,29 +625,29 @@ void TypeBuilder::visitBuiltin_type(Builtin_typeAst * node)
     }
   }
 
-  TypeBuilderBase::visitBuiltin_type(node);
+  TypeBuilderBase::visitBuiltInType(node);
 
   if (openedType)
     closeType();
 }
 
-void TypeBuilder::visitType_argument(Type_argumentAst * node)
+void TypeBuilder::visitTypeArgument(TypeArgumentAst * node)
 {
   //node->
 
-  TypeBuilderBase::visitType_argument(node);
+  TypeBuilderBase::visitTypeArgument(node);
 }
 
-TypeModifiers java::TypeBuilder::parseModifiers(Optional_modifiersAst * node) const
+TypeModifiers java::TypeBuilder::parseModifiers(OptionalModifiersAst * node) const
 {
   return static_cast<TypeModifiers>(node->modifiers);
 }
 
-void java::TypeBuilder::visitClass_extends_clause(Class_extends_clauseAst * node)
+void java::TypeBuilder::visitClassExtendsClause(ClassExtendsClauseAst * node)
 {
   m_rememberClassNames.clear();
 
-  TypeBuilderBase::visitClass_extends_clause(node);
+  TypeBuilderBase::visitClassExtendsClause(node);
 
   ClassType* klass = dynamic_cast<ClassType*>(m_typeStack.top().data());
 
@@ -663,7 +663,7 @@ void java::TypeBuilder::visitClass_extends_clause(Class_extends_clauseAst * node
   }
 }
 
-void java::TypeBuilder::visitClass_or_interface_type_name_part(Class_or_interface_type_name_partAst * node)
+void java::TypeBuilder::visitClassOrInterfaceTypeNamePart(ClassOrInterfaceTypeNamePartAst * node)
 {
   /*
 
@@ -674,7 +674,7 @@ void java::TypeBuilder::visitClass_or_interface_type_name_part(Class_or_interfac
 
   bool openedType = openTypeFromName(node->identifier, true);
 
-  TypeBuilderBase::visitClass_or_interface_type_name_part(node);
+  TypeBuilderBase::visitClassOrInterfaceTypeNamePart(node);
 
   if( openedType ) {
     closeType();
@@ -686,7 +686,7 @@ void java::TypeBuilder::visitClass_or_interface_type_name_part(Class_or_interfac
   }*/
 }
 
-void java::TypeBuilder::visitImplements_clause(Implements_clauseAst * node)
+void java::TypeBuilder::visitImplementsClause(ImplementsClauseAst * node)
 {
   /*m_rememberClassNames.clear();
 

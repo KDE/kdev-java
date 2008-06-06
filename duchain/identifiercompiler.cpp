@@ -98,11 +98,11 @@ const QualifiedIdentifier& IdentifierCompiler::identifier() const
   return m_name;
 }
 
-void IdentifierCompiler::visitQualified_identifier_with_optional_star(Qualified_identifier_with_optional_starAst *node)
+void IdentifierCompiler::visitQualifiedIdentifierWithOptionalStar(QualifiedIdentifierWithOptionalStarAst *node)
 {
-  DefaultVisitor::visitQualified_identifier_with_optional_star(node);
+  DefaultVisitor::visitQualifiedIdentifierWithOptionalStar(node);
 
-  if (node->has_star) {
+  if (node->hasStar) {
     m_name.push(Identifier("*"));
   }
 }

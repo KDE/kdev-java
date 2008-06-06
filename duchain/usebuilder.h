@@ -51,7 +51,7 @@ protected:
   virtual void openContext(KDevelop::DUContext* newContext);
   virtual void closeContext();
 
-  virtual void visitSimple_name_access_data(Simple_name_access_dataAst *node);
+  virtual void visitSimpleNameAccessData(SimpleNameAccessDataAst *node);
 
 private:
   /// Register a new use

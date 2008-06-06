@@ -84,17 +84,17 @@ protected:
   virtual void createTypeForDeclarator(DeclaratorAstNode *node);
   virtual void closeTypeForDeclarator(DeclaratorAstNode *node);*/
 
-  virtual void visitClass_declaration(Class_declarationAst *node);
-  virtual void visitClass_extends_clause(Class_extends_clauseAst *node);
-  virtual void visitImplements_clause(Implements_clauseAst *node);
-  virtual void visitClass_or_interface_type_name_part(Class_or_interface_type_name_partAst *node);
-  virtual void visitType_argument(Type_argumentAst *node);
+  virtual void visitClassDeclaration(ClassDeclarationAst *node);
+  virtual void visitClassExtendsClause(ClassExtendsClauseAst *node);
+  virtual void visitImplementsClause(ImplementsClauseAst *node);
+  virtual void visitClassOrInterfaceTypeNamePart(ClassOrInterfaceTypeNamePartAst *node);
+  virtual void visitTypeArgument(TypeArgumentAst *node);
 
-  virtual void visitMethod_declaration(Method_declarationAst *node);
-  virtual void visitConstructor_declaration(Constructor_declarationAst *node);
-  virtual void visitInterface_declaration(Interface_declarationAst *node);
+  virtual void visitMethodDeclaration(MethodDeclarationAst *node);
+  virtual void visitConstructorDeclaration(ConstructorDeclarationAst *node);
+  virtual void visitInterfaceDeclaration(InterfaceDeclarationAst *node);
 
-  virtual void visitBuiltin_type(Builtin_typeAst *node);
+  virtual void visitBuiltInType(BuiltInTypeAst *node);
 
   bool m_declarationHasInitDeclarators; //Is set when processing the type-specifiers within SimpleDeclarationAstNodes, to change the behavior for elaborated type-specifiers.
 
@@ -119,7 +119,7 @@ private:
 
   bool hasCurrentType() { return !m_typeStack.isEmpty(); }
 
-  TypeModifiers parseModifiers(Optional_modifiersAst* node) const;
+  TypeModifiers parseModifiers(OptionalModifiersAst* node) const;
 
   // You must not use this in creating another type definition, as it may not be the registered type.
   inline KDevelop::AbstractType::Ptr currentAbstractType() { return m_typeStack.top(); }
