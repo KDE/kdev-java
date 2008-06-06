@@ -87,7 +87,7 @@ ClassType* TypeBuilder::openClass(bool interface, bool parameters)
 {
   ClassType* classType = parameters ? new ParameterizedType() : new ClassType();
 
-  classType->setClassType(interface ? ClassType::Class : ClassType::Interface);
+  classType->setClassType(interface ? ClassType::Interface : ClassType::Class);
 
   return classType;
 }

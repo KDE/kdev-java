@@ -76,36 +76,7 @@ KDevelop::TopDUContext* DeclarationBuilder::buildDeclarations(const KDevelop::Ha
   return top;
 }
 
-/*void DeclarationBuilder::visitFunctionDeclaration(FunctionDefinitionAstNode* node)
-{
-  parseComments(node->comments);
-  parseStorageSpecifiers(node->storage_specifiers);
-  parseFunctionSpecifiers(node->function_specifiers);
-
-  m_functionDefinedStack.push(node->start_token);
-
-  DeclarationBuilderBase::visitFunctionDeclaration(node);
-
-  m_functionDefinedStack.pop();
-
-  popSpecifiers();
-}
-
-void DeclarationBuilder::visitSimpleDeclaration(SimpleDeclarationAstNode* node)
-{
-  parseComments(node->comments);
-  parseStorageSpecifiers(node->storage_specifiers);
-  parseFunctionSpecifiers(node->function_specifiers);
-
-  m_functionDefinedStack.push(0);
-
-  DeclarationBuilderBase::visitSimpleDeclaration(node);
-
-  m_functionDefinedStack.pop();
-
-  popSpecifiers();
-}
-
+/*
 void DeclarationBuilder::visitDeclarator (DeclaratorAstNode* node)
 {
   //need to make backup because we may temporarily change it
@@ -200,7 +171,7 @@ Declaration* DeclarationBuilder::openDefinition(IdentifierAst* name, AstNode* ra
   return openDeclaration(name, rangeNode, isFunction, false, true);
 }
 
-Declaration* DeclarationBuilder::openDeclaration(IdentifierAst* name, AstNode* rangeNode, bool isFunction, bool isForward, bool isDefinition, bool isNamespaceAlias, const Identifier& customName)
+Declaration* DeclarationBuilder::openDeclaration(IdentifierAst* name, AstNode* rangeNode, bool isFunction, bool isForward, bool isDefinition)
 {
   DUChainWriteLocker lock(DUChain::lock());
 
@@ -680,30 +651,6 @@ void DeclarationBuilder::popSpecifiers()
   m_storageSpecifiers.pop();
 }
 
-#if 0
-void DeclarationBuilder::applyStorageSpecifiers()
-{
-  if (!m_storageSpecifiers.isEmpty() && m_storageSpecifiers.top() != 0)
-    if (ClassMemberDeclaration* member = dynamic_cast<ClassMemberDeclaration*>(currentDeclaration())) {
-      DUChainWriteLocker lock(DUChain::lock());
-
-      member->setStorageSpecifiers(m_storageSpecifiers.top());
-    }
-}
-
-void DeclarationBuilder::applyFunctionSpecifiers()
-{
-  if (!m_functionSpecifiers.isEmpty() && m_functionSpecifiers.top() != 0) {
-    AbstractFunctionDeclaration* function = dynamic_cast<AbstractFunctionDeclaration*>(currentDeclaration());
-    Q_ASSERT(function);
-
-    DUChainWriteLocker lock(DUChain::lock());
-
-    function->setFunctionSpecifiers(m_functionSpecifiers.top());
-  }
-}
-#endif
-
 void DeclarationBuilder::openContext(DUContext * newContext)
 {
   DeclarationBuilderBase::openContext(newContext);
@@ -717,6 +664,8 @@ void DeclarationBuilder::closeContext()
 void java::DeclarationBuilder::visitClass_declaration(Class_declarationAst * node)
 {
   Declaration* classDeclaration = openDefinition(node->class_name, node, false);
+  
+  currentDeclaration()->setKind(Declaration::Type);
 
   DeclarationBuilderBase::visitClass_declaration(node);
 
@@ -725,7 +674,9 @@ void java::DeclarationBuilder::visitClass_declaration(Class_declarationAst * nod
 
 void java::DeclarationBuilder::visitInterface_declaration(Interface_declarationAst * node)
 {
-  Declaration* interfaceDeclaration = openDefinition(node->interface_name, node, false);
+  openDefinition(node->interface_name, node, false);
+  
+  currentDeclaration()->setKind(Declaration::Type);
 
   DeclarationBuilderBase::visitInterface_declaration(node);
 
@@ -734,7 +685,9 @@ void java::DeclarationBuilder::visitInterface_declaration(Interface_declarationA
 
 void java::DeclarationBuilder::visitInterface_method_declaration(Interface_method_declarationAst * node)
 {
-  Declaration* interfaceDeclaration = openDefinition(node->method_name, node, true);
+  openDefinition(node->method_name, node, true);
+  
+  currentDeclaration()->setKind(Declaration::Type);
 
   DeclarationBuilderBase::visitInterface_method_declaration(node);
 
@@ -743,7 +696,9 @@ void java::DeclarationBuilder::visitInterface_method_declaration(Interface_metho
 
 void java::DeclarationBuilder::visitConstructor_declaration(Constructor_declarationAst * node)
 {
-  Declaration* constructorDeclaration = openDefinition(node->class_name, node, true);
+  openDefinition(node->class_name, node, true);
+  
+  currentDeclaration()->setKind(Declaration::Type);
 
   DeclarationBuilderBase::visitConstructor_declaration(node);
 
@@ -752,7 +707,9 @@ void java::DeclarationBuilder::visitConstructor_declaration(Constructor_declarat
 
 void java::DeclarationBuilder::visitMethod_declaration(Method_declarationAst * node)
 {
-  Declaration* methodDeclaration = openDefinition(node->method_name, node, true);
+  openDefinition(node->method_name, node, true);
+  
+  currentDeclaration()->setKind(Declaration::Type);
 
   DeclarationBuilderBase::visitMethod_declaration(node);
 

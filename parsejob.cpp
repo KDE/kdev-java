@@ -106,8 +106,6 @@ void ParseJob::run()
 
     QMutexLocker lock(java()->language()->parseMutex(QThread::currentThread()));
 
-    m_readFromDisk = !contentsAvailableFromEditor();
-
     QString localFile(KUrl(m_document.str()).toLocalFile());
 
     QFileInfo fileInfo( localFile );
@@ -185,7 +183,8 @@ void ParseJob::run()
     //kDebug(  ) << (contentContext ? "updating" : "building") << "duchain for" << parentJob()->document().str();
 
     DeclarationBuilder builder(&editor);
-    KDevelop::DUContext* chain = builder.buildDeclarations(KDevelop::HashedString(document()), ast, KDevelop::TopDUContextPointer());
+    KDevelop::TopDUContext* chain = builder.buildDeclarations(KDevelop::HashedString(document()), ast, KDevelop::TopDUContextPointer());
+    setDuChain(chain);
 
     UseBuilder useBuilder(&editor);
     useBuilder.buildUses(ast);
