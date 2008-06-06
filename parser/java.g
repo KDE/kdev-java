@@ -91,6 +91,124 @@ class DUContext;
 %export_macro_header "javaparserexport.h"
 
 ------------------------------------------------------------
+-- Enumeration types for additional AST members,
+-- in the global "java" namespace
+------------------------------------------------------------
+%namespace
+[:
+  enum WildcardTypeBoundsEnum {
+    WildcardTypeExtends,
+    WildcardTypeSuper
+  };
+
+  enum BuiltInTypeEnum {
+    BuiltInTypeVoid,
+    BuiltInTypeBoolean,
+    BuiltInTypeByte,
+    BuiltInTypeChar,
+    BuiltInTypeShort,
+    BuiltInTypeInt,
+    BuiltInTypeFloat,
+    BuiltInTypeLong,
+    BuiltInTypeDouble
+  };
+
+  enum BranchTypeEnum {
+    BranchCase,
+    BranchDefault
+  };
+
+  enum AssignmentOperatorEnum {
+    AssignmentOperatorNone,
+    AssignmentOperatorPlain,
+    AssignmentOperatorPlus,
+    AssignmentOperatorMinus,
+    AssignmentOperatorStar,
+    AssignmentOperatorSlash,
+    AssignmentOperatorBitAnd,
+    AssignmentOperatorBitOr,
+    AssignmentOperatorBitXOr,
+    AssignmentOperatorRemainder,
+    AssignmentOperatorLShift,
+    AssignmentOperatorRShiftSigned,
+    AssignmentOperatorRShiftUnsigned
+  };
+
+  enum EqualityOperatorEnum {
+    EqualityOperatorEqual,
+    EqualityOperatorNotEqual
+  };
+
+  enum RelationalOperatorEnum {
+    RelationalOperatorLessThan,
+    RelationalOperatorGreaterThan,
+    RelationalOperatorLessEqual,
+    RelationalOperatorGreaterEqual
+  };
+
+  enum ShiftOperatorEnum {
+    ShiftOperatorLShift,
+    ShiftOperatorRShiftSigned,
+    ShiftOperatorRShiftUnsigned
+  };
+
+  enum AdditiveOperatorEnum {
+    AdditiveOperatorPlus,
+    AdditiveOperatorMinus
+  };
+
+  enum MultiplicativeOperatorEnum {
+    MultiplicativeOperatorStar,
+    MultiplicativeOperatorSlash,
+    MultiplicativeOperatorRemainder
+  };
+
+  enum UnaryExpressionPlusMinusEnum {
+    UnaryExpressionIncrement,
+    UnaryExpressionDecrement,
+    UnaryExpressionMinus,
+    UnaryExpressionPlus,
+    UnaryExpressionNotPlusMinus
+  };
+
+  enum UnaryExpressionNotPlusMinusEnum {
+    UnaryExpressionBitwiseNot,
+    UnaryExpressionLogicalNot,
+    UnaryExpressionCast,
+    UnaryExpressionPrimary
+  };
+
+  enum PostfixOperatorEnum {
+    PostfixOperatorIncrement,
+    PostfixOperatorDecrement
+  };
+
+  enum ModifierFlags {
+    ModifierPrivate      = 1,
+    ModifierPublic       = 1 << 1,
+    ModifierProtected    = 1 << 2,
+    ModifierStatic       = 1 << 3,
+    ModifierTransient    = 1 << 4,
+    ModifierFinal        = 1 << 5,
+    ModifierAbstract     = 1 << 6,
+    ModifierNative       = 1 << 7,
+    ModifierSynchronized = 1 << 8,
+    ModifierVolatile     = 1 << 9,
+    ModifierStrictFP     = 1 << 10
+  };
+
+  enum LiteralTypeEnum {
+    LiteralTrue,
+    LiteralFalse,
+    LiteralNull,
+    LiteralInteger,
+    LiteralFloatingPoint,
+    LiteralCharacter,
+    LiteralString
+  };
+:]
+
+------------------------------------------------------------
 -- Ast Node class members
 ------------------------------------------------------------
 %ast_extra_members
@@ -148,165 +266,6 @@ class DUContext;
 
 %parserclass (constructor)
   [: m_compatibilityMode = Java15Compatibility; :]
-
-
-
-------------------------------------------------------------
--- Enumeration types for additional AST members
-------------------------------------------------------------
-
-%namespace wildcard_type_bounds
-[:
-  enum extends_or_super_enum {
-    extends,
-    super
-  };
-:]
-
-%namespace builtin_type
-[:
-  enum builtin_type_enum {
-    type_void,
-    type_boolean,
-    type_byte,
-    type_char,
-    type_short,
-    type_int,
-    type_float,
-    type_long,
-    type_double
-  };
-:]
-
-%namespace switch_label
-[:
-  enum branch_type_enum {
-    case_branch,
-    default_branch
-  };
-:]
-
-%namespace expression
-[:
-  enum assignment_operator_enum {
-    no_assignment,
-    op_assign,
-    op_plus_assign,
-    op_minus_assign,
-    op_star_assign,
-    op_slash_assign,
-    op_bit_and_assign,
-    op_bit_or_assign,
-    op_bit_xor_assign,
-    op_remainder_assign,
-    op_lshift_assign,
-    op_signed_rshift_assign,
-    op_unsigned_rshift_assign
-  };
-:]
-
-%namespace equality_expression_rest
-[:
-  enum equality_operator_enum {
-    op_equal,
-    op_not_equal
-  };
-:]
-
-%namespace relational_expression_rest
-[:
-  enum relational_operator_enum {
-    op_less_than,
-    op_greater_than,
-    op_less_equal,
-    op_greater_equal
-  };
-:]
-
-%namespace shift_expression_rest
-[:
-  enum shift_operator_enum {
-    op_lshift,
-    op_signed_rshift,
-    op_unsigned_rshift
-  };
-:]
-
-%namespace additive_expression_rest
-[:
-  enum additive_operator_enum {
-    op_plus,
-    op_minus
-  };
-:]
-
-%namespace multiplicative_expression_rest
-[:
-  enum multiplicative_operator_enum {
-    op_star,
-    op_slash,
-    op_remainder
-  };
-:]
-
-%namespace unary_expression
-[:
-  enum unary_expression_enum {
-    type_incremented_expression,
-    type_decremented_expression,
-    type_unary_minus_expression,
-    type_unary_plus_expression,
-    type_unary_expression_not_plusminus
-  };
-:]
-
-%namespace unary_expression_not_plusminus
-[:
-  enum unary_expression_not_plusminus_enum {
-    type_bitwise_not_expression,
-    type_logical_not_expression,
-    type_cast_expression,
-    type_primary_expression
-  };
-:]
-
-%namespace postfix_operator
-[:
-  enum postfix_operator_enum {
-    op_increment,
-    op_decrement
-  };
-:]
-
-%namespace modifiers
-[:
-  enum modifier_enum {
-    mod_private      = 1,
-    mod_public       = 1 << 1,
-    mod_protected    = 1 << 2,
-    mod_static       = 1 << 3,
-    mod_transient    = 1 << 4,
-    mod_final        = 1 << 5,
-    mod_abstract     = 1 << 6,
-    mod_native       = 1 << 7,
-    mod_synchronized = 1 << 8,
-    mod_volatile     = 1 << 9,
-    mod_strictfp     = 1 << 10
-  };
-:]
-
-%namespace literal
-[:
-  enum literal_type_enum {
-    type_true,
-    type_false,
-    type_null,
-    type_integer,
-    type_floating_point,
-    type_character,
-    type_string
-  };
-:]
 
 
 
@@ -970,12 +929,12 @@ class DUContext;
    QUESTION (bounds=wildcard_type_bounds | 0)
 -> wildcard_type ;;
 
-   (  EXTENDS [: (*yynode)->extends_or_super = wildcard_type_bounds::extends; :]
-    | SUPER   [: (*yynode)->extends_or_super = wildcard_type_bounds::super;   :]
+   (  EXTENDS [: (*yynode)->extends_or_super = WildcardTypeExtends; :]
+    | SUPER   [: (*yynode)->extends_or_super = WildcardTypeSuper;   :]
    )
    type=class_type
 -> wildcard_type_bounds [
-     member variable extends_or_super: wildcard_type_bounds::extends_or_super_enum;
+     member variable extends_or_super: WildcardTypeBoundsEnum;
 ] ;;
 
 
@@ -1219,12 +1178,12 @@ class DUContext;
 -> switch_section ;;
 
    (  CASE case_expression=expression
-      [: (*yynode)->branch_type = switch_label::case_branch;    :]
+      [: (*yynode)->branch_type = BranchCase;    :]
     | DEFAULT
-      [: (*yynode)->branch_type = switch_label::default_branch; :]
+      [: (*yynode)->branch_type = BranchDefault; :]
    ) COLON
 -> switch_label [
-     member variable branch_type: switch_label::branch_type_enum;
+     member variable branch_type: BranchTypeEnum;
 ] ;;
 
 
@@ -1322,36 +1281,36 @@ class DUContext;
    conditional_expression=conditional_expression
    (
       (  ASSIGN
-           [: (*yynode)->assignment_operator = expression::op_assign;                :]
+           [: (*yynode)->assignment_operator = AssignmentOperatorPlain;          :]
        | PLUS_ASSIGN
-           [: (*yynode)->assignment_operator = expression::op_plus_assign;           :]
+           [: (*yynode)->assignment_operator = AssignmentOperatorPlus;           :]
        | MINUS_ASSIGN
-           [: (*yynode)->assignment_operator = expression::op_minus_assign;          :]
+           [: (*yynode)->assignment_operator = AssignmentOperatorMinus;          :]
        | STAR_ASSIGN
-           [: (*yynode)->assignment_operator = expression::op_star_assign;           :]
+           [: (*yynode)->assignment_operator = AssignmentOperatorStar;           :]
        | SLASH_ASSIGN
-           [: (*yynode)->assignment_operator = expression::op_slash_assign;          :]
+           [: (*yynode)->assignment_operator = AssignmentOperatorSlash;          :]
        | BIT_AND_ASSIGN
-           [: (*yynode)->assignment_operator = expression::op_bit_and_assign;        :]
+           [: (*yynode)->assignment_operator = AssignmentOperatorBitAnd;         :]
        | BIT_OR_ASSIGN
-           [: (*yynode)->assignment_operator = expression::op_bit_or_assign;         :]
+           [: (*yynode)->assignment_operator = AssignmentOperatorBitOr;          :]
        | BIT_XOR_ASSIGN
-           [: (*yynode)->assignment_operator = expression::op_bit_xor_assign;        :]
+           [: (*yynode)->assignment_operator = AssignmentOperatorBitXOr;         :]
        | REMAINDER_ASSIGN
-           [: (*yynode)->assignment_operator = expression::op_remainder_assign;      :]
+           [: (*yynode)->assignment_operator = AssignmentOperatorRemainder;      :]
        | LSHIFT_ASSIGN
-           [: (*yynode)->assignment_operator = expression::op_lshift_assign;         :]
+           [: (*yynode)->assignment_operator = AssignmentOperatorLShift;         :]
        | SIGNED_RSHIFT_ASSIGN
-           [: (*yynode)->assignment_operator = expression::op_signed_rshift_assign;   :]
+           [: (*yynode)->assignment_operator = AssignmentOperatorRShiftSigned;   :]
        | UNSIGNED_RSHIFT_ASSIGN
-           [: (*yynode)->assignment_operator = expression::op_unsigned_rshift_assign; :]
+           [: (*yynode)->assignment_operator = AssignmentOperatorRShiftUnsigned; :]
       )
       assignment_expression=expression
     |
-      0 [: (*yynode)->assignment_operator = expression::no_assignment; :]
+      0 [: (*yynode)->assignment_operator = AssignmentOperatorNone; :]
    )
 -> expression [
-     member variable assignment_operator: expression::assignment_operator_enum;
+     member variable assignment_operator: AssignmentOperatorEnum;
 ] ;;
 
 
@@ -1381,12 +1340,12 @@ class DUContext;
    (#additional_expression=equality_expression_rest)*
 -> equality_expression ;;
 
-   (  EQUAL     [: (*yynode)->equality_operator = equality_expression_rest::op_equal;     :]
-    | NOT_EQUAL [: (*yynode)->equality_operator = equality_expression_rest::op_not_equal; :]
+   (  EQUAL     [: (*yynode)->equality_operator = EqualityOperatorEqual;    :]
+    | NOT_EQUAL [: (*yynode)->equality_operator = EqualityOperatorNotEqual; :]
    )
    expression=relational_expression
 -> equality_expression_rest [
-     member variable equality_operator: equality_expression_rest::equality_operator_enum;
+     member variable equality_operator: EqualityOperatorEnum;
 ] ;;
 
    expression=shift_expression
@@ -1396,52 +1355,52 @@ class DUContext;
    )
 -> relational_expression ;;
 
-   (  LESS_THAN     [: (*yynode)->relational_operator = relational_expression_rest::op_less_than;     :]
-    | GREATER_THAN  [: (*yynode)->relational_operator = relational_expression_rest::op_greater_than;  :]
-    | LESS_EQUAL    [: (*yynode)->relational_operator = relational_expression_rest::op_less_equal;    :]
-    | GREATER_EQUAL [: (*yynode)->relational_operator = relational_expression_rest::op_greater_equal; :]
+   (  LESS_THAN     [: (*yynode)->relational_operator = RelationalOperatorLessThan;     :]
+    | GREATER_THAN  [: (*yynode)->relational_operator = RelationalOperatorGreaterThan;  :]
+    | LESS_EQUAL    [: (*yynode)->relational_operator = RelationalOperatorLessEqual;    :]
+    | GREATER_EQUAL [: (*yynode)->relational_operator = RelationalOperatorGreaterEqual; :]
    )
    expression=shift_expression
 -> relational_expression_rest [
-     member variable relational_operator: relational_expression_rest::relational_operator_enum;
+     member variable relational_operator: RelationalOperatorEnum;
 ] ;;
 
    expression=additive_expression
    (#additional_expression=shift_expression_rest)*
 -> shift_expression ;;
 
-   (  LSHIFT          [: (*yynode)->shift_operator = shift_expression_rest::op_lshift;          :]
-    | SIGNED_RSHIFT   [: (*yynode)->shift_operator = shift_expression_rest::op_signed_rshift;   :]
-    | UNSIGNED_RSHIFT [: (*yynode)->shift_operator = shift_expression_rest::op_unsigned_rshift; :]
+   (  LSHIFT          [: (*yynode)->shift_operator = ShiftOperatorLShift;         :]
+    | SIGNED_RSHIFT   [: (*yynode)->shift_operator = ShiftOperatorRShiftSigned;   :]
+    | UNSIGNED_RSHIFT [: (*yynode)->shift_operator = ShiftOperatorRShiftUnsigned; :]
    )
    expression=additive_expression
 -> shift_expression_rest [
-     member variable shift_operator: shift_expression_rest::shift_operator_enum;
+     member variable shift_operator: ShiftOperatorEnum;
 ] ;;
 
    expression=multiplicative_expression
    (#additional_expression=additive_expression_rest)*
 -> additive_expression ;;
 
-   (  PLUS  [: (*yynode)->additive_operator = additive_expression_rest::op_plus;  :]
-    | MINUS [: (*yynode)->additive_operator = additive_expression_rest::op_minus; :]
+   (  PLUS  [: (*yynode)->additive_operator = AdditiveOperatorPlus;  :]
+    | MINUS [: (*yynode)->additive_operator = AdditiveOperatorMinus; :]
    )
    expression=multiplicative_expression
 -> additive_expression_rest [
-     member variable additive_operator: additive_expression_rest::additive_operator_enum;
+     member variable additive_operator: AdditiveOperatorEnum;
 ] ;;
 
    expression=unary_expression
    (#additional_expression=multiplicative_expression_rest)*
 -> multiplicative_expression ;;
 
-   (  STAR      [: (*yynode)->multiplicative_operator = multiplicative_expression_rest::op_star;      :]
-    | SLASH     [: (*yynode)->multiplicative_operator = multiplicative_expression_rest::op_slash;     :]
-    | REMAINDER [: (*yynode)->multiplicative_operator = multiplicative_expression_rest::op_remainder; :]
+   (  STAR      [: (*yynode)->multiplicative_operator = MultiplicativeOperatorStar;      :]
+    | SLASH     [: (*yynode)->multiplicative_operator = MultiplicativeOperatorSlash;     :]
+    | REMAINDER [: (*yynode)->multiplicative_operator = MultiplicativeOperatorRemainder; :]
    )
    expression=unary_expression
 -> multiplicative_expression_rest [
-     member variable multiplicative_operator: multiplicative_expression_rest::multiplicative_operator_enum;
+     member variable multiplicative_operator: MultiplicativeOperatorEnum;
 ] ;;
 
 
@@ -1450,23 +1409,23 @@ class DUContext;
 
  (
    INCREMENT unary_expression=unary_expression
-     [: (*yynode)->rule_type = unary_expression::type_incremented_expression; :]
+     [: (*yynode)->rule_type = UnaryExpressionIncrement; :]
  | DECREMENT unary_expression=unary_expression
-     [: (*yynode)->rule_type = unary_expression::type_decremented_expression; :]
+     [: (*yynode)->rule_type = UnaryExpressionDecrement; :]
  | MINUS unary_expression=unary_expression
-     [: (*yynode)->rule_type = unary_expression::type_unary_minus_expression; :]
+     [: (*yynode)->rule_type = UnaryExpressionMinus; :]
  | PLUS  unary_expression=unary_expression
-     [: (*yynode)->rule_type = unary_expression::type_unary_plus_expression;  :]
+     [: (*yynode)->rule_type = UnaryExpressionPlus;  :]
  | unary_expression_not_plusminus=unary_expression_not_plusminus
-     [: (*yynode)->rule_type = unary_expression::type_unary_expression_not_plusminus; :]
+     [: (*yynode)->rule_type = UnaryExpressionNotPlusMinus; :]
  )
 -> unary_expression [
-     member variable rule_type: unary_expression::unary_expression_enum;
+     member variable rule_type: UnaryExpressionPlusMinusEnum;
 ] ;;
 
 
--- So, up till now this was the easy stuff. Here comes another sincere
--- conflict in the grammar that can only be solved with LL(k).
+-- So, up till now this was the easy stuff. Here comes another severe conflict
+-- in the grammar that can only be solved with LL(k).
 -- The conflict in this rule is the ambiguity between type casts (which
 -- can be arbitrary class names within parentheses) and primary_expressions,
 -- which can also look that way from an LL(1) perspective.
@@ -1474,21 +1433,21 @@ class DUContext;
 
  (
    TILDE bitwise_not_expression=unary_expression
-     [: (*yynode)->rule_type = unary_expression_not_plusminus::type_bitwise_not_expression; :]
+     [: (*yynode)->rule_type = UnaryExpressionBitwiseNot; :]
  | BANG  logical_not_expression=unary_expression
-     [: (*yynode)->rule_type = unary_expression_not_plusminus::type_logical_not_expression; :]
+     [: (*yynode)->rule_type = UnaryExpressionLogicalNot; :]
  |
    try/rollback(
      cast_expression=cast_expression
-       [: (*yynode)->rule_type = unary_expression_not_plusminus::type_cast_expression;      :]
+       [: (*yynode)->rule_type = UnaryExpressionCast;      :]
    )
    catch (
      primary_expression=primary_expression (#postfix_operator=postfix_operator)*
-       [: (*yynode)->rule_type = unary_expression_not_plusminus::type_primary_expression;   :]
+       [: (*yynode)->rule_type = UnaryExpressionPrimary;   :]
    )
  )
 -> unary_expression_not_plusminus [
-     member variable rule_type: unary_expression_not_plusminus::unary_expression_not_plusminus_enum;
+     member variable rule_type: UnaryExpressionNotPlusMinusEnum;
 ] ;;
 
    LPAREN
@@ -1500,10 +1459,10 @@ class DUContext;
    )
 -> cast_expression ;;
 
-   INCREMENT [: (*yynode)->postfix_operator = postfix_operator::op_increment; :]
- | DECREMENT [: (*yynode)->postfix_operator = postfix_operator::op_decrement; :]
+   INCREMENT [: (*yynode)->postfix_operator = PostfixOperatorIncrement; :]
+ | DECREMENT [: (*yynode)->postfix_operator = PostfixOperatorDecrement; :]
 -> postfix_operator [
-     member variable postfix_operator: postfix_operator::postfix_operator_enum;
+     member variable postfix_operator: PostfixOperatorEnum;
 ] ;;
 
 
@@ -1740,17 +1699,17 @@ class DUContext;
 -- The primitive types. The Java specification doesn't include void here,
 -- but the ANTLR grammar works that way, and so does this one.
 
-   VOID    [: (*yynode)->type = builtin_type::type_void;    :]
- | BOOLEAN [: (*yynode)->type = builtin_type::type_boolean; :]
- | BYTE    [: (*yynode)->type = builtin_type::type_byte;    :]
- | CHAR    [: (*yynode)->type = builtin_type::type_char;    :]
- | SHORT   [: (*yynode)->type = builtin_type::type_short;   :]
- | INT     [: (*yynode)->type = builtin_type::type_int;     :]
- | FLOAT   [: (*yynode)->type = builtin_type::type_float;   :]
- | LONG    [: (*yynode)->type = builtin_type::type_long;    :]
- | DOUBLE  [: (*yynode)->type = builtin_type::type_double;  :]
+   VOID    [: (*yynode)->type = BuiltInTypeVoid;    :]
+ | BOOLEAN [: (*yynode)->type = BuiltInTypeBoolean; :]
+ | BYTE    [: (*yynode)->type = BuiltInTypeByte;    :]
+ | CHAR    [: (*yynode)->type = BuiltInTypeChar;    :]
+ | SHORT   [: (*yynode)->type = BuiltInTypeShort;   :]
+ | INT     [: (*yynode)->type = BuiltInTypeInt;     :]
+ | FLOAT   [: (*yynode)->type = BuiltInTypeFloat;   :]
+ | LONG    [: (*yynode)->type = BuiltInTypeLong;    :]
+ | DOUBLE  [: (*yynode)->type = BuiltInTypeDouble;  :]
 -> builtin_type [
-     member variable type: builtin_type::builtin_type_enum;
+     member variable type: BuiltInTypeEnum;
 ] ;;
 
    #part=class_or_interface_type_name_part @ DOT
@@ -1803,19 +1762,19 @@ class DUContext;
 -- AST node member as flags, except for the annotations who get their own list.
 
  (
-   PRIVATE      [: (*yynode)->modifiers |= modifiers::mod_private;      :]
- | PUBLIC       [: (*yynode)->modifiers |= modifiers::mod_public;       :]
- | PROTECTED    [: (*yynode)->modifiers |= modifiers::mod_protected;    :]
- | STATIC       [: (*yynode)->modifiers |= modifiers::mod_static;       :]
- | TRANSIENT    [: (*yynode)->modifiers |= modifiers::mod_transient;    :]
- | FINAL        [: (*yynode)->modifiers |= modifiers::mod_final;        :]
- | ABSTRACT     [: (*yynode)->modifiers |= modifiers::mod_abstract;     :]
- | NATIVE       [: (*yynode)->modifiers |= modifiers::mod_native;       :]
+   PRIVATE      [: (*yynode)->modifiers |= ModifierPrivate;      :]
+ | PUBLIC       [: (*yynode)->modifiers |= ModifierPublic;       :]
+ | PROTECTED    [: (*yynode)->modifiers |= ModifierProtected;    :]
+ | STATIC       [: (*yynode)->modifiers |= ModifierStatic;       :]
+ | TRANSIENT    [: (*yynode)->modifiers |= ModifierTransient;    :]
+ | FINAL        [: (*yynode)->modifiers |= ModifierFinal;        :]
+ | ABSTRACT     [: (*yynode)->modifiers |= ModifierAbstract;     :]
+ | NATIVE       [: (*yynode)->modifiers |= ModifierNative;       :]
  -- Neither in the Java spec nor in the JavaCC grammar, just in the ANTLR one:
- -- | mod_threadsafe=THREADSAFE
- | SYNCHRONIZED [: (*yynode)->modifiers |= modifiers::mod_synchronized; :]
- | VOLATILE     [: (*yynode)->modifiers |= modifiers::mod_volatile;     :]
- | STRICTFP     [: (*yynode)->modifiers |= modifiers::mod_strictfp;     :]
+ -- | ModThreadsafe=THREADSAFE
+ | SYNCHRONIZED [: (*yynode)->modifiers |= ModifierSynchronized; :]
+ | VOLATILE     [: (*yynode)->modifiers |= ModifierVolatile;     :]
+ | STRICTFP     [: (*yynode)->modifiers |= ModifierStrictFP;     :]
  |
  -- A modifier may be any annotation (e.g. @bla), but not @interface.
  -- This condition resolves the conflict between modifiers
@@ -1833,24 +1792,24 @@ class DUContext;
 -> identifier ;;
 
  (
-   TRUE   [: (*yynode)->literal_type = literal::type_true;  :]
- | FALSE  [: (*yynode)->literal_type = literal::type_false; :]
- | NULL   [: (*yynode)->literal_type = literal::type_null;  :]
+   TRUE   [: (*yynode)->literal_type = LiteralTrue;  :]
+ | FALSE  [: (*yynode)->literal_type = LiteralFalse; :]
+ | NULL   [: (*yynode)->literal_type = LiteralNull;  :]
  |
    integer_literal=INTEGER_LITERAL
-   [: (*yynode)->literal_type = literal::type_integer;  :]
+   [: (*yynode)->literal_type = LiteralInteger;  :]
  |
    floating_point_literal=FLOATING_POINT_LITERAL
-   [: (*yynode)->literal_type = literal::type_floating_point;  :]
+   [: (*yynode)->literal_type = LiteralFloatingPoint;  :]
  |
    character_literal=CHARACTER_LITERAL
-   [: (*yynode)->literal_type = literal::type_character;  :]
+   [: (*yynode)->literal_type = LiteralCharacter;  :]
  |
    string_literal=STRING_LITERAL
-   [: (*yynode)->literal_type = literal::type_string;  :]
+   [: (*yynode)->literal_type = LiteralString;  :]
  )
 -> literal [
-     member variable literal_type: literal::literal_type_enum;
+     member variable literal_type: LiteralTypeEnum;
 ] ;;
 
 

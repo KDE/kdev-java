@@ -581,37 +581,34 @@ void TypeBuilder::visitBuiltin_type(Builtin_typeAst * node)
     IntegralType::IntegralTypes type = IntegralType::TypeNone;
 
     switch (node->type) {
-      case builtin_type::type_void:
+      case BuiltInTypeVoid:
         type = IntegralType::TypeVoid;
         break;
-      case builtin_type::type_boolean:
+      case BuiltInTypeBoolean:
           type = IntegralType::TypeBoolean;
           break;
-      case builtin_type::type_byte:
+      case BuiltInTypeByte:
           type = IntegralType::TypeByte;
           break;
-      case builtin_type::type_char:
+      case BuiltInTypeChar:
           type = IntegralType::TypeChar;
           break;
-      case builtin_type::type_short:
+      case BuiltInTypeShort:
           type = IntegralType::TypeShort;
           break;
-      case builtin_type::type_int:
+      case BuiltInTypeInt:
           type = IntegralType::TypeInt;
           break;
-      case builtin_type::type_float:
+      case BuiltInTypeFloat:
           type = IntegralType::TypeFloat;
           break;
-      case builtin_type::type_long:
+      case BuiltInTypeLong:
           type = IntegralType::TypeLong;
           break;
-      case builtin_type::type_double:
+      case BuiltInTypeDouble:
           type = IntegralType::TypeDouble;
           break;
     }
-
-    if(type == IntegralType::TypeNone)
-      type = IntegralType::TypeInt; //Happens, example: "unsigned short"
 
     // TODO move this out and pass the modifiers as well
     /*

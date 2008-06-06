@@ -147,173 +147,131 @@ struct While_statementAst;
 struct Wildcard_typeAst;
 struct Wildcard_type_boundsAst;
 
-namespace additive_expression_rest
-{
-enum additive_operator_enum
-{
-    op_plus,
-    op_minus
-};
-}
 
-namespace builtin_type
+enum WildcardTypeBoundsEnum
 {
-enum builtin_type_enum
-{
-    type_void,
-    type_boolean,
-    type_byte,
-    type_char,
-    type_short,
-    type_int,
-    type_float,
-    type_long,
-    type_double
+    WildcardTypeExtends,
+    WildcardTypeSuper
 };
-}
 
-namespace equality_expression_rest
+enum BuiltInTypeEnum
 {
-enum equality_operator_enum
-{
-    op_equal,
-    op_not_equal
+    BuiltInTypeVoid,
+    BuiltInTypeBoolean,
+    BuiltInTypeByte,
+    BuiltInTypeChar,
+    BuiltInTypeShort,
+    BuiltInTypeInt,
+    BuiltInTypeFloat,
+    BuiltInTypeLong,
+    BuiltInTypeDouble
 };
-}
 
-namespace expression
+enum BranchTypeEnum
 {
-enum assignment_operator_enum
-{
-    no_assignment,
-    op_assign,
-    op_plus_assign,
-    op_minus_assign,
-    op_star_assign,
-    op_slash_assign,
-    op_bit_and_assign,
-    op_bit_or_assign,
-    op_bit_xor_assign,
-    op_remainder_assign,
-    op_lshift_assign,
-    op_signed_rshift_assign,
-    op_unsigned_rshift_assign
+    BranchCase,
+    BranchDefault
 };
-}
 
-namespace literal
+enum AssignmentOperatorEnum
 {
-enum literal_type_enum
-{
-    type_true,
-    type_false,
-    type_null,
-    type_integer,
-    type_floating_point,
-    type_character,
-    type_string
+    AssignmentOperatorNone,
+    AssignmentOperatorPlain,
+    AssignmentOperatorPlus,
+    AssignmentOperatorMinus,
+    AssignmentOperatorStar,
+    AssignmentOperatorSlash,
+    AssignmentOperatorBitAnd,
+    AssignmentOperatorBitOr,
+    AssignmentOperatorBitXOr,
+    AssignmentOperatorRemainder,
+    AssignmentOperatorLShift,
+    AssignmentOperatorRShiftSigned,
+    AssignmentOperatorRShiftUnsigned
 };
-}
 
-namespace modifiers
+enum EqualityOperatorEnum
 {
-enum modifier_enum
-{
-    mod_private      = 1,
-    mod_public       = 1 << 1,
-    mod_protected    = 1 << 2,
-    mod_static       = 1 << 3,
-    mod_transient    = 1 << 4,
-    mod_final        = 1 << 5,
-    mod_abstract     = 1 << 6,
-    mod_native       = 1 << 7,
-    mod_synchronized = 1 << 8,
-    mod_volatile     = 1 << 9,
-    mod_strictfp     = 1 << 10
+    EqualityOperatorEqual,
+    EqualityOperatorNotEqual
 };
-}
 
-namespace multiplicative_expression_rest
+enum RelationalOperatorEnum
 {
-enum multiplicative_operator_enum
-{
-    op_star,
-    op_slash,
-    op_remainder
+    RelationalOperatorLessThan,
+    RelationalOperatorGreaterThan,
+    RelationalOperatorLessEqual,
+    RelationalOperatorGreaterEqual
 };
-}
 
-namespace postfix_operator
+enum ShiftOperatorEnum
 {
-enum postfix_operator_enum
-{
-    op_increment,
-    op_decrement
+    ShiftOperatorLShift,
+    ShiftOperatorRShiftSigned,
+    ShiftOperatorRShiftUnsigned
 };
-}
 
-namespace relational_expression_rest
+enum AdditiveOperatorEnum
 {
-enum relational_operator_enum
-{
-    op_less_than,
-    op_greater_than,
-    op_less_equal,
-    op_greater_equal
+    AdditiveOperatorPlus,
+    AdditiveOperatorMinus
 };
-}
 
-namespace shift_expression_rest
+enum MultiplicativeOperatorEnum
 {
-enum shift_operator_enum
-{
-    op_lshift,
-    op_signed_rshift,
-    op_unsigned_rshift
+    MultiplicativeOperatorStar,
+    MultiplicativeOperatorSlash,
+    MultiplicativeOperatorRemainder
 };
-}
 
-namespace switch_label
+enum UnaryExpressionPlusMinusEnum
 {
-enum branch_type_enum
-{
-    case_branch,
-    default_branch
+    UnaryExpressionIncrement,
+    UnaryExpressionDecrement,
+    UnaryExpressionMinus,
+    UnaryExpressionPlus,
+    UnaryExpressionNotPlusMinus
 };
-}
 
-namespace unary_expression
+enum UnaryExpressionNotPlusMinusEnum
 {
-enum unary_expression_enum
-{
-    type_incremented_expression,
-    type_decremented_expression,
-    type_unary_minus_expression,
-    type_unary_plus_expression,
-    type_unary_expression_not_plusminus
+    UnaryExpressionBitwiseNot,
+    UnaryExpressionLogicalNot,
+    UnaryExpressionCast,
+    UnaryExpressionPrimary
 };
-}
 
-namespace unary_expression_not_plusminus
+enum PostfixOperatorEnum
 {
-enum unary_expression_not_plusminus_enum
-{
-    type_bitwise_not_expression,
-    type_logical_not_expression,
-    type_cast_expression,
-    type_primary_expression
+    PostfixOperatorIncrement,
+    PostfixOperatorDecrement
 };
-}
 
-namespace wildcard_type_bounds
+enum ModifierFlags
 {
-enum extends_or_super_enum
-{
-    extends,
-    super
+    ModifierPrivate      = 1,
+    ModifierPublic       = 1 << 1,
+    ModifierProtected    = 1 << 2,
+    ModifierStatic       = 1 << 3,
+    ModifierTransient    = 1 << 4,
+    ModifierFinal        = 1 << 5,
+    ModifierAbstract     = 1 << 6,
+    ModifierNative       = 1 << 7,
+    ModifierSynchronized = 1 << 8,
+    ModifierVolatile     = 1 << 9,
+    ModifierStrictFP     = 1 << 10
 };
-}
 
+enum LiteralTypeEnum
+{
+    LiteralTrue,
+    LiteralFalse,
+    LiteralNull,
+    LiteralInteger,
+    LiteralFloatingPoint,
+    LiteralCharacter,
+    LiteralString
+};
 
 struct KDEVJAVAPARSER_EXPORT AstNode
 {
@@ -470,7 +428,7 @@ struct KDEVJAVAPARSER_EXPORT Additive_expression_restAst: public AstNode
 {
     enum { KIND = Additive_expression_restKind };
 
-    additive_expression_rest::additive_operator_enum additive_operator;
+    AdditiveOperatorEnum additive_operator;
     Multiplicative_expressionAst *expression;
 };
 
@@ -645,7 +603,7 @@ struct KDEVJAVAPARSER_EXPORT Builtin_typeAst: public AstNode
 {
     enum { KIND = Builtin_typeKind };
 
-    builtin_type::builtin_type_enum type;
+    BuiltInTypeEnum type;
 };
 
 struct KDEVJAVAPARSER_EXPORT Builtin_type_dot_classAst: public AstNode
@@ -869,7 +827,7 @@ struct KDEVJAVAPARSER_EXPORT Equality_expression_restAst: public AstNode
 {
     enum { KIND = Equality_expression_restKind };
 
-    equality_expression_rest::equality_operator_enum equality_operator;
+    EqualityOperatorEnum equality_operator;
     Relational_expressionAst *expression;
 };
 
@@ -877,7 +835,7 @@ struct KDEVJAVAPARSER_EXPORT ExpressionAst: public AstNode
 {
     enum { KIND = ExpressionKind };
 
-    expression::assignment_operator_enum assignment_operator;
+    AssignmentOperatorEnum assignment_operator;
     Conditional_expressionAst *conditional_expression;
     ExpressionAst *assignment_expression;
 };
@@ -1009,7 +967,7 @@ struct KDEVJAVAPARSER_EXPORT LiteralAst: public AstNode
 {
     enum { KIND = LiteralKind };
 
-    literal::literal_type_enum literal_type;
+    LiteralTypeEnum literal_type;
     qint64 integer_literal;
     qint64 floating_point_literal;
     qint64 character_literal;
@@ -1080,7 +1038,7 @@ struct KDEVJAVAPARSER_EXPORT Multiplicative_expression_restAst: public AstNode
 {
     enum { KIND = Multiplicative_expression_restKind };
 
-    multiplicative_expression_rest::multiplicative_operator_enum multiplicative_operator;
+    MultiplicativeOperatorEnum multiplicative_operator;
     Unary_expressionAst *expression;
 };
 
@@ -1188,7 +1146,7 @@ struct KDEVJAVAPARSER_EXPORT Postfix_operatorAst: public AstNode
 {
     enum { KIND = Postfix_operatorKind };
 
-    postfix_operator::postfix_operator_enum postfix_operator;
+    PostfixOperatorEnum postfix_operator;
 };
 
 struct KDEVJAVAPARSER_EXPORT Primary_atomAst: public AstNode
@@ -1256,7 +1214,7 @@ struct KDEVJAVAPARSER_EXPORT Relational_expression_restAst: public AstNode
 {
     enum { KIND = Relational_expression_restKind };
 
-    relational_expression_rest::relational_operator_enum relational_operator;
+    RelationalOperatorEnum relational_operator;
     Shift_expressionAst *expression;
 };
 
@@ -1279,7 +1237,7 @@ struct KDEVJAVAPARSER_EXPORT Shift_expression_restAst: public AstNode
 {
     enum { KIND = Shift_expression_restKind };
 
-    shift_expression_rest::shift_operator_enum shift_operator;
+    ShiftOperatorEnum shift_operator;
     Additive_expressionAst *expression;
 };
 
@@ -1318,7 +1276,7 @@ struct KDEVJAVAPARSER_EXPORT Switch_labelAst: public AstNode
 {
     enum { KIND = Switch_labelKind };
 
-    switch_label::branch_type_enum branch_type;
+    BranchTypeEnum branch_type;
     ExpressionAst *case_expression;
 };
 
@@ -1449,7 +1407,7 @@ struct KDEVJAVAPARSER_EXPORT Unary_expressionAst: public AstNode
 {
     enum { KIND = Unary_expressionKind };
 
-    unary_expression::unary_expression_enum rule_type;
+    UnaryExpressionPlusMinusEnum rule_type;
     Unary_expressionAst *unary_expression;
     Unary_expression_not_plusminusAst *unary_expression_not_plusminus;
 };
@@ -1458,7 +1416,7 @@ struct KDEVJAVAPARSER_EXPORT Unary_expression_not_plusminusAst: public AstNode
 {
     enum { KIND = Unary_expression_not_plusminusKind };
 
-    unary_expression_not_plusminus::unary_expression_not_plusminus_enum rule_type;
+    UnaryExpressionNotPlusMinusEnum rule_type;
     Unary_expressionAst *bitwise_not_expression;
     Unary_expressionAst *logical_not_expression;
     Cast_expressionAst *cast_expression;
@@ -1547,7 +1505,7 @@ struct KDEVJAVAPARSER_EXPORT Wildcard_type_boundsAst: public AstNode
 {
     enum { KIND = Wildcard_type_boundsKind };
 
-    wildcard_type_bounds::extends_or_super_enum extends_or_super;
+    WildcardTypeBoundsEnum extends_or_super;
     Class_typeAst *type;
 };
 
