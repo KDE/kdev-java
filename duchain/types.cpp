@@ -300,7 +300,7 @@ IntegralType::IntegralType(IntegralTypes type, TypeModifiers modifiers)
       name = "boolean";
       break;
     case TypeInt:
-      name = "integer";
+      name = "int";
       break;
     case TypeFloat:
       name = "float";
