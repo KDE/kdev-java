@@ -21,7 +21,6 @@
 
 #include <editorintegrator.h>
 #include <editor/simplerange.h>
-#include "java_lexer.h"
 
 #include "kdev-pg-token-stream.h"
 

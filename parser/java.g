@@ -112,42 +112,42 @@ class DUContext;
   void tokenize( char *contents );
 
   /**
-   * The compatibility_mode status variable tells which version of Java
+   * The compatibilityMode() status variable tells which version of Java
    * should be checked against.
    */
-  enum java_compatibility_mode {
-      java13_compatibility = 130,
-      java14_compatibility = 140,
-      java15_compatibility = 150
+  enum JavaCompatibilityMode {
+      Java13Compatibility = 130,
+      Java14Compatibility = 140,
+      Java15Compatibility = 150
   };
 
-  Parser::java_compatibility_mode compatibility_mode();
-  void set_compatibility_mode( Parser::java_compatibility_mode mode );
+  Parser::JavaCompatibilityMode compatibilityMode();
+  void setCompatibilityMode( Parser::JavaCompatibilityMode mode );
 
-  enum problem_type {
-      error,
-      warning,
-      info
+  enum ProblemType {
+      Error,
+      Warning,
+      Info
   };
-  void reportProblem( Parser::problem_type type, const QString& message );
+  void reportProblem( Parser::ProblemType type, const QString& message );
 :]
 
 %parserclass (private declaration)
 [:
-  Parser::java_compatibility_mode _M_compatibility_mode;
+  Parser::JavaCompatibilityMode m_compatibilityMode;
 
-  struct parser_state {
+  struct ParserState {
       // ltCounter stores the amount of currently open type arguments rules,
       // all of which are beginning with a less than ("<") character.
       // This way, also SIGNED_RSHIFT (">>") and UNSIGNED_RSHIFT (">>>") can be used
       // to close type arguments rules, in addition to GREATER_THAN (">").
       int ltCounter;
   };
-  parser_state _M_state;
+  ParserState m_state;
 :]
 
 %parserclass (constructor)
-  [: _M_compatibility_mode = java15_compatibility; :]
+  [: m_compatibilityMode = Java15Compatibility; :]
 
 
 
@@ -367,7 +367,7 @@ class DUContext;
 ------------------------------------------------------------
 
 
-   0 [: _M_state.ltCounter = 0; :]
+   0 [: m_state.ltCounter = 0; :]
    -- There is a conflict between package_declaration and type_declaration
    -- (both can start with annotations) which requires arbitrary-length LL(k).
    -- The following construct uses backtracking with try/rollback to work
@@ -469,7 +469,7 @@ class DUContext;
 -- Definition of a Java CLASS
 
    CLASS class_name=identifier
-   (  ?[: compatibility_mode() >= java15_compatibility :]
+   (  ?[: compatibilityMode() >= Java15Compatibility :]
       type_parameters=type_parameters
     | 0
    )  -- in Java 1.5 or higher, it might have type parameters
@@ -484,7 +484,7 @@ class DUContext;
 -- Definition of a Java INTERFACE
 
    INTERFACE interface_name=identifier
-   (  ?[: compatibility_mode() >= java15_compatibility :]
+   (  ?[: compatibilityMode() >= Java15Compatibility :]
       type_parameters=type_parameters
     | 0
    )  -- in Java 1.5 or higher, it might have type parameters
@@ -612,7 +612,7 @@ class DUContext;
     |
       -- A generic method/ctor has the type_parameters before the return type.
       -- This is not allowed for variable definitions, which is checked later.
-      (  ?[: compatibility_mode() >= java15_compatibility :]
+      (  ?[: compatibilityMode() >= Java15Compatibility :]
          type_parameters:type_parameters
        | 0
       )
@@ -639,7 +639,7 @@ class DUContext;
               modifiers, type, variable_declaratorSequence
             ]
           |
-            0 [: reportProblem( error,
+            0 [: reportProblem( Error,
                    "Expected method declaration after type parameter list" );
                :]
             SEMICOLON -- not really needed, but avoids conflict warnings
@@ -671,7 +671,7 @@ class DUContext;
     |
       -- A generic method has the type_parameters before the return type.
       -- This is not allowed for variable definitions, which is checked later.
-      (  ?[: compatibility_mode() >= java15_compatibility :]
+      (  ?[: compatibilityMode() >= Java15Compatibility :]
          type_parameters:type_parameters
        | 0
       )
@@ -690,7 +690,7 @@ class DUContext;
            modifiers, type, variable_declaratorSequence
          ]
        |
-         0 [: reportProblem( error,
+         0 [: reportProblem( Error,
                 "Expected method declaration after type parameter list" );
             :]
          SEMICOLON -- not really needed, but avoids conflict warnings
@@ -714,7 +714,7 @@ class DUContext;
       -- A generic method has the type_parameters before the return type.
       -- This is not allowed for variable definitions, which is checked later.
       0 [: bool has_type_parameters = false; :]
-      (  ?[: compatibility_mode() >= java15_compatibility :]
+      (  ?[: compatibilityMode() >= Java15Compatibility :]
          type_parameters:type_parameters [: has_type_parameters = true; :]
        | 0
       )
@@ -733,7 +733,7 @@ class DUContext;
            modifiers, type, variable_declaratorSequence
          ]
        |
-         0 [: reportProblem( error,
+         0 [: reportProblem( Error,
                 "Expected method declaration after type parameter list" );
             :]
          SEMICOLON -- not really needed, but avoids conflict warnings
@@ -871,7 +871,7 @@ class DUContext;
 --
 -- -- Catches obvious constructor calls, but not the expr.super(...) calls:
 --
---    (  ?[: compatibility_mode() >= java15_compatibility :]
+--    (  ?[: compatibilityMode() >= Java15Compatibility :]
 --       type_arguments=type_arguments
 --     | 0
 --    )
@@ -889,7 +889,7 @@ class DUContext;
 -- TYPE PARAMETERS are used in class, interface etc. declarations to
 -- determine the generic types allowed as type argument.
 
-   LESS_THAN [: int currentLtLevel = _M_state.ltCounter; _M_state.ltCounter++; :]
+   LESS_THAN [: int currentLtLevel = m_state.ltCounter; m_state.ltCounter++; :]
    #type_parameter=type_parameter @ COMMA
    (
       type_arguments_or_parameters_end
@@ -897,9 +897,9 @@ class DUContext;
    )
    -- make sure we have gobbled up enough '>' characters
    -- if we are at the "top level" of nested type_parameters productions
-   [: if (currentLtLevel == 0 && _M_state.ltCounter != currentLtLevel ) {
+   [: if (currentLtLevel == 0 && m_state.ltCounter != currentLtLevel ) {
         if (!mBlockErrors) {
-          reportProblem(error, "The amount of closing ``>'' characters is incorrect");
+          reportProblem(Error, "The amount of closing ``>'' characters is incorrect");
         }
         return false;
       }
@@ -914,10 +914,10 @@ class DUContext;
 -- TYPE ARGUMENTS are used in initializers, invocations, etc. to
 -- specify the exact types for this generic class/method instance.
 
-   LESS_THAN [: int currentLtLevel = _M_state.ltCounter; _M_state.ltCounter++; :]
+   LESS_THAN [: int currentLtLevel = m_state.ltCounter; m_state.ltCounter++; :]
    #type_argument=type_argument
    ( -- only proceed when we are at the right nesting level:
-     0 [: if( _M_state.ltCounter != currentLtLevel + 1 ) { break; } :]
+     0 [: if( m_state.ltCounter != currentLtLevel + 1 ) { break; } :]
      COMMA #type_argument=type_argument
    )*
    (
@@ -926,19 +926,19 @@ class DUContext;
    )
    -- make sure we have gobbled up enough '>' characters
    -- if we are at the "top level" of nested type_arguments productions
-   [: if (currentLtLevel == 0 && _M_state.ltCounter != currentLtLevel ) {
+   [: if (currentLtLevel == 0 && m_state.ltCounter != currentLtLevel ) {
         if (!mBlockErrors) {
-          reportProblem(error, "The amount of closing ``>'' characters is incorrect");
+          reportProblem(Error, "The amount of closing ``>'' characters is incorrect");
         }
         return false;
       }
    :]
 -> type_arguments ;;
 
-   LESS_THAN [: int currentLtLevel = _M_state.ltCounter; _M_state.ltCounter++; :]
+   LESS_THAN [: int currentLtLevel = m_state.ltCounter; m_state.ltCounter++; :]
    #type_argument_type=type_argument_type
    ( -- only proceed when we are at the right nesting level:
-     0 [: if( _M_state.ltCounter != currentLtLevel + 1 ) { break; } :]
+     0 [: if( m_state.ltCounter != currentLtLevel + 1 ) { break; } :]
      COMMA #type_argument_type=type_argument_type
    )*
    (
@@ -947,9 +947,9 @@ class DUContext;
    )
    -- make sure we have gobbled up enough '>' characters
    -- if we are at the "top level" of nested type_arguments productions
-   [: if (currentLtLevel == 0 && _M_state.ltCounter != currentLtLevel ) {
+   [: if (currentLtLevel == 0 && m_state.ltCounter != currentLtLevel ) {
         if (!mBlockErrors) {
-          reportProblem(error, "The amount of closing ``>'' characters is incorrect");
+          reportProblem(Error, "The amount of closing ``>'' characters is incorrect");
         }
         return false;
       }
@@ -979,9 +979,9 @@ class DUContext;
 ] ;;
 
 
-   GREATER_THAN    [: _M_state.ltCounter -= 1; :]  -- ">"
- | SIGNED_RSHIFT   [: _M_state.ltCounter -= 2; :]  -- ">>"
- | UNSIGNED_RSHIFT [: _M_state.ltCounter -= 3; :]  -- ">>>"
+   GREATER_THAN    [: m_state.ltCounter -= 1; :]  -- ">"
+ | SIGNED_RSHIFT   [: m_state.ltCounter -= 2; :]  -- ">>"
+ | UNSIGNED_RSHIFT [: m_state.ltCounter -= 3; :]  -- ">>>"
 -> type_arguments_or_parameters_end ;;
 
 
@@ -1245,7 +1245,7 @@ class DUContext;
      vardecl_start_or_foreach_parameter:parameter_declaration  -- "int i"
      (
          -- foreach: int i : intList.values()
-         ?[: compatibility_mode() >= java15_compatibility :]
+         ?[: compatibilityMode() >= Java15Compatibility :]
          COLON iterable_expression:expression
          foreach_declaration=foreach_declaration_data[
            vardecl_start_or_foreach_parameter, iterable_expression
@@ -1529,7 +1529,7 @@ class DUContext;
       simple_name_access=simple_name_access_data[ identifier ]
     |
       -- method calls (including the "super" ones) may have type arguments
-      (  ?[: compatibility_mode() >= java15_compatibility :]
+      (  ?[: compatibilityMode() >= Java15Compatibility :]
          type_arguments:non_wildcard_type_arguments
        | 0
       )
@@ -1563,7 +1563,7 @@ class DUContext;
       simple_name_access=simple_name_access_data[ identifier ]
     |
       -- method access (looks like super.methodName(...) in the end)
-      (  ?[: compatibility_mode() >= java15_compatibility :]
+      (  ?[: compatibilityMode() >= Java15Compatibility :]
          type_arguments:non_wildcard_type_arguments
        | 0
       )
@@ -1597,7 +1597,7 @@ class DUContext;
    SUPER super_suffix:super_suffix
    super_access=super_access_data[ 0 /* no type arguments */, super_suffix ]
  |
-   ?[: compatibility_mode() >= java15_compatibility :]
+   ?[: compatibilityMode() >= Java15Compatibility :]
    -- generic method invocation with type arguments:
    type_arguments:non_wildcard_type_arguments
    (
@@ -1677,7 +1677,7 @@ class DUContext;
 -- NEW EXPRESSIONs are allocations of new types or arrays.
 
    NEW
-   (  ?[: compatibility_mode() >= java15_compatibility :]
+   (  ?[: compatibilityMode() >= Java15Compatibility :]
       type_arguments=non_wildcard_type_arguments
     | 0
    )
@@ -1757,7 +1757,7 @@ class DUContext;
 -> class_or_interface_type_name ;;
 
    identifier=identifier
-   (  ?[: compatibility_mode() >= java15_compatibility :]
+   (  ?[: compatibilityMode() >= Java15Compatibility :]
       type_arguments=type_arguments
     | 0
    )
@@ -1866,7 +1866,7 @@ class DUContext;
 -----------------------------------------------------------------
 
 [:
-#include "java_lexer.h"
+#include "javalexer.h"
 #include <QString>
 
 namespace java
@@ -1895,26 +1895,26 @@ void Parser::tokenize( char *contents )
     this->yylex(); // produce the look ahead token
 }
 
-Parser::java_compatibility_mode Parser::compatibility_mode()
+Parser::JavaCompatibilityMode Parser::compatibilityMode()
 {
-    return _M_compatibility_mode;
+    return m_compatibilityMode;
 }
-void Parser::set_compatibility_mode( Parser::java_compatibility_mode mode )
+void Parser::setCompatibilityMode( Parser::JavaCompatibilityMode mode )
 {
-    _M_compatibility_mode = mode;
+    m_compatibilityMode = mode;
 }
 
 
-Parser::parser_state *Parser::copy_current_state()
+Parser::ParserState *Parser::copyCurrentState()
 {
-    parser_state *state = new parser_state();
-    state->ltCounter = _M_state.ltCounter;
+    ParserState *state = new ParserState();
+    state->ltCounter = m_state.ltCounter;
     return state;
 }
 
-void Parser::restore_state( Parser::parser_state *state )
+void Parser::restoreState( Parser::ParserState *state )
 {
-    _M_state.ltCounter = state->ltCounter;
+    m_state.ltCounter = state->ltCounter;
 }
 
 } // end of namespace java

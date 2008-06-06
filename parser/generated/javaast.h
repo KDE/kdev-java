@@ -7,8 +7,13 @@
 #include <QtCore/QList>
 #include <kdev-pg-list.h>
 
+#include <javaparserexport.h>
 
-#include <string>
+#include <QtCore/QString>
+namespace KDevelop
+{
+class DUContext;
+}
 
 namespace java
 {
@@ -310,7 +315,7 @@ enum extends_or_super_enum
 }
 
 
-struct  AstNode
+struct KDEVJAVAPARSER_EXPORT AstNode
 {
     enum AstNodeKind
     {
@@ -448,9 +453,12 @@ struct  AstNode
     int kind;
     qint64 startToken;
     qint64 endToken;
+
+    KDevelop::DUContext* ducontext;
+
 };
 
-struct  Additive_expressionAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Additive_expressionAst: public AstNode
 {
     enum { KIND = Additive_expressionKind };
 
@@ -458,7 +466,7 @@ struct  Additive_expressionAst: public AstNode
     const KDevPG::ListNode<Additive_expression_restAst *> *additional_expressionSequence;
 };
 
-struct  Additive_expression_restAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Additive_expression_restAst: public AstNode
 {
     enum { KIND = Additive_expression_restKind };
 
@@ -466,7 +474,7 @@ struct  Additive_expression_restAst: public AstNode
     Multiplicative_expressionAst *expression;
 };
 
-struct  AnnotationAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT AnnotationAst: public AstNode
 {
     enum { KIND = AnnotationKind };
 
@@ -475,7 +483,7 @@ struct  AnnotationAst: public AstNode
     Annotation_argumentsAst *args;
 };
 
-struct  Annotation_argumentsAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Annotation_argumentsAst: public AstNode
 {
     enum { KIND = Annotation_argumentsKind };
 
@@ -483,14 +491,14 @@ struct  Annotation_argumentsAst: public AstNode
     Annotation_element_valueAst *element_value;
 };
 
-struct  Annotation_element_array_initializerAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Annotation_element_array_initializerAst: public AstNode
 {
     enum { KIND = Annotation_element_array_initializerKind };
 
     const KDevPG::ListNode<Annotation_element_array_valueAst *> *element_valueSequence;
 };
 
-struct  Annotation_element_array_valueAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Annotation_element_array_valueAst: public AstNode
 {
     enum { KIND = Annotation_element_array_valueKind };
 
@@ -498,7 +506,7 @@ struct  Annotation_element_array_valueAst: public AstNode
     AnnotationAst *annotation;
 };
 
-struct  Annotation_element_valueAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Annotation_element_valueAst: public AstNode
 {
     enum { KIND = Annotation_element_valueKind };
 
@@ -507,7 +515,7 @@ struct  Annotation_element_valueAst: public AstNode
     Annotation_element_array_initializerAst *element_array_initializer;
 };
 
-struct  Annotation_element_value_pairAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Annotation_element_value_pairAst: public AstNode
 {
     enum { KIND = Annotation_element_value_pairKind };
 
@@ -515,7 +523,7 @@ struct  Annotation_element_value_pairAst: public AstNode
     Annotation_element_valueAst *element_value;
 };
 
-struct  Annotation_method_declarationAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Annotation_method_declarationAst: public AstNode
 {
     enum { KIND = Annotation_method_declarationKind };
 
@@ -525,14 +533,14 @@ struct  Annotation_method_declarationAst: public AstNode
     Annotation_element_valueAst *annotation_element_value;
 };
 
-struct  Annotation_type_bodyAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Annotation_type_bodyAst: public AstNode
 {
     enum { KIND = Annotation_type_bodyKind };
 
     const KDevPG::ListNode<Annotation_type_fieldAst *> *annotation_type_fieldSequence;
 };
 
-struct  Annotation_type_declarationAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Annotation_type_declarationAst: public AstNode
 {
     enum { KIND = Annotation_type_declarationKind };
 
@@ -541,7 +549,7 @@ struct  Annotation_type_declarationAst: public AstNode
     Annotation_type_bodyAst *body;
 };
 
-struct  Annotation_type_fieldAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Annotation_type_fieldAst: public AstNode
 {
     enum { KIND = Annotation_type_fieldKind };
 
@@ -553,14 +561,14 @@ struct  Annotation_type_fieldAst: public AstNode
     Variable_declaration_dataAst *constant_declaration;
 };
 
-struct  Array_accessAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Array_accessAst: public AstNode
 {
     enum { KIND = Array_accessKind };
 
     ExpressionAst *array_index_expression;
 };
 
-struct  Array_creator_restAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Array_creator_restAst: public AstNode
 {
     enum { KIND = Array_creator_restKind };
 
@@ -570,7 +578,7 @@ struct  Array_creator_restAst: public AstNode
     Optional_declarator_bracketsAst *optional_declarator_brackets;
 };
 
-struct  Array_type_dot_classAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Array_type_dot_classAst: public AstNode
 {
     enum { KIND = Array_type_dot_classKind };
 
@@ -578,7 +586,7 @@ struct  Array_type_dot_classAst: public AstNode
     Mandatory_declarator_bracketsAst *declarator_brackets;
 };
 
-struct  Assert_statementAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Assert_statementAst: public AstNode
 {
     enum { KIND = Assert_statementKind };
 
@@ -586,35 +594,35 @@ struct  Assert_statementAst: public AstNode
     ExpressionAst *message;
 };
 
-struct  Bit_and_expressionAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Bit_and_expressionAst: public AstNode
 {
     enum { KIND = Bit_and_expressionKind };
 
     const KDevPG::ListNode<Equality_expressionAst *> *expressionSequence;
 };
 
-struct  Bit_or_expressionAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Bit_or_expressionAst: public AstNode
 {
     enum { KIND = Bit_or_expressionKind };
 
     const KDevPG::ListNode<Bit_xor_expressionAst *> *expressionSequence;
 };
 
-struct  Bit_xor_expressionAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Bit_xor_expressionAst: public AstNode
 {
     enum { KIND = Bit_xor_expressionKind };
 
     const KDevPG::ListNode<Bit_and_expressionAst *> *expressionSequence;
 };
 
-struct  BlockAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT BlockAst: public AstNode
 {
     enum { KIND = BlockKind };
 
     const KDevPG::ListNode<Block_statementAst *> *statementSequence;
 };
 
-struct  Block_statementAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Block_statementAst: public AstNode
 {
     enum { KIND = Block_statementKind };
 
@@ -626,28 +634,28 @@ struct  Block_statementAst: public AstNode
     Annotation_type_declarationAst *annotation_type_declaration;
 };
 
-struct  Break_statementAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Break_statementAst: public AstNode
 {
     enum { KIND = Break_statementKind };
 
     IdentifierAst *label;
 };
 
-struct  Builtin_typeAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Builtin_typeAst: public AstNode
 {
     enum { KIND = Builtin_typeKind };
 
     builtin_type::builtin_type_enum type;
 };
 
-struct  Builtin_type_dot_classAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Builtin_type_dot_classAst: public AstNode
 {
     enum { KIND = Builtin_type_dot_classKind };
 
     Optional_array_builtin_typeAst *builtin_type;
 };
 
-struct  Cast_expressionAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Cast_expressionAst: public AstNode
 {
     enum { KIND = Cast_expressionKind };
 
@@ -657,7 +665,7 @@ struct  Cast_expressionAst: public AstNode
     Unary_expression_not_plusminusAst *class_casted_expression;
 };
 
-struct  Catch_clauseAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Catch_clauseAst: public AstNode
 {
     enum { KIND = Catch_clauseKind };
 
@@ -665,20 +673,20 @@ struct  Catch_clauseAst: public AstNode
     BlockAst *body;
 };
 
-struct  Class_access_dataAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Class_access_dataAst: public AstNode
 {
     enum { KIND = Class_access_dataKind };
 
 };
 
-struct  Class_bodyAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Class_bodyAst: public AstNode
 {
     enum { KIND = Class_bodyKind };
 
     const KDevPG::ListNode<Class_fieldAst *> *declarationSequence;
 };
 
-struct  Class_declarationAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Class_declarationAst: public AstNode
 {
     enum { KIND = Class_declarationKind };
 
@@ -690,14 +698,14 @@ struct  Class_declarationAst: public AstNode
     Class_bodyAst *body;
 };
 
-struct  Class_extends_clauseAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Class_extends_clauseAst: public AstNode
 {
     enum { KIND = Class_extends_clauseKind };
 
     Class_or_interface_type_nameAst *type;
 };
 
-struct  Class_fieldAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Class_fieldAst: public AstNode
 {
     enum { KIND = Class_fieldKind };
 
@@ -712,14 +720,14 @@ struct  Class_fieldAst: public AstNode
     BlockAst *static_initializer_block;
 };
 
-struct  Class_or_interface_type_nameAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Class_or_interface_type_nameAst: public AstNode
 {
     enum { KIND = Class_or_interface_type_nameKind };
 
     const KDevPG::ListNode<Class_or_interface_type_name_partAst *> *partSequence;
 };
 
-struct  Class_or_interface_type_name_partAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Class_or_interface_type_name_partAst: public AstNode
 {
     enum { KIND = Class_or_interface_type_name_partKind };
 
@@ -727,7 +735,7 @@ struct  Class_or_interface_type_name_partAst: public AstNode
     Type_argumentsAst *type_arguments;
 };
 
-struct  Class_typeAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Class_typeAst: public AstNode
 {
     enum { KIND = Class_typeKind };
 
@@ -735,7 +743,7 @@ struct  Class_typeAst: public AstNode
     Optional_declarator_bracketsAst *declarator_brackets;
 };
 
-struct  Compilation_unitAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Compilation_unitAst: public AstNode
 {
     enum { KIND = Compilation_unitKind };
 
@@ -744,7 +752,7 @@ struct  Compilation_unitAst: public AstNode
     const KDevPG::ListNode<Type_declarationAst *> *type_declarationSequence;
 };
 
-struct  Conditional_expressionAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Conditional_expressionAst: public AstNode
 {
     enum { KIND = Conditional_expressionKind };
 
@@ -753,7 +761,7 @@ struct  Conditional_expressionAst: public AstNode
     Conditional_expressionAst *else_expression;
 };
 
-struct  Constructor_declarationAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Constructor_declarationAst: public AstNode
 {
     enum { KIND = Constructor_declarationKind };
 
@@ -765,14 +773,14 @@ struct  Constructor_declarationAst: public AstNode
     BlockAst *body;
 };
 
-struct  Continue_statementAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Continue_statementAst: public AstNode
 {
     enum { KIND = Continue_statementKind };
 
     IdentifierAst *label;
 };
 
-struct  Do_while_statementAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Do_while_statementAst: public AstNode
 {
     enum { KIND = Do_while_statementKind };
 
@@ -780,7 +788,7 @@ struct  Do_while_statementAst: public AstNode
     ExpressionAst *condition;
 };
 
-struct  Embedded_statementAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Embedded_statementAst: public AstNode
 {
     enum { KIND = Embedded_statementKind };
 
@@ -801,7 +809,7 @@ struct  Embedded_statementAst: public AstNode
     Statement_expressionAst *expression_statement;
 };
 
-struct  Enum_bodyAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Enum_bodyAst: public AstNode
 {
     enum { KIND = Enum_bodyKind };
 
@@ -809,7 +817,7 @@ struct  Enum_bodyAst: public AstNode
     const KDevPG::ListNode<Class_fieldAst *> *class_fieldSequence;
 };
 
-struct  Enum_constantAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Enum_constantAst: public AstNode
 {
     enum { KIND = Enum_constantKind };
 
@@ -819,14 +827,14 @@ struct  Enum_constantAst: public AstNode
     Enum_constant_bodyAst *body;
 };
 
-struct  Enum_constant_bodyAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Enum_constant_bodyAst: public AstNode
 {
     enum { KIND = Enum_constant_bodyKind };
 
     const KDevPG::ListNode<Enum_constant_fieldAst *> *declarationSequence;
 };
 
-struct  Enum_constant_fieldAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Enum_constant_fieldAst: public AstNode
 {
     enum { KIND = Enum_constant_fieldKind };
 
@@ -839,7 +847,7 @@ struct  Enum_constant_fieldAst: public AstNode
     BlockAst *instance_initializer_block;
 };
 
-struct  Enum_declarationAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Enum_declarationAst: public AstNode
 {
     enum { KIND = Enum_declarationKind };
 
@@ -849,7 +857,7 @@ struct  Enum_declarationAst: public AstNode
     Enum_bodyAst *body;
 };
 
-struct  Equality_expressionAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Equality_expressionAst: public AstNode
 {
     enum { KIND = Equality_expressionKind };
 
@@ -857,7 +865,7 @@ struct  Equality_expressionAst: public AstNode
     const KDevPG::ListNode<Equality_expression_restAst *> *additional_expressionSequence;
 };
 
-struct  Equality_expression_restAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Equality_expression_restAst: public AstNode
 {
     enum { KIND = Equality_expression_restKind };
 
@@ -865,7 +873,7 @@ struct  Equality_expression_restAst: public AstNode
     Relational_expressionAst *expression;
 };
 
-struct  ExpressionAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT ExpressionAst: public AstNode
 {
     enum { KIND = ExpressionKind };
 
@@ -874,7 +882,7 @@ struct  ExpressionAst: public AstNode
     ExpressionAst *assignment_expression;
 };
 
-struct  For_clause_traditional_restAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT For_clause_traditional_restAst: public AstNode
 {
     enum { KIND = For_clause_traditional_restKind };
 
@@ -882,7 +890,7 @@ struct  For_clause_traditional_restAst: public AstNode
     const KDevPG::ListNode<Statement_expressionAst *> *for_update_expressionSequence;
 };
 
-struct  For_controlAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT For_controlAst: public AstNode
 {
     enum { KIND = For_controlKind };
 
@@ -892,7 +900,7 @@ struct  For_controlAst: public AstNode
     const KDevPG::ListNode<Statement_expressionAst *> *statement_expressionSequence;
 };
 
-struct  For_statementAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT For_statementAst: public AstNode
 {
     enum { KIND = For_statementKind };
 
@@ -900,7 +908,7 @@ struct  For_statementAst: public AstNode
     Embedded_statementAst *for_body;
 };
 
-struct  Foreach_declaration_dataAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Foreach_declaration_dataAst: public AstNode
 {
     enum { KIND = Foreach_declaration_dataKind };
 
@@ -908,14 +916,14 @@ struct  Foreach_declaration_dataAst: public AstNode
     ExpressionAst *iterable_expression;
 };
 
-struct  IdentifierAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT IdentifierAst: public AstNode
 {
     enum { KIND = IdentifierKind };
 
     qint64 ident;
 };
 
-struct  If_statementAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT If_statementAst: public AstNode
 {
     enum { KIND = If_statementKind };
 
@@ -924,14 +932,14 @@ struct  If_statementAst: public AstNode
     Embedded_statementAst *else_body;
 };
 
-struct  Implements_clauseAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Implements_clauseAst: public AstNode
 {
     enum { KIND = Implements_clauseKind };
 
     const KDevPG::ListNode<Class_or_interface_type_nameAst *> *typeSequence;
 };
 
-struct  Import_declarationAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Import_declarationAst: public AstNode
 {
     enum { KIND = Import_declarationKind };
 
@@ -939,14 +947,14 @@ struct  Import_declarationAst: public AstNode
     Qualified_identifier_with_optional_starAst *identifier_name;
 };
 
-struct  Interface_bodyAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Interface_bodyAst: public AstNode
 {
     enum { KIND = Interface_bodyKind };
 
     const KDevPG::ListNode<Interface_fieldAst *> *declarationSequence;
 };
 
-struct  Interface_declarationAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Interface_declarationAst: public AstNode
 {
     enum { KIND = Interface_declarationKind };
 
@@ -957,14 +965,14 @@ struct  Interface_declarationAst: public AstNode
     Interface_bodyAst *body;
 };
 
-struct  Interface_extends_clauseAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Interface_extends_clauseAst: public AstNode
 {
     enum { KIND = Interface_extends_clauseKind };
 
     const KDevPG::ListNode<Class_or_interface_type_nameAst *> *typeSequence;
 };
 
-struct  Interface_fieldAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Interface_fieldAst: public AstNode
 {
     enum { KIND = Interface_fieldKind };
 
@@ -976,7 +984,7 @@ struct  Interface_fieldAst: public AstNode
     Variable_declaration_dataAst *variable_declaration;
 };
 
-struct  Interface_method_declarationAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Interface_method_declarationAst: public AstNode
 {
     enum { KIND = Interface_method_declarationKind };
 
@@ -989,7 +997,7 @@ struct  Interface_method_declarationAst: public AstNode
     Throws_clauseAst *throws_clause;
 };
 
-struct  Labeled_statementAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Labeled_statementAst: public AstNode
 {
     enum { KIND = Labeled_statementKind };
 
@@ -997,7 +1005,7 @@ struct  Labeled_statementAst: public AstNode
     Embedded_statementAst *statement;
 };
 
-struct  LiteralAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT LiteralAst: public AstNode
 {
     enum { KIND = LiteralKind };
 
@@ -1008,21 +1016,21 @@ struct  LiteralAst: public AstNode
     qint64 string_literal;
 };
 
-struct  Logical_and_expressionAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Logical_and_expressionAst: public AstNode
 {
     enum { KIND = Logical_and_expressionKind };
 
     const KDevPG::ListNode<Bit_or_expressionAst *> *expressionSequence;
 };
 
-struct  Logical_or_expressionAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Logical_or_expressionAst: public AstNode
 {
     enum { KIND = Logical_or_expressionKind };
 
     const KDevPG::ListNode<Logical_and_expressionAst *> *expressionSequence;
 };
 
-struct  Mandatory_array_builtin_typeAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Mandatory_array_builtin_typeAst: public AstNode
 {
     enum { KIND = Mandatory_array_builtin_typeKind };
 
@@ -1030,14 +1038,14 @@ struct  Mandatory_array_builtin_typeAst: public AstNode
     Mandatory_declarator_bracketsAst *declarator_brackets;
 };
 
-struct  Mandatory_declarator_bracketsAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Mandatory_declarator_bracketsAst: public AstNode
 {
     enum { KIND = Mandatory_declarator_bracketsKind };
 
     int bracket_count;
 };
 
-struct  Method_call_dataAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Method_call_dataAst: public AstNode
 {
     enum { KIND = Method_call_dataKind };
 
@@ -1046,7 +1054,7 @@ struct  Method_call_dataAst: public AstNode
     Optional_argument_listAst *arguments;
 };
 
-struct  Method_declarationAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Method_declarationAst: public AstNode
 {
     enum { KIND = Method_declarationKind };
 
@@ -1057,9 +1065,10 @@ struct  Method_declarationAst: public AstNode
     Optional_parameter_declaration_listAst *parameters;
     Optional_declarator_bracketsAst *declarator_brackets;
     Throws_clauseAst *throws_clause;
+    BlockAst *body;
 };
 
-struct  Multiplicative_expressionAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Multiplicative_expressionAst: public AstNode
 {
     enum { KIND = Multiplicative_expressionKind };
 
@@ -1067,7 +1076,7 @@ struct  Multiplicative_expressionAst: public AstNode
     const KDevPG::ListNode<Multiplicative_expression_restAst *> *additional_expressionSequence;
 };
 
-struct  Multiplicative_expression_restAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Multiplicative_expression_restAst: public AstNode
 {
     enum { KIND = Multiplicative_expression_restKind };
 
@@ -1075,7 +1084,7 @@ struct  Multiplicative_expression_restAst: public AstNode
     Unary_expressionAst *expression;
 };
 
-struct  New_expressionAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT New_expressionAst: public AstNode
 {
     enum { KIND = New_expressionKind };
 
@@ -1086,7 +1095,7 @@ struct  New_expressionAst: public AstNode
     Array_creator_restAst *array_creator_rest;
 };
 
-struct  Non_array_typeAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Non_array_typeAst: public AstNode
 {
     enum { KIND = Non_array_typeKind };
 
@@ -1094,21 +1103,21 @@ struct  Non_array_typeAst: public AstNode
     Builtin_typeAst *builtin_type;
 };
 
-struct  Non_wildcard_type_argumentsAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Non_wildcard_type_argumentsAst: public AstNode
 {
     enum { KIND = Non_wildcard_type_argumentsKind };
 
     const KDevPG::ListNode<Type_argument_typeAst *> *type_argument_typeSequence;
 };
 
-struct  Optional_argument_listAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Optional_argument_listAst: public AstNode
 {
     enum { KIND = Optional_argument_listKind };
 
     const KDevPG::ListNode<ExpressionAst *> *expressionSequence;
 };
 
-struct  Optional_array_builtin_typeAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Optional_array_builtin_typeAst: public AstNode
 {
     enum { KIND = Optional_array_builtin_typeKind };
 
@@ -1116,14 +1125,14 @@ struct  Optional_array_builtin_typeAst: public AstNode
     Optional_declarator_bracketsAst *declarator_brackets;
 };
 
-struct  Optional_declarator_bracketsAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Optional_declarator_bracketsAst: public AstNode
 {
     enum { KIND = Optional_declarator_bracketsKind };
 
     int bracket_count;
 };
 
-struct  Optional_modifiersAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Optional_modifiersAst: public AstNode
 {
     enum { KIND = Optional_modifiersKind };
 
@@ -1131,14 +1140,14 @@ struct  Optional_modifiersAst: public AstNode
     const KDevPG::ListNode<AnnotationAst *> *mod_annotationSequence;
 };
 
-struct  Optional_parameter_declaration_listAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Optional_parameter_declaration_listAst: public AstNode
 {
     enum { KIND = Optional_parameter_declaration_listKind };
 
     const KDevPG::ListNode<Parameter_declaration_ellipsisAst *> *parameter_declarationSequence;
 };
 
-struct  Optional_parameter_modifiersAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Optional_parameter_modifiersAst: public AstNode
 {
     enum { KIND = Optional_parameter_modifiersKind };
 
@@ -1146,7 +1155,7 @@ struct  Optional_parameter_modifiersAst: public AstNode
     const KDevPG::ListNode<AnnotationAst *> *mod_annotationSequence;
 };
 
-struct  Package_declarationAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Package_declarationAst: public AstNode
 {
     enum { KIND = Package_declarationKind };
 
@@ -1154,7 +1163,7 @@ struct  Package_declarationAst: public AstNode
     Qualified_identifierAst *package_name;
 };
 
-struct  Parameter_declarationAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Parameter_declarationAst: public AstNode
 {
     enum { KIND = Parameter_declarationKind };
 
@@ -1164,7 +1173,7 @@ struct  Parameter_declarationAst: public AstNode
     Optional_declarator_bracketsAst *declarator_brackets;
 };
 
-struct  Parameter_declaration_ellipsisAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Parameter_declaration_ellipsisAst: public AstNode
 {
     enum { KIND = Parameter_declaration_ellipsisKind };
 
@@ -1175,14 +1184,14 @@ struct  Parameter_declaration_ellipsisAst: public AstNode
     Optional_declarator_bracketsAst *declarator_brackets;
 };
 
-struct  Postfix_operatorAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Postfix_operatorAst: public AstNode
 {
     enum { KIND = Postfix_operatorKind };
 
     postfix_operator::postfix_operator_enum postfix_operator;
 };
 
-struct  Primary_atomAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Primary_atomAst: public AstNode
 {
     enum { KIND = Primary_atomKind };
 
@@ -1198,7 +1207,7 @@ struct  Primary_atomAst: public AstNode
     Simple_name_access_dataAst *simple_name_access;
 };
 
-struct  Primary_expressionAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Primary_expressionAst: public AstNode
 {
     enum { KIND = Primary_expressionKind };
 
@@ -1206,7 +1215,7 @@ struct  Primary_expressionAst: public AstNode
     const KDevPG::ListNode<Primary_selectorAst *> *selectorSequence;
 };
 
-struct  Primary_selectorAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Primary_selectorAst: public AstNode
 {
     enum { KIND = Primary_selectorKind };
 
@@ -1219,14 +1228,14 @@ struct  Primary_selectorAst: public AstNode
     Array_accessAst *array_access;
 };
 
-struct  Qualified_identifierAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Qualified_identifierAst: public AstNode
 {
     enum { KIND = Qualified_identifierKind };
 
     const KDevPG::ListNode<IdentifierAst *> *nameSequence;
 };
 
-struct  Qualified_identifier_with_optional_starAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Qualified_identifier_with_optional_starAst: public AstNode
 {
     enum { KIND = Qualified_identifier_with_optional_starKind };
 
@@ -1234,7 +1243,7 @@ struct  Qualified_identifier_with_optional_starAst: public AstNode
     const KDevPG::ListNode<IdentifierAst *> *nameSequence;
 };
 
-struct  Relational_expressionAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Relational_expressionAst: public AstNode
 {
     enum { KIND = Relational_expressionKind };
 
@@ -1243,7 +1252,7 @@ struct  Relational_expressionAst: public AstNode
     TypeAst *instanceof_type;
 };
 
-struct  Relational_expression_restAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Relational_expression_restAst: public AstNode
 {
     enum { KIND = Relational_expression_restKind };
 
@@ -1251,14 +1260,14 @@ struct  Relational_expression_restAst: public AstNode
     Shift_expressionAst *expression;
 };
 
-struct  Return_statementAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Return_statementAst: public AstNode
 {
     enum { KIND = Return_statementKind };
 
     ExpressionAst *return_expression;
 };
 
-struct  Shift_expressionAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Shift_expressionAst: public AstNode
 {
     enum { KIND = Shift_expressionKind };
 
@@ -1266,7 +1275,7 @@ struct  Shift_expressionAst: public AstNode
     const KDevPG::ListNode<Shift_expression_restAst *> *additional_expressionSequence;
 };
 
-struct  Shift_expression_restAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Shift_expression_restAst: public AstNode
 {
     enum { KIND = Shift_expression_restKind };
 
@@ -1274,21 +1283,21 @@ struct  Shift_expression_restAst: public AstNode
     Additive_expressionAst *expression;
 };
 
-struct  Simple_name_access_dataAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Simple_name_access_dataAst: public AstNode
 {
     enum { KIND = Simple_name_access_dataKind };
 
     IdentifierAst *name;
 };
 
-struct  Statement_expressionAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Statement_expressionAst: public AstNode
 {
     enum { KIND = Statement_expressionKind };
 
     ExpressionAst *expression;
 };
 
-struct  Super_access_dataAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Super_access_dataAst: public AstNode
 {
     enum { KIND = Super_access_dataKind };
 
@@ -1296,7 +1305,7 @@ struct  Super_access_dataAst: public AstNode
     Super_suffixAst *super_suffix;
 };
 
-struct  Super_suffixAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Super_suffixAst: public AstNode
 {
     enum { KIND = Super_suffixKind };
 
@@ -1305,7 +1314,7 @@ struct  Super_suffixAst: public AstNode
     Method_call_dataAst *method_call;
 };
 
-struct  Switch_labelAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Switch_labelAst: public AstNode
 {
     enum { KIND = Switch_labelKind };
 
@@ -1313,7 +1322,7 @@ struct  Switch_labelAst: public AstNode
     ExpressionAst *case_expression;
 };
 
-struct  Switch_sectionAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Switch_sectionAst: public AstNode
 {
     enum { KIND = Switch_sectionKind };
 
@@ -1321,7 +1330,7 @@ struct  Switch_sectionAst: public AstNode
     const KDevPG::ListNode<Block_statementAst *> *statementSequence;
 };
 
-struct  Switch_statementAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Switch_statementAst: public AstNode
 {
     enum { KIND = Switch_statementKind };
 
@@ -1329,7 +1338,7 @@ struct  Switch_statementAst: public AstNode
     const KDevPG::ListNode<Switch_sectionAst *> *switch_sectionSequence;
 };
 
-struct  Synchronized_statementAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Synchronized_statementAst: public AstNode
 {
     enum { KIND = Synchronized_statementKind };
 
@@ -1337,13 +1346,13 @@ struct  Synchronized_statementAst: public AstNode
     BlockAst *synchronized_body;
 };
 
-struct  This_access_dataAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT This_access_dataAst: public AstNode
 {
     enum { KIND = This_access_dataKind };
 
 };
 
-struct  This_call_dataAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT This_call_dataAst: public AstNode
 {
     enum { KIND = This_call_dataKind };
 
@@ -1351,21 +1360,21 @@ struct  This_call_dataAst: public AstNode
     Optional_argument_listAst *arguments;
 };
 
-struct  Throw_statementAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Throw_statementAst: public AstNode
 {
     enum { KIND = Throw_statementKind };
 
     ExpressionAst *exception;
 };
 
-struct  Throws_clauseAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Throws_clauseAst: public AstNode
 {
     enum { KIND = Throws_clauseKind };
 
     const KDevPG::ListNode<Qualified_identifierAst *> *identifierSequence;
 };
 
-struct  Try_statementAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Try_statementAst: public AstNode
 {
     enum { KIND = Try_statementKind };
 
@@ -1374,7 +1383,7 @@ struct  Try_statementAst: public AstNode
     BlockAst *finally_body;
 };
 
-struct  TypeAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT TypeAst: public AstNode
 {
     enum { KIND = TypeKind };
 
@@ -1382,7 +1391,7 @@ struct  TypeAst: public AstNode
     Optional_array_builtin_typeAst *builtin_type;
 };
 
-struct  Type_argumentAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Type_argumentAst: public AstNode
 {
     enum { KIND = Type_argumentKind };
 
@@ -1390,7 +1399,7 @@ struct  Type_argumentAst: public AstNode
     Wildcard_typeAst *wildcard_type;
 };
 
-struct  Type_argument_typeAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Type_argument_typeAst: public AstNode
 {
     enum { KIND = Type_argument_typeKind };
 
@@ -1398,20 +1407,20 @@ struct  Type_argument_typeAst: public AstNode
     Mandatory_array_builtin_typeAst *mandatory_array_builtin_type;
 };
 
-struct  Type_argumentsAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Type_argumentsAst: public AstNode
 {
     enum { KIND = Type_argumentsKind };
 
     const KDevPG::ListNode<Type_argumentAst *> *type_argumentSequence;
 };
 
-struct  Type_arguments_or_parameters_endAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Type_arguments_or_parameters_endAst: public AstNode
 {
     enum { KIND = Type_arguments_or_parameters_endKind };
 
 };
 
-struct  Type_declarationAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Type_declarationAst: public AstNode
 {
     enum { KIND = Type_declarationKind };
 
@@ -1421,7 +1430,7 @@ struct  Type_declarationAst: public AstNode
     Annotation_type_declarationAst *annotation_type_declaration;
 };
 
-struct  Type_parameterAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Type_parameterAst: public AstNode
 {
     enum { KIND = Type_parameterKind };
 
@@ -1429,14 +1438,14 @@ struct  Type_parameterAst: public AstNode
     const KDevPG::ListNode<Class_or_interface_type_nameAst *> *extends_typeSequence;
 };
 
-struct  Type_parametersAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Type_parametersAst: public AstNode
 {
     enum { KIND = Type_parametersKind };
 
     const KDevPG::ListNode<Type_parameterAst *> *type_parameterSequence;
 };
 
-struct  Unary_expressionAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Unary_expressionAst: public AstNode
 {
     enum { KIND = Unary_expressionKind };
 
@@ -1445,7 +1454,7 @@ struct  Unary_expressionAst: public AstNode
     Unary_expression_not_plusminusAst *unary_expression_not_plusminus;
 };
 
-struct  Unary_expression_not_plusminusAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Unary_expression_not_plusminusAst: public AstNode
 {
     enum { KIND = Unary_expression_not_plusminusKind };
 
@@ -1457,21 +1466,21 @@ struct  Unary_expression_not_plusminusAst: public AstNode
     const KDevPG::ListNode<Postfix_operatorAst *> *postfix_operatorSequence;
 };
 
-struct  Variable_array_initializerAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Variable_array_initializerAst: public AstNode
 {
     enum { KIND = Variable_array_initializerKind };
 
     const KDevPG::ListNode<Variable_initializerAst *> *variable_initializerSequence;
 };
 
-struct  Variable_declarationAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Variable_declarationAst: public AstNode
 {
     enum { KIND = Variable_declarationKind };
 
     Variable_declaration_dataAst *data;
 };
 
-struct  Variable_declaration_dataAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Variable_declaration_dataAst: public AstNode
 {
     enum { KIND = Variable_declaration_dataKind };
 
@@ -1480,7 +1489,7 @@ struct  Variable_declaration_dataAst: public AstNode
     const KDevPG::ListNode<Variable_declaratorAst *> *declaratorSequence;
 };
 
-struct  Variable_declaration_restAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Variable_declaration_restAst: public AstNode
 {
     enum { KIND = Variable_declaration_restKind };
 
@@ -1488,21 +1497,21 @@ struct  Variable_declaration_restAst: public AstNode
     const KDevPG::ListNode<Variable_declaratorAst *> *variable_declaratorSequence;
 };
 
-struct  Variable_declaration_split_dataAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Variable_declaration_split_dataAst: public AstNode
 {
     enum { KIND = Variable_declaration_split_dataKind };
 
     Variable_declaration_dataAst *data;
 };
 
-struct  Variable_declaration_statementAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Variable_declaration_statementAst: public AstNode
 {
     enum { KIND = Variable_declaration_statementKind };
 
     Variable_declarationAst *variable_declaration;
 };
 
-struct  Variable_declaratorAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Variable_declaratorAst: public AstNode
 {
     enum { KIND = Variable_declaratorKind };
 
@@ -1511,7 +1520,7 @@ struct  Variable_declaratorAst: public AstNode
     Variable_initializerAst *initializer;
 };
 
-struct  Variable_initializerAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Variable_initializerAst: public AstNode
 {
     enum { KIND = Variable_initializerKind };
 
@@ -1519,7 +1528,7 @@ struct  Variable_initializerAst: public AstNode
     Variable_array_initializerAst *array_initializer;
 };
 
-struct  While_statementAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT While_statementAst: public AstNode
 {
     enum { KIND = While_statementKind };
 
@@ -1527,14 +1536,14 @@ struct  While_statementAst: public AstNode
     Embedded_statementAst *body;
 };
 
-struct  Wildcard_typeAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Wildcard_typeAst: public AstNode
 {
     enum { KIND = Wildcard_typeKind };
 
     Wildcard_type_boundsAst *bounds;
 };
 
-struct  Wildcard_type_boundsAst: public AstNode
+struct KDEVJAVAPARSER_EXPORT Wildcard_type_boundsAst: public AstNode
 {
     enum { KIND = Wildcard_type_boundsKind };
 

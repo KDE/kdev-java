@@ -20,7 +20,6 @@
 //krazy:excludeall=cpp
 
 #include "identifiercompiler.h"
-#include "java_lexer.h"
 #include "javaast.h"
 #include "javaparser.h"
 #include "parsesession.h"
@@ -38,12 +37,12 @@ using namespace java;
     //Decode operator-names without spaces for now, since we rely on it in other places.
     ///@todo change this, here and in all the places that rely on it. Operators should then by written like "operator [ ]"(space between each token)
     for( size_t a = ast->start_token; a < ast->end_token; a++ ) {
-      const Token &tk = session->token_stream->token(a);
+      const Token &tk = session->tokenStream->token(a);
       ret += tk.symbol();
     }
   } else {
     for( size_t a = ast->start_token; a < ast->end_token; a++ ) {
-      const Token &tk = session->token_stream->token(a);
+      const Token &tk = session->tokenStream->token(a);
       ret += tk.symbol() + " ";
     }
   }
@@ -58,7 +57,7 @@ Declaration::CVSpecs parseConstVolatile(ParseSession* session, const KDevPG::Lis
     const KDevPG::ListNode<qint64> *it = cv->front();
     const KDevPG::ListNode<qint64> *end = it;
     do {
-      int kind = session->token_stream->token(it->element).kind;
+      int kind = session->tokenStream->token(it->element).kind;
       if (kind == Parser::Token_CONST)
         ret |= Declaration::Const;
       else if (kind == Parser::Token_VOLATILE)

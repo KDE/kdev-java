@@ -9,10 +9,11 @@
 #include <kdev-pg-allocator.h>
 #include <kdev-pg-token-stream.h>
 
+#include <javaparserexport.h>
 namespace java
 {
 
-class  Parser
+class KDEVJAVAPARSER_EXPORT Parser
 {
 public:
     typedef KDevPG::TokenStream::Token Token;
@@ -191,33 +192,32 @@ public:
     void tokenize( char *contents );
 
     /**
-     * The compatibility_mode status variable tells which version of Java
+     * The compatibilityMode() status variable tells which version of Java
      * should be checked against.
      */
-    enum java_compatibility_mode
+    enum JavaCompatibilityMode
     {
-        java13_compatibility = 130,
-        java14_compatibility = 140,
-        java15_compatibility = 150
+        Java13Compatibility = 130,
+        Java14Compatibility = 140,
+        Java15Compatibility = 150
     };
 
-    parser::java_compatibility_mode compatibility_mode();
-    void set_compatibility_mode( parser::java_compatibility_mode mode );
+    Parser::JavaCompatibilityMode compatibilityMode();
+    void setCompatibilityMode( Parser::JavaCompatibilityMode mode );
 
-    enum problem_type
+    enum ProblemType
     {
-        error,
-        warning,
-        info
+        Error,
+        Warning,
+        Info
     };
-    void report_problem( parser::problem_type type, const char* message );
-    void report_problem( parser::problem_type type, std::string message );
+    void reportProblem( Parser::ProblemType type, const QString& message );
 
 private:
 
-    parser::java_compatibility_mode _M_compatibility_mode;
+    Parser::JavaCompatibilityMode m_compatibilityMode;
 
-    struct parser_state
+    struct ParserState
     {
         // ltCounter stores the amount of currently open type arguments rules,
         // all of which are beginning with a less than ("<") character.
@@ -225,22 +225,22 @@ private:
         // to close type arguments rules, in addition to GREATER_THAN (">").
         int ltCounter;
     };
-    parser_state _M_state;
+    ParserState m_state;
 
 
 public:
-// The copy_current_state() and restore_state() methods are only declared
+// The copyCurrentState() and restoreState() methods are only declared
 // if you are using try blocks in your grammar, and have to be
 // implemented by yourself, and you also have to define a
-// "struct parser_state" inside a %parserclass directive.
+// "struct ParserState" inside a %parserclass directive.
 
-// This method should create a new parser_state object and return it,
+// This method should create a new ParserState object and return it,
 // or return 0 if no state variables need to be saved.
-    parser_state *copy_current_state();
+    ParserState *copyCurrentState();
 
-// This method is only called for parser_state objects != 0
+// This method is only called for ParserState objects != 0
 // and should restore the parser state given as argument.
-    void restore_state(parser_state *state);
+    void restoreState(ParserState *state);
     Parser()
     {
         memoryPool = 0;
@@ -249,7 +249,7 @@ public:
         mBlockErrors = false;
 
 // user defined constructor code:
-        _M_compatibility_mode = java15_compatibility;
+        m_compatibilityMode = Java15Compatibility;
     }
 
     virtual ~Parser() {}

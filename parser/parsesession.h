@@ -51,9 +51,9 @@ public:
 
   const char *contents() const;
   qint64 size() const;
-  Parser::memoryPoolType *memory_pool;
-  KDevPG::TokenStream *token_stream;
-  Parser::java_compatibility_mode compatibility_mode;
+  Parser::memoryPoolType *memoryPool;
+  KDevPG::TokenStream *tokenStream;
+  Parser::JavaCompatibilityMode compatibilityMode;
 
   QString symbol(qint64 token) const;
 

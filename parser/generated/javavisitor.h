@@ -6,10 +6,11 @@
 
 #include "javaast.h"
 
+#include <javaparserexport.h>
 namespace java
 {
 
-class  Visitor
+class KDEVJAVAPARSER_EXPORT Visitor
 {
     typedef void (Visitor::*ParserFuncType)(AstNode *);
     static ParserFuncType sParserTable[];

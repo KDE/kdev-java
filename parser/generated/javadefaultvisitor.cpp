@@ -687,6 +687,7 @@ void DefaultVisitor::visitMethod_declaration(Method_declarationAst *node)
     visitNode(node->parameters);
     visitNode(node->declarator_brackets);
     visitNode(node->throws_clause);
+    visitNode(node->body);
 }
 
 void DefaultVisitor::visitMultiplicative_expression(Multiplicative_expressionAst *node)

@@ -6,10 +6,11 @@
 
 #include "javavisitor.h"
 
+#include <javaparserexport.h>
 namespace java
 {
 
-class  DefaultVisitor: public Visitor
+class KDEVJAVAPARSER_EXPORT DefaultVisitor: public Visitor
 {
 public:
     virtual void visitAdditive_expression(Additive_expressionAst *node);

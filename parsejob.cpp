@@ -139,20 +139,20 @@ void ParseJob::run()
         return abortJob();
 
     // 0) setup
-    java::Parser java_parser;
-    java_parser.set_compatibility_mode( m_session->compatibility_mode );
-    java_parser.setTokenStream( m_session->token_stream );
-    java_parser.setMemoryPool( m_session->memory_pool );
+    java::Parser javaParser;
+    javaParser.setCompatibilityMode( m_session->compatibilityMode );
+    javaParser.setTokenStream( m_session->tokenStream );
+    javaParser.setMemoryPool( m_session->memoryPool );
 
     // 1) tokenize
-    java_parser.tokenize( (char*) m_session->contents() );
+    javaParser.tokenize( (char*) m_session->contents() );
 
     if ( abortRequested() )
         return abortJob();
 
     // 2) parse
     Compilation_unitAst *ast = 0;
-    bool matched = java_parser.parseCompilation_unit( &ast );
+    bool matched = javaParser.parseCompilation_unit( &ast );
     //m_AST->language = java();
 
     if ( abortRequested() )

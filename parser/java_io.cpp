@@ -24,7 +24,7 @@
 
 
 #include "javaparser.h"
-#include "java_lexer.h"
+#include "javalexer.h"
 
 #include <iostream>
 
@@ -36,13 +36,13 @@
 namespace java
 {
 
-void Parser::reportProblem( Parser::problem_type type, const QString& message )
+void Parser::reportProblem( Parser::ProblemType type, const QString& message )
 {
-  if (type == error)
+  if (type == Error)
     kDebug() << "** ERROR:" << message;
-  else if (type == warning)
+  else if (type == Warning)
     kDebug() << "** WARNING:" << message;
-  else if (type == info)
+  else if (type == Info)
     kDebug() << "** Info:" << message;
 }
 
@@ -52,7 +52,7 @@ void Parser::expectedToken(int /*expected*/, qint64 /*where*/, const QString& na
 {
   // print_token_environment(this);
   reportProblem(
-    Parser::error,
+    Parser::Error,
     QString("Expected token ``%1''").arg(name)
       //+ QString(" instead of ``%1''").arg(current_token_text)
   );
@@ -62,7 +62,7 @@ void Parser::expectedSymbol(int /*expected_symbol*/, const QString& name)
 {
   // print_token_environment(this);
   reportProblem(
-    Parser::error,
+    Parser::Error,
     QString("Expected symbol ``%1''").arg(name)
       //+ QString(" instead of ``%1''").arg(current_token_text)
   );
