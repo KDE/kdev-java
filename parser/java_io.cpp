@@ -19,7 +19,7 @@
 
 // This file is meant to be specific to the framework in which the parser
 // operates, and is likely to be adapted for different environments.
-// Specifically, the error output might not always go to std::cerr,
+// Specifically, the error output might not always go to kDebug(),
 // but will rather be placed as items inside some listbox.
 
 
