@@ -25,5 +25,7 @@ class JavaExample extends SuperClass
   }
 
   int main(){ return fact(1000); }
+  
+  int var;
 };
 
