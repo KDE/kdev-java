@@ -761,7 +761,7 @@ class DUContext;
    (throws_clause=throws_clause | 0)
    body=block
    -- leaving out explicit this(...) and super(...) invocations,
-   -- these are just normal statements for the grammar
+   -- these are just normal statements for this grammar
 -> constructor_declaration [
      argument member node modifiers:           optional_modifiers;
      argument member node type_parameters:     type_parameters;
@@ -771,7 +771,7 @@ class DUContext;
    LPAREN parameters=optional_parameter_declaration_list RPAREN
    declarator_brackets=optional_declarator_brackets
    (throws_clause=throws_clause | 0)
-   (body=block | SEMICOLON)
+   (body=block | SEMICOLON)  -- semicolons are used for abstract methods
 -> method_declaration [
      argument member node modifiers:           optional_modifiers;
      argument member node type_parameters:     type_parameters;
