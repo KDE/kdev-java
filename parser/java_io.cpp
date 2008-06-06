@@ -30,7 +30,7 @@
 
 #include <kdebug.h>
 
-// void print_token_environment(java::parser* parser);
+// void print_token_environment(java::Parser* parser);
 
 
 namespace java
@@ -39,11 +39,11 @@ namespace java
 void Parser::reportProblem( Parser::problem_type type, const QString& message )
 {
   if (type == error)
-    kDebug() << "** ERROR: " << message;
+    kDebug() << "** ERROR:" << message;
   else if (type == warning)
-    kDebug() << "** WARNING: " << message;
+    kDebug() << "** WARNING:" << message;
   else if (type == info)
-    kDebug() << "** Info: " << message;
+    kDebug() << "** Info:" << message;
 }
 
 
@@ -53,9 +53,8 @@ void Parser::expectedToken(int /*expected*/, qint64 /*where*/, const QString& na
   // print_token_environment(this);
   reportProblem(
     Parser::error,
-    QString("Expected token ``%1").arg(name)
-      //+ "'' instead of ``" + current_token_text
-      + "''"
+    QString("Expected token ``%1''").arg(name)
+      //+ QString(" instead of ``%1''").arg(current_token_text)
   );
 }
 
@@ -64,9 +63,8 @@ void Parser::expectedSymbol(int /*expected_symbol*/, const QString& name)
   // print_token_environment(this);
   reportProblem(
     Parser::error,
-    QString("Expected symbol ``%1").arg(name)
-      //+ "'' instead of ``" + current_token_text
-      + "''"
+    QString("Expected symbol ``%1''").arg(name)
+      //+ QString(" instead of ``%1''").arg(current_token_text)
   );
 }
 
