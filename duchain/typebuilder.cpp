@@ -525,6 +525,22 @@ void TypeBuilder::visitMethodDeclaration(MethodDeclarationAst * node)
   closeType();
 }
 
+void TypeBuilder::visitInterfaceMethodDeclaration(InterfaceMethodDeclarationAst * node)
+{
+  visitNode(node->returnType);
+
+  FunctionType::Ptr functionType = FunctionType::Ptr(new FunctionType(parseModifiers(node->modifiers)));
+
+  if (lastType())
+    functionType->setReturnType(lastType());
+
+  openType(functionType, node);
+
+  TypeBuilderBase::visitInterfaceMethodDeclaration(node);
+
+  closeType();
+}
+
 void TypeBuilder::visitConstructorDeclaration(ConstructorDeclarationAst * node)
 {
   // TODO set constructor type
@@ -631,6 +647,30 @@ void TypeBuilder::visitBuiltInType(BuiltInTypeAst * node)
     closeType();
 }
 
+bool TypeBuilder::nodeValid(AstNode* node) const
+{
+  return node && node->startToken <= node->endToken;
+}
+
+void TypeBuilder::visitOptionalArrayBuiltInType(OptionalArrayBuiltInTypeAst * node)
+{
+  visitNode(node->type);
+
+  if (nodeValid(node->declaratorBrackets)) {
+    ArrayType::Ptr array(new ArrayType());
+
+    array->setElementType(lastType());
+    
+    if( node->declaratorBrackets ) {
+        array->setDimension(node->declaratorBrackets->bracketCount);
+    } else {
+        array->setDimension(0);
+    }
+    
+    injectType(array, node);
+  }
+}
+
 void TypeBuilder::visitTypeArgument(TypeArgumentAst * node)
 {
   //node->
@@ -638,12 +678,12 @@ void TypeBuilder::visitTypeArgument(TypeArgumentAst * node)
   TypeBuilderBase::visitTypeArgument(node);
 }
 
-TypeModifiers java::TypeBuilder::parseModifiers(OptionalModifiersAst * node) const
+TypeModifiers TypeBuilder::parseModifiers(OptionalModifiersAst * node) const
 {
   return static_cast<TypeModifiers>(node->modifiers);
 }
 
-void java::TypeBuilder::visitClassExtendsClause(ClassExtendsClauseAst * node)
+void TypeBuilder::visitClassExtendsClause(ClassExtendsClauseAst * node)
 {
   m_rememberClassNames.clear();
 
@@ -663,30 +703,24 @@ void java::TypeBuilder::visitClassExtendsClause(ClassExtendsClauseAst * node)
   }
 }
 
-void java::TypeBuilder::visitClassOrInterfaceTypeNamePart(ClassOrInterfaceTypeNamePartAst * node)
+void TypeBuilder::visitClassOrInterfaceTypeName(ClassOrInterfaceTypeNameAst * node)
 {
-  /*
-
-  m_rememberClassNames.clear();
-
-  ClassType::Ptr klass = ClassType::Ptr::dynamicCast(m_typeStack.top());
-  Q_ASSERT( klass );
-
-  bool openedType = openTypeFromName(node->identifier, true);
-
-  TypeBuilderBase::visitClassOrInterfaceTypeNamePart(node);
-
-  if( openedType ) {
+  m_currentIdentifier.clear();
+  
+  TypeBuilderBase::visitClassOrInterfaceTypeName(node);
+  
+  if (openTypeFromName(m_currentIdentifier, node, true))
     closeType();
-
-    m_rememberClassNames.append(klass);
-
-  } else { //A case for the problem-reporter
-    kDebug() << "Could not find base declaration for" << identifierForName(node->identifier);
-  }*/
 }
 
-void java::TypeBuilder::visitImplementsClause(ImplementsClauseAst * node)
+void TypeBuilder::visitClassOrInterfaceTypeNamePart(ClassOrInterfaceTypeNamePartAst * node)
+{
+  m_currentIdentifier.push(identifierForName(node->identifier));
+  
+  TypeBuilderBase::visitClassOrInterfaceTypeNamePart(node);
+}
+
+void TypeBuilder::visitImplementsClause(ImplementsClauseAst * node)
 {
   /*m_rememberClassNames.clear();
 
@@ -714,36 +748,32 @@ DUContext* TypeBuilder::searchContext() {
     return currentContext();
 }
 
-bool TypeBuilder::openTypeFromName(IdentifierAst* name, bool needClass) {
-  QualifiedIdentifier id = identifierForName(name);
-
+bool TypeBuilder::openTypeFromName(const QualifiedIdentifier& id, AstNode* typeNode, bool needClass)
+{
   bool openedType = false;
 
   bool delay = false;
 
   if(!delay) {
-/*    SimpleCursor pos = m_editor->findPosition(name->start_token, KDevelop::EditorIntegrator::FrontEdge);
+    SimpleCursor pos = m_editor->findPosition(typeNode->startToken, KDevelop::EditorIntegrator::FrontEdge);
     DUChainReadLocker lock(DUChain::lock());
 
-    QList<Declaration*> dec = searchContext()->findDeclarations(id, pos, AbstractType::Ptr(), 0, DUContext::NoUndefinedTemplateParams);
+    QList<Declaration*> dec = searchContext()->findDeclarations(id, pos);
 
-    if ( dec.isEmpty() || (templateDeclarationDepth() && isTemplateDependent(dec.front())) )
+    if ( dec.isEmpty() )
       delay = true;
 
     if(!delay) {
       foreach( Declaration* decl, dec ) {
-        if( needClass && !dynamic_cast<CppClassType*>(decl->abstractType().data()) )
+        if( needClass && !dynamic_cast<ClassType*>(decl->abstractType().data()) )
           continue;
 
         if (decl->abstractType() ) {
-          if(decl->kind() == KDevelop::Declaration::Instance)
-            m_lastTypeWasInstance = true;
-
           ///@todo only functions may have multiple declarations here
           ifDebug( if( dec.count() > 1 ) kDebug(9007) << id.toString() << "was found" << dec.count() << "times" )
           //kDebug(9007) << "found for" << id.toString() << ":" << decl->toString() << "type:" << decl->abstractType()->toString() << "context:" << decl->context();
           openedType = true;
-          openType(decl->abstractType(), name);
+          openType(decl->abstractType(), typeNode);
           break;
         }
       }
@@ -751,7 +781,7 @@ bool TypeBuilder::openTypeFromName(IdentifierAst* name, bool needClass) {
 
     if(!openedType)
       delay = true;
-*/  }
+  }
     ///@todo What about position?
 
   /*if(delay) {

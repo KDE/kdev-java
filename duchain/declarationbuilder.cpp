@@ -392,121 +392,6 @@ void DeclarationBuilder::visitEnumerator(EnumeratorAstNode* node)
   closeDeclaration();
 }
 
-void DeclarationBuilder::visitClassSpecifier(ClassSpecifierAstNode *node)
-{
-  bool m_wasInTypedef = m_inTypedef;
-  m_inTypedef = false;
-
-  /**Open helper contexts around the class, so the qualified identifier matches.
-   * Example: "class MyClass::RealClass{}"
-   * Will create one helper-context named "MyClass" around RealClass
-   * * /
-
-  QualifiedIdentifier id;
-  if( node->name ) {
-    id = identifierForName(node->name);
-    ///@todo Make decision: Would it be better to allow giving declarations qualified identifiers? Then we wouldn't need to do this.
-    openPrefixContext(node, id);
-  }
-
-  openDefinition(node->name, node);
-
-  int kind = m_editor->parseSession()->token_stream->kind(node->class_key);
-  if (kind == Token_struct || kind == Token_union)
-    m_accessPolicyStack.push(Declaration::Public);
-  else
-    m_accessPolicyStack.push(Declaration::Private);
-
-  DeclarationBuilderBase::visitClassSpecifier(node);
-
-  eventuallyAssignInternalContext();
-
-  if( node->name ) {
-    ///Copy template default-parameters from the forward-declaration to the real declaration if possible
-    DUChainWriteLocker lock(DUChain::lock());
-
-    SimpleCursor pos = m_editor->findPosition(node->start_token, KDevelop::EditorIntegrator::FrontEdge);
-
-    QList<Declaration*> declarations = Java::findDeclarationsSameLevel(currentContext(), id, pos);
-
-    AbstractType::Ptr newcurrentDeclaration;
-
-    foreach( Declaration* decl, declarations ) {
-      if( decl->abstractType()) {
-        ForwardDeclaration* forward =  dynamic_cast<ForwardDeclaration*>(decl);
-        if( forward ) {
-          {
-            KDevelop::DUContext* forwardTemplateContext = forward->internalContext();
-            if( forwardTemplateContext && forwardTemplateContext->type() == DUContext::Template ) {
-
-              KDevelop::DUContext* currentTemplateContext = getTemplateContext(currentDeclaration());
-              if( (bool)forwardTemplateContext != (bool)currentTemplateContext ) {
-                kDebug() << "Template-contexts of forward- and real declaration do not match: " << currentTemplateContext << getTemplateContext(currentDeclaration()) << currentDeclaration()->internalContext() << forwardTemplateContext << currentDeclaration()->internalContext()->importedParentContexts().count();
-              } else if( forwardTemplateContext && currentTemplateContext ) {
-                if( forwardTemplateContext->localDeclarations().count() != currentTemplateContext->localDeclarations().count() ) {
-                } else {
-
-                  const QVector<Declaration*>& forwardList = forwardTemplateContext->localDeclarations();
-                  const QVector<Declaration*>& realList = currentTemplateContext->localDeclarations();
-
-                  QVector<Declaration*>::const_iterator forwardIt = forwardList.begin();
-                  QVector<Declaration*>::const_iterator realIt = realList.begin();
-
-                  for( ; forwardIt != forwardList.end(); ++forwardIt, ++realIt ) {
-                    TemplateParameterDeclaration* forwardParamDecl = dynamic_cast<TemplateParameterDeclaration*>(*forwardIt);
-                    TemplateParameterDeclaration* realParamDecl = dynamic_cast<TemplateParameterDeclaration*>(*realIt);
-                    if( forwardParamDecl && realParamDecl ) {
-                      if( !forwardParamDecl->defaultParameter().isEmpty() )
-                        realParamDecl->setDefaultParameter(forwardParamDecl->defaultParameter());
-                    }
-                  }
-                }
-              }
-            }
-          }
-
-          //Update instantiations in case of template forward-declarations
-//           SpecialTemplateDeclaration<ForwardDeclaration>* templateForward = dynamic_cast<SpecialTemplateDeclaration<ForwardDeclaration>* > (decl);
-//           SpecialTemplateDeclaration<Declaration>* currentTemplate = dynamic_cast<SpecialTemplateDeclaration<Declaration>* >  (currentDeclaration());
-//
-//           if( templateForward && currentTemplate )
-//           {
-//             //Change the types of all the forward-template instantiations
-//             TemplateDeclaration::InstantiationsHash instantiations = templateForward->instantiations();
-//
-//             for( TemplateDeclaration::InstantiationsHash::iterator it = instantiations.begin(); it != instantiations.end(); ++it )
-//             {
-//               Declaration* realInstance = currentTemplate->instantiate(it.key().args, ImportTrace());
-//               Declaration* forwardInstance = dynamic_cast<Declaration*>(*it);
-//               //Now change the type of forwardInstance so it matches the type of realInstance
-//               JavaClassType::Ptr realClass = realInstance->type<JavaClassType>();
-//               JavaClassType::Ptr forwardClass = forwardInstance->type<JavaClassType>();
-//
-//               if( realClass && forwardClass ) {
-//                 //Copy the class from real into the forward-declaration's instance
-//                 copyJavaClass(realClass.data(), forwardClass.data());
-//               } else {
-//                 kDebug() << "Bad types involved in formward-declaration";
-//               }
-//             }
-//           }//templateForward && currentTemplate
-        }
-      }
-    }//foreach
-
-    if( newcurrentDeclaration )
-      setcurrentDeclaration(newcurrentDeclaration);
-  }//node-name
-
-  closeDeclaration();
-
-  if(node->name)
-    closePrefixContext(id);
-
-  m_accessPolicyStack.pop();
-  m_inTypedef = m_wasInTypedef;
-}*/
-
 /*void DeclarationBuilder::visitUsingDirective(UsingDirectiveAstNode * node)
 {
   DeclarationBuilderBase::visitUsingDirective(node);
@@ -651,17 +536,7 @@ void DeclarationBuilder::popSpecifiers()
   m_storageSpecifiers.pop();
 }
 
-void DeclarationBuilder::openContext(DUContext * newContext)
-{
-  DeclarationBuilderBase::openContext(newContext);
-}
-
-void DeclarationBuilder::closeContext()
-{
-  DeclarationBuilderBase::closeContext();
-}
-
-void java::DeclarationBuilder::visitClassDeclaration(ClassDeclarationAst * node)
+void DeclarationBuilder::visitClassDeclaration(ClassDeclarationAst * node)
 {
   Declaration* classDeclaration = openDefinition(node->className, node, false);
 
@@ -672,7 +547,7 @@ void java::DeclarationBuilder::visitClassDeclaration(ClassDeclarationAst * node)
   closeDeclaration();
 }
 
-void java::DeclarationBuilder::visitInterfaceDeclaration(InterfaceDeclarationAst * node)
+void DeclarationBuilder::visitInterfaceDeclaration(InterfaceDeclarationAst * node)
 {
   openDefinition(node->interfaceName, node, false);
 
@@ -683,7 +558,7 @@ void java::DeclarationBuilder::visitInterfaceDeclaration(InterfaceDeclarationAst
   closeDeclaration();
 }
 
-void java::DeclarationBuilder::visitInterfaceMethodDeclaration(InterfaceMethodDeclarationAst * node)
+void DeclarationBuilder::visitInterfaceMethodDeclaration(InterfaceMethodDeclarationAst * node)
 {
   openDefinition(node->methodName, node, true);
 
@@ -694,7 +569,7 @@ void java::DeclarationBuilder::visitInterfaceMethodDeclaration(InterfaceMethodDe
   closeDeclaration();
 }
 
-void java::DeclarationBuilder::visitConstructorDeclaration(ConstructorDeclarationAst * node)
+void DeclarationBuilder::visitConstructorDeclaration(ConstructorDeclarationAst * node)
 {
   openDefinition(node->className, node, true);
 
@@ -705,7 +580,7 @@ void java::DeclarationBuilder::visitConstructorDeclaration(ConstructorDeclaratio
   closeDeclaration();
 }
 
-void java::DeclarationBuilder::visitMethodDeclaration(MethodDeclarationAst * node)
+void DeclarationBuilder::visitMethodDeclaration(MethodDeclarationAst * node)
 {
   openDefinition(node->methodName, node, true);
 
@@ -716,14 +591,14 @@ void java::DeclarationBuilder::visitMethodDeclaration(MethodDeclarationAst * nod
   closeDeclaration();
 }
 
-void java::DeclarationBuilder::visitVariableDeclaration(VariableDeclarationAst * node)
+void DeclarationBuilder::visitVariableDeclaration(VariableDeclarationAst * node)
 {
   // Here we should save / apply the type
 
   DeclarationBuilderBase::visitVariableDeclaration(node);
 }
 
-void java::DeclarationBuilder::visitVariableDeclarator(VariableDeclaratorAst * node)
+void DeclarationBuilder::visitVariableDeclarator(VariableDeclaratorAst * node)
 {
   openDefinition(node->variableName, node, false);
 
@@ -732,7 +607,7 @@ void java::DeclarationBuilder::visitVariableDeclarator(VariableDeclaratorAst * n
   closeDeclaration();
 }
 
-void java::DeclarationBuilder::visitParameterDeclaration(ParameterDeclarationAst * node)
+void DeclarationBuilder::visitParameterDeclaration(ParameterDeclarationAst * node)
 {
   openDefinition(node->variableName, node, false);
 
@@ -741,7 +616,7 @@ void java::DeclarationBuilder::visitParameterDeclaration(ParameterDeclarationAst
   closeDeclaration();
 }
 
-void java::DeclarationBuilder::visitParameterDeclarationEllipsis(ParameterDeclarationEllipsisAst * node)
+void DeclarationBuilder::visitParameterDeclarationEllipsis(ParameterDeclarationEllipsisAst * node)
 {
   openDefinition(node->variableName, node, false);
 

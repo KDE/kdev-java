@@ -22,10 +22,10 @@
 #include "contextbuilder.h"
 #include <typesystem.h>
 #include <declaration.h>
+#include <identifier.h>
 #include "types.h"
 
 namespace KDevelop {
-  class QualifiedIdentifier;
   class ForwardDeclaration;
 }
 
@@ -68,29 +68,16 @@ protected:
   // Called at the beginning of processing a class-specifier, right after the type for the class was created. The type can be gotten through currentAbstractType().
   virtual void classTypeOpened(KDevelop::AbstractType::Ptr) {};
 
-  // Regular visitors
-  /*virtual void visitClassSpecifier(ClassSpecifierAstNode*);
-  virtual void visitBaseSpecifier(BaseSpecifierAstNode*);
-  virtual void visitEnumSpecifier(EnumSpecifierAstNode*);
-  virtual void visitEnumerator(EnumeratorAstNode*);
-  virtual void visitElaboratedTypeSpecifier(ElaboratedTypeSpecifierAstNode*);
-  virtual void visitSimpleTypeSpecifier(SimpleTypeSpecifierAstNode*);
-  virtual void visitSimpleDeclaration(SimpleDeclarationAstNode*);
-  virtual void visitTypedef(TypedefAstNode*);
-  virtual void visitFunctionDeclaration(FunctionDefinitionAstNode*);
-  virtual void visitPtrOperator(PtrOperatorAstNode*);
-  virtual void visitParameterDeclaration(ParameterDeclarationAstNode*);
-  virtual void visitTemplateParameter(TemplateParameterAstNode *);
-  virtual void createTypeForDeclarator(DeclaratorAstNode *node);
-  virtual void closeTypeForDeclarator(DeclaratorAstNode *node);*/
-
   virtual void visitClassDeclaration(ClassDeclarationAst *node);
   virtual void visitClassExtendsClause(ClassExtendsClauseAst *node);
   virtual void visitImplementsClause(ImplementsClauseAst *node);
+  virtual void visitClassOrInterfaceTypeName(ClassOrInterfaceTypeNameAst *node);
   virtual void visitClassOrInterfaceTypeNamePart(ClassOrInterfaceTypeNamePartAst *node);
   virtual void visitTypeArgument(TypeArgumentAst *node);
+  virtual void visitOptionalArrayBuiltInType(OptionalArrayBuiltInTypeAst * node);
 
   virtual void visitMethodDeclaration(MethodDeclarationAst *node);
+  virtual void visitInterfaceMethodDeclaration(InterfaceMethodDeclarationAst * node);
   virtual void visitConstructorDeclaration(ConstructorDeclarationAst *node);
   virtual void visitInterfaceDeclaration(InterfaceDeclarationAst *node);
 
@@ -102,9 +89,12 @@ protected:
    * After calling, the given type will be the last type.
    * */
   void injectType(const KDevelop::AbstractType::Ptr& type, AstNode* node);
+  template <class T>
+  void injectType(const KSharedPtr<T>& type, AstNode* node)
+  { injectType(KDevelop::AbstractType::Ptr::staticCast(type), node); }
 
   ///Returns whether a type was opened
-  bool openTypeFromName(IdentifierAst* name, bool needClass = false);
+  bool openTypeFromName(const KDevelop::QualifiedIdentifier& name, AstNode* typeNode, bool needClass = false);
 
 private:
   template <class T>
@@ -114,6 +104,8 @@ private:
   void openAbstractType(KDevelop::AbstractType::Ptr type, AstNode* node);
   void closeType();
 
+  bool nodeValid(AstNode* node) const;
+  
   ClassType* openClass(bool interface, bool parameters);
   FunctionType* openFunction();
 
@@ -130,6 +122,8 @@ private:
 
   QStack<KDevelop::AbstractType::Ptr> m_typeStack;
 
+  KDevelop::QualifiedIdentifier m_currentIdentifier;
+  
   QList<ClassType::Ptr> m_rememberClassNames;
 
   KDevelop::AbstractType::Ptr m_lastType;

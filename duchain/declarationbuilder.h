@@ -52,26 +52,7 @@ public:
 
   inline KDevelop::Declaration* currentDeclaration() const { return m_declarationStack.isEmpty() ? 0 : m_declarationStack.top(); }
 
-  protected:
-  virtual void openContext(KDevelop::DUContext* newContext);
-  virtual void closeContext();
-
-/*  virtual void visitDeclarator (DeclaratorAST*);
-  virtual void visitClassSpecifier(ClassSpecifierAST*);
-  virtual void visitAccessSpecifier(AccessSpecifierAST*);
-  virtual void visitFunctionDeclaration(FunctionDefinitionAST*);
-  virtual void visitSimpleDeclaration(SimpleDeclarationAST*);
-  virtual void visitElaboratedTypeSpecifier(ElaboratedTypeSpecifierAST*);
-  virtual void visitParameterDeclaration(ParameterDeclarationAST* node);
-  virtual void visitTypedef(TypedefAST *);
-  virtual void visitTemplateParameter(TemplateParameterAST *);
-  virtual void visitUsingDirective(UsingDirectiveAST *);
-  virtual void visitEnumSpecifier(EnumSpecifierAST*);
-  virtual void visitEnumerator(EnumeratorAST* node);
-  virtual void visitNamespaceAliasDefinition(NamespaceAliasDefinitionAST*);*/
-
-  //virtual void classTypeOpened(KDevelop::AbstractType::Ptr);
-
+protected:
   virtual void visitClassDeclaration(ClassDeclarationAst *node);
   virtual void visitMethodDeclaration(MethodDeclarationAst *node);
   virtual void visitInterfaceMethodDeclaration(InterfaceMethodDeclarationAst *node);
@@ -114,8 +95,6 @@ private:
   ///Creates a declaration of the given type, or if the current declaration is a template-declaration, it creates a template-specialized version of that type.
   template<class DeclarationType>
   DeclarationType* specialDeclaration( KTextEditor::SmartRange* smartRange, const KDevelop::SimpleRange& range, int scope );
-
-  //void parseComments(const ListNode<size_t> *comments);
 
   //void applyStorageSpecifiers();
   //void applyFunctionSpecifiers();
