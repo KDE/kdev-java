@@ -37,7 +37,7 @@
 #include "editorintegrator.h"
 #include "identifiercompiler.h"
 #include "dumpchain.h"
-#include "pushvalue.h"
+#include <util/pushvalue.h>
 
 #include <climits>
 

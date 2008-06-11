@@ -54,6 +54,11 @@ set(kdevjavalanguagesupport_PART_SRCS
     duchain/typebuilder.cpp
     duchain/types.cpp
     duchain/typerepository.cpp
+    
+    completion/worker.cpp
+    completion/items.cpp
+    completion/context.cpp
+    completion/model.cpp
 )
 
 kde4_add_plugin(kdevjavalanguagesupport ${kdevjavalanguagesupport_PART_SRCS})

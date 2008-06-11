@@ -58,8 +58,6 @@ private:
   KDevelop::AbstractType::Ptr registerFunction(FunctionType::Ptr input);
   KDevelop::AbstractType::Ptr registerArray(ArrayType::Ptr input);
 
-  static TypeRepository* s_instance;
-
   // Inbuilt integral types
   QVector<IntegralType::Ptr> m_integrals;
 

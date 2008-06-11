@@ -36,6 +36,10 @@ Boston, MA 02110-1301, USA.
 #include "parsejob.h"
 #include "javahighlighting.h"
 
+#include <codecompletion/codecompletion.h>
+#include <codecompletion/codecompletionmodel.h>
+#include "completion/model.h"
+
 using namespace java;
 
 K_PLUGIN_FACTORY(KDevJavaSupportFactory, registerPlugin<JavaLanguageSupport>(); )
@@ -49,6 +53,9 @@ JavaLanguageSupport::JavaLanguageSupport( QObject* parent,
     KDEV_USE_EXTENSION_INTERFACE( KDevelop::ILanguageSupport )
 
     m_highlights = new JavaHighlighting( this );
+    
+    CodeCompletionModel* ccModel = new CodeCompletionModel(this);
+    new KDevelop::CodeCompletion( this, ccModel, name() );
 
     connect( core()->documentController(),
              SIGNAL( documentLoaded( KDevelop::IDocument* ) ),
