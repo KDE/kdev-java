@@ -46,6 +46,7 @@
 #include <javadefaultvisitor.h>
 
 #include <ilanguage.h>
+#include <icodehighlighting.h>
 
 #include "parser/dumptree.h"
 
@@ -174,7 +175,7 @@ void ParseJob::run()
 
     // 3) Form definition-use chain
     java::EditorIntegrator editor(parseSession());
-    editor.setCurrentUrl(document());
+    editor.setCurrentUrl(document().str());
 
     // Translate the cursors we generate with edits that have happened since retrieval of the document source.
     if (editor.smart() && revisionToken() > 0)
@@ -183,11 +184,21 @@ void ParseJob::run()
     //kDebug(  ) << (contentContext ? "updating" : "building") << "duchain for" << parentJob()->document().str();
 
     DeclarationBuilder builder(&editor);
-    KDevelop::TopDUContext* chain = builder.buildDeclarations(KDevelop::HashedString(document()), ast, KDevelop::TopDUContextPointer());
+    KDevelop::TopDUContext* chain = builder.buildDeclarations(KDevelop::HashedString(document().str()), ast, KDevelop::TopDUContextPointer());
     setDuChain(chain);
 
     UseBuilder useBuilder(&editor);
     useBuilder.buildUses(ast);
+
+    if (!abortRequested() && editor.smart()) {
+        editor.smart()->clearRevision();
+
+        if ( java()->codeHighlighting() )
+        {
+            QMutexLocker lock(editor.smart()->smartMutex());
+            java()->codeHighlighting()->highlightDUChain( chain );
+        }
+    }
 
     KDevelop::DUChainReadLocker duchainlock(KDevelop::DUChain::lock());
     dump.dump(chain);

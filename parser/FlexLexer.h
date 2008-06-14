@@ -126,7 +126,9 @@ public:
     void yypush_buffer_state( struct yy_buffer_state* new_buffer );
     void yypop_buffer_state(void);
 
-	int yywrap();
+#ifndef yywrap
+int yywrap();
+#endif
 	virtual int yylex();
 	virtual void switch_streams( FLEX_STD istream* new_in, FLEX_STD ostream* new_out );
 
