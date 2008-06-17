@@ -23,7 +23,7 @@
 #include <QtCore/QMultiHash>
 #include <QtCore/QMutex>
 
-#include <language/duchain/repositories/typerepository.h>
+#include <language/duchain/repositories/ityperepository.h>
 #include "types.h"
 
 namespace KDevelop {
@@ -32,7 +32,7 @@ namespace KDevelop {
 
 namespace java {
 
-class TypeRepository : public KDevelop::TypeRepository
+class TypeRepository : public KDevelop::ITypeRepository
 {
 public:
   static TypeRepository* self();
