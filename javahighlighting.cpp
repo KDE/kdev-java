@@ -34,9 +34,12 @@
 #include <language/duchain/duchain.h>
 #include <language/duchain/duchainlock.h>
 #include "javalanguagesupport.h"
+#include "duchain/types.h"
 
 using namespace KTextEditor;
 using namespace KDevelop;
+
+namespace java {
 
 QList<uint>  colors;
 uint validColorCount = 0; //Must always be colors.count()-1, because the last color must be the fallback text color
@@ -475,22 +478,20 @@ JavaHighlighting::Types JavaHighlighting::typeForDeclaration(Declaration * dec, 
     }
   }
 
-  /*if (type == LocalVariableType) {
-    if (dec->kind() == Declaration::Type || dec->type<CppFunctionType>() || dec->type<CppEnumeratorType>()) {
+  if (type == LocalVariableType) {
+    if (dec->kind() == Declaration::Type || dec->type<java::FunctionType>() || dec->type<java::EnumeratorType>()) {
       if (dec->isForwardDeclaration())
         type = ForwardDeclarationType;
-      else if (dec->type<CppFunctionType>())
+      else if (dec->type<java::FunctionType>())
           type = FunctionType;
-      else if(dec->type<CppClassType>())
+      else if(dec->type<java::ClassType>())
           type = ClassType;
-      else if(dec->type<CppTypeAliasType>())
-          type = TypeAliasType;
-      else if(dec->type<CppEnumerationType>())
+      else if(dec->type<java::EnumerationType>())
         type = EnumType;
-      else if(dec->type<CppEnumeratorType>())
+      else if(dec->type<java::EnumeratorType>())
         type = EnumeratorType;
     }
-  }*/
+  }
 
   if (type == LocalVariableType) {
 
@@ -548,6 +549,8 @@ void JavaHighlighting::highlightUses(DUContext* context) const
       range->setAttribute(attributeForType(type, ReferenceContext, 0));
     }
   }
+}
+
 }
 
 #include "javahighlighting.moc"

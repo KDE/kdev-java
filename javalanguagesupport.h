@@ -24,17 +24,13 @@ Boston, MA 02110-1301, USA.
 #include <ilanguagesupport.h>
 
 namespace java {
-    // class CodeModel;
-    // class CodeProxy;
-    // class CodeDelegate;
+    class JavaHighlighting;
 }
 
 namespace KDevelop {
     class IDocument;
     class IProject;
 }
-
-class JavaHighlighting;
 
 class JavaLanguageSupport : public KDevelop::IPlugin, public KDevelop::ILanguageSupport
 {
@@ -63,7 +59,7 @@ private slots:
     void projectClosed();
 
 private:
-    JavaHighlighting *m_highlights;
+    java::JavaHighlighting *m_highlights;
 };
 
 #endif

@@ -41,6 +41,8 @@ class DUContext;
 class Declaration;
 }
 
+namespace java {
+  
 ///@todo make the colorized highlighting work while smart-conversion
 
 ///The kate smart-mutex must be locked when this class is used. @todo Lock the smart-mutex selectively within JavaHighlighting, to reduce GUI-Lockups
@@ -136,5 +138,7 @@ class JavaHighlighting : public QObject, public KDevelop::ICodeHighlighting
   bool m_localColorization;
   mutable bool m_useClassCache;
 };
+
+}
 
 #endif
