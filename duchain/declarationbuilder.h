@@ -48,7 +48,7 @@ public:
    *
    * \param includes contexts to reference from the top context.  The list may be changed by this function.
    */
-  KDevelop::TopDUContext* buildDeclarations(const KDevelop::HashedString& url, AstNode *node, const KDevelop::TopDUContextPointer& updateContext = KDevelop::TopDUContextPointer(), bool removeOldImports = true);
+  KDevelop::TopDUContext* buildDeclarations(const KDevelop::IndexedString& url, AstNode *node, const KDevelop::TopDUContextPointer& updateContext = KDevelop::TopDUContextPointer());
 
   inline KDevelop::Declaration* currentDeclaration() const { return m_declarationStack.isEmpty() ? 0 : m_declarationStack.top(); }
 
@@ -107,7 +107,6 @@ private:
 
   QStack<KDevelop::AbstractFunctionDeclaration::FunctionSpecifiers> m_functionSpecifiers;
   QStack<KDevelop::ClassMemberDeclaration::StorageSpecifiers> m_storageSpecifiers;
-  QStack<std::size_t> m_functionDefinedStack;
 
   bool m_inTypedef;
 };

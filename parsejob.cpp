@@ -184,7 +184,7 @@ void ParseJob::run()
     //kDebug(  ) << (contentContext ? "updating" : "building") << "duchain for" << parentJob()->document().str();
 
     DeclarationBuilder builder(&editor);
-    KDevelop::TopDUContext* chain = builder.buildDeclarations(KDevelop::HashedString(document().str()), ast, KDevelop::TopDUContextPointer());
+    KDevelop::TopDUContext* chain = builder.buildDeclarations(document(), ast);
     setDuChain(chain);
 
     UseBuilder useBuilder(&editor);

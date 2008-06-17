@@ -25,7 +25,6 @@
 
 #include <symboltable.h>
 #include <forwarddeclaration.h>
-#include <duchain.h>
 #include <duchainlock.h>
 #include <identifiedtype.h>
 
@@ -38,7 +37,8 @@
 
 using namespace KTextEditor;
 using namespace KDevelop;
-using namespace java;
+
+namespace java {
 
 /*void copyJavaClass( const JavaClassType* from, JavaClassType* to )
 {
@@ -66,12 +66,11 @@ DeclarationBuilder::DeclarationBuilder (EditorIntegrator* editor)
 {
 }
 
-KDevelop::TopDUContext* DeclarationBuilder::buildDeclarations(const KDevelop::HashedString& url, AstNode *node, const KDevelop::TopDUContextPointer& updateContext, bool removeOldImports)
+KDevelop::TopDUContext* DeclarationBuilder::buildDeclarations(const IndexedString& url, AstNode *node, const KDevelop::TopDUContextPointer& updateContext)
 {
-  TopDUContext* top = buildContexts(url, node, updateContext, removeOldImports);
+  TopDUContext* top = buildContexts(url, node, updateContext);
 
   Q_ASSERT(m_accessPolicyStack.isEmpty());
-  Q_ASSERT(m_functionDefinedStack.isEmpty());
 
   return top;
 }
@@ -103,11 +102,11 @@ void DeclarationBuilder::visitDeclarator (DeclaratorAstNode* node)
   if (node->parameter_declaration_clause) {
     if (!m_functionDefinedStack.isEmpty() && m_functionDefinedStack.top() && node->id) {
 
-      QualifiedIdentifier id = identifierForName(node->id);
+      QualifiedIdentifier id = identifierForNode(node->id);
       DUChainWriteLocker lock(DUChain::lock());
       if (id.count() > 1 ||
           (m_inFunctionDefinition && (currentContext()->type() == DUContext::Namespace || currentContext()->type() == DUContext::Global))) {
-        SimpleCursor pos = currentDeclaration()->range().start;//m_editor->findPosition(m_functionDefinedStack.top(), KDevelop::EditorIntegrator::FrontEdge);
+        SimpleCursor pos = currentDeclaration()->range().start;//editor<EditorIntegrator>()->findPosition(m_functionDefinedStack.top(), KDevelop::EditorIntegrator::FrontEdge);
 
         // TODO: potentially excessive locking
 
@@ -175,33 +174,12 @@ Declaration* DeclarationBuilder::openDeclaration(IdentifierAst* name, AstNode* r
 {
   DUChainWriteLocker lock(DUChain::lock());
 
-  if( isFunction && !m_functionDefinedStack.isEmpty() )
-    isDefinition |= (bool)m_functionDefinedStack.top();
-
-  Declaration::Scope scope = Declaration::GlobalScope;
-  switch (currentContext()->type()) {
-    case DUContext::Namespace:
-      scope = Declaration::NamespaceScope;
-      break;
-    case DUContext::Class:
-      scope = Declaration::ClassScope;
-      break;
-    case DUContext::Function:
-    case DUContext::Template:
-    case DUContext::Other:
-      scope = Declaration::LocalScope;
-      break;
-    default:
-      break;
-  }
-
-
-  SimpleRange newRange = m_editor->findRange(name ? name : rangeNode);
+  SimpleRange newRange = editor<EditorIntegrator>()->findRange(name ? name : rangeNode);
 
   if (newRange.start >= newRange.end)
     kWarning() << "Range collapsed";
 
-  QualifiedIdentifier id = identifierForName(name);
+  QualifiedIdentifier id = identifierForNode(name);
 
   Identifier localId;
 
@@ -218,10 +196,10 @@ Declaration* DeclarationBuilder::openDeclaration(IdentifierAst* name, AstNode* r
     // Translate cursor to take into account any changes the user may have made since the text was retrieved
     SimpleRange translated = newRange;
 
-    if (m_editor->smart()) {
+    if (editor<EditorIntegrator>()->smart()) {
       lock.unlock();
-      QMutexLocker smartLock(m_editor->smart()->smartMutex());
-      translated = SimpleRange( m_editor->smart()->translateFromRevision(translated.textRange()) );
+      QMutexLocker smartLock(editor<EditorIntegrator>()->smart()->smartMutex());
+      translated = SimpleRange( editor<EditorIntegrator>()->smart()->translateFromRevision(translated.textRange()) );
       lock.lock();
     }
 
@@ -277,27 +255,29 @@ Declaration* DeclarationBuilder::openDeclaration(IdentifierAst* name, AstNode* r
 #endif
 
   if (!declaration) {
-    SmartRange* prior = m_editor->currentRange();
-    SmartRange* range = m_editor->createRange(newRange.textRange());
+    SmartRange* prior = editor<EditorIntegrator>()->currentRange();
+    SmartRange* range = editor<EditorIntegrator>()->createRange(newRange.textRange());
 
-    m_editor->exitCurrentRange();
+    editor<EditorIntegrator>()->exitCurrentRange();
     //Q_ASSERT(range->start() != range->end());
 
-    Q_ASSERT(m_editor->currentRange() == prior);
+    Q_ASSERT(editor<EditorIntegrator>()->currentRange() == prior);
 
     if (isForward) {
-      declaration = new ForwardDeclaration(m_editor->currentUrl(), newRange, scope, currentContext());
+      declaration = new ForwardDeclaration(editor<EditorIntegrator>()->currentUrl(), newRange, currentContext());
     } else if (isFunction) {
-      if (scope == Declaration::ClassScope) {
-        declaration = new ClassFunctionDeclaration(m_editor->currentUrl(), newRange, currentContext());
+      if (currentContext()->type() == DUContext::Class) {
+        declaration = new ClassFunctionDeclaration(editor<EditorIntegrator>()->currentUrl(), newRange, currentContext());
       } else {
-        declaration = new FunctionDeclaration(m_editor->currentUrl(), newRange, scope, currentContext());
+        declaration = new FunctionDeclaration(editor<EditorIntegrator>()->currentUrl(), newRange, currentContext());
       }
-    } else if (scope == Declaration::ClassScope) {
-        declaration = new ClassMemberDeclaration(m_editor->currentUrl(), newRange, currentContext());
+    } else if (currentContext()->type() == DUContext::Class) {
+        declaration = new ClassMemberDeclaration(editor<EditorIntegrator>()->currentUrl(), newRange, currentContext());
     } else {
-      declaration = new Declaration(m_editor->currentUrl(), newRange, scope, currentContext());
+      declaration = new Declaration(editor<EditorIntegrator>()->currentUrl(), newRange, currentContext());
     }
+    
+    kDebug(0) << "New declaration" << declaration << " in context" << currentContext();
 
     declaration->setSmartRange(range);
     declaration->setDeclarationIsDefinition(isDefinition);
@@ -315,7 +295,7 @@ Declaration* DeclarationBuilder::openDeclaration(IdentifierAst* name, AstNode* r
   }
 
   declaration->setComment(m_lastComment);
-  m_lastComment = QString();
+  m_lastComment.clear();
 
   setEncountered(declaration);
 
@@ -326,21 +306,21 @@ Declaration* DeclarationBuilder::openDeclaration(IdentifierAst* name, AstNode* r
 
 void DeclarationBuilder::eventuallyAssignInternalContext()
 {
-  if (m_lastContext) {
+  if (lastContext()) {
     DUChainWriteLocker lock(DUChain::lock());
 
     if( dynamic_cast<ClassFunctionDeclaration*>(currentDeclaration()) )
       Q_ASSERT( !static_cast<ClassFunctionDeclaration*>(currentDeclaration())->isConstructor() || currentDeclaration()->context()->type() == DUContext::Class );
 
-    if(m_lastContext && (m_lastContext->type() == DUContext::Class || m_lastContext->type() == DUContext::Other || m_lastContext->type() == DUContext::Function || m_lastContext->type() == DUContext::Template ) )
+    if(lastContext() && (lastContext()->type() == DUContext::Class || lastContext()->type() == DUContext::Other || lastContext()->type() == DUContext::Function || lastContext()->type() == DUContext::Template ) )
     {
-      if( !m_lastContext->owner() || !wasEncountered(m_lastContext->owner()) ) { //if the context is already internalContext of another declaration, leave it alone
-        currentDeclaration()->setInternalContext(m_lastContext);
+      if( !lastContext()->owner() || !wasEncountered(lastContext()->owner()) ) { //if the context is already internalContext of another declaration, leave it alone
+        currentDeclaration()->setInternalContext(lastContext());
 
         if( currentDeclaration()->range().start >= currentDeclaration()->range().end )
           kDebug() << "Warning: Range was invalidated";
 
-        m_lastContext = 0;
+        clearLastContext();
       }
     }
   }
@@ -382,7 +362,7 @@ void DeclarationBuilder::visitEnumerator(EnumeratorAstNode* node)
   size_t oldEndToken = node->end_token;
   node->end_token = node->id + 1;
 
-  Identifier id(m_editor->parseSession()->token_stream->token(node->id).symbol());
+  Identifier id(editor<EditorIntegrator>()->parseSession()->token_stream->token(node->id).symbol());
   DeclarationBuilder::openDeclaration(0, node, false, false, true, false, id);
 
   node->end_token = oldEndToken;
@@ -392,7 +372,7 @@ void DeclarationBuilder::visitEnumerator(EnumeratorAstNode* node)
   closeDeclaration();
 }
 
-/*void DeclarationBuilder::visitUsingDirective(UsingDirectiveAstNode * node)
+void DeclarationBuilder::visitUsingDirective(UsingDirectiveAstNode * node)
 {
   DeclarationBuilderBase::visitUsingDirective(node);
 
@@ -410,19 +390,19 @@ void DeclarationBuilder::visitEnumerator(EnumeratorAstNode* node)
     {
       DUChainWriteLocker lock(DUChain::lock());
       Q_ASSERT(dynamic_cast<NamespaceAliasDeclaration*>(currentDeclaration()));
-      static_cast<NamespaceAliasDeclaration*>(currentDeclaration())->setImportIdentifier( resolveNamespaceIdentifier(identifierForName(node->name), currentDeclaration()->range().start) );
+      static_cast<NamespaceAliasDeclaration*>(currentDeclaration())->setImportIdentifier( resolveNamespaceIdentifier(identifierForNode(node->name), currentDeclaration()->range().start) );
     }
     closeDeclaration();
   }
-}*/
+}
 
-/*void DeclarationBuilder::visitAccessSpecifier(AccessSpecifierAstNode* node)
+void DeclarationBuilder::visitAccessSpecifier(AccessSpecifierAstNode* node)
 {
   if (node->specs) {
     const ListNode<std::size_t> *it = node->specs->toFront();
     const ListNode<std::size_t> *end = it;
     do {
-      int kind = m_editor->parseSession()->token_stream->kind(it->element);
+      int kind = editor<EditorIntegrator>()->parseSession()->token_stream->kind(it->element);
       switch (kind) {
         case Token_signals:
         case Token_slots:
@@ -455,7 +435,7 @@ void DeclarationBuilder::parseStorageSpecifiers(const ListNode<std::size_t>* sto
     const ListNode<std::size_t> *it = storage_specifiers->toFront();
     const ListNode<std::size_t> *end = it;
     do {
-      int kind = m_editor->parseSession()->token_stream->kind(it->element);
+      int kind = editor<EditorIntegrator>()->parseSession()->token_stream->kind(it->element);
       switch (kind) {
         case Token_friend:
           specs |= ClassMemberDeclaration::FriendSpecifier;
@@ -492,7 +472,7 @@ void DeclarationBuilder::parseFunctionSpecifiers(const ListNode<std::size_t>* fu
     const ListNode<std::size_t> *it = function_specifiers->toFront();
     const ListNode<std::size_t> *end = it;
     do {
-      int kind = m_editor->parseSession()->token_stream->kind(it->element);
+      int kind = editor<EditorIntegrator>()->parseSession()->token_stream->kind(it->element);
       switch (kind) {
         case Token_inline:
           specs |= AbstractFunctionDeclaration::InlineSpecifier;
@@ -521,7 +501,7 @@ void DeclarationBuilder::parseFunctionSpecifiers(const ListNode<std::size_t>* fu
       //Fill default-parameters
       QString defaultParam;
       for( size_t token = node->expression->start_token; token != node->expression->end_token; ++token )
-        defaultParam += m_editor->tokenToString(token);
+        defaultParam += editor<EditorIntegrator>()->tokenToString(token);
 
 
       function->addDefaultParameter(defaultParam);
@@ -538,7 +518,7 @@ void DeclarationBuilder::popSpecifiers()
 
 void DeclarationBuilder::visitClassDeclaration(ClassDeclarationAst * node)
 {
-  Declaration* classDeclaration = openDefinition(node->className, node, false);
+  openDefinition(node->className, node, false);
 
   currentDeclaration()->setKind(Declaration::Type);
 
@@ -625,3 +605,4 @@ void DeclarationBuilder::visitParameterDeclarationEllipsis(ParameterDeclarationE
   closeDeclaration();
 }
 
+}

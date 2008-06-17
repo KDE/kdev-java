@@ -61,9 +61,9 @@ void UseBuilder::buildUses(AstNode *node)
 
 void UseBuilder::newUse(IdentifierAst* name)
 {
-  QualifiedIdentifier id = identifierForName(name);
+  QualifiedIdentifier id = identifierForNode(name);
 
-  SimpleRange newRange = m_editor->findRange(name);
+  SimpleRange newRange = editor<EditorIntegrator>()->findRange(name);
 
   DUChainWriteLocker lock(DUChain::lock());
   QList<Declaration*> declarations = currentContext()->findDeclarations(id, newRange.start);
@@ -88,7 +88,7 @@ void UseBuilder::newUse(qint64 start_token, qint64 end_token, KDevelop::Declarat
     return;
   }
 
-  SimpleRange newRange = m_editor->findRange(start_token, end_token);
+  SimpleRange newRange = editor<EditorIntegrator>()->findRange(start_token, end_token);
 
   /**
    * We need to find a context that this use fits into, which must not necessarily be the current one.
@@ -105,7 +105,7 @@ void UseBuilder::newUse(qint64 start_token, qint64 end_token, KDevelop::Declarat
   }
 
   if (contextUpSteps) {
-    m_editor->setCurrentRange(newContext->smartRange()); //We have to do this, because later we will call closeContext(), and that will close one smart-range
+    editor<EditorIntegrator>()->setCurrentRange(newContext->smartRange()); //We have to do this, because later we will call closeContext(), and that will close one smart-range
     openContext(newContext);
     nextUseIndex() = m_nextUseStack.at(m_nextUseStack.size()-contextUpSteps-2);
     skippedUses() = m_skippedUses.at(m_skippedUses.size()-contextUpSteps-2);
@@ -123,10 +123,10 @@ void UseBuilder::newUse(qint64 start_token, qint64 end_token, KDevelop::Declarat
     const QVector<Use>& uses = currentContext()->uses();
     // Translate cursor to take into account any changes the user may have made since the text was retrieved
     SimpleRange translated = newRange;
-    if (m_editor->smart()) {
+    if (editor<EditorIntegrator>()->smart()) {
       lock.unlock();
-      QMutexLocker smartLock(m_editor->smart()->smartMutex());
-      translated = SimpleRange( m_editor->smart()->translateFromRevision(translated.textRange()) );
+      QMutexLocker smartLock(editor<EditorIntegrator>()->smart()->smartMutex());
+      translated = SimpleRange( editor<EditorIntegrator>()->smart()->translateFromRevision(translated.textRange()) );
       lock.lock();
     }
 
@@ -134,7 +134,7 @@ void UseBuilder::newUse(qint64 start_token, qint64 end_token, KDevelop::Declarat
       const Use& use = uses[nextUseIndex()];
 
       //Thanks to the preprocessor, it's possible that uses are created in a wrong order. We do this anyway.
-      if (use.m_range.start > translated.end && m_editor->smart() )
+      if (use.m_range.start > translated.end && editor<EditorIntegrator>()->smart() )
         break;
 
       if (use.m_range == translated)
@@ -153,8 +153,8 @@ void UseBuilder::newUse(qint64 start_token, qint64 end_token, KDevelop::Declarat
 
   if (!encountered) {
 
-    SmartRange* use = m_editor->createRange(newRange.textRange());
-    m_editor->exitCurrentRange();
+    SmartRange* use = editor<EditorIntegrator>()->createRange(newRange.textRange());
+    editor<EditorIntegrator>()->exitCurrentRange();
 
     currentContext()->createUse(declarationIndex, newRange, use, nextUseIndex());
     ++nextUseIndex();

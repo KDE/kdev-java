@@ -114,7 +114,7 @@ void TypeBuilder::visitBaseSpecifier(BaseSpecifierAstNode *node)
 
       int tk = 0;
       if( node->access_specifier )
-        tk = m_editor->parseSession()->token_stream->token(node->access_specifier).kind;
+        tk = editor<EditorIntegrator>()->parseSession()->token_stream->token(node->access_specifier).kind;
 
       switch( tk ) {
         default:
@@ -133,7 +133,7 @@ void TypeBuilder::visitBaseSpecifier(BaseSpecifierAstNode *node)
 
       addBaseType(instance);
     } else { //A case for the problem-reporter
-      kDebug() << "Could not find base declaration for" << identifierForName(node->name);
+      kDebug() << "Could not find base declaration for" << identifierForNode(node->name);
     }
   }
 
@@ -165,7 +165,7 @@ void TypeBuilder::visitEnumerator(EnumeratorAstNode* node)
     if(!delay) {
       DUChainReadLocker lock(DUChain::lock());
       node->expression->ducontext = currentContext();
-      res = parser.evaluateType( node->expression, m_editor->parseSession(), ImportTrace() );
+      res = parser.evaluateType( node->expression, editor<EditorIntegrator>()->parseSession(), ImportTrace() );
 
       //Delay the type-resolution of template-parameters
       if( !res.allDeclarations.isEmpty() && (dynamic_cast<TemplateParameterDeclaration*>(res.allDeclarations.front().data()) || isTemplateDependent(res.allDeclarations.front().data())) )
@@ -185,7 +185,7 @@ void TypeBuilder::visitEnumerator(EnumeratorAstNode* node)
     if( delay || (!openedType && templateDeclarationDepth() != 0) ) {
       QString str;
       ///Only record the strings, because these expressions may depend on template-parameters and thus must be evaluated later
-      str += stringFromSessionTokens( m_editor->parseSession(), node->expression->start_token, node->expression->end_token );
+      str += stringFromSessionTokens( editor<EditorIntegrator>()->parseSession(), node->expression->start_token, node->expression->end_token );
 
       QualifiedIdentifier id( str.trimmed() );
       id.setIsExpression( true );
@@ -225,7 +225,7 @@ void TypeBuilder::visitElaboratedTypeSpecifier(ElaboratedTypeSpecifierAstNode *n
   m_lastTypeWasInstance = false;
   AbstractType::Ptr type;
 
-  int kind = m_editor->parseSession()->token_stream->kind(node->type);
+  int kind = editor<EditorIntegrator>()->parseSession()->token_stream->kind(node->type);
 
   if( kind == Token_typename ) {
     //For typename, just find the type and return
@@ -244,9 +244,9 @@ void TypeBuilder::visitElaboratedTypeSpecifier(ElaboratedTypeSpecifierAstNode *n
 
       ///If possible, find another fitting declaration/forward-declaration and re-use it's type
 
-      SimpleCursor pos = m_editor->findPosition(node->start_token, KDevelop::EditorIntegrator::FrontEdge);
+      SimpleCursor pos = editor<EditorIntegrator>()->findPosition(node->start_token, KDevelop::EditorIntegrator::FrontEdge);
 
-      QList<Declaration*> declarations = ::findDeclarationsSameLevel(currentContext(), identifierForName(node->name), pos);
+      QList<Declaration*> declarations = ::findDeclarationsSameLevel(currentContext(), identifierForNode(node->name), pos);
       if( !declarations.isEmpty() && declarations.first()->abstractType()) {
         openType(declarations.first()->abstractType(), node);
         closeType();
@@ -294,7 +294,7 @@ void TypeBuilder::visitSimpleTypeSpecifier(SimpleTypeSpecifierAstNode *node)
     const ListNode<std::size_t> *it = node->integrals->toFront();
     const ListNode<std::size_t> *end = it;
     do {
-      int kind = m_editor->parseSession()->token_stream->kind(it->element);
+      int kind = editor<EditorIntegrator>()->parseSession()->token_stream->kind(it->element);
       switch (kind) {
         case Token_char:
           type = IntegralType::TypeChar;
@@ -406,7 +406,7 @@ void TypeBuilder::visitPtrOperator(PtrOperatorAstNode* node)
 {
   bool typeOpened = false;
   if (node->op) {
-    QString op = m_editor->tokenToString(node->op);
+    QString op = editor<EditorIntegrator>()->tokenToString(node->op);
     if (!op.isEmpty())
       if (op[0] == '&') {
         ReferenceType::Ptr pointer(new ReferenceType(parseConstVolatile(node->cv)));
@@ -468,7 +468,7 @@ void TypeBuilder::visitArrayExpression(ExpressionAstNode* expression)
     DUChainReadLocker lock(DUChain::lock());
     if(expression) {
       expression->ducontext = currentContext();
-      res = parser.evaluateType( expression, m_editor->parseSession(), ImportTrace() );
+      res = parser.evaluateType( expression, editor<EditorIntegrator>()->parseSession(), ImportTrace() );
     }
 
     ArrayType::Ptr array(new ArrayType());
@@ -715,7 +715,7 @@ void TypeBuilder::visitClassOrInterfaceTypeName(ClassOrInterfaceTypeNameAst * no
 
 void TypeBuilder::visitClassOrInterfaceTypeNamePart(ClassOrInterfaceTypeNamePartAst * node)
 {
-  m_currentIdentifier.push(identifierForName(node->identifier));
+  m_currentIdentifier.push(identifierForNode(node->identifier));
   
   TypeBuilderBase::visitClassOrInterfaceTypeNamePart(node);
 }
@@ -742,10 +742,7 @@ void TypeBuilder::visitImplementsClause(ImplementsClauseAst * node)
 
 DUContext* TypeBuilder::searchContext() {
   DUChainReadLocker lock(DUChain::lock());
-  if( !m_importedParentContexts.isEmpty() && m_importedParentContexts.last()->type() == DUContext::Template ) {
-    return m_importedParentContexts.last();
-  } else
-    return currentContext();
+  return currentContext();
 }
 
 bool TypeBuilder::openTypeFromName(const QualifiedIdentifier& id, AstNode* typeNode, bool needClass)
@@ -755,7 +752,7 @@ bool TypeBuilder::openTypeFromName(const QualifiedIdentifier& id, AstNode* typeN
   bool delay = false;
 
   if(!delay) {
-    SimpleCursor pos = m_editor->findPosition(typeNode->startToken, KDevelop::EditorIntegrator::FrontEdge);
+    SimpleCursor pos = editor<EditorIntegrator>()->findPosition(typeNode->startToken, KDevelop::EditorIntegrator::FrontEdge);
     DUChainReadLocker lock(DUChain::lock());
 
     QList<Declaration*> dec = searchContext()->findDeclarations(id, pos);
