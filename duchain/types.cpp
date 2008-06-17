@@ -20,9 +20,9 @@
 
 #include "types.h"
 
-#include <classfunctiondeclaration.h>
-#include <abstractfunctiondeclaration.h>
-#include <forwarddeclarationtype.h>
+#include <language/duchain/classfunctiondeclaration.h>
+#include <language/duchain/abstractfunctiondeclaration.h>
+#include <language/duchain/forwarddeclarationtype.h>
 
 using namespace KDevelop;
 namespace java {

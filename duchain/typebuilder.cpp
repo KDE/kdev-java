@@ -20,17 +20,9 @@
 
 #include <ktexteditor/smartrange.h>
 
-#include <identifier.h>
-#include <duchain.h>
-#include <forwarddeclaration.h>
-#include <forwarddeclarationtype.h>
-#include <duchainlock.h>
 #include "editorintegrator.h"
-#include <ducontext.h>
 #include "parsesession.h"
-#include <declaration.h>
 #include "declarationbuilder.h"
-#include "typerepository.h"
 //#define DEBUG
 
 #ifdef DEBUG
@@ -43,14 +35,9 @@ using namespace KDevelop;
 
 namespace java {
 
-TypeBuilder::TypeBuilder(ParseSession* session)
-  : TypeBuilderBase(session)
+TypeRepository* TypeBuilder::typeRepository() const
 {
-}
-
-TypeBuilder::TypeBuilder(EditorIntegrator * editor)
-  : TypeBuilderBase(editor)
-{
+  return TypeRepository::self();
 }
 
 ClassType* TypeBuilder::openClass(bool interface, bool parameters)

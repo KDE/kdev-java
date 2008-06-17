@@ -19,9 +19,9 @@
 
 #include "contextbuilder.h"
 
-#include <duchain.h>
-#include <topducontext.h>
-#include <duchainlock.h>
+#include <language/duchain/duchain.h>
+#include <language/duchain/topducontext.h>
+#include <language/duchain/duchainlock.h>
 
 #include "parsesession.h"
 #include "editorintegrator.h"
@@ -32,26 +32,27 @@ using namespace KDevelop;
 
 namespace java {
 
-ContextBuilder::ContextBuilder (ParseSession* session)
-  : KDevelop::AbstractDeclarationBuilder<AstNode>(new EditorIntegrator(session), true)
-  , m_identifierCompiler(new IdentifierCompiler(session))
+ContextBuilder::ContextBuilder()
+  : m_identifierCompiler(0)
 {
 }
 
-ContextBuilder::ContextBuilder (EditorIntegrator* editor)
-  : KDevelop::AbstractDeclarationBuilder<AstNode>(editor, false)
-  , m_identifierCompiler(new IdentifierCompiler(editor->parseSession()))
+void ContextBuilder::setEditor(EditorIntegrator* editor)
 {
+  m_identifierCompiler = new IdentifierCompiler(editor->parseSession());
+  ContextBuilderBase::setEditor(editor, false);
+}
+
+void ContextBuilder::setEditor(ParseSession* session)
+{
+  EditorIntegrator* e = new EditorIntegrator(session);
+  m_identifierCompiler = new IdentifierCompiler(e->parseSession());
+  ContextBuilderBase::setEditor(e, false);
 }
 
 ContextBuilder::~ContextBuilder ()
 {
   delete m_identifierCompiler;
-}
-
-TypeRepository* ContextBuilder::typeRepository() const
-{
-  return TypeRepository::self();
 }
 
 void ContextBuilder::startVisiting( AstNode* node )
@@ -71,7 +72,7 @@ KDevelop::DUContext* ContextBuilder::contextFromNode( AstNode* node )
 
 EditorIntegrator* ContextBuilder::editor() const
 {
-  return static_cast<EditorIntegrator*>(KDevelop::AbstractDeclarationBuilder<AstNode>::editor());
+  return static_cast<EditorIntegrator*>(ContextBuilderBase::editor());
 }
 
 KTextEditor::Range ContextBuilder::editorFindRange( AstNode* fromRange, AstNode* toRange )

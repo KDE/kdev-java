@@ -26,10 +26,10 @@
 #include <QtCore/QVector>
 #include <QtCore/QPair>
 
-#include <duchain/identifier.h>
-#include <typesystem.h>
-#include <declaration.h>
-#include <identifiedtype.h>
+#include <language/duchain/identifier.h>
+#include <language/duchain/typesystem.h>
+#include <language/duchain/declaration.h>
+#include <language/duchain/identifiedtype.h>
 
 namespace KDevelop
 {

@@ -21,8 +21,8 @@
 #define NAME_COMPILER_H
 
 #include "javadefaultvisitor.h"
-#include <identifier.h>
-#include <declaration.h>
+#include <language/duchain/identifier.h>
+#include <language/duchain/declaration.h>
 
 namespace java {
 

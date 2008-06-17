@@ -26,7 +26,7 @@
 #include <ksharedptr.h>
 #include <ktexteditor/codecompletionmodel.h>
 
-#include <duchainpointer.h>
+#include <language/duchain/duchainpointer.h>
 #include <codecompletion/codecompletionitem.h>
 #include "context.h"
 

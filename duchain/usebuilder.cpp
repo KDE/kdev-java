@@ -22,24 +22,26 @@
 #include <ktexteditor/smartinterface.h>
 
 #include "editorintegrator.h"
-#include <declaration.h>
-#include <use.h>
-#include <topducontext.h>
-#include <duchain.h>
-#include <duchainlock.h>
+#include <language/duchain/declaration.h>
+#include <language/duchain/use.h>
+#include <language/duchain/topducontext.h>
+#include <language/duchain/duchain.h>
+#include <language/duchain/duchainlock.h>
 
 using namespace KTextEditor;
 using namespace KDevelop;
 using namespace java;
 
 UseBuilder::UseBuilder (ParseSession* session)
-  : UseBuilderBase(session), m_finishContext(true)
+  : m_finishContext(true)
 {
+  setEditor(session);
 }
 
 UseBuilder::UseBuilder (EditorIntegrator* editor)
-  : UseBuilderBase(editor), m_finishContext(true)
+  : m_finishContext(true)
 {
+  setEditor(editor);
 }
 
 void UseBuilder::buildUses(AstNode *node)

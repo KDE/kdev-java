@@ -50,8 +50,8 @@
 
 #include "parser/dumptree.h"
 
-#include <duchain.h>
-#include <duchainlock.h>
+#include <language/duchain/duchain.h>
+#include <language/duchain/duchainlock.h>
 
 #include "duchain/declarationbuilder.h"
 #include "duchain/usebuilder.h"

@@ -22,26 +22,28 @@
 
 #include "javadefaultvisitor.h"
 
-#include <language/duchain/abstractdeclarationbuilder.h>
-
-#include "typerepository.h"
+#include <language/duchain/basecontextbuilder.h>
 
 namespace java {
 
-class ParseSession;
 class EditorIntegrator;
 class IdentifierCompiler;
+class ParseSession;
+
+typedef KDevelop::BaseContextBuilder<AstNode> ContextBuilderBase;
 
 /**
  * A class which iterates the AST to identify contexts.
  */
-class ContextBuilder: public KDevelop::AbstractDeclarationBuilder<AstNode>, protected DefaultVisitor
+class ContextBuilder: public ContextBuilderBase, protected DefaultVisitor
 {
 public:
-  ContextBuilder(ParseSession* session);
-  ContextBuilder(EditorIntegrator* editor);
+  ContextBuilder();
   virtual ~ContextBuilder ();
 
+  void setEditor(EditorIntegrator* editor);
+  void setEditor(ParseSession* session);
+  
 protected:
   EditorIntegrator* editor() const;
 
@@ -49,7 +51,6 @@ protected:
   virtual void setContextOnNode( AstNode* node, KDevelop::DUContext* ctx );
   virtual KDevelop::DUContext* contextFromNode( AstNode* node );
   virtual KTextEditor::Range editorFindRange( AstNode* fromRange, AstNode* toRange );
-  virtual TypeRepository* typeRepository() const;
 
   /**
    * Compile an identifier for the specified AstNode \a id.

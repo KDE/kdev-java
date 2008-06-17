@@ -23,15 +23,9 @@
 #include <ktexteditor/smartrange.h>
 #include <ktexteditor/smartinterface.h>
 
-#include <symboltable.h>
-#include <forwarddeclaration.h>
-#include <duchainlock.h>
-#include <identifiedtype.h>
-
 #include "editorintegrator.h"
 #include "identifiercompiler.h"
-#include "classfunctiondeclaration.h"
-#include "functiondeclaration.h"
+#include <language/duchain/functiondeclaration.h>
 #include "javaast.h"
 #include "parsesession.h"
 
@@ -57,13 +51,13 @@ namespace java {
 }
 */
 DeclarationBuilder::DeclarationBuilder (ParseSession* session)
-  : DeclarationBuilderBase(session)
 {
+  setEditor(session);
 }
 
 DeclarationBuilder::DeclarationBuilder (EditorIntegrator* editor)
-  : DeclarationBuilderBase(editor)
 {
+  setEditor(editor);
 }
 
 /*

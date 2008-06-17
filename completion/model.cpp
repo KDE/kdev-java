@@ -34,17 +34,17 @@
 #include <khtmlview.h>
 
 
-#include <declaration.h>
+#include <language/duchain/declaration.h>
 #include "duchain/types.h"
-#include <classfunctiondeclaration.h>
-#include <ducontext.h>
-#include <duchain.h>
-#include <parsingenvironment.h>
+#include <language/duchain/classfunctiondeclaration.h>
+#include <language/duchain/ducontext.h>
+#include <language/duchain/duchain.h>
+#include <language/duchain/parsingenvironment.h>
 #include <editorintegrator.h>
-#include <duchainlock.h>
-#include <duchainbase.h>
-#include <topducontext.h>
-#include <duchainutils.h>
+#include <language/duchain/duchainlock.h>
+#include <language/duchain/duchainbase.h>
+#include <language/duchain/topducontext.h>
+#include <language/duchain/duchainutils.h>
 
 #include "context.h"
 #include "worker.h"

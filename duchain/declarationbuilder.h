@@ -21,14 +21,15 @@
 
 #include "typebuilder.h"
 
-namespace KDevelop
-{
-class Declaration;
-}
+typedef java::TypeBuilder LanguageSpecificDeclarationBuilderBase;
+
+#include <language/duchain/abstractdeclarationbuilder.h>
 
 namespace java {
 
-typedef TypeBuilder DeclarationBuilderBase;
+class ParseSession;
+
+typedef KDevelop::AbstractDeclarationBuilder<AstNode> DeclarationBuilderBase;
 
 /**
  * A class which iterates the AST to extract definitions of types.

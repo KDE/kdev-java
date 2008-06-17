@@ -23,6 +23,8 @@
 
 namespace java {
 
+class ParseSession;
+  
 typedef ContextBuilder UseBuilderBase;
 
 /**

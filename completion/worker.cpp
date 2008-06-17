@@ -28,12 +28,12 @@
 #include <ktexteditor/document.h>
 #include <klocale.h>
 
-#include <declaration.h>
-#include <ducontext.h>
-#include <duchainlock.h>
-#include <duchainbase.h>
-#include <duchainutils.h>
-#include <duchain.h>
+#include <language/duchain/declaration.h>
+#include <language/duchain/ducontext.h>
+#include <language/duchain/duchainlock.h>
+#include <language/duchain/duchainbase.h>
+#include <language/duchain/duchainutils.h>
+#include <language/duchain/duchain.h>
 #include "duchain/types.h"
 #include "model.h"
 

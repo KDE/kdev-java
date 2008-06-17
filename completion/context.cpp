@@ -22,11 +22,11 @@
 #include <ktexteditor/view.h>
 #include <ktexteditor/document.h>
 #include <klocalizedstring.h>
-#include <ducontext.h>
-#include <duchain.h>
-#include <classfunctiondeclaration.h>
-#include <duchainlock.h>
-#include "stringhelpers.h"
+#include <language/duchain/ducontext.h>
+#include <language/duchain/duchain.h>
+#include <language/duchain/classfunctiondeclaration.h>
+#include <language/duchain/duchainlock.h>
+#include <language/duchain/stringhelpers.h>
 #include "duchain/types.h"
 #include <iproblem.h>
 #include <util/pushvalue.h>

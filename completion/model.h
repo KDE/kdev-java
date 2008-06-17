@@ -28,7 +28,7 @@
 #include <QPointer>
 #include <codecompletion/codecompletionmodel.h>
 #include <ksharedptr.h>
-#include <duchainpointer.h>
+#include <language/duchain/duchainpointer.h>
 #include "context.h"
 
 namespace java {

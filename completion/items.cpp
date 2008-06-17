@@ -22,8 +22,8 @@
 
 #include "items.h"
 
-#include <duchain.h>
-#include <duchainlock.h>
+#include <language/duchain/duchain.h>
+#include <language/duchain/duchainlock.h>
 #include <ktexteditor/range.h>
 #include <ktexteditor/view.h>
 #include <ktexteditor/document.h>
@@ -32,7 +32,7 @@
 #include <duchain/declaration.h>
 #include <duchain/classfunctiondeclaration.h>
 #include <duchain/namespacealiasdeclaration.h>
-#include "duchainutils.h"
+#include <language/duchain/duchainutils.h>
 
 using namespace KDevelop;
 

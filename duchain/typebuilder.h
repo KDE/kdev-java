@@ -20,21 +20,23 @@
 #define TYPEBUILDER_H
 
 #include "contextbuilder.h"
-#include <typesystem.h>
-#include <declaration.h>
-#include <identifier.h>
-#include "types.h"
 
-namespace KDevelop {
-  class ForwardDeclaration;
-}
+typedef java::ContextBuilder LangugageSpecificTypeBuilderBase;
+
+#include <language/duchain/abstracttypebuilder.h>
+
+#include <language/duchain/typesystem.h>
+#include <language/duchain/declaration.h>
+#include <language/duchain/identifier.h>
+#include "types.h"
+#include "typerepository.h"
 
 namespace java {
 
 class ClassType;
 class FunctionType;
 
-typedef ContextBuilder TypeBuilderBase;
+typedef KDevelop::AbstractTypeBuilder<AstNode> TypeBuilderBase;
 
 /**
  * Create types from an AstNode tree.
@@ -45,13 +47,8 @@ typedef ContextBuilder TypeBuilderBase;
  */
 class TypeBuilder: public TypeBuilderBase
 {
-public:
-  TypeBuilder(ParseSession* session);
-  TypeBuilder(EditorIntegrator* editor);
-
 protected:
-  // Called at the beginning of processing a class-specifier, right after the type for the class was created. The type can be gotten through currentAbstractType().
-  virtual void classTypeOpened(KDevelop::AbstractType::Ptr) {};
+  virtual TypeRepository* typeRepository() const;
 
   virtual void visitClassDeclaration(ClassDeclarationAst *node);
   virtual void visitClassExtendsClause(ClassExtendsClauseAst *node);

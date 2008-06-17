@@ -31,8 +31,6 @@ include_directories(
     ${KDEVPLATFORM_INCLUDE_DIR}/language
     ${KDEVPLATFORM_INCLUDE_DIR}/language/interfaces
     ${KDEVPLATFORM_INCLUDE_DIR}/language/backgroundparser
-    ${KDEVPLATFORM_INCLUDE_DIR}/language/duchain
-    ${KDEVPLATFORM_INCLUDE_DIR}/language/duchain/viewer
 )
 
 

@@ -25,15 +25,15 @@
 #include <kdebug.h>
 #include <ktexteditor/range.h>
 
-#include <identifiedtype.h>
+#include <language/duchain/identifiedtype.h>
 #include "editorintegrator.h"
-#include <ducontext.h>
-#include <topducontext.h>
-#include <declaration.h>
-#include <duchainpointer.h>
-#include <parsingenvironment.h>
-#include <identifier.h>
-#include <use.h>
+#include <language/duchain/ducontext.h>
+#include <language/duchain/topducontext.h>
+#include <language/duchain/declaration.h>
+#include <language/duchain/duchainpointer.h>
+#include <language/duchain/parsingenvironment.h>
+#include <language/duchain/identifier.h>
+#include <language/duchain/use.h>
 #include "parser/parsesession.h"
 
 using namespace KDevelop;

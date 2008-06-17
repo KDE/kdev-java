@@ -28,11 +28,11 @@
 #include <kapplication.h>
 #include <ktexteditor/smartrange.h>
 #include <kcolorutils.h>
-#include <topducontext.h>
-#include <declaration.h>
-#include <use.h>
-#include <duchain.h>
-#include <duchainlock.h>
+#include <language/duchain/topducontext.h>
+#include <language/duchain/declaration.h>
+#include <language/duchain/use.h>
+#include <language/duchain/duchain.h>
+#include <language/duchain/duchainlock.h>
 #include "javalanguagesupport.h"
 
 using namespace KTextEditor;
