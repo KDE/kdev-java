@@ -18,17 +18,7 @@
 
 #include "usebuilder.h"
 
-#include <ktexteditor/smartrange.h>
-#include <ktexteditor/smartinterface.h>
-
 #include "editorintegrator.h"
-#include <language/duchain/declaration.h>
-#include <language/duchain/use.h>
-#include <language/duchain/topducontext.h>
-#include <language/duchain/duchain.h>
-#include <language/duchain/duchainlock.h>
-
-#include "javaast.h"
 
 using namespace KTextEditor;
 using namespace KDevelop;
