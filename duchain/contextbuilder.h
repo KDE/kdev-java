@@ -22,7 +22,7 @@
 
 #include "javadefaultvisitor.h"
 
-#include <language/duchain/basecontextbuilder.h>
+#include <language/duchain/abstractdeclarationbuilder.h>
 
 namespace java {
 
@@ -33,7 +33,7 @@ class IdentifierCompiler;
 /**
  * A class which iterates the AST to identify contexts.
  */
-class ContextBuilder: public KDevelop::BaseContextBuilder<AstNode>, protected DefaultVisitor
+class ContextBuilder: public KDevelop::AbstractDeclarationBuilder<AstNode>, protected DefaultVisitor
 {
 public:
   ContextBuilder(ParseSession* session);
@@ -41,6 +41,8 @@ public:
   virtual ~ContextBuilder ();
 
 protected:
+  EditorIntegrator* editor() const;
+
   virtual void startVisiting( AstNode* node );
   virtual void setContextOnNode( AstNode* node, KDevelop::DUContext* ctx );
   virtual KDevelop::DUContext* contextFromNode( AstNode* node );
@@ -53,7 +55,7 @@ protected:
    * is called, so you need to create a copy (store as non-reference).
    * @param typeSpecifier a pointer that will eventually be filled with a type-specifier that can be found in the name(for example the return-type of a cast-operator)
    */
-  virtual KDevelop::QualifiedIdentifier identifierForNode(AstNode* id) const;
+  virtual KDevelop::QualifiedIdentifier identifierForNode(AstNode* id);
 
   // Visitors
   virtual void visitForStatement(ForStatementAst *node);

@@ -57,22 +57,13 @@ namespace java {
 }
 */
 DeclarationBuilder::DeclarationBuilder (ParseSession* session)
-  : DeclarationBuilderBase(session), m_inTypedef(false)
+  : DeclarationBuilderBase(session)
 {
 }
 
 DeclarationBuilder::DeclarationBuilder (EditorIntegrator* editor)
-  : DeclarationBuilderBase(editor), m_inTypedef(false)
+  : DeclarationBuilderBase(editor)
 {
-}
-
-KDevelop::TopDUContext* DeclarationBuilder::buildDeclarations(const IndexedString& url, AstNode *node, const KDevelop::TopDUContextPointer& updateContext)
-{
-  TopDUContext* top = buildContexts(url, node, updateContext);
-
-  Q_ASSERT(m_accessPolicyStack.isEmpty());
-
-  return top;
 }
 
 /*
@@ -165,167 +156,6 @@ void DeclarationBuilder::visitDeclarator (DeclaratorAstNode* node)
   node->parameter_declaration_clause = parameter_declaration_clause_backup;
 }*/
 
-Declaration* DeclarationBuilder::openDefinition(IdentifierAst* name, AstNode* rangeNode, bool isFunction)
-{
-  return openDeclaration(name, rangeNode, isFunction, false, true);
-}
-
-Declaration* DeclarationBuilder::openDeclaration(IdentifierAst* name, AstNode* rangeNode, bool isFunction, bool isForward, bool isDefinition)
-{
-  DUChainWriteLocker lock(DUChain::lock());
-
-  SimpleRange newRange = editor<EditorIntegrator>()->findRange(name ? name : rangeNode);
-
-  if (newRange.start >= newRange.end)
-    kWarning() << "Range collapsed";
-
-  QualifiedIdentifier id = identifierForNode(name);
-
-  Identifier localId;
-
-  if(!id.isEmpty()) {
-    localId = id.last();
-  }
-
-  Declaration* declaration = 0;
-
-#if 0
-  if (recompiling()) {
-    // Seek a matching declaration
-
-    // Translate cursor to take into account any changes the user may have made since the text was retrieved
-    SimpleRange translated = newRange;
-
-    if (editor<EditorIntegrator>()->smart()) {
-      lock.unlock();
-      QMutexLocker smartLock(editor<EditorIntegrator>()->smart()->smartMutex());
-      translated = SimpleRange( editor<EditorIntegrator>()->smart()->translateFromRevision(translated.textRange()) );
-      lock.lock();
-    }
-
-    foreach( Declaration* dec, currentContext()->allLocalDeclarations(localId) ) {
-
-      if( wasEncountered(dec) )
-        continue;
-
-      //This works because dec->textRange() is taken from a smart-range. This means that now both ranges are translated to the current document-revision.
-      if (dec->range() == translated &&
-          dec->scope() == scope &&
-          ((id.isEmpty() && dec->identifier().toString().isEmpty()) || (!id.isEmpty() && localId == dec->identifier())) &&
-           dec->isDefinition() == isDefinition &&
-          dec->isTypeAlias() == m_inTypedef &&
-          ( ((!hasTemplateContext(m_importedParentContexts) && !dynamic_cast<TemplateDeclaration*>(dec)) ||
-             hasTemplateContext(m_importedParentContexts) && dynamic_cast<TemplateDeclaration*>(dec) ) )
-         )
-      {
-        if(currentContext()->type() == DUContext::Class && !dynamic_cast<ClassMemberDeclaration*>(dec))
-          continue;
-        if(isNamespaceAlias && !dynamic_cast<NamespaceAliasDeclaration*>(dec)) {
-          continue;
-        } else if (isForward && !dynamic_cast<ForwardDeclaration*>(dec)) {
-          continue;
-        } else if (isFunction) {
-          if (scope == Declaration::ClassScope) {
-            if (!dynamic_cast<ClassFunctionDeclaration*>(dec))
-              continue;
-          } else if (!dynamic_cast<AbstractFunctionDeclaration*>(dec)) {
-            continue;
-          }
-
-        } else if (scope == Declaration::ClassScope) {
-          if (!isForward && !dynamic_cast<ClassMemberDeclaration*>(dec)) //Forward-declarations are never based on ClassMemberDeclaration
-            continue;
-        }
-
-        // Match
-        declaration = dec;
-
-        // Update access policy if needed
-        if (currentContext()->type() == DUContext::Class) {
-          ClassMemberDeclaration* classDeclaration = dynamic_cast<ClassMemberDeclaration*>(declaration);
-          Q_ASSERT(classDeclaration);
-          if (classDeclaration->accessPolicy() != currentAccessPolicy()) {
-            classDeclaration->setAccessPolicy(currentAccessPolicy());
-          }
-        }
-        break;
-      }
-    }
-  }
-#endif
-
-  if (!declaration) {
-    SmartRange* prior = editor<EditorIntegrator>()->currentRange();
-    SmartRange* range = editor<EditorIntegrator>()->createRange(newRange.textRange());
-
-    editor<EditorIntegrator>()->exitCurrentRange();
-    //Q_ASSERT(range->start() != range->end());
-
-    Q_ASSERT(editor<EditorIntegrator>()->currentRange() == prior);
-
-    if (isForward) {
-      declaration = new ForwardDeclaration(editor<EditorIntegrator>()->currentUrl(), newRange, currentContext());
-    } else if (isFunction) {
-      if (currentContext()->type() == DUContext::Class) {
-        declaration = new ClassFunctionDeclaration(editor<EditorIntegrator>()->currentUrl(), newRange, currentContext());
-      } else {
-        declaration = new FunctionDeclaration(editor<EditorIntegrator>()->currentUrl(), newRange, currentContext());
-      }
-    } else if (currentContext()->type() == DUContext::Class) {
-        declaration = new ClassMemberDeclaration(editor<EditorIntegrator>()->currentUrl(), newRange, currentContext());
-    } else {
-      declaration = new Declaration(editor<EditorIntegrator>()->currentUrl(), newRange, currentContext());
-    }
-    
-    kDebug(0) << "New declaration" << declaration << " in context" << currentContext();
-
-    declaration->setSmartRange(range);
-    declaration->setDeclarationIsDefinition(isDefinition);
-    declaration->setIdentifier(localId);
-
-    switch (currentContext()->type()) {
-      case DUContext::Global:
-      case DUContext::Namespace:
-      case DUContext::Class:
-        SymbolTable::self()->addDeclaration(declaration);
-        break;
-      default:
-        break;
-    }
-  }
-
-  declaration->setComment(m_lastComment);
-  m_lastComment.clear();
-
-  setEncountered(declaration);
-
-  m_declarationStack.push(declaration);
-
-  return declaration;
-}
-
-void DeclarationBuilder::eventuallyAssignInternalContext()
-{
-  if (lastContext()) {
-    DUChainWriteLocker lock(DUChain::lock());
-
-    if( dynamic_cast<ClassFunctionDeclaration*>(currentDeclaration()) )
-      Q_ASSERT( !static_cast<ClassFunctionDeclaration*>(currentDeclaration())->isConstructor() || currentDeclaration()->context()->type() == DUContext::Class );
-
-    if(lastContext() && (lastContext()->type() == DUContext::Class || lastContext()->type() == DUContext::Other || lastContext()->type() == DUContext::Function || lastContext()->type() == DUContext::Template ) )
-    {
-      if( !lastContext()->owner() || !wasEncountered(lastContext()->owner()) ) { //if the context is already internalContext of another declaration, leave it alone
-        currentDeclaration()->setInternalContext(lastContext());
-
-        if( currentDeclaration()->range().start >= currentDeclaration()->range().end )
-          kDebug() << "Warning: Range was invalidated";
-
-        clearLastContext();
-      }
-    }
-  }
-}
-
 void DeclarationBuilder::closeDeclaration()
 {
   if (currentDeclaration()) {
@@ -338,12 +168,7 @@ void DeclarationBuilder::closeDeclaration()
 
   //kDebug() << "Mangled declaration:" << currentDeclaration()->mangledIdentifier();
 
-  m_declarationStack.pop();
-}
-
-void DeclarationBuilder::abortDeclaration()
-{
-  m_declarationStack.pop();
+  DeclarationBuilderBase::closeDeclaration();
 }
 
 /*void DeclarationBuilder::visitEnumSpecifier(EnumSpecifierAstNode* node)
@@ -508,13 +333,6 @@ void DeclarationBuilder::parseFunctionSpecifiers(const ListNode<std::size_t>* fu
     }
   }
 }*/
-
-
-void DeclarationBuilder::popSpecifiers()
-{
-  m_functionSpecifiers.pop();
-  m_storageSpecifiers.pop();
-}
 
 void DeclarationBuilder::visitClassDeclaration(ClassDeclarationAst * node)
 {

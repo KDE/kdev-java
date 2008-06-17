@@ -33,13 +33,13 @@ using namespace KDevelop;
 namespace java {
 
 ContextBuilder::ContextBuilder (ParseSession* session)
-  : KDevelop::BaseContextBuilder<AstNode>(new EditorIntegrator(session), true)
+  : KDevelop::AbstractDeclarationBuilder<AstNode>(new EditorIntegrator(session), true)
   , m_identifierCompiler(new IdentifierCompiler(session))
 {
 }
 
 ContextBuilder::ContextBuilder (EditorIntegrator* editor)
-  : KDevelop::BaseContextBuilder<AstNode>(editor, false)
+  : KDevelop::AbstractDeclarationBuilder<AstNode>(editor, false)
   , m_identifierCompiler(new IdentifierCompiler(editor->parseSession()))
 {
 }
@@ -64,12 +64,17 @@ KDevelop::DUContext* ContextBuilder::contextFromNode( AstNode* node )
   return node->ducontext;
 }
 
-KTextEditor::Range ContextBuilder::editorFindRange( AstNode* fromRange, AstNode* toRange )
+EditorIntegrator* ContextBuilder::editor() const
 {
-  return editor<EditorIntegrator>()->findRange(fromRange, toRange).textRange();
+  return static_cast<EditorIntegrator*>(KDevelop::AbstractDeclarationBuilder<AstNode>::editor());
 }
 
-QualifiedIdentifier ContextBuilder::identifierForNode(AstNode* id) const
+KTextEditor::Range ContextBuilder::editorFindRange( AstNode* fromRange, AstNode* toRange )
+{
+  return editor()->findRange(fromRange, toRange).textRange();
+}
+
+QualifiedIdentifier ContextBuilder::identifierForNode(AstNode* id)
 {
   if( !id )
     return QualifiedIdentifier();
