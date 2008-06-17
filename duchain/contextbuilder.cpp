@@ -80,7 +80,7 @@ KTextEditor::Range ContextBuilder::editorFindRange( AstNode* fromRange, AstNode*
   return editor()->findRange(fromRange, toRange).textRange();
 }
 
-QualifiedIdentifier ContextBuilder::identifierForNode(AstNode* id)
+QualifiedIdentifier ContextBuilder::identifierForNode(IdentifierAst* id)
 {
   if( !id )
     return QualifiedIdentifier();

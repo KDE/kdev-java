@@ -22,7 +22,7 @@
 
 #include "javadefaultvisitor.h"
 
-#include <language/duchain/basecontextbuilder.h>
+#include <language/duchain/abstractcontextbuilder.h>
 
 namespace java {
 
@@ -30,7 +30,7 @@ class EditorIntegrator;
 class IdentifierCompiler;
 class ParseSession;
 
-typedef KDevelop::BaseContextBuilder<AstNode> ContextBuilderBase;
+typedef KDevelop::AbstractContextBuilder<AstNode, IdentifierAst> ContextBuilderBase;
 
 /**
  * A class which iterates the AST to identify contexts.
@@ -59,7 +59,7 @@ protected:
    * is called, so you need to create a copy (store as non-reference).
    * @param typeSpecifier a pointer that will eventually be filled with a type-specifier that can be found in the name(for example the return-type of a cast-operator)
    */
-  virtual KDevelop::QualifiedIdentifier identifierForNode(AstNode* id);
+  virtual KDevelop::QualifiedIdentifier identifierForNode(IdentifierAst* id);
 
   // Visitors
   virtual void visitForStatement(ForStatementAst *node);

@@ -36,7 +36,7 @@ namespace java {
 class ClassType;
 class FunctionType;
 
-typedef KDevelop::AbstractTypeBuilder<AstNode> TypeBuilderBase;
+typedef KDevelop::AbstractTypeBuilder<AstNode, IdentifierAst> TypeBuilderBase;
 
 /**
  * Create types from an AstNode tree.
