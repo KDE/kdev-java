@@ -21,11 +21,15 @@
 
 #include "contextbuilder.h"
 
+typedef java::ContextBuilder LanguageSpecificUseBuilderBase;
+
+#include <language/duchain/abstractusebuilder.h>
+
 namespace java {
 
 class ParseSession;
   
-typedef ContextBuilder UseBuilderBase;
+typedef KDevelop::AbstractUseBuilder<AstNode> UseBuilderBase;
 
 /**
  * A class which iterates the AST to extract uses of definitions.
@@ -36,37 +40,8 @@ public:
   UseBuilder(ParseSession* session);
   UseBuilder(EditorIntegrator* editor);
 
-  /**
-   * Compile either a context-definition chain, or add uses to an existing
-   * chain.
-   *
-   * \param includes contexts to reference from the top context.  The list may be changed by this function.
-   */
-  void buildUses(AstNode *node);
-
-  /**
-   * @param decl May be zero for not found declarations
-   * */
-  void newUse(qint64 start_token, qint64 end_token, KDevelop::Declaration* decl);
-
 protected:
-  virtual void openContext(KDevelop::DUContext* newContext);
-  virtual void closeContext();
-
   virtual void visitSimpleNameAccessData(SimpleNameAccessDataAst *node);
-
-private:
-  /// Register a new use
-  void newUse(IdentifierAst* name);
-
-  inline int& nextUseIndex() { return m_nextUseStack.top(); }
-  inline QVector<int>& skippedUses() { return m_skippedUses.top(); }
-  QStack<int> m_nextUseStack;
-  QStack<QVector<int> > m_skippedUses;
-  QStack<KDevelop::DUContext*> m_contexts;
-
-  //Whether not encountered uses should be deleted during closeContext()
-  bool m_finishContext;
 };
 
 }
