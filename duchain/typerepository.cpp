@@ -24,7 +24,8 @@
 #include <duchain/identifier.h>
 
 using namespace KDevelop;
-using namespace java;
+
+namespace java {
 
 TypeRepository::TypeRepository()
 {
@@ -298,4 +299,6 @@ AbstractType::Ptr TypeRepository::registerArray(ArrayType::Ptr input)
   // No match
   m_arrays.insert(input->elementType(), input);
   return AbstractType::Ptr::staticCast(input);
+}
+
 }

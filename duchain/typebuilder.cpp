@@ -40,47 +40,17 @@
 #endif
 
 using namespace KDevelop;
-using namespace java;
+
+namespace java {
 
 TypeBuilder::TypeBuilder(ParseSession* session)
-  : TypeBuilderBase(session), m_declarationHasInitDeclarators(false)
+  : TypeBuilderBase(session)
 {
 }
 
 TypeBuilder::TypeBuilder(EditorIntegrator * editor)
-  : TypeBuilderBase(editor), m_declarationHasInitDeclarators(false)
+  : TypeBuilderBase(editor)
 {
-}
-
-void TypeBuilder::supportBuild(AstNode *node, DUContext* context)
-{
-  m_topTypes.clear();
-
-  TypeBuilderBase::supportBuild(node, context);
-
-  Q_ASSERT(m_typeStack.isEmpty());
-}
-
-void TypeBuilder::openAbstractType(AbstractType::Ptr type, AstNode* node)
-{
-  Q_UNUSED(node);
-
-  m_typeStack.append(type);
-}
-
-void TypeBuilder::closeType()
-{
-  // Check that this isn't the same as a previously existing type
-  // If it is, it will get replaced
-  m_lastType = TypeRepository::self()->registerType(currentAbstractType());
-
-  bool replaced = m_lastType != currentAbstractType();
-
-  // And the reference will be lost...
-  m_typeStack.pop();
-
-  if (!hasCurrentType() && !replaced)
-    m_topTypes.append(m_lastType);
 }
 
 ClassType* TypeBuilder::openClass(bool interface, bool parameters)
@@ -490,25 +460,6 @@ void TypeBuilder::visitArrayExpression(ExpressionAstNode* expression)
 }
 #endif
 
-void TypeBuilder::setLastType(KDevelop::AbstractType::Ptr ptr) {
-  m_lastType = ptr;
-}
-
-AbstractType::Ptr TypeBuilder::lastType() const
-{
-  return m_lastType;
-}
-
-const QList< AbstractType::Ptr > & TypeBuilder::topTypes() const
-{
-  return m_topTypes;
-}
-
-void TypeBuilder::injectType(const AbstractType::Ptr& type, AstNode* node) {
-  openType(type, node);
-  closeType();
-}
-
 void TypeBuilder::visitMethodDeclaration(MethodDeclarationAst * node)
 {
   visitNode(node->returnType);
@@ -518,7 +469,7 @@ void TypeBuilder::visitMethodDeclaration(MethodDeclarationAst * node)
   if (lastType())
     functionType->setReturnType(lastType());
 
-  openType(functionType, node);
+  openType(functionType);
 
   TypeBuilderBase::visitMethodDeclaration(node);
 
@@ -534,7 +485,7 @@ void TypeBuilder::visitInterfaceMethodDeclaration(InterfaceMethodDeclarationAst 
   if (lastType())
     functionType->setReturnType(lastType());
 
-  openType(functionType, node);
+  openType(functionType);
 
   TypeBuilderBase::visitInterfaceMethodDeclaration(node);
 
@@ -550,7 +501,7 @@ void TypeBuilder::visitConstructorDeclaration(ConstructorDeclarationAst * node)
   if (lastType())
     functionType->setReturnType(lastType());
 
-  openType(functionType, node);
+  openType(functionType);
 
   TypeBuilderBase::visitConstructorDeclaration(node);
 
@@ -561,7 +512,7 @@ void TypeBuilder::visitClassDeclaration(ClassDeclarationAst *node)
 {
   ClassType::Ptr classType = ClassType::Ptr(openClass(false, node->typeParameters));
 
-  openType(classType, node);
+  openType(classType);
 
   classTypeOpened( TypeRepository::self()->registerType(currentAbstractType()) ); //This callback is needed, because the type of the class-declaration needs to be set early so the class can be referenced from within itself
 
@@ -577,7 +528,7 @@ void TypeBuilder::visitInterfaceDeclaration(InterfaceDeclarationAst * node)
 {
   ClassType::Ptr classType = ClassType::Ptr(openClass(true, node->typeParameters));
 
-  openType(classType, node);
+  openType(classType);
 
   classTypeOpened( TypeRepository::self()->registerType(currentAbstractType()) ); //This callback is needed, because the type of the class-declaration needs to be set early so the class can be referenced from within itself
 
@@ -637,7 +588,7 @@ void TypeBuilder::visitBuiltInType(BuiltInTypeAst * node)
     IntegralType::Ptr integral = TypeRepository::self()->integral(type);
     if (integral) {
       openedType = true;
-      openType(integral, node);
+      openType(integral);
     }
   }
 
@@ -667,7 +618,7 @@ void TypeBuilder::visitOptionalArrayBuiltInType(OptionalArrayBuiltInTypeAst * no
         array->setDimension(0);
     }
     
-    injectType(array, node);
+    injectType(array);
   }
 }
 
@@ -689,7 +640,7 @@ void TypeBuilder::visitClassExtendsClause(ClassExtendsClauseAst * node)
 
   TypeBuilderBase::visitClassExtendsClause(node);
 
-  ClassType* klass = dynamic_cast<ClassType*>(m_typeStack.top().data());
+  ClassType* klass = dynamic_cast<ClassType*>(currentAbstractType().data());
 
   foreach (const ClassType::Ptr& extends, m_rememberClassNames) {
     // TODO read locking required??
@@ -740,53 +691,4 @@ void TypeBuilder::visitImplementsClause(ImplementsClauseAst * node)
   }*/
 }
 
-DUContext* TypeBuilder::searchContext() {
-  DUChainReadLocker lock(DUChain::lock());
-  return currentContext();
-}
-
-bool TypeBuilder::openTypeFromName(const QualifiedIdentifier& id, AstNode* typeNode, bool needClass)
-{
-  bool openedType = false;
-
-  bool delay = false;
-
-  if(!delay) {
-    SimpleCursor pos = editor()->findPosition(typeNode->startToken, KDevelop::EditorIntegrator::FrontEdge);
-    DUChainReadLocker lock(DUChain::lock());
-
-    QList<Declaration*> dec = searchContext()->findDeclarations(id, pos);
-
-    if ( dec.isEmpty() )
-      delay = true;
-
-    if(!delay) {
-      foreach( Declaration* decl, dec ) {
-        if( needClass && !dynamic_cast<ClassType*>(decl->abstractType().data()) )
-          continue;
-
-        if (decl->abstractType() ) {
-          ///@todo only functions may have multiple declarations here
-          ifDebug( if( dec.count() > 1 ) kDebug(9007) << id.toString() << "was found" << dec.count() << "times" )
-          //kDebug(9007) << "found for" << id.toString() << ":" << decl->toString() << "type:" << decl->abstractType()->toString() << "context:" << decl->context();
-          openedType = true;
-          openType(decl->abstractType(), typeNode);
-          break;
-        }
-      }
-    }
-
-    if(!openedType)
-      delay = true;
-  }
-    ///@todo What about position?
-
-  /*if(delay) {
-    //Either delay the resolution for template-dependent types, or create an unresolved type that stores the name.
-   openedType = true;
-   openDelayedType(id, name, templateDeclarationDepth() ? DelayedType::Delayed : DelayedType::Unresolved );
-
-   ifDebug( if(templateDeclarationDepth() == 0) kDebug(9007) << "no declaration found for" << id.toString() << "in context \"" << searchContext()->scopeIdentifier(true).toString() << "\"" << "" << searchContext() )
-  }*/
-  return openedType;
 }

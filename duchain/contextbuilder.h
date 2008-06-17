@@ -24,6 +24,8 @@
 
 #include <language/duchain/abstractdeclarationbuilder.h>
 
+#include "typerepository.h"
+
 namespace java {
 
 class ParseSession;
@@ -47,6 +49,7 @@ protected:
   virtual void setContextOnNode( AstNode* node, KDevelop::DUContext* ctx );
   virtual KDevelop::DUContext* contextFromNode( AstNode* node );
   virtual KTextEditor::Range editorFindRange( AstNode* fromRange, AstNode* toRange );
+  virtual TypeRepository* typeRepository() const;
 
   /**
    * Compile an identifier for the specified AstNode \a id.

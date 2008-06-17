@@ -49,6 +49,11 @@ ContextBuilder::~ContextBuilder ()
   delete m_identifierCompiler;
 }
 
+TypeRepository* ContextBuilder::typeRepository() const
+{
+  return TypeRepository::self();
+}
+
 void ContextBuilder::startVisiting( AstNode* node )
 {
   visitNode(node);

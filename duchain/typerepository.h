@@ -23,6 +23,7 @@
 #include <QtCore/QMultiHash>
 #include <QtCore/QMutex>
 
+#include <language/duchain/repositories/typerepository.h>
 #include "types.h"
 
 namespace KDevelop {
@@ -31,7 +32,7 @@ namespace KDevelop {
 
 namespace java {
 
-class TypeRepository
+class TypeRepository : public KDevelop::TypeRepository
 {
 public:
   static TypeRepository* self();
@@ -45,7 +46,7 @@ public:
    * type, or the previously registered type if it has been encountered
    * before.
    */
-  KDevelop::AbstractType::Ptr registerType(KDevelop::AbstractType::Ptr input);
+  virtual KDevelop::AbstractType::Ptr registerType(KDevelop::AbstractType::Ptr input);
 
 private:
   TypeRepository();
