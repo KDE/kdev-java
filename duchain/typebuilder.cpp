@@ -501,6 +501,8 @@ void TypeBuilder::visitClassDeclaration(ClassDeclarationAst *node)
 
   openType(classType);
 
+  classTypeOpened( TypeRepository::self()->registerType(currentAbstractType()) ); //This callback is needed, because the type of the class-declaration needs to be set early so the class can be referenced from within itself
+
   TypeBuilderBase::visitClassDeclaration(node);
 
   // Prevent additional elements being added if this becomes the current type again
@@ -514,6 +516,8 @@ void TypeBuilder::visitInterfaceDeclaration(InterfaceDeclarationAst * node)
   ClassType::Ptr classType = ClassType::Ptr(openClass(true, node->typeParameters));
 
   openType(classType);
+
+  classTypeOpened( TypeRepository::self()->registerType(currentAbstractType()) ); //This callback is needed, because the type of the class-declaration needs to be set early so the class can be referenced from within itself
 
   TypeBuilderBase::visitInterfaceDeclaration(node);
 
