@@ -36,7 +36,7 @@ include_directories(
 
 ########### next target ###############
 
-add_definitions( ${QT_DEFINITIONS} ${KDE4_DEFINITIONS} -DKDE_DEFAULT_DEBUG_AREA=9043 )
+add_definitions( ${QT_DEFINITIONS} ${KDE4_DEFINITIONS} -DKDE_DEFAULT_DEBUG_AREA=9013 )
 
 set(kdevjavalanguagesupport_PART_SRCS
     javalanguagesupport.cpp
