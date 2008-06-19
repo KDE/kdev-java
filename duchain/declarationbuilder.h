@@ -20,16 +20,13 @@
 #define DECLARATIONBUILDER_H
 
 #include "typebuilder.h"
-
-typedef java::TypeBuilder LanguageSpecificDeclarationBuilderBase;
-
 #include <language/duchain/abstractdeclarationbuilder.h>
 
 namespace java {
 
 class ParseSession;
 
-typedef KDevelop::AbstractDeclarationBuilder<AstNode, IdentifierAst> DeclarationBuilderBase;
+typedef KDevelop::AbstractDeclarationBuilder<AstNode, IdentifierAst, java::TypeBuilder> DeclarationBuilderBase;
 
 /**
  * A class which iterates the AST to extract definitions of types.

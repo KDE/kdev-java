@@ -1,5 +1,6 @@
 /* This file is part of KDevelop
 Copyright (C) 2006 Adam Treat <treat@kde.org>
+Copyright (C) 2008 Hamish Rodda <rodda@kde.org>
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Library General Public
@@ -130,11 +131,6 @@ void JavaLanguageSupport::projectClosed()
 QString JavaLanguageSupport::name() const
 {
     return "Java";
-}
-
-QStringList JavaLanguageSupport::extensions() const
-{
-    return QStringList() << "ILanguageSupport";
 }
 
 KDevelop::ILanguage * JavaLanguageSupport::language()

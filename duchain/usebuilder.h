@@ -21,15 +21,13 @@
 
 #include "contextbuilder.h"
 
-typedef java::ContextBuilder LanguageSpecificUseBuilderBase;
-
 #include <language/duchain/abstractusebuilder.h>
 
 namespace java {
 
 class ParseSession;
   
-typedef KDevelop::AbstractUseBuilder<AstNode, IdentifierAst> UseBuilderBase;
+typedef KDevelop::AbstractUseBuilder<AstNode, IdentifierAst, java::ContextBuilder> UseBuilderBase;
 
 /**
  * A class which iterates the AST to extract uses of definitions.

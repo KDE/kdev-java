@@ -20,9 +20,6 @@
 #define TYPEBUILDER_H
 
 #include "contextbuilder.h"
-
-typedef java::ContextBuilder LangugageSpecificTypeBuilderBase;
-
 #include <language/duchain/abstracttypebuilder.h>
 
 #include <language/duchain/typesystem.h>
@@ -36,7 +33,7 @@ namespace java {
 class ClassType;
 class FunctionType;
 
-typedef KDevelop::AbstractTypeBuilder<AstNode, IdentifierAst> TypeBuilderBase;
+typedef KDevelop::AbstractTypeBuilder<AstNode, IdentifierAst, java::ContextBuilder> TypeBuilderBase;
 
 /**
  * Create types from an AstNode tree.
