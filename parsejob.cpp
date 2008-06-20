@@ -178,10 +178,6 @@ void ParseJob::run()
     java::EditorIntegrator editor(parseSession());
     editor.setCurrentUrl(document().str());
 
-    // Translate the cursors we generate with edits that have happened since retrieval of the document source.
-    if (editor.smart() && revisionToken() > 0)
-        editor.smart()->useRevision(revisionToken());
-
     //kDebug(  ) << (contentContext ? "updating" : "building") << "duchain for" << parentJob()->document().str();
 
     DeclarationBuilder builder(&editor);
