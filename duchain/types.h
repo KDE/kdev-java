@@ -79,7 +79,6 @@ public:
   bool equals(const JavaType* rhs) const;
 
   QString cvString() const;
-  QString cvMangled() const;
   uint cvHash(uint input) const { return input; }
 
 private:
@@ -110,8 +109,6 @@ public:
   IntegralTypes integralType() const;
 
   virtual QString toString() const;
-
-  virtual QString mangled() const;
 
   virtual uint hash() const;
 
@@ -191,8 +188,6 @@ public:
 
   virtual uint hash() const;
 
-  virtual QString mangled() const;
-
   virtual AbstractType* clone() const;
 
   virtual bool equals(const AbstractType* rhs) const;
@@ -206,8 +201,6 @@ public:
   PointerType(TypeModifiers modifiers = NoModifier);
 
   virtual QString toString() const;
-
-  virtual QString mangled() const;
 
   virtual AbstractType* clone() const;
 
@@ -224,8 +217,6 @@ public:
   ReferenceType(TypeModifiers modifiers = NoModifier);
 
   virtual QString toString() const;
-
-  virtual QString mangled() const;
 
   virtual AbstractType* clone() const;
 
@@ -272,8 +263,6 @@ public:
 
   virtual QString toString() const;
 
-  virtual QString mangled() const;
-
   virtual AbstractType* clone() const;
 
   virtual bool equals(const AbstractType* rhs) const;
@@ -303,9 +292,6 @@ public:
 
   virtual QString toString() const;
 
-  //TODO
-  //virtual QString mangled() const;
-
   virtual AbstractType* clone() const;
 
   virtual bool equals(const AbstractType* rhs) const;
@@ -332,8 +318,6 @@ public:
   void setSuperType(ClassType::Ptr super);
 
   virtual QString toString() const;
-
-  virtual QString mangled() const;
 
   virtual uint hash() const;
 
@@ -368,8 +352,6 @@ public:
 
   virtual bool equals(const AbstractType* rhs) const;
 
-  virtual QString mangled() const;
-
   virtual QString toString() const;
 };
 
@@ -377,8 +359,6 @@ class ArrayType : public KDevelop::ArrayType
 {
 public:
   typedef KSharedPtr<ArrayType> Ptr;
-
-  virtual QString mangled() const;
 
   virtual AbstractType* clone() const;
 

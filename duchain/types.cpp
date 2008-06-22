@@ -119,11 +119,6 @@ bool ClassType::equals(const AbstractType* _rhs) const
   return decl->equalQualifiedIdentifier(rhsDecl);
 }
 
-QString EnumerationType::mangled() const
-{
-  return QString("E_%1_%2").arg(IntegralType::mangled()).arg(identifier().toString());
-}
-
 bool EnumerationType::equals(const AbstractType* _rhs) const
 {
   if( !fastCast<const EnumerationType*>(_rhs) && !fastCast<const ForwardDeclarationType*>(_rhs))
@@ -439,98 +434,6 @@ uint EnumerationType::hash() const
   return identifier().hash();
 }
 
-QString IntegralType::mangled() const
-{
-  QString ret;
-
-  switch (integralType()) {
-    case TypeChar:
-      ret += 'c';
-      break;
-    case TypeBoolean:
-      ret += 'b';
-      break;
-    case TypeShort:
-      ret += 's';
-      break;
-    case TypeLong:
-      ret += 'l';
-      break;
-    case TypeInt:
-      ret += 'i';
-      break;
-    case TypeFloat:
-      ret += 'f';
-      break;
-    case TypeDouble:
-      ret += 'd';
-      break;
-    case TypeVoid:
-      ret += 'v';
-      break;
-    default:
-      ret += '?';
-      break;
-  }
-  return ret;// + cvMangled();
-}
-
-QString JavaType::cvMangled() const
-{
-  QString ret;
-  // TODO mangle me
-  return ret;
-}
-
-QString PointerType::mangled() const
-{
-  QString ret = "P" + cvMangled();
-  if (baseType())
-    ret += baseType()->mangled();
-  return ret;
-}
-
-QString ReferenceType::mangled() const
-{
-  QString ret = "R" + cvMangled();
-  if (baseType())
-    ret += baseType()->mangled();
-  return ret;
-}
-
-QString ClassType::mangled() const
-{
-  return idMangled() + cvMangled();
-}
-
-QString FunctionType::mangled() const
-{
-  ClassFunctionDeclaration* classFunctionDecl = dynamic_cast<ClassFunctionDeclaration*>(declaration());
-
-  bool constructor = classFunctionDecl && classFunctionDecl->isConstructor();
-
-  QualifiedIdentifier id = identifier();
-
-  Identifier function = id.top();
-  if (!id.isEmpty())
-    id.pop();
-
-  QString ret = QString("%1__%2%3").arg(constructor ? QString() : function.mangled()).arg(cvMangled()).arg(id.mangled());
-
-  foreach (const AbstractType::Ptr& argument, arguments())
-    if (argument)
-      ret += argument->mangled();
-    else
-      ret += '?';
-
-  return ret;
-}
-
-QString ArrayType::mangled() const
-{
-  return QString("A%1%2").arg(dimension()).arg(elementType() ? elementType()->mangled() : QString());
-}
-
 TypeModifiers JavaType::modifiers() const
 {
   return m_mod;
@@ -660,11 +563,6 @@ QString java::JavaType::cvString() const
 java::FunctionType::FunctionType(TypeModifiers modifiers)
   : JavaType(modifiers)
 {
-}
-
-QString java::WildcardType::mangled() const
-{
-  return toString();
 }
 
 uint java::WildcardType::hash() const
