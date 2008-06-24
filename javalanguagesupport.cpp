@@ -58,21 +58,6 @@ JavaLanguageSupport::JavaLanguageSupport( QObject* parent,
     CodeCompletionModel* ccModel = new CodeCompletionModel(this);
     new KDevelop::CodeCompletion( this, ccModel, name() );
 
-    connect( core()->documentController(),
-             SIGNAL( documentLoaded( KDevelop::IDocument* ) ),
-             this, SLOT( documentLoaded( KDevelop::IDocument* ) ) );
-    connect( core()->documentController(),
-             SIGNAL( documentStateChanged( KDevelop::IDocument* ) ),
-             this, SLOT( documentChanged( KDevelop::IDocument* ) ) );
-    connect( core()->documentController(),
-             SIGNAL( documentContentChanged( KDevelop::IDocument* ) ),
-             this, SLOT( documentChanged( KDevelop::IDocument* ) ) );
-    connect( core()->documentController(),
-             SIGNAL( documentClosed( KDevelop::IDocument* ) ),
-             this, SLOT( documentClosed( KDevelop::IDocument* ) ) );
-    connect( core()->documentController(),
-             SIGNAL( documentActivated( KDevelop::IDocument* ) ),
-             this, SLOT( documentActivated( KDevelop::IDocument* ) ) );
     connect( core()->projectController(),
              SIGNAL( projectOpened(KDevelop::IProject*) ),
              this, SLOT( projectOpened(KDevelop::IProject*) ) );
@@ -90,26 +75,6 @@ JavaLanguageSupport::~JavaLanguageSupport()
 KDevelop::ParseJob *JavaLanguageSupport::createParseJob( const KUrl &url )
 {
     return new ParseJob( url, this );
-}
-
-void JavaLanguageSupport::documentChanged( KDevelop::IDocument* document )
-{
-    core()->languageController()->backgroundParser()->addDocument( document->url() );
-}
-
-void JavaLanguageSupport::documentLoaded( KDevelop::IDocument *document )
-{
-    core()->languageController()->backgroundParser()->addDocument( document->url() );
-}
-
-void JavaLanguageSupport::documentClosed( KDevelop::IDocument *document )
-{
-    core()->languageController()->backgroundParser()->removeDocument( document->url() );
-}
-
-void JavaLanguageSupport::documentActivated( KDevelop::IDocument *document )
-{
-    Q_UNUSED( document );
 }
 
 void JavaLanguageSupport::projectOpened(KDevelop::IProject *project)

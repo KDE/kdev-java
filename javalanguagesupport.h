@@ -48,10 +48,6 @@ public:
     virtual const KDevelop::ICodeHighlighting *codeHighlighting() const;
 
 private slots:
-    void documentLoaded( KDevelop::IDocument *document );
-    void documentChanged( KDevelop::IDocument* document );
-    void documentClosed( KDevelop::IDocument *document );
-    void documentActivated( KDevelop::IDocument *document );
     void projectOpened(KDevelop::IProject *project);
     void projectClosed();
 

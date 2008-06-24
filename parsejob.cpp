@@ -48,6 +48,7 @@
 
 #include <ilanguage.h>
 #include <icodehighlighting.h>
+#include <iproblem.h>
 
 #include "parser/dumptree.h"
 
@@ -108,7 +109,7 @@ void ParseJob::run()
 
     QMutexLocker lock(java()->language()->parseMutex(QThread::currentThread()));
 
-    QString localFile(KUrl(m_document.str()).toLocalFile());
+    QString localFile(KUrl(document().str()).toLocalFile());
 
     QFileInfo fileInfo( localFile );
 
@@ -117,10 +118,25 @@ void ParseJob::run()
         QFile file( localFile );
         if ( !file.open( QIODevice::ReadOnly ) )
         {
-            m_errorMessage = i18n( "Could not open file '%1'", m_document.str() );
-            kWarning(  ) << "Could not open file " << m_document.str()
-                             << " (path " << fileInfo.filePath() << ")";
-            return ;
+            KDevelop::ProblemPointer p(new KDevelop::Problem());
+            p->setSource(KDevelop::Problem::Disk);
+            p->setDescription(i18n( "Could not open file '%1'", localFile ));
+            switch (file.error()) {
+              case QFile::ReadError:
+                  p->setExplanation(i18n("File could not be read from."));
+                  break;
+              case QFile::OpenError:
+                  p->setExplanation(i18n("File could not be opened."));
+                  break;
+              case QFile::PermissionsError:
+                  p->setExplanation(i18n("File permissions prevent opening for read."));
+                  break;
+              default:
+                  break;
+            }
+            p->setFinalLocation(KDevelop::DocumentRange(document().str(), KTextEditor::Cursor(0,0), KTextEditor::Cursor(0,0)));
+            // TODO addProblem(p);
+            return;
         }
 
         m_session->setContents( file.readAll() );
@@ -133,7 +149,7 @@ void ParseJob::run()
     }
 
     kDebug() << "===-- PARSING --===> "
-             << m_document.str()
+             << document().str()
              << " <== readFromDisk: " << m_readFromDisk
              << " size: " << m_session->size();
 
