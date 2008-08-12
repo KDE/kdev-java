@@ -52,7 +52,7 @@ private:
   KDevelop::QualifiedIdentifier m_name;
 };
 
-KDevelop::Declaration::CVSpecs parseConstVolatile(ParseSession* session, const KDevPG::ListNode<qint64> *cv);
+uint parseConstVolatile(ParseSession* session, const KDevPG::ListNode<qint64> *cv);
 
 }
 

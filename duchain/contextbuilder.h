@@ -22,7 +22,7 @@
 
 #include "javadefaultvisitor.h"
 
-#include <language/duchain/abstractcontextbuilder.h>
+#include <language/duchain/builders/abstractcontextbuilder.h>
 
 namespace java {
 
@@ -43,7 +43,7 @@ public:
 
   void setEditor(EditorIntegrator* editor);
   void setEditor(ParseSession* session);
-  
+
 protected:
   EditorIntegrator* editor() const;
 

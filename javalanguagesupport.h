@@ -45,7 +45,7 @@ public:
 
     virtual KDevelop::ParseJob *createParseJob(const KUrl &url);
     virtual KDevelop::ILanguage *language();
-    virtual const KDevelop::ICodeHighlighting *codeHighlighting() const;
+    //virtual const KDevelop::ICodeHighlighting *codeHighlighting() const;
 
 private slots:
     void projectOpened(KDevelop::IProject *project);

@@ -1,4 +1,4 @@
-/* 
+/*
    Copyright 2007 David Nolden <david.nolden.kdevelop@art-master.de>
    Copyright 2008 Hamish Rodda <rodda@kde.org>
 
@@ -23,6 +23,7 @@
 #include <ksharedptr.h>
 
 #include <codecompletion/codecompletioncontext.h>
+#include <language/editor/simplecursor.h>
 
 #include "items.h"
 
@@ -46,7 +47,7 @@ namespace java {
   class CodeCompletionContext : public KDevelop::CodeCompletionContext {
     public:
       typedef KSharedPtr<CodeCompletionContext> Ptr;
-      
+
       /**
        * @param firstContext should be true for a context that has no parent. Such a context will never be a function-call context.
        * @param text the text to analyze. It usually is the text in the range starting at the beginning of the context, and ending at the position where completion should start
@@ -67,7 +68,7 @@ namespace java {
         MemberAccess,      ///klass.
         FunctionCallAccess  ///"function(". Will never appear as initial access-operation, but as parentContext() access-operation.
       };
-      
+
       ///@return the used access-operation
       MemberAccessOperation memberAccessOperation() const;
 
@@ -76,7 +77,7 @@ namespace java {
        * this returns all functions available for matching, together with the argument-number that should be matched.
        * */
       const QList<KDevelop::AbstractFunctionDeclaration*>& functions() const;
-      
+
       virtual CodeCompletionContext* parentContext();
 
     private:

@@ -20,7 +20,7 @@
 #define DECLARATIONBUILDER_H
 
 #include "typebuilder.h"
-#include <language/duchain/abstractdeclarationbuilder.h>
+#include <language/duchain/builders/abstractdeclarationbuilder.h>
 
 namespace java {
 
@@ -39,7 +39,7 @@ public:
 
 protected:
   virtual void closeDeclaration();
-  
+
   virtual void visitClassDeclaration(ClassDeclarationAst *node);
   virtual void visitMethodDeclaration(MethodDeclarationAst *node);
   virtual void visitInterfaceMethodDeclaration(InterfaceMethodDeclarationAst *node);

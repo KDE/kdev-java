@@ -192,7 +192,7 @@ void ParseJob::run()
 
     // 3) Form definition-use chain
     java::EditorIntegrator editor(parseSession());
-    editor.setCurrentUrl(document().str());
+    editor.setCurrentUrl(document());
 
     //kDebug(  ) << (contentContext ? "updating" : "building") << "duchain for" << parentJob()->document().str();
 

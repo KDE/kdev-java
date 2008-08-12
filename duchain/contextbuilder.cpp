@@ -47,7 +47,7 @@ void ContextBuilder::setEditor(ParseSession* session)
 {
   EditorIntegrator* e = new EditorIntegrator(session);
   m_identifierCompiler = new IdentifierCompiler(e->parseSession());
-  ContextBuilderBase::setEditor(e, false);
+  ContextBuilderBase::setEditor(e, true);
 }
 
 ContextBuilder::~ContextBuilder ()
@@ -121,7 +121,7 @@ void ContextBuilder::visitMethodDeclaration(MethodDeclarationAst * node)
   //visitNode(node->methodName);
 
   QualifiedIdentifier id;
-  
+
   DUContext* parameters = 0;
   if (node->parameters) {
     parameters = openContext(node->parameters, DUContext::Other, node->methodName);

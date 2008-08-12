@@ -35,7 +35,6 @@ Boston, MA 02110-1301, USA.
 #include <iproject.h>
 
 #include "parsejob.h"
-#include "javahighlighting.h"
 
 #include <codecompletion/codecompletion.h>
 #include <codecompletion/codecompletionmodel.h>
@@ -53,8 +52,8 @@ JavaLanguageSupport::JavaLanguageSupport( QObject* parent,
 {
     KDEV_USE_EXTENSION_INTERFACE( KDevelop::ILanguageSupport )
 
-    m_highlights = new JavaHighlighting( this );
-    
+    //m_highlights = new JavaHighlighting( this );
+
     CodeCompletionModel* ccModel = new CodeCompletionModel(this);
     new KDevelop::CodeCompletion( this, ccModel, name() );
 
@@ -103,10 +102,10 @@ KDevelop::ILanguage * JavaLanguageSupport::language()
     return core()->languageController()->language(name());
 }
 
-const KDevelop::ICodeHighlighting * JavaLanguageSupport::codeHighlighting() const
+/*const KDevelop::ICodeHighlighting * JavaLanguageSupport::codeHighlighting() const
 {
     return m_highlights;
-}
+}*/
 
 #include "javalanguagesupport.moc"
 

@@ -22,6 +22,8 @@
 
 #include "items.h"
 
+#include <KLocale>
+
 #include <language/duchain/duchain.h>
 #include <language/duchain/duchainlock.h>
 #include <ktexteditor/range.h>
@@ -37,12 +39,12 @@
 using namespace KDevelop;
 
 namespace java {
-  
+
 void NormalDeclarationCompletionItem::execute(KTextEditor::Document* document, const KTextEditor::Range& word) {
   bool spaceBeforeParen = false; ///@todo Take this from some astyle config or something
   bool spaceBetweenParens = true;
   bool spaceBetweenEmptyParens = false;
-  
+
   if( completionContext && completionContext->depth() != 0 )
     return; //Do not replace any text when it is an argument-hint
 
@@ -93,7 +95,7 @@ void NormalDeclarationCompletionItem::execute(KTextEditor::Document* document, c
       //If no arguments, move the cursor behind the closing paren
       if( !haveArguments )
         jumpPos += KTextEditor::Cursor( 0, closingParen.length() );
-      
+
       lock.unlock();
       document->insertText( word.end(), openingParen + closingParen );
       if( document->activeView() )
@@ -122,7 +124,7 @@ QVariant NormalDeclarationCompletionItem::data(const QModelIndex& index, int rol
 
   static CompletionTreeItemPointer currentMatchContext;
 
-  
+
   //Stuff that does not require a declaration:
   switch (role) {
     case CodeCompletionModel::SetMatchContext:
@@ -135,7 +137,7 @@ QVariant NormalDeclarationCompletionItem::data(const QModelIndex& index, int rol
       return alternativeText;
     return QVariant();
   }
-  
+
   Declaration* dec = const_cast<Declaration*>( declaration.data() );
 
   switch (role) {
@@ -198,11 +200,11 @@ QVariant NormalDeclarationCompletionItem::data(const QModelIndex& index, int rol
             indentation += "typedef ";
 
           if( dec->kind() == Declaration::Type && !dec->type<FunctionType>() && !dec->isTypeAlias() ) {
-            if (ClassType::Ptr classType =  dec->type<ClassType>())
+            if (StructureType::Ptr classType =  dec->type<StructureType>())
               switch (classType->classType()) {
-                case ClassType::Class:
+                case StructureType::Class:
                   return indentation + "class";
-                case ClassType::Interface:
+                case StructureType::Interface:
                   return indentation + "interface";
               }
             return QVariant();
@@ -258,7 +260,8 @@ QVariant NormalDeclarationCompletionItem::data(const QModelIndex& index, int rol
         break;
         case CodeCompletionModel::Postfix:
           if (FunctionType::Ptr functionType = dec->type<FunctionType>()) {
-            return functionType->cvString();
+            // TODO complete?
+            return functionType->modifiers() & AbstractType::ConstModifier ? i18n("const") : i18n("");
           }
           break;
       }
@@ -295,7 +298,7 @@ QVariant NormalDeclarationCompletionItem::data(const QModelIndex& index, int rol
       ret << 0;
       ret << nameForDeclaration(dec).length();
       ret << QVariant(boldFormat);
-      
+
       return QVariant(ret);
     }
     break;
@@ -322,12 +325,12 @@ QVariant NormalDeclarationCompletionItem::data(const QModelIndex& index, int rol
             }
             break;
           case AbstractType::TypeStructure:
-            if (ClassType::Ptr classType =  dec->type<ClassType>())
+            if (StructureType::Ptr classType =  dec->type<StructureType>())
               switch (classType->classType()) {
-                case ClassType::Class:
+                case StructureType::Class:
                   p |= CodeCompletionModel::Class;
                   break;
-                case ClassType::Interface:
+                case StructureType::Interface:
                   // FIXME remove
                   p |= CodeCompletionModel::Class;
                   // Remove class bit set in DUChainUtils

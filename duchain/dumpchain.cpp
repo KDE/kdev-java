@@ -25,7 +25,7 @@
 #include <kdebug.h>
 #include <ktexteditor/range.h>
 
-#include <language/duchain/identifiedtype.h>
+#include <language/duchain/types/identifiedtype.h>
 #include "editorintegrator.h"
 #include <language/duchain/ducontext.h>
 #include <language/duchain/topducontext.h>
@@ -239,11 +239,9 @@ void DumpChain::dump( DUContext * context, bool imported )
   if (!imported) {
     foreach (Declaration* dec, context->localDeclarations()) {
 
-      kDebug() << QString((indent+1) * 2, ' ') << "Declaration: " << dec->toString() << /*(idType ? (" (type-identity: " + idType->identifier().toString() + ")") : QString()) <<*/ " [" << dec->qualifiedIdentifier() << "]" << dec << "(internal ctx" << dec->internalContext() << ")" << dec->range().textRange() << "," << (dec->isDefinition() ? "defined, " : (dec->definition() ? "" : "no definition, ")) << dec->uses().count() << "use(s).";
-      if (dec->definition())
-        kDebug() << QString((indent+1) * 2 + 1, ' ') << "Definition:" << dec->definition()->range().textRange();
-      QMap<HashedString, QList<SimpleRange> > uses = dec->uses();
-      for(QMap<HashedString, QList<SimpleRange> >::const_iterator it = uses.begin(); it != uses.end(); ++it) {
+      kDebug() << QString((indent+1) * 2, ' ') << "Declaration: " << dec->toString() << /*(idType ? (" (type-identity: " + idType->identifier().toString() + ")") : QString()) <<*/ " [" << dec->qualifiedIdentifier() << "]" << dec << "(internal ctx" << dec->internalContext() << ")" << dec->range().textRange() << "," << (dec->isDefinition() ? "definition, " : "declaration, ") << dec->uses().count() << "use(s).";
+      QMap<IndexedString, QList<SimpleRange> > uses = dec->uses();
+      for(QMap<IndexedString, QList<SimpleRange> >::const_iterator it = uses.begin(); it != uses.end(); ++it) {
         kDebug() << QString((indent+2) * 2, ' ') << "File:" << it.key().str();
         foreach (const SimpleRange& range, *it)
           kDebug() << QString((indent+2) * 2+1, ' ') << "Use:" << range.textRange();
@@ -254,8 +252,8 @@ void DumpChain::dump( DUContext * context, bool imported )
   ++indent;
   if (!imported) {
     ///@todo Think whether this is used for top-contexts, and if it is, prevent endless recursion due to loops
-    foreach (DUContextPointer parent, context->importedParentContexts()) {
-      dump(parent.data(), true);
+    foreach (const DUContext::Import& parent, context->importedParentContexts()) {
+      dump(parent.context(), true);
     }
 
     foreach (DUContext* child, context->childContexts())

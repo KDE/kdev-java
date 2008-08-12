@@ -35,16 +35,11 @@ using namespace KDevelop;
 
 namespace java {
 
-TypeRepository* TypeBuilder::typeRepository() const
+StructureType* TypeBuilder::openClass(bool interface, bool parameters)
 {
-  return TypeRepository::self();
-}
+  StructureType* classType = /*parameters ? new ParameterizedType() : */new StructureType();
 
-ClassType* TypeBuilder::openClass(bool interface, bool parameters)
-{
-  ClassType* classType = parameters ? new ParameterizedType() : new ClassType();
-
-  classType->setClassType(interface ? ClassType::Interface : ClassType::Class);
+  classType->setClassType(interface ? StructureType::Interface : StructureType::Class);
 
   return classType;
 }
@@ -56,7 +51,7 @@ void TypeBuilder::visitBaseSpecifier(BaseSpecifierAstNode *node)
   if (node->name) {
     DUChainReadLocker lock(DUChain::lock());
 
-    ClassType* klass = dynamic_cast<ClassType*>(m_typeStack.top().data());
+    StructureType* klass = dynamic_cast<StructureType*>(m_typeStack.top().data());
     Q_ASSERT( klass );
 
     bool openedType = openTypeFromName(node->name, true);
@@ -64,7 +59,7 @@ void TypeBuilder::visitBaseSpecifier(BaseSpecifierAstNode *node)
     if( openedType ) {
       closeType();
 
-      ClassType::BaseClassInstance instance;
+      StructureType::BaseClassInstance instance;
 
       instance.virtualInheritance = (bool)node->virt;
       instance.baseClass = m_lastType;
@@ -408,7 +403,7 @@ void TypeBuilder::closeTypeForDeclarator(DeclaratorAstNode *node) {
     closeType();
 
   if (lastType() && hasCurrentType())
-    if (ClassType::Ptr structure = currentType<ClassType>())
+    if (StructureType::Ptr structure = currentType<StructureType>())
       structure->addElement(lastType());
 }
 
@@ -451,7 +446,8 @@ void TypeBuilder::visitMethodDeclaration(MethodDeclarationAst * node)
 {
   visitNode(node->returnType);
 
-  FunctionType::Ptr functionType = FunctionType::Ptr(new FunctionType(parseModifiers(node->modifiers)));
+  FunctionType::Ptr functionType = FunctionType::Ptr(new FunctionType());
+  functionType->setModifiers(parseModifiers(node->modifiers));
 
   if (lastType())
     functionType->setReturnType(lastType());
@@ -467,7 +463,8 @@ void TypeBuilder::visitInterfaceMethodDeclaration(InterfaceMethodDeclarationAst 
 {
   visitNode(node->returnType);
 
-  FunctionType::Ptr functionType = FunctionType::Ptr(new FunctionType(parseModifiers(node->modifiers)));
+  FunctionType::Ptr functionType = FunctionType::Ptr(new FunctionType());
+  functionType->setModifiers(parseModifiers(node->modifiers));
 
   if (lastType())
     functionType->setReturnType(lastType());
@@ -483,7 +480,8 @@ void TypeBuilder::visitConstructorDeclaration(ConstructorDeclarationAst * node)
 {
   // TODO set constructor type
 
-  FunctionType::Ptr functionType = FunctionType::Ptr(new FunctionType(parseModifiers(node->modifiers)));
+  FunctionType::Ptr functionType = FunctionType::Ptr(new FunctionType());
+  functionType->setModifiers(parseModifiers(node->modifiers));
 
   if (lastType())
     functionType->setReturnType(lastType());
@@ -497,11 +495,11 @@ void TypeBuilder::visitConstructorDeclaration(ConstructorDeclarationAst * node)
 
 void TypeBuilder::visitClassDeclaration(ClassDeclarationAst *node)
 {
-  ClassType::Ptr classType = ClassType::Ptr(openClass(false, node->typeParameters));
+  StructureType::Ptr classType = StructureType::Ptr(openClass(false, node->typeParameters));
 
   openType(classType);
 
-  classTypeOpened( TypeRepository::self()->registerType(currentAbstractType()) ); //This callback is needed, because the type of the class-declaration needs to be set early so the class can be referenced from within itself
+  classTypeOpened( currentAbstractType() ); //This callback is needed, because the type of the class-declaration needs to be set early so the class can be referenced from within itself
 
   TypeBuilderBase::visitClassDeclaration(node);
 
@@ -513,11 +511,11 @@ void TypeBuilder::visitClassDeclaration(ClassDeclarationAst *node)
 
 void TypeBuilder::visitInterfaceDeclaration(InterfaceDeclarationAst * node)
 {
-  ClassType::Ptr classType = ClassType::Ptr(openClass(true, node->typeParameters));
+  StructureType::Ptr classType = StructureType::Ptr(openClass(true, node->typeParameters));
 
   openType(classType);
 
-  classTypeOpened( TypeRepository::self()->registerType(currentAbstractType()) ); //This callback is needed, because the type of the class-declaration needs to be set early so the class can be referenced from within itself
+  classTypeOpened( currentAbstractType() ); //This callback is needed, because the type of the class-declaration needs to be set early so the class can be referenced from within itself
 
   TypeBuilderBase::visitInterfaceDeclaration(node);
 
@@ -532,7 +530,7 @@ void TypeBuilder::visitBuiltInType(BuiltInTypeAst * node)
   bool openedType = false;
 
   if (node) {
-    IntegralType::IntegralTypes type = IntegralType::TypeNone;
+    uint type = IntegralType::TypeNone;
 
     switch (node->type) {
       case BuiltInTypeVoid:
@@ -572,11 +570,11 @@ void TypeBuilder::visitBuiltInType(BuiltInTypeAst * node)
     if (JavaType* type = dynamic_cast<JavaType*>(currentAbstractType().data()))
       type->setModifiers(mod);*/
 
-    IntegralType::Ptr integral = TypeRepository::self()->integral(type);
-    if (integral) {
-      openedType = true;
-      openType(integral);
-    }
+    IntegralType::Ptr integral(new IntegralType(type));
+    //integral->setModifiers(modifiers);
+
+    openedType = true;
+    openType(integral);
   }
 
   TypeBuilderBase::visitBuiltInType(node);
@@ -598,13 +596,13 @@ void TypeBuilder::visitOptionalArrayBuiltInType(OptionalArrayBuiltInTypeAst * no
     ArrayType::Ptr array(new ArrayType());
 
     array->setElementType(lastType());
-    
+
     if( node->declaratorBrackets ) {
         array->setDimension(node->declaratorBrackets->bracketCount);
     } else {
         array->setDimension(0);
     }
-    
+
     injectType(array);
   }
 }
@@ -616,9 +614,29 @@ void TypeBuilder::visitTypeArgument(TypeArgumentAst * node)
   TypeBuilderBase::visitTypeArgument(node);
 }
 
-TypeModifiers TypeBuilder::parseModifiers(OptionalModifiersAst * node) const
+uint TypeBuilder::parseModifiers(OptionalModifiersAst * node) const
 {
-  return static_cast<TypeModifiers>(node->modifiers);
+  uint mod = AbstractType::NoModifiers;
+
+  // TODO handle the following ... ModifierPrivate, ModifierPublic, ModifierProtected
+  if (node->modifiers & java::ModifierStatic)
+    mod |= AbstractType::StaticModifier;
+  if (node->modifiers & java::ModifierTransient)
+    mod |= AbstractType::TransientModifier;
+  if (node->modifiers & java::ModifierFinal)
+    mod |= AbstractType::FinalModifier;
+  if (node->modifiers & java::ModifierAbstract)
+    mod |= AbstractType::AbstractModifier;
+  if (node->modifiers & java::ModifierNative)
+    mod |= AbstractType::NativeModifier;
+  if (node->modifiers & java::ModifierSynchronized)
+    mod |= AbstractType::SynchronizedModifier;
+  if (node->modifiers & java::ModifierVolatile)
+    mod |= AbstractType::VolatileModifier;
+  if (node->modifiers & java::ModifierStrictFP)
+    mod |= AbstractType::StrictFPModifier;
+
+  return mod;
 }
 
 void TypeBuilder::visitClassExtendsClause(ClassExtendsClauseAst * node)
@@ -627,13 +645,14 @@ void TypeBuilder::visitClassExtendsClause(ClassExtendsClauseAst * node)
 
   TypeBuilderBase::visitClassExtendsClause(node);
 
-  ClassType* klass = dynamic_cast<ClassType*>(currentAbstractType().data());
+  StructureType::Ptr klass = StructureType::Ptr::dynamicCast(currentAbstractType());
 
-  foreach (const ClassType::Ptr& extends, m_rememberClassNames) {
+  foreach (const StructureType::Ptr& extends, m_rememberClassNames) {
     // TODO read locking required??
-    if (extends->classType() == ClassType::Interface) {
+    if (extends->classType() == StructureType::Interface) {
       DUChainWriteLocker lock(DUChain::lock());
-      klass->addExtendsClass(extends);
+      // TODO check with David where this should be saved (?in the declaration)
+      //klass->addExtendsClass(extends);
     } else {
       // TODO problem reporter
       kDebug() << "Tried to extend rather than implement an interface";
@@ -644,9 +663,9 @@ void TypeBuilder::visitClassExtendsClause(ClassExtendsClauseAst * node)
 void TypeBuilder::visitClassOrInterfaceTypeName(ClassOrInterfaceTypeNameAst * node)
 {
   m_currentIdentifier.clear();
-  
+
   TypeBuilderBase::visitClassOrInterfaceTypeName(node);
-  
+
   if (openTypeFromName(m_currentIdentifier, node, true))
     closeType();
 }
@@ -654,7 +673,7 @@ void TypeBuilder::visitClassOrInterfaceTypeName(ClassOrInterfaceTypeNameAst * no
 void TypeBuilder::visitClassOrInterfaceTypeNamePart(ClassOrInterfaceTypeNamePartAst * node)
 {
   m_currentIdentifier.push(identifierForNode(node->identifier));
-  
+
   TypeBuilderBase::visitClassOrInterfaceTypeNamePart(node);
 }
 
@@ -664,11 +683,11 @@ void TypeBuilder::visitImplementsClause(ImplementsClauseAst * node)
 
   TypeBuilderBase::visitImplements_clause(node);
 
-  ClassType* klass = dynamic_cast<ClassType*>(m_typeStack.top().data());
+  StructureType* klass = dynamic_cast<StructureType*>(m_typeStack.top().data());
 
-  foreach (const ClassType::Ptr& interface, m_rememberClassNames) {
+  foreach (const StructureType::Ptr& interface, m_rememberClassNames) {
     // TODO read locking required??
-    if (interface->classType() == ClassType::Interface) {
+    if (interface->classType() == StructureType::Interface) {
       DUChainWriteLocker lock(DUChain::lock());
       klass->addImplementsInterface(interface);
     } else {

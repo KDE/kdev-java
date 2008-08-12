@@ -49,9 +49,9 @@ using namespace java;
   return ret;
 }*/
 
-Declaration::CVSpecs parseConstVolatile(ParseSession* session, const KDevPG::ListNode<qint64> *cv)
+uint parseConstVolatile(ParseSession* session, const KDevPG::ListNode<qint64> *cv)
 {
-  Declaration::CVSpecs ret = Declaration::CVNone;
+  uint ret = AbstractType::NoModifiers;
 
   if (cv) {
     const KDevPG::ListNode<qint64> *it = cv->front();
@@ -59,9 +59,9 @@ Declaration::CVSpecs parseConstVolatile(ParseSession* session, const KDevPG::Lis
     do {
       int kind = session->tokenStream->token(it->element).kind;
       if (kind == Parser::Token_CONST)
-        ret |= Declaration::Const;
+        ret |= AbstractType::ConstModifier;
       else if (kind == Parser::Token_VOLATILE)
-        ret |= Declaration::Volatile;
+        ret |= AbstractType::VolatileModifier;
 
       it = it->next;
     } while (it != end);

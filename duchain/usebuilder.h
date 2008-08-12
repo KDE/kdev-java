@@ -21,12 +21,12 @@
 
 #include "contextbuilder.h"
 
-#include <language/duchain/abstractusebuilder.h>
+#include <language/duchain/builders/abstractusebuilder.h>
 
 namespace java {
 
 class ParseSession;
-  
+
 typedef KDevelop::AbstractUseBuilder<AstNode, IdentifierAst, java::ContextBuilder> UseBuilderBase;
 
 /**

@@ -41,7 +41,7 @@ add_definitions( ${QT_DEFINITIONS} ${KDE4_DEFINITIONS} -DKDE_DEFAULT_DEBUG_AREA=
 set(kdevjavalanguagesupport_PART_SRCS
     javalanguagesupport.cpp
     parsejob.cpp
-    javahighlighting.cpp
+    #javahighlighting.cpp
 
     duchain/editorintegrator.cpp
     duchain/identifiercompiler.cpp
@@ -51,8 +51,8 @@ set(kdevjavalanguagesupport_PART_SRCS
     duchain/usebuilder.cpp
     duchain/typebuilder.cpp
     duchain/types.cpp
-    duchain/typerepository.cpp
-    
+    #duchain/typerepository.cpp
+
     completion/worker.cpp
     completion/items.cpp
     completion/context.cpp

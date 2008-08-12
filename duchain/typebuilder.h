@@ -20,18 +20,13 @@
 #define TYPEBUILDER_H
 
 #include "contextbuilder.h"
-#include <language/duchain/abstracttypebuilder.h>
+#include <language/duchain/builders/abstracttypebuilder.h>
 
-#include <language/duchain/typesystem.h>
 #include <language/duchain/declaration.h>
 #include <language/duchain/identifier.h>
 #include "types.h"
-#include "typerepository.h"
 
 namespace java {
-
-class ClassType;
-class FunctionType;
 
 typedef KDevelop::AbstractTypeBuilder<AstNode, IdentifierAst, java::ContextBuilder> TypeBuilderBase;
 
@@ -45,8 +40,6 @@ typedef KDevelop::AbstractTypeBuilder<AstNode, IdentifierAst, java::ContextBuild
 class TypeBuilder: public TypeBuilderBase
 {
 protected:
-  virtual TypeRepository* typeRepository() const;
-
   virtual void visitClassDeclaration(ClassDeclarationAst *node);
   virtual void visitClassExtendsClause(ClassExtendsClauseAst *node);
   virtual void visitImplementsClause(ImplementsClauseAst *node);
@@ -64,13 +57,13 @@ protected:
 
 private:
   bool nodeValid(AstNode* node) const;
-  
-  ClassType* openClass(bool interface, bool parameters);
-  FunctionType* openFunction();
 
-  TypeModifiers parseModifiers(OptionalModifiersAst* node) const;
+  KDevelop::StructureType* openClass(bool interface, bool parameters);
+  KDevelop::FunctionType* openFunction();
 
-  QList<ClassType::Ptr> m_rememberClassNames;
+  uint parseModifiers(OptionalModifiersAst* node) const;
+
+  QList<KDevelop::StructureType::Ptr> m_rememberClassNames;
   KDevelop::QualifiedIdentifier m_currentIdentifier;
 };
 
