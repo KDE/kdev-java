@@ -28,28 +28,13 @@
 #include <language/duchain/functiondeclaration.h>
 #include "javaast.h"
 #include "parsesession.h"
+#include "classdeclaration.h"
 
 using namespace KTextEditor;
 using namespace KDevelop;
 
 namespace java {
 
-/*void copyJavaClass( const JavaClassType* from, JavaClassType* to )
-{
-  to->clear();
-  to->setClassType(from->classType());
-  to->setDeclaration(from->declaration());
-  to->setCV(from->cv());
-
-  foreach( const JavaClassType::BaseClassInstance& base, from->baseClasses() )
-    to->addBaseClass(base);
-
-  foreach( const AbstractType::Ptr& element, from->elements() )
-    to->addElement(element);
-
-  to->close();
-}
-*/
 DeclarationBuilder::DeclarationBuilder (ParseSession* session)
 {
   setEditor(session);
@@ -330,7 +315,7 @@ void DeclarationBuilder::parseFunctionSpecifiers(const ListNode<std::size_t>* fu
 
 void DeclarationBuilder::visitClassDeclaration(ClassDeclarationAst * node)
 {
-  openDefinition(node->className, node, false);
+  openDefinition<ClassDeclaration>(node->className, node);
 
   currentDeclaration()->setKind(Declaration::Type);
 
@@ -341,7 +326,7 @@ void DeclarationBuilder::visitClassDeclaration(ClassDeclarationAst * node)
 
 void DeclarationBuilder::visitInterfaceDeclaration(InterfaceDeclarationAst * node)
 {
-  openDefinition(node->interfaceName, node, false);
+  openDefinition<ClassDeclaration>(node->interfaceName, node);
 
   currentDeclaration()->setKind(Declaration::Type);
 
@@ -352,7 +337,7 @@ void DeclarationBuilder::visitInterfaceDeclaration(InterfaceDeclarationAst * nod
 
 void DeclarationBuilder::visitInterfaceMethodDeclaration(InterfaceMethodDeclarationAst * node)
 {
-  openDefinition(node->methodName, node, true);
+  openDefinition<ClassDeclaration>(node->methodName, node);
 
   currentDeclaration()->setKind(Declaration::Type);
 
@@ -363,7 +348,7 @@ void DeclarationBuilder::visitInterfaceMethodDeclaration(InterfaceMethodDeclarat
 
 void DeclarationBuilder::visitConstructorDeclaration(ConstructorDeclarationAst * node)
 {
-  openDefinition(node->className, node, true);
+  openDefinition<ClassFunctionDeclaration>(node->className, node);
 
   currentDeclaration()->setKind(Declaration::Type);
 
@@ -374,7 +359,7 @@ void DeclarationBuilder::visitConstructorDeclaration(ConstructorDeclarationAst *
 
 void DeclarationBuilder::visitMethodDeclaration(MethodDeclarationAst * node)
 {
-  openDefinition(node->methodName, node, true);
+  openDefinition<ClassFunctionDeclaration>(node->methodName, node);
 
   currentDeclaration()->setKind(Declaration::Type);
 
@@ -392,7 +377,10 @@ void DeclarationBuilder::visitVariableDeclaration(VariableDeclarationAst * node)
 
 void DeclarationBuilder::visitVariableDeclarator(VariableDeclaratorAst * node)
 {
-  openDefinition(node->variableName, node, false);
+  if (currentContext()->type() == DUContext::Class)
+    openDefinition<ClassMemberDeclaration>(node->variableName, node);
+  else
+    openDefinition<Declaration>(node->variableName, node);
 
   DeclarationBuilderBase::visitVariableDeclarator(node);
 
@@ -401,7 +389,7 @@ void DeclarationBuilder::visitVariableDeclarator(VariableDeclaratorAst * node)
 
 void DeclarationBuilder::visitParameterDeclaration(ParameterDeclarationAst * node)
 {
-  openDefinition(node->variableName, node, false);
+  openDefinition<Declaration>(node->variableName, node);
 
   DeclarationBuilderBase::visitParameterDeclaration(node);
 
@@ -410,7 +398,7 @@ void DeclarationBuilder::visitParameterDeclaration(ParameterDeclarationAst * nod
 
 void DeclarationBuilder::visitParameterDeclarationEllipsis(ParameterDeclarationEllipsisAst * node)
 {
-  openDefinition(node->variableName, node, false);
+  openDefinition<Declaration>(node->variableName, node);
 
   DeclarationBuilderBase::visitParameterDeclarationEllipsis(node);
 

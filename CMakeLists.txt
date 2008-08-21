@@ -51,7 +51,7 @@ set(kdevjavalanguagesupport_PART_SRCS
     duchain/usebuilder.cpp
     duchain/typebuilder.cpp
     duchain/types.cpp
-    #duchain/typerepository.cpp
+    duchain/classdeclaration.cpp
 
     completion/worker.cpp
     completion/items.cpp
