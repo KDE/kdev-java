@@ -43,3 +43,4 @@ X-KDevelop-Language=Java
 X-KDevelop-Args=JAVA
 X-KDevelop-Interfaces=ILanguageSupport
 X-KDevelop-SupportedMimeTypes=text/x-java
+X-KDevelop-Mode=NoGUI
