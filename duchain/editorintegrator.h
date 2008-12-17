@@ -19,8 +19,8 @@
 #ifndef JAVAEDITORINTEGRATOR_H
 #define JAVAEDITORINTEGRATOR_H
 
-#include <editorintegrator.h>
-#include <editor/simplerange.h>
+#include <language/editor/editorintegrator.h>
+#include <language/editor/simplerange.h>
 
 #include "kdev-pg-token-stream.h"
 

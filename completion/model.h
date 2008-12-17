@@ -26,7 +26,7 @@
 #include <QPair>
 #include <QMap>
 #include <QPointer>
-#include <codecompletion/codecompletionmodel.h>
+#include <language/codecompletion/codecompletionmodel.h>
 #include <ksharedptr.h>
 #include <language/duchain/duchainpointer.h>
 #include "context.h"
@@ -40,7 +40,7 @@ class CodeCompletionModel : public KDevelop::CodeCompletionModel
   public:
     CodeCompletionModel(QObject* parent);
     virtual ~CodeCompletionModel();
- 
+
   protected:
     virtual void completionInvokedInternal(KTextEditor::View* view, const KTextEditor::Range& range, InvocationType invocationType, const KUrl& url);
 

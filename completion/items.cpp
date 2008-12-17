@@ -30,10 +30,10 @@
 #include <ktexteditor/view.h>
 #include <ktexteditor/document.h>
 #include "duchain/types.h"
-#include <codecompletion/codecompletionmodel.h>
-#include <duchain/declaration.h>
-#include <duchain/classfunctiondeclaration.h>
-#include <duchain/namespacealiasdeclaration.h>
+#include <language/codecompletion/codecompletionmodel.h>
+#include <language/duchain/declaration.h>
+#include <language/duchain/classfunctiondeclaration.h>
+#include <language/duchain/namespacealiasdeclaration.h>
 #include <language/duchain/duchainutils.h>
 
 using namespace KDevelop;
@@ -200,13 +200,13 @@ QVariant NormalDeclarationCompletionItem::data(const QModelIndex& index, int rol
             indentation += "typedef ";
 
           if( dec->kind() == Declaration::Type && !dec->type<FunctionType>() && !dec->isTypeAlias() ) {
-            if (StructureType::Ptr classType =  dec->type<StructureType>())
+/*            if (StructureType::Ptr classType =  dec->type<StructureType>())
               switch (classType->classType()) {
                 case StructureType::Class:
                   return indentation + "class";
                 case StructureType::Interface:
                   return indentation + "interface";
-              }
+              }*/
             return QVariant();
           }
 
@@ -325,7 +325,7 @@ QVariant NormalDeclarationCompletionItem::data(const QModelIndex& index, int rol
             }
             break;
           case AbstractType::TypeStructure:
-            if (StructureType::Ptr classType =  dec->type<StructureType>())
+/*            if (StructureType::Ptr classType =  dec->type<StructureType>())
               switch (classType->classType()) {
                 case StructureType::Class:
                   p |= CodeCompletionModel::Class;
@@ -338,7 +338,7 @@ QVariant NormalDeclarationCompletionItem::data(const QModelIndex& index, int rol
                   //p &= ~CodeCompletionModel::Class;
                   //p |= CodeCompletionModel::Interface;
                   break;
-              }
+              }*/
             break;
         }
       }

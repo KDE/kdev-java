@@ -27,7 +27,7 @@
 #include "javaparser.h"
 #include "javaparserexport.h"
 
-#include <editor/simplecursor.h>
+#include <language/editor/simplecursor.h>
 
 namespace java
 {

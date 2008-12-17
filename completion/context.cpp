@@ -28,7 +28,7 @@
 #include <language/duchain/duchainlock.h>
 #include <language/duchain/stringhelpers.h>
 #include "duchain/types.h"
-#include <iproblem.h>
+#include <language/interfaces/iproblem.h>
 #include <util/pushvalue.h>
 
 #define LOCKDUCHAIN     DUChainReadLocker lock(DUChain::lock())
@@ -130,7 +130,7 @@ CodeCompletionContext::CodeCompletionContext(DUContextPointer context, const QSt
 
   if(m_expression == "else")
     m_expression = QString();
-  
+
   QString expressionPrefix = Utils::stripFinalWhitespace( m_text.left(start_expr) );
 
   ifDebug( log( "expressionPrefix: " + expressionPrefix ); )
@@ -146,7 +146,7 @@ CodeCompletionContext::CodeCompletionContext(DUContextPointer context, const QSt
         m_expression = newExpression;
         expressionPrefix = newExpressionPrefix;
       }
-      
+
     }
   }
 
@@ -158,7 +158,7 @@ CodeCompletionContext::CodeCompletionContext(DUContextPointer context, const QSt
     //Find out which argument-number this expression is, and compute the beginning of the parent function-call(parentContextLast)
     QStringList otherArguments;
     int parentContextEnd = expressionPrefix.length();
-    
+
     Utils::skipFunctionArguments( expressionPrefix, otherArguments, parentContextEnd );
 
     QString parentContextText = expressionPrefix.left(parentContextEnd);
@@ -195,7 +195,7 @@ CodeCompletionContext::CodeCompletionContext(DUContextPointer context, const QSt
   ExpressionParser expressionParser/*(false, true)*/;
 
   ifDebug( kDebug(9007) << "expression: " << expr; )
-  
+
   if( !expr.trimmed().isEmpty() ) {
     m_expressionResult = expressionParser.evaluateExpression( expr.toUtf8(), m_duContext );
     ifDebug( kDebug(9007) << "expression result: " << m_expressionResult.toString(); )
@@ -318,17 +318,17 @@ CodeCompletionContext* CodeCompletionContext::parentContext() {
 QList<CompletionTreeItemPointer> CodeCompletionContext::completionItems(const KDevelop::SimpleCursor& position, bool& abort)
 {
   LOCKDUCHAIN;
-  
+
   QList<CompletionTreeItemPointer> items;
-  
+
   if (!m_duContext)
     return items;
-  
+
   typedef QPair<Declaration*, int> DeclarationDepthPair;
-  
+
   if(!m_storedItems.isEmpty()) {
     items = m_storedItems;
-  
+
   } else {
 #if 0
 if ( memberAccessContainer().isValid() ) {

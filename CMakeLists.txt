@@ -24,13 +24,6 @@ include_directories(
     ${KDE4_INCLUDE_DIR}/threadweaver
     ${KDE4_INCLUDE_DIR}/kdevelop-pg-qt
     ${KDevPlatform_INCLUDE_DIR}
-    ${KDevPlatform_INCLUDE_DIR}/interfaces
-    ${KDevPlatform_INCLUDE_DIR}/language/editor
-    ${KDevPlatform_INCLUDE_DIR}/project
-    ${KDevPlatform_INCLUDE_DIR}/project/interfaces
-    ${KDevPlatform_INCLUDE_DIR}/language
-    ${KDevPlatform_INCLUDE_DIR}/language/interfaces
-    ${KDevPlatform_INCLUDE_DIR}/language/backgroundparser
 )
 
 

@@ -27,7 +27,7 @@
 #include <ktexteditor/codecompletionmodel.h>
 
 #include <language/duchain/duchainpointer.h>
-#include <codecompletion/codecompletionitem.h>
+#include <language/codecompletion/codecompletionitem.h>
 #include "context.h"
 
 namespace KTextEditor {
@@ -42,13 +42,13 @@ class QModelIndex;
 namespace java {
 
 class CodeCompletionContext;
-  
+
 //A completion item used for completion of normal declarations while normal code-completion
 class NormalDeclarationCompletionItem : public KDevelop::CompletionTreeItem {
 public:
   NormalDeclarationCompletionItem(KDevelop::DeclarationPointer decl = KDevelop::DeclarationPointer(), KSharedPtr<CodeCompletionContext> context=KSharedPtr<CodeCompletionContext>(), int _inheritanceDepth = 0, int _listOffset=0) : declaration(decl), completionContext(context), m_inheritanceDepth(_inheritanceDepth), listOffset(_listOffset) {
   }
-  
+
   virtual void execute(KTextEditor::Document* document, const KTextEditor::Range& word);
 
   virtual QVariant data(const QModelIndex& index, int role, const KDevelop::CodeCompletionModel* model) const;

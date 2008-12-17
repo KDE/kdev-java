@@ -27,17 +27,17 @@ Boston, MA 02110-1301, USA.
 
 #include <QExtensionFactory>
 
-#include <icore.h>
-#include <ilanguagecontroller.h>
-#include <idocumentcontroller.h>
-#include <iprojectcontroller.h>
-#include <backgroundparser.h>
-#include <iproject.h>
+#include <interfaces/icore.h>
+#include <interfaces/ilanguagecontroller.h>
+#include <interfaces/idocumentcontroller.h>
+#include <interfaces/iprojectcontroller.h>
+#include <language/backgroundparser/backgroundparser.h>
+#include <interfaces/iproject.h>
 
 #include "parsejob.h"
 
-#include <codecompletion/codecompletion.h>
-#include <codecompletion/codecompletionmodel.h>
+#include <language/codecompletion/codecompletion.h>
+#include <language/codecompletion/codecompletionmodel.h>
 #include "completion/model.h"
 
 using namespace java;

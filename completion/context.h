@@ -22,7 +22,7 @@
 
 #include <ksharedptr.h>
 
-#include <codecompletion/codecompletioncontext.h>
+#include <language/codecompletion/codecompletioncontext.h>
 #include <language/editor/simplecursor.h>
 
 #include "items.h"

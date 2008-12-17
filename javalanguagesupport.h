@@ -21,8 +21,8 @@ Boston, MA 02110-1301, USA.
 #ifndef KDEVJAVALANGUAGESUPPORT_H
 #define KDEVJAVALANGUAGESUPPORT_H
 
-#include <iplugin.h>
-#include <ilanguagesupport.h>
+#include <interfaces/iplugin.h>
+#include <language/interfaces/ilanguagesupport.h>
 
 namespace java {
     class JavaHighlighting;

@@ -39,7 +39,7 @@ StructureType* TypeBuilder::openClass(bool interface, bool parameters)
 {
   StructureType* classType = /*parameters ? new ParameterizedType() : */new StructureType();
 
-  classType->setClassType(interface ? StructureType::Interface : StructureType::Class);
+  //classType->setClassType(interface ? StructureType::Interface : StructureType::Class);
 
   return classType;
 }
@@ -503,9 +503,6 @@ void TypeBuilder::visitClassDeclaration(ClassDeclarationAst *node)
 
   TypeBuilderBase::visitClassDeclaration(node);
 
-  // Prevent additional elements being added if this becomes the current type again
-  classType->close();
-
   closeType();
 }
 
@@ -518,9 +515,6 @@ void TypeBuilder::visitInterfaceDeclaration(InterfaceDeclarationAst * node)
   classTypeOpened( currentAbstractType() ); //This callback is needed, because the type of the class-declaration needs to be set early so the class can be referenced from within itself
 
   TypeBuilderBase::visitInterfaceDeclaration(node);
-
-  // Prevent additional elements being added if this becomes the current type again
-  classType->close();
 
   closeType();
 }
@@ -649,14 +643,14 @@ void TypeBuilder::visitClassExtendsClause(ClassExtendsClauseAst * node)
 
   foreach (const StructureType::Ptr& extends, m_rememberClassNames) {
     // TODO read locking required??
-    if (extends->classType() == StructureType::Interface) {
+/*    if (extends->classType() == StructureType::Interface) {
       DUChainWriteLocker lock(DUChain::lock());
       // TODO check with David where this should be saved (?in the declaration)
       //klass->addExtendsClass(extends);
     } else {
       // TODO problem reporter
       kDebug() << "Tried to extend rather than implement an interface";
-    }
+    }*/
   }
 }
 

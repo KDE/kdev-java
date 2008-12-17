@@ -33,6 +33,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QByteArray>
+#include <QReadLocker>
 
 #include <kdebug.h>
 #include <klocale.h>
@@ -46,9 +47,9 @@
 #include <javaparser.h>
 #include <javadefaultvisitor.h>
 
-#include <ilanguage.h>
-#include <icodehighlighting.h>
-#include <iproblem.h>
+#include <interfaces/ilanguage.h>
+#include <language/interfaces/icodehighlighting.h>
+#include <language/interfaces/iproblem.h>
 
 #include "parser/dumptree.h"
 
@@ -107,7 +108,7 @@ void ParseJob::run()
     if ( abortRequested() )
         return abortJob();
 
-    QMutexLocker lock(java()->language()->parseMutex(QThread::currentThread()));
+    QReadLocker lock(java()->language()->parseLock());
 
     QString localFile(KUrl(document().str()).toLocalFile());
 
@@ -119,7 +120,7 @@ void ParseJob::run()
         if ( !file.open( QIODevice::ReadOnly ) )
         {
             KDevelop::ProblemPointer p(new KDevelop::Problem());
-            p->setSource(KDevelop::Problem::Disk);
+            p->setSource(KDevelop::ProblemData::Disk);
             p->setDescription(i18n( "Could not open file '%1'", localFile ));
             switch (file.error()) {
               case QFile::ReadError:
