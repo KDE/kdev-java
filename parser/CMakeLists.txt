@@ -3,16 +3,16 @@ include_directories(
     ${KDE4_INCLUDES}
     ${KDE4_INCLUDE_DIR}/kdevelop-pg-qt
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${KDevPlatform_INCLUDE_DIR}
-    ${KDevPlatform_INCLUDE_DIR}/interfaces
-    ${KDevPlatform_INCLUDE_DIR}/editor
-    ${KDevPlatform_INCLUDE_DIR}/project
-    ${KDevPlatform_INCLUDE_DIR}/project/interfaces
-    ${KDevPlatform_INCLUDE_DIR}/language
-    ${KDevPlatform_INCLUDE_DIR}/language/interfaces
-    ${KDevPlatform_INCLUDE_DIR}/language/backgroundparser
-    ${KDevPlatform_INCLUDE_DIR}/language/duchain
-    ${KDevPlatform_INCLUDE_DIR}/language/duchain/viewer
+    ${KDEVPLATFORM_INCLUDE_DIR}
+    ${KDEVPLATFORM_INCLUDE_DIR}/interfaces
+    ${KDEVPLATFORM_INCLUDE_DIR}/editor
+    ${KDEVPLATFORM_INCLUDE_DIR}/project
+    ${KDEVPLATFORM_INCLUDE_DIR}/project/interfaces
+    ${KDEVPLATFORM_INCLUDE_DIR}/language
+    ${KDEVPLATFORM_INCLUDE_DIR}/language/interfaces
+    ${KDEVPLATFORM_INCLUDE_DIR}/language/backgroundparser
+    ${KDEVPLATFORM_INCLUDE_DIR}/language/duchain
+    ${KDEVPLATFORM_INCLUDE_DIR}/language/duchain/viewer
 )
 
 find_package(KDevelop-PG-Qt)
@@ -87,7 +87,7 @@ set_source_files_properties(
 #       Its only purpose is to support the plugin without needing to add all source files
 #       to the plugin target
 kde4_add_library(kdev4javaparser SHARED ${kdevjavaparser_STAT_SRCS})
-target_link_libraries(kdev4javaparser ${KDE4_KDECORE_LIBS} ${KDE4_KTEXTEDITOR_LIBS} ${KDevPlatform_LANGUAGE_LIBRARY})
+target_link_libraries(kdev4javaparser ${KDE4_KDECORE_LIBS} ${KDE4_KTEXTEDITOR_LIBS} ${KDEVPLATFORM_LANGUAGE_LIBRARY})
 install(TARGETS kdev4javaparser ${INSTALL_TARGETS_DEFAULT_ARGS} )
 
 

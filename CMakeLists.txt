@@ -23,7 +23,7 @@ include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}/parser
     ${KDE4_INCLUDE_DIR}/threadweaver
     ${KDE4_INCLUDE_DIR}/kdevelop-pg-qt
-    ${KDevPlatform_INCLUDE_DIR}
+    ${KDEVPLATFORM_INCLUDE_DIR}
 )
 
 
@@ -56,11 +56,11 @@ kde4_add_plugin(kdevjavalanguagesupport ${kdevjavalanguagesupport_PART_SRCS})
 target_link_libraries(kdevjavalanguagesupport
     ${QT_QTDESIGNER_LIBRARY}
     ${KDE4_KTEXTEDITOR_LIBS}
-    ${KDevPlatform_INTERFACES_LIBRARY}
-    ${KDevPlatform_PROJECT_LIBRARY}
+    ${KDEVPLATFORM_INTERFACES_LIBRARY}
+    ${KDEVPLATFORM_PROJECT_LIBRARY}
     ${KDE4_THREADWEAVER_LIBRARIES}
-    ${KDevPlatform_LANGUAGE_LIBRARY}
-    ${KDevPlatform_LANGUAGE_LIBRARY}
+    ${KDEVPLATFORM_LANGUAGE_LIBRARY}
+    ${KDEVPLATFORM_LANGUAGE_LIBRARY}
     ${KDE4_KDE3SUPPORT_LIBRARY}
     ${KDE4_KDEUI_LIBS}
     kdev4javaparser
