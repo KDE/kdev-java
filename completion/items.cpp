@@ -261,7 +261,7 @@ QVariant NormalDeclarationCompletionItem::data(const QModelIndex& index, int rol
         case CodeCompletionModel::Postfix:
           if (FunctionType::Ptr functionType = dec->type<FunctionType>()) {
             // TODO complete?
-            return functionType->modifiers() & AbstractType::ConstModifier ? i18n("const") : i18n("");
+            return functionType->modifiers() & AbstractType::ConstModifier ? i18n("const") : QString();
           }
           break;
       }
