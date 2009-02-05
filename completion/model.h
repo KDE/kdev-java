@@ -41,9 +41,6 @@ class CodeCompletionModel : public KDevelop::CodeCompletionModel
     CodeCompletionModel(QObject* parent);
     virtual ~CodeCompletionModel();
 
-  protected:
-    virtual void completionInvokedInternal(KTextEditor::View* view, const KTextEditor::Range& range, InvocationType invocationType, const KUrl& url);
-
   private:
     KSharedPtr<CodeCompletionContext> m_completionContext;
 };
