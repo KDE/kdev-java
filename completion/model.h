@@ -41,6 +41,9 @@ class CodeCompletionModel : public KDevelop::CodeCompletionModel
     CodeCompletionModel(QObject* parent);
     virtual ~CodeCompletionModel();
 
+  protected:
+    virtual KDevelop::CodeCompletionWorker* createCompletionWorker();
+    
   private:
     KSharedPtr<CodeCompletionContext> m_completionContext;
 };

@@ -28,7 +28,7 @@
 #include <language/backgroundparser/parsejob.h>
 
 // from the parser subdirectory
-#include <javaast.h>
+#include <parser/javaast.h>
 
 class JavaLanguageSupport;
 

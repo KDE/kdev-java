@@ -43,9 +43,9 @@
 #include "javalanguagesupport.h"
 
 // from the parser subdirectory
-#include <parsesession.h>
-#include <javaparser.h>
-#include <javadefaultvisitor.h>
+#include <parser/parsesession.h>
+#include <parser/javaparser.h>
+#include <parser/javadefaultvisitor.h>
 
 #include <interfaces/ilanguage.h>
 #include <language/interfaces/icodehighlighting.h>
@@ -114,6 +114,8 @@ void ParseJob::run()
 
     QFileInfo fileInfo( localFile );
 
+    m_readFromDisk = !contentsAvailableFromEditor();
+    
     if ( m_readFromDisk )
     {
         QFile file( localFile );
@@ -146,13 +148,14 @@ void ParseJob::run()
     }
     else
     {
-        m_session->setContents( contentsFromEditor().toAscii() );
+        m_session->setContents( contentsFromEditor().toUtf8() );
     }
 
     kDebug() << "===-- PARSING --===> "
              << document().str()
              << " <== readFromDisk: " << m_readFromDisk
-             << " size: " << m_session->size();
+             << " size: " << m_session->size()
+             << m_session->contents();
 
     if ( abortRequested() )
         return abortJob();

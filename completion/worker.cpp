@@ -50,3 +50,5 @@ KDevelop::CodeCompletionContext* CodeCompletionWorker::createCompletionContext(K
 {
   return new CodeCompletionContext(context, contextText, followingText);
 }
+
+}

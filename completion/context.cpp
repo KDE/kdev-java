@@ -315,7 +315,7 @@ CodeCompletionContext* CodeCompletionContext::parentContext() {
 
 #ifndef TEST_COMPLETION
 
-QList<CompletionTreeItemPointer> CodeCompletionContext::completionItems(const KDevelop::SimpleCursor& position, bool& abort)
+QList<CompletionTreeItemPointer> CodeCompletionContext::completionItems(const KDevelop::SimpleCursor& position, bool& abort, bool fullCompletion)
 {
   LOCKDUCHAIN;
 

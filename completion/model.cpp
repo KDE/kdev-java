@@ -58,11 +58,15 @@ namespace java {
 CodeCompletionModel::CodeCompletionModel( QObject * parent )
   : KDevelop::CodeCompletionModel(parent)
 {
-  setCompletionWorker(new CodeCompletionWorker(this));
 }
 
 CodeCompletionModel::~CodeCompletionModel()
 {
+}
+
+KDevelop::CodeCompletionWorker* CodeCompletionModel::createCompletionWorker()
+{
+  return new CodeCompletionWorker(this);
 }
 
 }
