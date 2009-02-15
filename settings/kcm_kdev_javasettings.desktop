@@ -1,0 +1,14 @@
+[Desktop Entry]
+Icon=java
+Type=Service
+ServiceTypes=KCModule
+
+X-KDE-ModuleType=Library
+X-KDE-Library=kcm_kdev_javasettings
+X-KDE-FactoryName=kcm_kdev_javasettings
+X-KDE-ParentApp=kdevplatform
+X-KDE-ParentComponents=kdevplatform
+X-KDE-CfgDlgHierarchy=GENERAL
+
+Name=Java Support
+Comment=Configure Java Support settings

@@ -1,0 +1,6 @@
+File=javaconfig.kcfg
+ClassName=JavaSettings
+Singleton=true
+UseEnumTypes=true
+SetUserTexts=true
+ItemAccessors=true

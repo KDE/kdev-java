@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE kcfg SYSTEM "http://www.kde.org/standards/kcfg/1.0/kcfg.dtd">
+<kcfg>
+  <kcfgfile name="kdeveloprc"/>
+  <group name="Java Support">
+    <entry name="java_source_zip" key="Java Sorce Zip" type="Url">
+        <whatsthis>Points to the zip file which contains the java source to use for code completion.</whatsthis>
+    </entry>
+  </group>
+</kcfg>
