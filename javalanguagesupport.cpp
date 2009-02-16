@@ -29,6 +29,7 @@ Boston, MA 02110-1301, USA.
 #include <KConfigGroup>
 
 #include <QExtensionFactory>
+#include <QDir>
 
 #include <interfaces/icore.h>
 #include <interfaces/ilanguagecontroller.h>
@@ -164,9 +165,8 @@ KDevelop::ReferencedTopDUContext JavaLanguageSupport::contextForPath(const QStri
                 } else {
                     // Create new top context, and fire off a parse job
                     kDebug() << "Created it";
-                    KDevelop::ReferencedTopDUContext top = createTopContext(KDevelop::IndexedString(file->url()));
-                    KDevelop::ICore::self()->languageController()->backgroundParser()->addDocument(file->url(), KDevelop::TopDUContext::AllDeclarationsAndContexts);
-                    return top;
+                    KDevelop::DUChainWriteLocker lock(KDevelop::DUChain::lock());
+                    return createFileContext(file->url());
                 }
             }
         }
@@ -175,38 +175,23 @@ KDevelop::ReferencedTopDUContext JavaLanguageSupport::contextForPath(const QStri
     // Built-in...
     KConfigGroup config(KGlobal::config(), "Java Support");
     KUrl javaSourceUrl = config.readEntry("Java Source Zip", KUrl());
-    if (javaSourceUrl.protocol() == "file") {
-        QFileInfo info(javaSourceUrl.path());
-        if (info.exists() && info.isReadable() && info.isFile()) {
-            javaSourceUrl.setProtocol("zip");
-            javaSourceUrl.addPath(path);
-            KIO::UDSEntry entry;
-            if (KIO::NetAccess::stat(javaSourceUrl, KIO::NetAccess::SourceSide, QApplication::activeWindow())) {
-                if (KDevelop::TopDUContext* topContext = KDevelop::DUChainUtils::standardContextForUrl(javaSourceUrl)) {
-                    kDebug() << "Found it";
-                    return KDevelop::ReferencedTopDUContext(topContext);
-                } else {
-                    if (entry.isDir()) {
-                        KIO::ListJob* list = KIO::listDir(javaSourceUrl, KIO::DefaultFlags, false);
-                        connect(list, SIGNAL(entries(KIO::Job*,KIO::UDSEntryList)), SLOT(slotJavaSourceEntries(KIO::Job*,KIO::UDSEntryList)));
-                        KDevelop::ReferencedTopDUContext top = createTopContext(KDevelop::IndexedString(javaSourceUrl));
-                        m_listJobs.insert(list, top);
-                        return top;
-                    } else {
-                        KDevelop::ReferencedTopDUContext top = createTopContext(KDevelop::IndexedString(javaSourceUrl));
-                        KDevelop::ICore::self()->languageController()->backgroundParser()->addDocument(javaSourceUrl, KDevelop::TopDUContext::AllDeclarationsAndContexts);
-                        kDebug() << "Found it in the java source zip, scheduled for parsing";
-                        return top;
-                    }
-                }
-            }{
-                kDebug() << javaSourceUrl << "error, can't find subfile in zip";
-            }
+    javaSourceUrl.addPath(path);
+
+    QFileInfo info(javaSourceUrl.path());
+    if (info.exists() && info.isReadable()) {
+        if (KDevelop::TopDUContext* topContext = KDevelop::DUChainUtils::standardContextForUrl(javaSourceUrl)) {
+            kDebug() << "Found it";
+            return KDevelop::ReferencedTopDUContext(topContext);
         } else {
-            kDebug() << javaSourceUrl << "error, file doesn't exist or is not readable";
+            KDevelop::DUChainWriteLocker lock(KDevelop::DUChain::lock());
+            if (!info.isFile()) {
+                return createDirectoryContext(javaSourceUrl);
+            } else {
+                return createFileContext(javaSourceUrl);
+            }
         }
     } else {
-        kDebug() << javaSourceUrl << "error, non file protocol url";
+        kDebug() << javaSourceUrl << "no inbuilt file:" << javaSourceUrl << "doesn't exist or is not readable";
     }
 
     return 0;
@@ -220,35 +205,31 @@ KDevelop::ReferencedTopDUContext JavaLanguageSupport::createTopContext(const KDe
     return top;
 }
 
-void JavaLanguageSupport::slotJavaSourceEntries(KIO::Job* job, QList< KIO::UDSEntry > entries)
+KDevelop::ReferencedTopDUContext JavaLanguageSupport::createFileContext(const KUrl& url)
 {
-    KDevelop::ReferencedTopDUContext top = m_listJobs[job];
-    m_listJobs.remove(job);
-
-    KDevelop::DUChainWriteLocker lock(KDevelop::DUChain::lock());
-    if (top) {
-        foreach (KIO::UDSEntry entry, entries) {
-            KUrl url = entry.stringValue(KIO::UDSEntry::UDS_URL);
-            if (entry.isDir()) {
-                KIO::ListJob* list = KIO::listDir(url, KIO::DefaultFlags, false);
-                connect(list, SIGNAL(entries(KIO::Job*,KIO::UDSEntryList)), SLOT(slotJavaSourceEntries(KIO::Job*,KIO::UDSEntryList)));
-                KDevelop::ReferencedTopDUContext child = createTopContext(KDevelop::IndexedString(url));
-                m_listJobs.insert(list, child);
-                kDebug() << "Found directory" << url << "in the java source zip, listing";
-                top->addImportedParentContext(child);
-            } else {
-                KDevelop::ReferencedTopDUContext child = createTopContext(KDevelop::IndexedString(url));
-                KDevelop::ICore::self()->languageController()->backgroundParser()->addDocument(url, KDevelop::TopDUContext::AllDeclarationsAndContexts);
-                kDebug() << "Found" << url << "in the java source zip, scheduled for parsing";
-                top->addImportedParentContext(child);
-            }
-        }
-    }
+    kDebug() << url;
+    KDevelop::ReferencedTopDUContext top = createTopContext(KDevelop::IndexedString(url));
+    KDevelop::ICore::self()->languageController()->backgroundParser()->addDocument(url, KDevelop::TopDUContext::AllDeclarationsAndContexts);
+    return top;
 }
 
-void JavaLanguageSupport::slotJavaSourceStat(KJob* job)
+KDevelop::ReferencedTopDUContext JavaLanguageSupport::createDirectoryContext(const KUrl& url)
 {
-    kDebug() << job;
+    kDebug() << url;
+    KDevelop::ReferencedTopDUContext top = createTopContext(KDevelop::IndexedString(url));
+    QDir dirInfo(url.path());
+    kDebug() << dirInfo.absolutePath() << dirInfo.isReadable() << dirInfo.entryInfoList(QDir::NoDotAndDotDot | QDir::Readable | QDir::Dirs | QDir::Files).count();
+    foreach (const QFileInfo& entry, dirInfo.entryInfoList(QDir::NoDotAndDotDot | QDir::Readable | QDir::Dirs | QDir::Files)) {
+        kDebug() << "found file/dir:" << entry.absoluteFilePath();
+        if (entry.isFile()) {
+            KDevelop::ReferencedTopDUContext child = createFileContext(KUrl::fromPath(entry.filePath()));
+            top->addImportedParentContext(child);
+        } else if (entry.isDir()) {
+            KDevelop::ReferencedTopDUContext child = createDirectoryContext(KUrl::fromPath(entry.filePath()));
+            top->addImportedParentContext(child);
+        }
+    }
+    return top;
 }
 
 

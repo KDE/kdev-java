@@ -21,6 +21,8 @@ Boston, MA 02110-1301, USA.
 #ifndef KDEVJAVALANGUAGESUPPORT_H
 #define KDEVJAVALANGUAGESUPPORT_H
 
+#include <QFileInfo>
+
 #include <kio/udsentry.h>
 
 #include <interfaces/iplugin.h>
@@ -65,11 +67,11 @@ public:
 private slots:
     void projectOpened(KDevelop::IProject *project);
     void projectClosed();
-    void slotJavaSourceStat(KJob*);
-    void slotJavaSourceEntries(KIO::Job*,KIO::UDSEntryList);
 
 private:
     KDevelop::ReferencedTopDUContext createTopContext(const KDevelop::IndexedString& url);
+    KDevelop::ReferencedTopDUContext createFileContext(const KUrl& url);
+    KDevelop::ReferencedTopDUContext createDirectoryContext(const KUrl& url);
     
     java::JavaHighlighting *m_highlights;
     QHash<KIO::Job*, KDevelop::ReferencedTopDUContext> m_listJobs;

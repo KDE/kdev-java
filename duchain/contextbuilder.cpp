@@ -98,13 +98,16 @@ KDevelop::QualifiedIdentifier ContextBuilder::identifierForNode(const KDevPG::Li
   if( !id )
     return QualifiedIdentifier();
 
+  QualifiedIdentifier result;
+  
   const KDevPG::ListNode<IdentifierAst*> *__it = id, *__end = __it;
   do {
     m_identifierCompiler->run(__it->element);
+    result = m_identifierCompiler->identifier() + result;
     __it = __it->next;
   } while (__it != __end);
 
-  return m_identifierCompiler->identifier();
+  return result;
 }
 
 
@@ -151,15 +154,17 @@ void ContextBuilder::visitMethodDeclaration(MethodDeclarationAst * node)
   visitNode(node->declaratorBrackets);
   visitNode(node->throwsClause);
 
-  DUContext* body = openContext(node->body, DUContext::Function, id);
-  if (parameters) {
-    DUChainWriteLocker lock(DUChain::lock());
-    body->addImportedParentContext(parameters);
+  if (node->body) {
+    DUContext* body = openContext(node->body, DUContext::Function, id);
+    if (parameters) {
+      DUChainWriteLocker lock(DUChain::lock());
+      body->addImportedParentContext(parameters);
+    }
+
+    visitNode(node->body);
+
+    closeContext();
   }
-
-  visitNode(node->body);
-
-  closeContext();
 }
 
 void ContextBuilder::visitForStatement(ForStatementAst *node)

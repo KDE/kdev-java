@@ -154,8 +154,7 @@ void ParseJob::run()
     kDebug() << "===-- PARSING --===> "
              << document().str()
              << " <== readFromDisk: " << m_readFromDisk
-             << " size: " << m_session->size()
-             << m_session->contents();
+             << " size: " << m_session->size();
 
     if ( abortRequested() )
         return abortJob();
@@ -191,8 +190,8 @@ void ParseJob::run()
         //java_parser.yy_expected_symbol(AstNode::Kind_compilation_unit, "compilation_unit"); // ### remove me
     }
 
-    DumpChain dump;
-    dump.dump(ast, m_session);
+    //DumpChain dump;
+    //dump.dump(ast, m_session);
 
     // 3) Form definition-use chain
     java::EditorIntegrator editor(parseSession());
@@ -217,8 +216,8 @@ void ParseJob::run()
         }
     }
 
-    KDevelop::DUChainReadLocker duchainlock(KDevelop::DUChain::lock());
-    dump.dump(chain);
+    //KDevelop::DUChainReadLocker duchainlock(KDevelop::DUChain::lock());
+    //dump.dump(chain);
 }
 
 } // end of namespace java
