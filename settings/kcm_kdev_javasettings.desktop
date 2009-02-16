@@ -11,4 +11,14 @@ X-KDE-ParentComponents=kdevplatform
 X-KDE-CfgDlgHierarchy=GENERAL
 
 Name=Java Support
+Name[ga]=Tacaíocht Java
+Name[pt]=Suporte para Java
+Name[pt_BR]=Suporte para Java
+Name[sv]=Java-stöd
+Name[uk]=Підтримка Java
 Comment=Configure Java Support settings
+Comment[ga]=Cumraigh socruithe Tacaíocht Java
+Comment[pt]=Configurar as opções do Suporte para Java
+Comment[pt_BR]=Configurar as opções do Suporte para Java
+Comment[sv]=Anpassa inställningar av Java-stöd
+Comment[uk]=Налаштувати параметри підтримки Java
