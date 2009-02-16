@@ -20,7 +20,7 @@
 #ifndef CONTEXTBUILDER_H
 #define CONTEXTBUILDER_H
 
-#include "javadefaultvisitor.h"
+#include "parser/javadefaultvisitor.h"
 
 #include <language/duchain/builders/abstractcontextbuilder.h>
 

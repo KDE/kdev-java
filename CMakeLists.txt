@@ -45,6 +45,7 @@ set(kdevjavalanguagesupport_PART_SRCS
     duchain/typebuilder.cpp
     duchain/types.cpp
     duchain/classdeclaration.cpp
+    duchain/expressionvisitor.cpp
 
     completion/worker.cpp
     completion/items.cpp
