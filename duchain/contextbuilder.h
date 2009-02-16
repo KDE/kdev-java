@@ -24,6 +24,8 @@
 
 #include <language/duchain/builders/abstractcontextbuilder.h>
 
+class JavaLanguageSupport;
+
 namespace java {
 
 class EditorIntegrator;
@@ -44,6 +46,8 @@ public:
   void setEditor(EditorIntegrator* editor);
   void setEditor(ParseSession* session);
 
+  void setJavaSupport(JavaLanguageSupport* java);
+
 protected:
   EditorIntegrator* editor() const;
 
@@ -60,6 +64,7 @@ protected:
    * @param typeSpecifier a pointer that will eventually be filled with a type-specifier that can be found in the name(for example the return-type of a cast-operator)
    */
   virtual KDevelop::QualifiedIdentifier identifierForNode(IdentifierAst* id);
+  KDevelop::QualifiedIdentifier identifierForNode(const KDevPG::ListNode<IdentifierAst*>* id);
 
   // Visitors
   virtual void visitForStatement(ForStatementAst *node);
@@ -68,10 +73,14 @@ protected:
   virtual void visitMethodDeclaration(MethodDeclarationAst *node);
   virtual void visitConstructorDeclaration(ConstructorDeclarationAst *node);
   virtual void visitInterfaceDeclaration(InterfaceDeclarationAst *node);
+  virtual void visitImportDeclaration(ImportDeclarationAst *node);
 
 protected:
   // Variables
   IdentifierCompiler* m_identifierCompiler;
+
+private:
+  JavaLanguageSupport* m_java;
 };
 
 }

@@ -21,8 +21,19 @@ Boston, MA 02110-1301, USA.
 #ifndef KDEVJAVALANGUAGESUPPORT_H
 #define KDEVJAVALANGUAGESUPPORT_H
 
+#include <kio/udsentry.h>
+
 #include <interfaces/iplugin.h>
 #include <language/interfaces/ilanguagesupport.h>
+#include <language/duchain/identifier.h>
+#include <language/duchain/duchainpointer.h>
+#include <language/duchain/topducontext.h>
+
+class KJob;
+
+namespace KIO {
+    class Job;
+}
 
 namespace java {
     class JavaHighlighting;
@@ -31,6 +42,7 @@ namespace java {
 namespace KDevelop {
     class IDocument;
     class IProject;
+    class DUContext;
 }
 
 class JavaLanguageSupport : public KDevelop::IPlugin, public KDevelop::ILanguageSupport
@@ -47,12 +59,20 @@ public:
     virtual KDevelop::ILanguage *language();
     //virtual const KDevelop::ICodeHighlighting *codeHighlighting() const;
 
+    KDevelop::ReferencedTopDUContext contextForIdentifier(KDevelop::QualifiedIdentifier id, bool isDirectory);
+    KDevelop::ReferencedTopDUContext contextForPath(const QString& path, bool isDirectory);
+
 private slots:
     void projectOpened(KDevelop::IProject *project);
     void projectClosed();
+    void slotJavaSourceStat(KJob*);
+    void slotJavaSourceEntries(KIO::Job*,KIO::UDSEntryList);
 
 private:
+    KDevelop::ReferencedTopDUContext createTopContext(const KDevelop::IndexedString& url);
+    
     java::JavaHighlighting *m_highlights;
+    QHash<KIO::Job*, KDevelop::ReferencedTopDUContext> m_listJobs;
 };
 
 #endif

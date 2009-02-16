@@ -3,7 +3,7 @@
 <kcfg>
   <kcfgfile name="kdeveloprc"/>
   <group name="Java Support">
-    <entry name="java_source_zip" key="Java Sorce Zip" type="Url">
+    <entry name="java_source_zip" key="Java Source Zip" type="Url">
         <whatsthis>Points to the zip file which contains the java source to use for code completion.</whatsthis>
     </entry>
   </group>

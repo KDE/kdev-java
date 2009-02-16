@@ -13,6 +13,7 @@ find_package(KDevPlatform REQUIRED)
 include(KDevelopMacros)
 
 add_subdirectory(parser)
+add_subdirectory(settings)
 
 include_directories(
     ${CMAKE_SOURCE_DIR}

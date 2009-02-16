@@ -1,6 +1,6 @@
 /* This file is part of KDevelop
     Copyright 2006 Roberto Raggi <roberto@kdevelop.org>
-    Copyright 2006-2008 Hamish Rodda <rodda@kde.org>
+    Copyright 2006-2009 Hamish Rodda <rodda@kde.org>
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
@@ -19,6 +19,8 @@
 
 #include "contextbuilder.h"
 
+#include <KDebug>
+
 #include <language/duchain/duchain.h>
 #include <language/duchain/topducontext.h>
 #include <language/duchain/duchainlock.h>
@@ -26,6 +28,7 @@
 #include "parsesession.h"
 #include "editorintegrator.h"
 #include "identifiercompiler.h"
+#include <javalanguagesupport.h>
 
 using namespace KTextEditor;
 using namespace KDevelop;
@@ -89,6 +92,21 @@ QualifiedIdentifier ContextBuilder::identifierForNode(IdentifierAst* id)
 
   return m_identifierCompiler->identifier();
 }
+
+KDevelop::QualifiedIdentifier ContextBuilder::identifierForNode(const KDevPG::ListNode<IdentifierAst*>* id)
+{
+  if( !id )
+    return QualifiedIdentifier();
+
+  const KDevPG::ListNode<IdentifierAst*> *__it = id, *__end = __it;
+  do {
+    m_identifierCompiler->run(__it->element);
+    __it = __it->next;
+  } while (__it != __end);
+
+  return m_identifierCompiler->identifier();
+}
+
 
 void ContextBuilder::visitClassDeclaration(ClassDeclarationAst * node)
 {
@@ -242,6 +260,25 @@ void ContextBuilder::visitInterfaceDeclaration(InterfaceDeclarationAst * node)
     visitNode(node->body);
     closeContext();
   }
+}
+
+void ContextBuilder::visitImportDeclaration(ImportDeclarationAst* node)
+{
+  if (node && node->identifierName && node->identifierName->nameSequence) {
+    QualifiedIdentifier import = identifierForNode(node->identifierName->nameSequence);
+    ReferencedTopDUContext imported = m_java->contextForIdentifier(import, node->identifierName->hasStar);
+
+    DUChainWriteLocker lock(DUChain::lock());
+    if (imported)
+      currentContext()->addImportedParentContext(imported.data());
+    else
+      kDebug() << "Import context not provided:" << import << (node->identifierName->hasStar ? ".*" : "");
+  }
+}
+
+void ContextBuilder::setJavaSupport(JavaLanguageSupport* java)
+{
+  m_java = java;
 }
 
 }
