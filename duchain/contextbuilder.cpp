@@ -100,13 +100,13 @@ KDevelop::QualifiedIdentifier ContextBuilder::identifierForNode(const KDevPG::Li
 
   QualifiedIdentifier result;
   
-  const KDevPG::ListNode<IdentifierAst*> *__it = id, *__end = __it;
+  const KDevPG::ListNode<IdentifierAst*> *__it = id->front(), *__end = __it;
   do {
     m_identifierCompiler->run(__it->element);
-    result = m_identifierCompiler->identifier() + result;
+    result.push(m_identifierCompiler->identifier());
     __it = __it->next;
   } while (__it != __end);
-
+  
   return result;
 }
 
@@ -277,7 +277,7 @@ void ContextBuilder::visitImportDeclaration(ImportDeclarationAst* node)
     if (imported)
       currentContext()->addImportedParentContext(imported.data());
     else
-      kDebug() << "Import context not provided:" << import << (node->identifierName->hasStar ? ".*" : "");
+      kDebug() << "Import context not provided:" << import << (node->identifierName->hasStar ? ".*" : "") << "requested in" << editor()->currentUrl().str();
   }
 }
 
