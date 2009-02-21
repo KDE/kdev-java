@@ -142,14 +142,14 @@ KDevelop::ReferencedTopDUContext JavaLanguageSupport::contextForPath(const QStri
                         if (KDevelop::TopDUContext* importContext = KDevelop::DUChainUtils::standardContextForUrl(file->url())) {
                             top->addImportedParentContext(importContext);
                         } else {
-                            top->addImportedParentContext(contextForPath(path, false));
+                            top->addImportedParentContext(contextForPath(file->url().path(), false));
                         }
                     }
-                    foreach (KDevelop::ProjectFolderItem* folder, folder->folderList()) {
-                        if (KDevelop::TopDUContext* importContext = KDevelop::DUChainUtils::standardContextForUrl(folder->url())) {
+                    foreach (KDevelop::ProjectFolderItem* subFolder, folder->folderList()) {
+                        if (KDevelop::TopDUContext* importContext = KDevelop::DUChainUtils::standardContextForUrl(subFolder->url())) {
                             top->addImportedParentContext(importContext);
                         } else {
-                            top->addImportedParentContext(contextForPath(path, true));
+                            top->addImportedParentContext(contextForPath(subFolder->url().path(), true));
                         }
                     }
                     return top;
@@ -203,6 +203,7 @@ KDevelop::ReferencedTopDUContext JavaLanguageSupport::createTopContext(const KDe
 
 KDevelop::ReferencedTopDUContext JavaLanguageSupport::createFileContext(const KUrl& url)
 {
+    kDebug() << url;
     KDevelop::ReferencedTopDUContext top = createTopContext(KDevelop::IndexedString(url));
     KDevelop::ICore::self()->languageController()->backgroundParser()->addDocument(url, KDevelop::TopDUContext::AllDeclarationsAndContexts);
     return top;
@@ -212,6 +213,7 @@ KDevelop::ReferencedTopDUContext JavaLanguageSupport::createDirectoryContext(con
 {
     KDevelop::ReferencedTopDUContext top = createTopContext(KDevelop::IndexedString(url));
     QDir dirInfo(url.path());
+    kDebug() << url;
     foreach (const QFileInfo& entry, dirInfo.entryInfoList(QDir::NoDotAndDotDot | QDir::Readable | QDir::Dirs | QDir::Files)) {
         if (entry.isFile()) {
             KDevelop::ReferencedTopDUContext child = createFileContext(KUrl::fromPath(entry.filePath()));

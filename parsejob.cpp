@@ -60,6 +60,7 @@
 #include "duchain/usebuilder.h"
 #include "duchain/editorintegrator.h"
 #include "duchain/dumpchain.h"
+#include <language/duchain/duchainutils.h>
 
 namespace java
 {
@@ -199,8 +200,10 @@ void ParseJob::run()
 
     //kDebug(  ) << (contentContext ? "updating" : "building") << "duchain for" << parentJob()->document().str();
 
+    KDevelop::ReferencedTopDUContext toUpdate = KDevelop::DUChainUtils::standardContextForUrl(document().toUrl());
+    
     DeclarationBuilder builder(&editor);
-    KDevelop::TopDUContext* chain = builder.build(document(), ast);
+    KDevelop::TopDUContext* chain = builder.build(document(), ast, toUpdate);
     setDuChain(chain);
 
     UseBuilder useBuilder(&editor);

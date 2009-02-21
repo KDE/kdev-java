@@ -18,517 +18,524 @@
 
 #include "expressionvisitor.h"
 
-using namespace java;
+namespace java {
+
+ExpressionVisitor::ExpressionVisitor()
+{
+  setCompilingContexts(false);
+}
+
 
 void ExpressionVisitor::visitAdditiveExpression(AdditiveExpressionAst* node) {
-DefaultVisitor::visitAdditiveExpression(node);
+  ExpressionVisitorBase::visitAdditiveExpression(node);
 }
 
 void ExpressionVisitor::visitAdditiveExpressionRest(AdditiveExpressionRestAst* node) {
-DefaultVisitor::visitAdditiveExpressionRest(node);
+  ExpressionVisitorBase::visitAdditiveExpressionRest(node);
 }
 
 void ExpressionVisitor::visitAnnotation(AnnotationAst* node) {
-DefaultVisitor::visitAnnotation(node);
+  ExpressionVisitorBase::visitAnnotation(node);
 }
 
 void ExpressionVisitor::visitAnnotationArguments(AnnotationArgumentsAst* node) {
-DefaultVisitor::visitAnnotationArguments(node);
+  ExpressionVisitorBase::visitAnnotationArguments(node);
 }
 
 void ExpressionVisitor::visitAnnotationElementArrayInitializer(AnnotationElementArrayInitializerAst* node) {
-DefaultVisitor::visitAnnotationElementArrayInitializer(node);
+  ExpressionVisitorBase::visitAnnotationElementArrayInitializer(node);
 }
 
 void ExpressionVisitor::visitAnnotationElementArrayValue(AnnotationElementArrayValueAst* node) {
-DefaultVisitor::visitAnnotationElementArrayValue(node);
+  ExpressionVisitorBase::visitAnnotationElementArrayValue(node);
 }
 
 void ExpressionVisitor::visitAnnotationElementValue(AnnotationElementValueAst* node) {
-DefaultVisitor::visitAnnotationElementValue(node);
+  ExpressionVisitorBase::visitAnnotationElementValue(node);
 }
 
 void ExpressionVisitor::visitAnnotationElementValuePair(AnnotationElementValuePairAst* node) {
-DefaultVisitor::visitAnnotationElementValuePair(node);
+  ExpressionVisitorBase::visitAnnotationElementValuePair(node);
 }
 
 void ExpressionVisitor::visitAnnotationMethodDeclaration(AnnotationMethodDeclarationAst* node) {
-DefaultVisitor::visitAnnotationMethodDeclaration(node);
+  ExpressionVisitorBase::visitAnnotationMethodDeclaration(node);
 }
 
 void ExpressionVisitor::visitAnnotationTypeBody(AnnotationTypeBodyAst* node) {
-DefaultVisitor::visitAnnotationTypeBody(node);
+  ExpressionVisitorBase::visitAnnotationTypeBody(node);
 }
 
 void ExpressionVisitor::visitAnnotationTypeDeclaration(AnnotationTypeDeclarationAst* node) {
-DefaultVisitor::visitAnnotationTypeDeclaration(node);
+  ExpressionVisitorBase::visitAnnotationTypeDeclaration(node);
 }
 
 void ExpressionVisitor::visitAnnotationTypeField(AnnotationTypeFieldAst* node) {
-DefaultVisitor::visitAnnotationTypeField(node);
+  ExpressionVisitorBase::visitAnnotationTypeField(node);
 }
 
 void ExpressionVisitor::visitArrayAccess(ArrayAccessAst* node) {
-DefaultVisitor::visitArrayAccess(node);
+  ExpressionVisitorBase::visitArrayAccess(node);
 }
 
 void ExpressionVisitor::visitArrayCreatorRest(ArrayCreatorRestAst* node) {
-DefaultVisitor::visitArrayCreatorRest(node);
+  ExpressionVisitorBase::visitArrayCreatorRest(node);
 }
 
 void ExpressionVisitor::visitArrayTypeDotClass(ArrayTypeDotClassAst* node) {
-DefaultVisitor::visitArrayTypeDotClass(node);
+  ExpressionVisitorBase::visitArrayTypeDotClass(node);
 }
 
 void ExpressionVisitor::visitAssertStatement(AssertStatementAst* node) {
-DefaultVisitor::visitAssertStatement(node);
+  ExpressionVisitorBase::visitAssertStatement(node);
 }
 
 void ExpressionVisitor::visitBitAndExpression(BitAndExpressionAst* node) {
-DefaultVisitor::visitBitAndExpression(node);
+  ExpressionVisitorBase::visitBitAndExpression(node);
 }
 
 void ExpressionVisitor::visitBitOrExpression(BitOrExpressionAst* node) {
-DefaultVisitor::visitBitOrExpression(node);
+  ExpressionVisitorBase::visitBitOrExpression(node);
 }
 
 void ExpressionVisitor::visitBitXOrExpression(BitXOrExpressionAst* node) {
-DefaultVisitor::visitBitXOrExpression(node);
+  ExpressionVisitorBase::visitBitXOrExpression(node);
 }
 
 void ExpressionVisitor::visitBlock(BlockAst* node) {
-DefaultVisitor::visitBlock(node);
+  ExpressionVisitorBase::visitBlock(node);
 }
 
 void ExpressionVisitor::visitBlockStatement(BlockStatementAst* node) {
-DefaultVisitor::visitBlockStatement(node);
+  ExpressionVisitorBase::visitBlockStatement(node);
 }
 
 void ExpressionVisitor::visitBreakStatement(BreakStatementAst* node) {
-DefaultVisitor::visitBreakStatement(node);
+  ExpressionVisitorBase::visitBreakStatement(node);
 }
 
 void ExpressionVisitor::visitBuiltInType(BuiltInTypeAst* node) {
-DefaultVisitor::visitBuiltInType(node);
+  ExpressionVisitorBase::visitBuiltInType(node);
 }
 
 void ExpressionVisitor::visitBuiltInTypeDotClass(BuiltInTypeDotClassAst* node) {
-DefaultVisitor::visitBuiltInTypeDotClass(node);
+  ExpressionVisitorBase::visitBuiltInTypeDotClass(node);
 }
 
 void ExpressionVisitor::visitCastExpression(CastExpressionAst* node) {
-DefaultVisitor::visitCastExpression(node);
+  ExpressionVisitorBase::visitCastExpression(node);
 }
 
 void ExpressionVisitor::visitCatchClause(CatchClauseAst* node) {
-DefaultVisitor::visitCatchClause(node);
+  ExpressionVisitorBase::visitCatchClause(node);
 }
 
 void ExpressionVisitor::visitClassAccessData(ClassAccessDataAst* node) {
-DefaultVisitor::visitClassAccessData(node);
+  ExpressionVisitorBase::visitClassAccessData(node);
 }
 
 void ExpressionVisitor::visitClassBody(ClassBodyAst* node) {
-DefaultVisitor::visitClassBody(node);
+  ExpressionVisitorBase::visitClassBody(node);
 }
 
 void ExpressionVisitor::visitClassDeclaration(ClassDeclarationAst* node) {
-DefaultVisitor::visitClassDeclaration(node);
+  problem(node, "node-type cannot be parsed");
 }
 
 void ExpressionVisitor::visitClassExtendsClause(ClassExtendsClauseAst* node) {
-DefaultVisitor::visitClassExtendsClause(node);
+  problem(node, "node-type cannot be parsed");
 }
 
 void ExpressionVisitor::visitClassField(ClassFieldAst* node) {
-DefaultVisitor::visitClassField(node);
+  ExpressionVisitorBase::visitClassField(node);
 }
 
 void ExpressionVisitor::visitClassOrInterfaceTypeName(ClassOrInterfaceTypeNameAst* node) {
-DefaultVisitor::visitClassOrInterfaceTypeName(node);
+  ExpressionVisitorBase::visitClassOrInterfaceTypeName(node);
 }
 
 void ExpressionVisitor::visitClassOrInterfaceTypeNamePart(ClassOrInterfaceTypeNamePartAst* node) {
-DefaultVisitor::visitClassOrInterfaceTypeNamePart(node);
+  ExpressionVisitorBase::visitClassOrInterfaceTypeNamePart(node);
 }
 
 void ExpressionVisitor::visitClassType(ClassTypeAst* node) {
-DefaultVisitor::visitClassType(node);
+  problem(node, "node-type cannot be parsed");
 }
 
 void ExpressionVisitor::visitCompilationUnit(CompilationUnitAst* node) {
-DefaultVisitor::visitCompilationUnit(node);
+  ExpressionVisitorBase::visitCompilationUnit(node);
 }
 
 void ExpressionVisitor::visitConditionalExpression(ConditionalExpressionAst* node) {
-DefaultVisitor::visitConditionalExpression(node);
+  ExpressionVisitorBase::visitConditionalExpression(node);
 }
 
 void ExpressionVisitor::visitConstructorDeclaration(ConstructorDeclarationAst* node) {
-DefaultVisitor::visitConstructorDeclaration(node);
+  problem(node, "node-type cannot be parsed");
 }
 
 void ExpressionVisitor::visitContinueStatement(ContinueStatementAst* node) {
-DefaultVisitor::visitContinueStatement(node);
+  ExpressionVisitorBase::visitContinueStatement(node);
 }
 
 void ExpressionVisitor::visitDoWhileStatement(DoWhileStatementAst* node) {
-DefaultVisitor::visitDoWhileStatement(node);
+  problem(node, "node-type cannot be parsed");
 }
 
 void ExpressionVisitor::visitEmbeddedStatement(EmbeddedStatementAst* node) {
-DefaultVisitor::visitEmbeddedStatement(node);
+  ExpressionVisitorBase::visitEmbeddedStatement(node);
 }
 
 void ExpressionVisitor::visitEnumBody(EnumBodyAst* node) {
-DefaultVisitor::visitEnumBody(node);
+  ExpressionVisitorBase::visitEnumBody(node);
 }
 
 void ExpressionVisitor::visitEnumConstant(EnumConstantAst* node) {
-DefaultVisitor::visitEnumConstant(node);
+  ExpressionVisitorBase::visitEnumConstant(node);
 }
 
 void ExpressionVisitor::visitEnumConstantBody(EnumConstantBodyAst* node) {
-DefaultVisitor::visitEnumConstantBody(node);
+  ExpressionVisitorBase::visitEnumConstantBody(node);
 }
 
 void ExpressionVisitor::visitEnumConstantField(EnumConstantFieldAst* node) {
-DefaultVisitor::visitEnumConstantField(node);
+  ExpressionVisitorBase::visitEnumConstantField(node);
 }
 
 void ExpressionVisitor::visitEnumDeclaration(EnumDeclarationAst* node) {
-DefaultVisitor::visitEnumDeclaration(node);
+  ExpressionVisitorBase::visitEnumDeclaration(node);
 }
 
 void ExpressionVisitor::visitEqualityExpression(EqualityExpressionAst* node) {
-DefaultVisitor::visitEqualityExpression(node);
+  ExpressionVisitorBase::visitEqualityExpression(node);
 }
 
 void ExpressionVisitor::visitEqualityExpressionRest(EqualityExpressionRestAst* node) {
-DefaultVisitor::visitEqualityExpressionRest(node);
+  ExpressionVisitorBase::visitEqualityExpressionRest(node);
 }
 
 void ExpressionVisitor::visitExpression(ExpressionAst* node) {
-DefaultVisitor::visitExpression(node);
+  ExpressionVisitorBase::visitExpression(node);
 }
 
 void ExpressionVisitor::visitForClauseTraditionalRest(ForClauseTraditionalRestAst* node) {
-DefaultVisitor::visitForClauseTraditionalRest(node);
+  ExpressionVisitorBase::visitForClauseTraditionalRest(node);
 }
 
 void ExpressionVisitor::visitForControl(ForControlAst* node) {
-DefaultVisitor::visitForControl(node);
+  problem(node, "node-type cannot be parsed");
 }
 
 void ExpressionVisitor::visitForStatement(ForStatementAst* node) {
-DefaultVisitor::visitForStatement(node);
+  problem(node, "node-type cannot be parsed");
 }
 
 void ExpressionVisitor::visitForeachDeclarationData(ForeachDeclarationDataAst* node) {
-DefaultVisitor::visitForeachDeclarationData(node);
+  problem(node, "node-type cannot be parsed");
 }
 
 void ExpressionVisitor::visitIdentifier(IdentifierAst* node) {
-DefaultVisitor::visitIdentifier(node);
+  ExpressionVisitorBase::visitIdentifier(node);
 }
 
 void ExpressionVisitor::visitIfStatement(IfStatementAst* node) {
-DefaultVisitor::visitIfStatement(node);
+  problem(node, "node-type cannot be parsed");
 }
 
 void ExpressionVisitor::visitImplementsClause(ImplementsClauseAst* node) {
-DefaultVisitor::visitImplementsClause(node);
+  problem(node, "node-type cannot be parsed");
 }
 
 void ExpressionVisitor::visitImportDeclaration(ImportDeclarationAst* node) {
-DefaultVisitor::visitImportDeclaration(node);
+  ExpressionVisitorBase::visitImportDeclaration(node);
 }
 
 void ExpressionVisitor::visitInterfaceBody(InterfaceBodyAst* node) {
-DefaultVisitor::visitInterfaceBody(node);
+  ExpressionVisitorBase::visitInterfaceBody(node);
 }
 
 void ExpressionVisitor::visitInterfaceDeclaration(InterfaceDeclarationAst* node) {
-DefaultVisitor::visitInterfaceDeclaration(node);
+  problem(node, "node-type cannot be parsed");
 }
 
 void ExpressionVisitor::visitInterfaceExtendsClause(InterfaceExtendsClauseAst* node) {
-DefaultVisitor::visitInterfaceExtendsClause(node);
+  problem(node, "node-type cannot be parsed");
 }
 
 void ExpressionVisitor::visitInterfaceField(InterfaceFieldAst* node) {
-DefaultVisitor::visitInterfaceField(node);
+  ExpressionVisitorBase::visitInterfaceField(node);
 }
 
 void ExpressionVisitor::visitInterfaceMethodDeclaration(InterfaceMethodDeclarationAst* node) {
-DefaultVisitor::visitInterfaceMethodDeclaration(node);
+  problem(node, "node-type cannot be parsed");
 }
 
 void ExpressionVisitor::visitLabeledStatement(LabeledStatementAst* node) {
-DefaultVisitor::visitLabeledStatement(node);
+  ExpressionVisitorBase::visitLabeledStatement(node);
 }
 
 void ExpressionVisitor::visitLiteral(LiteralAst* node) {
-DefaultVisitor::visitLiteral(node);
+  ExpressionVisitorBase::visitLiteral(node);
 }
 
 void ExpressionVisitor::visitLogicalAndExpression(LogicalAndExpressionAst* node) {
-DefaultVisitor::visitLogicalAndExpression(node);
+  ExpressionVisitorBase::visitLogicalAndExpression(node);
 }
 
 void ExpressionVisitor::visitLogicalOrExpression(LogicalOrExpressionAst* node) {
-DefaultVisitor::visitLogicalOrExpression(node);
+  ExpressionVisitorBase::visitLogicalOrExpression(node);
 }
 
 void ExpressionVisitor::visitMandatoryArrayBuiltInType(MandatoryArrayBuiltInTypeAst* node) {
-DefaultVisitor::visitMandatoryArrayBuiltInType(node);
+  ExpressionVisitorBase::visitMandatoryArrayBuiltInType(node);
 }
 
 void ExpressionVisitor::visitMandatoryDeclaratorBrackets(MandatoryDeclaratorBracketsAst* node) {
-DefaultVisitor::visitMandatoryDeclaratorBrackets(node);
+  ExpressionVisitorBase::visitMandatoryDeclaratorBrackets(node);
 }
 
 void ExpressionVisitor::visitMethodCallData(MethodCallDataAst* node) {
-DefaultVisitor::visitMethodCallData(node);
+  ExpressionVisitorBase::visitMethodCallData(node);
 }
 
 void ExpressionVisitor::visitMethodDeclaration(MethodDeclarationAst* node) {
-DefaultVisitor::visitMethodDeclaration(node);
+  ExpressionVisitorBase::visitMethodDeclaration(node);
 }
 
 void ExpressionVisitor::visitMultiplicativeExpression(MultiplicativeExpressionAst* node) {
-DefaultVisitor::visitMultiplicativeExpression(node);
+  ExpressionVisitorBase::visitMultiplicativeExpression(node);
 }
 
 void ExpressionVisitor::visitMultiplicativeExpressionRest(MultiplicativeExpressionRestAst* node) {
-DefaultVisitor::visitMultiplicativeExpressionRest(node);
+  ExpressionVisitorBase::visitMultiplicativeExpressionRest(node);
 }
 
 void ExpressionVisitor::visitNewExpression(NewExpressionAst* node) {
-DefaultVisitor::visitNewExpression(node);
+  ExpressionVisitorBase::visitNewExpression(node);
 }
 
 void ExpressionVisitor::visitNonArrayType(NonArrayTypeAst* node) {
-DefaultVisitor::visitNonArrayType(node);
+  ExpressionVisitorBase::visitNonArrayType(node);
 }
 
 void ExpressionVisitor::visitNonWildcardTypeArguments(NonWildcardTypeArgumentsAst* node) {
-DefaultVisitor::visitNonWildcardTypeArguments(node);
+  ExpressionVisitorBase::visitNonWildcardTypeArguments(node);
 }
 
 void ExpressionVisitor::visitOptionalArgumentList(OptionalArgumentListAst* node) {
-DefaultVisitor::visitOptionalArgumentList(node);
+  ExpressionVisitorBase::visitOptionalArgumentList(node);
 }
 
 void ExpressionVisitor::visitOptionalArrayBuiltInType(OptionalArrayBuiltInTypeAst* node) {
-DefaultVisitor::visitOptionalArrayBuiltInType(node);
+  ExpressionVisitorBase::visitOptionalArrayBuiltInType(node);
 }
 
 void ExpressionVisitor::visitOptionalDeclaratorBrackets(OptionalDeclaratorBracketsAst* node) {
-DefaultVisitor::visitOptionalDeclaratorBrackets(node);
+  ExpressionVisitorBase::visitOptionalDeclaratorBrackets(node);
 }
 
 void ExpressionVisitor::visitOptionalModifiers(OptionalModifiersAst* node) {
-DefaultVisitor::visitOptionalModifiers(node);
+  ExpressionVisitorBase::visitOptionalModifiers(node);
 }
 
 void ExpressionVisitor::visitOptionalParameterDeclarationList(OptionalParameterDeclarationListAst* node) {
-DefaultVisitor::visitOptionalParameterDeclarationList(node);
+  ExpressionVisitorBase::visitOptionalParameterDeclarationList(node);
 }
 
 void ExpressionVisitor::visitOptionalParameterModifiers(OptionalParameterModifiersAst* node) {
-DefaultVisitor::visitOptionalParameterModifiers(node);
+  ExpressionVisitorBase::visitOptionalParameterModifiers(node);
 }
 
 void ExpressionVisitor::visitPackageDeclaration(PackageDeclarationAst* node) {
-DefaultVisitor::visitPackageDeclaration(node);
+  ExpressionVisitorBase::visitPackageDeclaration(node);
 }
 
 void ExpressionVisitor::visitParameterDeclaration(ParameterDeclarationAst* node) {
-DefaultVisitor::visitParameterDeclaration(node);
+  ExpressionVisitorBase::visitParameterDeclaration(node);
 }
 
 void ExpressionVisitor::visitParameterDeclarationEllipsis(ParameterDeclarationEllipsisAst* node) {
-DefaultVisitor::visitParameterDeclarationEllipsis(node);
+  ExpressionVisitorBase::visitParameterDeclarationEllipsis(node);
 }
 
 void ExpressionVisitor::visitPostfixOperator(PostfixOperatorAst* node) {
-DefaultVisitor::visitPostfixOperator(node);
+  ExpressionVisitorBase::visitPostfixOperator(node);
 }
 
 void ExpressionVisitor::visitPrimaryAtom(PrimaryAtomAst* node) {
-DefaultVisitor::visitPrimaryAtom(node);
+  ExpressionVisitorBase::visitPrimaryAtom(node);
 }
 
 void ExpressionVisitor::visitPrimaryExpression(PrimaryExpressionAst* node) {
-DefaultVisitor::visitPrimaryExpression(node);
+  ExpressionVisitorBase::visitPrimaryExpression(node);
 }
 
 void ExpressionVisitor::visitPrimarySelector(PrimarySelectorAst* node) {
-DefaultVisitor::visitPrimarySelector(node);
+  ExpressionVisitorBase::visitPrimarySelector(node);
 }
 
 void ExpressionVisitor::visitQualifiedIdentifier(QualifiedIdentifierAst* node) {
-DefaultVisitor::visitQualifiedIdentifier(node);
+  ExpressionVisitorBase::visitQualifiedIdentifier(node);
 }
 
 void ExpressionVisitor::visitQualifiedIdentifierWithOptionalStar(QualifiedIdentifierWithOptionalStarAst* node) {
-DefaultVisitor::visitQualifiedIdentifierWithOptionalStar(node);
+  ExpressionVisitorBase::visitQualifiedIdentifierWithOptionalStar(node);
 }
 
 void ExpressionVisitor::visitRelationalExpression(RelationalExpressionAst* node) {
-DefaultVisitor::visitRelationalExpression(node);
+  ExpressionVisitorBase::visitRelationalExpression(node);
 }
 
 void ExpressionVisitor::visitRelationalExpressionRest(RelationalExpressionRestAst* node) {
-DefaultVisitor::visitRelationalExpressionRest(node);
+  ExpressionVisitorBase::visitRelationalExpressionRest(node);
 }
 
 void ExpressionVisitor::visitReturnStatement(ReturnStatementAst* node) {
-DefaultVisitor::visitReturnStatement(node);
+  ExpressionVisitorBase::visitReturnStatement(node);
 }
 
 void ExpressionVisitor::visitShiftExpression(ShiftExpressionAst* node) {
-DefaultVisitor::visitShiftExpression(node);
+  ExpressionVisitorBase::visitShiftExpression(node);
 }
 
 void ExpressionVisitor::visitShiftExpressionRest(ShiftExpressionRestAst* node) {
-DefaultVisitor::visitShiftExpressionRest(node);
+  ExpressionVisitorBase::visitShiftExpressionRest(node);
 }
 
 void ExpressionVisitor::visitSimpleNameAccessData(SimpleNameAccessDataAst* node) {
-DefaultVisitor::visitSimpleNameAccessData(node);
+  ExpressionVisitorBase::visitSimpleNameAccessData(node);
 }
 
 void ExpressionVisitor::visitStatementExpression(StatementExpressionAst* node) {
-DefaultVisitor::visitStatementExpression(node);
+  ExpressionVisitorBase::visitStatementExpression(node);
 }
 
 void ExpressionVisitor::visitSuperAccessData(SuperAccessDataAst* node) {
-DefaultVisitor::visitSuperAccessData(node);
+  ExpressionVisitorBase::visitSuperAccessData(node);
 }
 
 void ExpressionVisitor::visitSuperSuffix(SuperSuffixAst* node) {
-DefaultVisitor::visitSuperSuffix(node);
+  ExpressionVisitorBase::visitSuperSuffix(node);
 }
 
 void ExpressionVisitor::visitSwitchLabel(SwitchLabelAst* node) {
-DefaultVisitor::visitSwitchLabel(node);
+  ExpressionVisitorBase::visitSwitchLabel(node);
 }
 
 void ExpressionVisitor::visitSwitchSection(SwitchSectionAst* node) {
-DefaultVisitor::visitSwitchSection(node);
+  problem(node, "node-type cannot be parsed");
 }
 
 void ExpressionVisitor::visitSwitchStatement(SwitchStatementAst* node) {
-DefaultVisitor::visitSwitchStatement(node);
+  problem(node, "node-type cannot be parsed");
 }
 
 void ExpressionVisitor::visitSynchronizedStatement(SynchronizedStatementAst* node) {
-DefaultVisitor::visitSynchronizedStatement(node);
+  ExpressionVisitorBase::visitSynchronizedStatement(node);
 }
 
 void ExpressionVisitor::visitThisAccessData(ThisAccessDataAst* node) {
-DefaultVisitor::visitThisAccessData(node);
+  ExpressionVisitorBase::visitThisAccessData(node);
 }
 
 void ExpressionVisitor::visitThisCallData(ThisCallDataAst* node) {
-DefaultVisitor::visitThisCallData(node);
+  ExpressionVisitorBase::visitThisCallData(node);
 }
 
 void ExpressionVisitor::visitThrowStatement(ThrowStatementAst* node) {
-DefaultVisitor::visitThrowStatement(node);
+  ExpressionVisitorBase::visitThrowStatement(node);
 }
 
 void ExpressionVisitor::visitThrowsClause(ThrowsClauseAst* node) {
-DefaultVisitor::visitThrowsClause(node);
+  ExpressionVisitorBase::visitThrowsClause(node);
 }
 
 void ExpressionVisitor::visitTryStatement(TryStatementAst* node) {
-DefaultVisitor::visitTryStatement(node);
+  problem(node, "node-type cannot be parsed");
 }
 
 void ExpressionVisitor::visitType(TypeAst* node) {
-DefaultVisitor::visitType(node);
+  ExpressionVisitorBase::visitType(node);
 }
 
 void ExpressionVisitor::visitTypeArgument(TypeArgumentAst* node) {
-DefaultVisitor::visitTypeArgument(node);
+  ExpressionVisitorBase::visitTypeArgument(node);
 }
 
 void ExpressionVisitor::visitTypeArgumentType(TypeArgumentTypeAst* node) {
-DefaultVisitor::visitTypeArgumentType(node);
+  ExpressionVisitorBase::visitTypeArgumentType(node);
 }
 
 void ExpressionVisitor::visitTypeArguments(TypeArgumentsAst* node) {
-DefaultVisitor::visitTypeArguments(node);
+  ExpressionVisitorBase::visitTypeArguments(node);
 }
 
 void ExpressionVisitor::visitTypeArgumentsOrParametersEnd(TypeArgumentsOrParametersEndAst* node) {
-DefaultVisitor::visitTypeArgumentsOrParametersEnd(node);
+  ExpressionVisitorBase::visitTypeArgumentsOrParametersEnd(node);
 }
 
 void ExpressionVisitor::visitTypeDeclaration(TypeDeclarationAst* node) {
-DefaultVisitor::visitTypeDeclaration(node);
+  ExpressionVisitorBase::visitTypeDeclaration(node);
 }
 
 void ExpressionVisitor::visitTypeParameter(TypeParameterAst* node) {
-DefaultVisitor::visitTypeParameter(node);
+  ExpressionVisitorBase::visitTypeParameter(node);
 }
 
 void ExpressionVisitor::visitTypeParameters(TypeParametersAst* node) {
-DefaultVisitor::visitTypeParameters(node);
+  ExpressionVisitorBase::visitTypeParameters(node);
 }
 
 void ExpressionVisitor::visitUnaryExpression(UnaryExpressionAst* node) {
-DefaultVisitor::visitUnaryExpression(node);
+  ExpressionVisitorBase::visitUnaryExpression(node);
 }
 
 void ExpressionVisitor::visitUnaryExpressionNotPlusMinus(UnaryExpressionNotPlusMinusAst* node) {
-DefaultVisitor::visitUnaryExpressionNotPlusMinus(node);
+  ExpressionVisitorBase::visitUnaryExpressionNotPlusMinus(node);
 }
 
 void ExpressionVisitor::visitVariableArrayInitializer(VariableArrayInitializerAst* node) {
-DefaultVisitor::visitVariableArrayInitializer(node);
+  ExpressionVisitorBase::visitVariableArrayInitializer(node);
 }
 
 void ExpressionVisitor::visitVariableDeclaration(VariableDeclarationAst* node) {
-DefaultVisitor::visitVariableDeclaration(node);
+  ExpressionVisitorBase::visitVariableDeclaration(node);
 }
 
 void ExpressionVisitor::visitVariableDeclarationData(VariableDeclarationDataAst* node) {
-DefaultVisitor::visitVariableDeclarationData(node);
+  ExpressionVisitorBase::visitVariableDeclarationData(node);
 }
 
 void ExpressionVisitor::visitVariableDeclarationRest(VariableDeclarationRestAst* node) {
-DefaultVisitor::visitVariableDeclarationRest(node);
+  ExpressionVisitorBase::visitVariableDeclarationRest(node);
 }
 
 void ExpressionVisitor::visitVariableDeclarationSplitData(VariableDeclarationSplitDataAst* node) {
-DefaultVisitor::visitVariableDeclarationSplitData(node);
+  ExpressionVisitorBase::visitVariableDeclarationSplitData(node);
 }
 
 void ExpressionVisitor::visitVariableDeclarationStatement(VariableDeclarationStatementAst* node) {
-DefaultVisitor::visitVariableDeclarationStatement(node);
+  ExpressionVisitorBase::visitVariableDeclarationStatement(node);
 }
 
 void ExpressionVisitor::visitVariableDeclarator(VariableDeclaratorAst* node) {
-DefaultVisitor::visitVariableDeclarator(node);
+  ExpressionVisitorBase::visitVariableDeclarator(node);
 }
 
 void ExpressionVisitor::visitVariableInitializer(VariableInitializerAst* node) {
-DefaultVisitor::visitVariableInitializer(node);
+  ExpressionVisitorBase::visitVariableInitializer(node);
 }
 
 void ExpressionVisitor::visitWhileStatement(WhileStatementAst* node) {
-DefaultVisitor::visitWhileStatement(node);
+  problem(node, "node-type cannot be parsed");
 }
 
 void ExpressionVisitor::visitWildcardType(WildcardTypeAst* node) {
-DefaultVisitor::visitWildcardType(node);
+  ExpressionVisitorBase::visitWildcardType(node);
 }
 
 void ExpressionVisitor::visitWildcardTypeBounds(WildcardTypeBoundsAst* node) {
-DefaultVisitor::visitWildcardTypeBounds(node);
+  ExpressionVisitorBase::visitWildcardTypeBounds(node);
 }
 
+}

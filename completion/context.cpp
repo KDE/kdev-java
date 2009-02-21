@@ -349,6 +349,16 @@ if ( memberAccessContainer().isValid() ) {
     } else {
 #endif
     //Show all visible declarations
+    kDebug() << "Top context importers:" << m_duContext->topContext()->importedParentContexts().count();
+    foreach (const DUContext::Import& imported, m_duContext->topContext()->importedParentContexts()) {
+        DUContext* actualImport = imported.context(m_duContext->topContext());
+        kDebug() << "Actual import: " << actualImport->url().str() << actualImport->localDeclarations().count() << "decl" << actualImport->importedParentContexts().count() << "more imported parents";
+        foreach (const DUContext::Import& imported2, actualImport->importedParentContexts()) {
+            DUContext* actualImport2 = imported2.context(m_duContext->topContext());
+            kDebug() << "2 Actual import: " << actualImport2->url().str() << actualImport2->localDeclarations().count() << "decl" << actualImport2->importedParentContexts().count() << "more imported parents";
+        }
+    }
+    
     QList<DeclarationDepthPair> decls = /*Cpp::hideOverloadedDeclarations(*/ m_duContext->allDeclarations(m_duContext->type() == DUContext::Class ? m_duContext->range().end : position, m_duContext->topContext());
     foreach( const DeclarationDepthPair& decl, decls ) {
       if (abort)
