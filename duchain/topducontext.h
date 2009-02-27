@@ -28,16 +28,10 @@ public:
   TopDUContextData(KDevelop::IndexedString url)
     : KDevelop::TopDUContextData(url)
   {
-    initializeAppendedLists();
   }
   
   TopDUContextData(const TopDUContextData& rhs) : KDevelop::TopDUContextData(rhs)
   {
-    initializeAppendedLists();
-  }
-
-  ~TopDUContextData() {
-    freeAppendedLists();
   }
 };
 

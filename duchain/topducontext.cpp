@@ -24,6 +24,7 @@
 #include <language/duchain/duchainregister.h>
 
 #include "javalanguagesupport.h"
+#include <language/duchain/classmemberdeclaration.h>
 
 //#define DEBUG_SEARCH
 
@@ -168,7 +169,10 @@ void TopDUContext::findJavaDeclarationsInternal(const SearchItem::PtrList& ident
           if(aliasDecl->identifier() != id.last())  //Since we have retrieved the aliases by hash only, we still need to compare the name
             continue;
 
-          if (staticOnly && (!aliasDecl->abstractType() || !(aliasDecl->abstractType()->modifiers() & AbstractType::StaticModifier)))
+          ClassMemberDeclaration* classMemberDecl = dynamic_cast<ClassMemberDeclaration*>(aliasDecl);
+
+          // TODO check logic here
+          if (staticOnly && (!classMemberDecl || !classMemberDecl->isStatic()))
             continue;
 
           ret.append(aliasDecl);

@@ -18,6 +18,7 @@
 
 #include <language/duchain/topducontext.h>
 #include <language/duchain/ducontextdata.h>
+#include <language/duchain/duchainregister.h>
 
 using namespace KDevelop;
 
@@ -27,6 +28,14 @@ DUContext::DUContext(const KDevelop::SimpleRange& range, KDevelop::DUContext* pa
   : KDevelop::DUContext(range, parent, anonymous)
 {
 }
+
+DUContext::DUContext(java::DUContextData& data)
+  : KDevelop::DUContext(data)
+{
+}
+
+
+REGISTER_DUCHAIN_ITEM(DUContext);
 
 bool DUContext::findDeclarationsInternal(const SearchItem::PtrList& identifiers, const KDevelop::SimpleCursor& position, const KDevelop::AbstractType::Ptr& dataType, DeclarationList& ret, const KDevelop::TopDUContext* source, SearchFlags flags) const {
   Q_ASSERT(identifiers.count() == 1);

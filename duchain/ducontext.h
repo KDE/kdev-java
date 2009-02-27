@@ -18,17 +18,35 @@
 #define JAVA_DUCONTEXT_H
 
 #include <language/duchain/ducontext.h>
-
+#include <language/duchain/ducontextdata.h>
 
 namespace java {
+
+class DUContextData : public KDevelop::DUContextData
+{
+public:
+  DUContextData() {}
+  DUContextData(const DUContextData& rhs)
+    : KDevelop::DUContextData(rhs)
+  {
+  }
+};
 
 class DUContext : public KDevelop::DUContext
 {
 public:
   explicit DUContext(const KDevelop::SimpleRange& range, KDevelop::DUContext* parent = 0, bool anonymous = false);
+  explicit DUContext(DUContextData&);
+
+  enum {
+    Identity = 32
+  };
 
 protected:
   virtual bool findDeclarationsInternal(const SearchItem::PtrList& identifiers, const KDevelop::SimpleCursor& position, const KDevelop::AbstractType::Ptr& dataType, DeclarationList& ret, const KDevelop::TopDUContext* source, SearchFlags flags) const;
+
+private:
+  DUCHAIN_DECLARE_DATA(DUContext)
 };
 
 }

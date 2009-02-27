@@ -613,22 +613,10 @@ uint TypeBuilder::parseModifiers(OptionalModifiersAst * node) const
   uint mod = AbstractType::NoModifiers;
 
   // TODO handle the following ... ModifierPrivate, ModifierPublic, ModifierProtected
-  if (node->modifiers & java::ModifierStatic)
-    mod |= AbstractType::StaticModifier;
   if (node->modifiers & java::ModifierTransient)
     mod |= AbstractType::TransientModifier;
-  if (node->modifiers & java::ModifierFinal)
-    mod |= AbstractType::FinalModifier;
-  if (node->modifiers & java::ModifierAbstract)
-    mod |= AbstractType::AbstractModifier;
-  if (node->modifiers & java::ModifierNative)
-    mod |= AbstractType::NativeModifier;
-  if (node->modifiers & java::ModifierSynchronized)
-    mod |= AbstractType::SynchronizedModifier;
   if (node->modifiers & java::ModifierVolatile)
     mod |= AbstractType::VolatileModifier;
-  if (node->modifiers & java::ModifierStrictFP)
-    mod |= AbstractType::StrictFPModifier;
 
   return mod;
 }
