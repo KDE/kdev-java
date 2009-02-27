@@ -10,7 +10,7 @@ include (MacroOptionalAddSubdirectory)
 
 find_package(KDevPlatform REQUIRED)
 
-include(KDevelopMacros)
+include(KDevPlatformMacros)
 
 add_subdirectory(parser)
 add_subdirectory(settings)
@@ -46,6 +46,8 @@ set(kdevjavalanguagesupport_PART_SRCS
     duchain/types.cpp
     duchain/classdeclaration.cpp
     duchain/expressionvisitor.cpp
+    duchain/topducontext.cpp
+    duchain/ducontext.cpp
 
     completion/worker.cpp
     completion/items.cpp

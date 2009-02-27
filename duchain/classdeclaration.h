@@ -1,6 +1,6 @@
 /* This file is part of KDevelop
     Copyright 2008 David Nolden <david.nolden@kdevelop.org>
-    Copyright 2008 Hamish Rodda <rodda@kde.org>
+    Copyright 2008-2009 Hamish Rodda <rodda@kde.org>
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
@@ -21,6 +21,9 @@
 #define CLASSDECLARATION_H
 
 #include <language/duchain/declaration.h>
+#include <language/duchain/declarationdata.h>
+#include <language/duchain/classmemberdeclarationdata.h>
+#include <language/duchain/classmemberdeclaration.h>
 #include <language/duchain/types/alltypes.h>
 
 namespace KDevelop {
@@ -35,17 +38,47 @@ namespace java {
 
 struct BaseClassInstance
 {
-  KDevelop::IndexedType baseClass; //May either be JavaClassType, or JavaDelayedType
-  KDevelop::Declaration::AccessPolicy access;
-  bool virtualInheritance;
+  KDevelop::IndexedType baseClass;
 };
 
-class ClassDeclarationPrivate;
+DECLARE_LIST_MEMBER_HASH(ClassDeclarationData, baseClasses, BaseClassInstance)
 
-class ClassDeclaration : public KDevelop::Declaration
+class ClassDeclarationData : public KDevelop::ClassMemberDeclarationData
+{
+public:
+  enum ClassType {
+    Class,
+    Interface
+  };
+
+  ClassDeclarationData() : m_classType(Class) {
+    initializeAppendedLists();
+  }
+
+  ~ClassDeclarationData() {
+    freeAppendedLists();
+  }
+
+  ClassDeclarationData(const ClassDeclarationData& rhs) : KDevelop::ClassMemberDeclarationData(rhs) {
+    initializeAppendedLists();
+    copyListsFrom(rhs);
+    m_classType = rhs.m_classType;
+  }
+
+  /// Type of the class (class or interface)
+  ClassType m_classType;
+
+  START_APPENDED_LISTS_BASE(ClassDeclarationData, KDevelop::ClassMemberDeclarationData);
+  APPENDED_LIST_FIRST(ClassDeclarationData, BaseClassInstance, baseClasses);
+  END_APPENDED_LISTS(ClassDeclarationData, baseClasses);
+};
+
+
+class ClassDeclaration : public KDevelop::ClassMemberDeclaration
 {
 public:
   ClassDeclaration(const ClassDeclaration& rhs);
+  ClassDeclaration(ClassDeclarationData& data);
   ClassDeclaration(const KDevelop::SimpleRange& range, KDevelop::DUContext* context);
   ~ClassDeclaration();
 
@@ -58,11 +91,24 @@ public:
   //Replaces the n'th base-class with the given one. The replaced base-class must have existed.
   void replaceBaseClass(uint n, BaseClassInstance klass);
 
-  virtual KDevelop::Declaration* clone() const;
+  /**Returns whether base is a public base-class of this class
+   * @param baseConversionLevels If nonzero, this will count the distance of the classes.
+   * */
+  //bool isPublicBaseClass( ClassDeclaration* base, const KDevelop::TopDUContext* topContext, int* baseConversionLevels  = 0 ) const;
+
+  virtual QString toString() const;
+
+  void setClassType(ClassDeclarationData::ClassType type);
+
+  ClassDeclarationData::ClassType classType() const;
+
+  enum {
+    Identity = 30
+  };
 
 private:
-  ClassDeclarationPrivate* const d_ptr;
-  Q_DECLARE_PRIVATE(ClassDeclaration)
+  virtual KDevelop::Declaration* clonePrivate() const;
+  DUCHAIN_DECLARE_DATA(ClassDeclaration)
 };
 
 }

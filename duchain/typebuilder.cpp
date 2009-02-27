@@ -691,4 +691,14 @@ void TypeBuilder::visitImplementsClause(ImplementsClauseAst * node)
   }*/
 }
 
+void TypeBuilder::visitEnumDeclaration(java::EnumDeclarationAst* node) {
+  //m_currentEnumeratorValue = 0;
+
+  openType(EnumerationType::Ptr(new EnumerationType()));
+
+  TypeBuilderBase::visitEnumDeclaration(node);
+
+  closeType();
+}
+
 }

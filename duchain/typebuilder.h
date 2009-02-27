@@ -47,6 +47,7 @@ protected:
   virtual void visitClassOrInterfaceTypeNamePart(ClassOrInterfaceTypeNamePartAst *node);
   virtual void visitTypeArgument(TypeArgumentAst *node);
   virtual void visitOptionalArrayBuiltInType(OptionalArrayBuiltInTypeAst * node);
+  virtual void visitEnumDeclaration(EnumDeclarationAst* node);
 
   virtual void visitMethodDeclaration(MethodDeclarationAst *node);
   virtual void visitInterfaceMethodDeclaration(InterfaceMethodDeclarationAst * node);

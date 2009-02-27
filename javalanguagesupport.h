@@ -61,21 +61,23 @@ public:
     virtual KDevelop::ILanguage *language();
     //virtual const KDevelop::ICodeHighlighting *codeHighlighting() const;
 
-    KDevelop::ReferencedTopDUContext contextForIdentifier(KDevelop::QualifiedIdentifier id, bool isDirectory);
-    KDevelop::ReferencedTopDUContext contextForPath(const QString& path, bool isDirectory);
+    // Hack to make it look like all java files #include each other
+    KDevelop::ReferencedTopDUContext allJavaContext();
 
 private slots:
     void projectOpened(KDevelop::IProject *project);
     void projectClosed();
 
 private:
-    KDevelop::ReferencedTopDUContext createTopContext(const KDevelop::IndexedString& url);
-    KDevelop::ReferencedTopDUContext createFileContext(const KUrl& url);
-    KDevelop::ReferencedTopDUContext createDirectoryContext(const KUrl& url);
-    
+    void scheduleInternalSources();
+    void scheduleFile(const KUrl& url);
+    void scheduleDirectory(const KUrl& url);
+
     java::JavaHighlighting *m_highlights;
-    QHash<KIO::Job*, KDevelop::ReferencedTopDUContext> m_listJobs;
+    KDevelop::ReferencedTopDUContext m_allJavaContext;
 };
+
+extern const KDevelop::Identifier globalStaticImportIdentifier;
 
 #endif
 

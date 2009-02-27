@@ -24,6 +24,8 @@
 
 #include <language/duchain/builders/abstractcontextbuilder.h>
 
+#include "classdeclaration.h"
+
 class JavaLanguageSupport;
 
 namespace java {
@@ -51,6 +53,9 @@ public:
 protected:
   EditorIntegrator* editor() const;
 
+  virtual KDevelop::TopDUContext* newTopContext(const KDevelop::SimpleRange& range, KDevelop::ParsingEnvironmentFile* file = 0);
+  virtual KDevelop::DUContext* newContext(const KDevelop::SimpleRange& range);
+
   virtual void startVisiting( AstNode* node );
   virtual void setContextOnNode( AstNode* node, KDevelop::DUContext* ctx );
   virtual KDevelop::DUContext* contextFromNode( AstNode* node );
@@ -64,16 +69,34 @@ protected:
    * @param typeSpecifier a pointer that will eventually be filled with a type-specifier that can be found in the name(for example the return-type of a cast-operator)
    */
   virtual KDevelop::QualifiedIdentifier identifierForNode(IdentifierAst* id);
+  KDevelop::QualifiedIdentifier identifierForNode(QualifiedIdentifierAst* id);
   KDevelop::QualifiedIdentifier identifierForNode(const KDevPG::ListNode<IdentifierAst*>* id);
 
   // Visitors
+  template<typename T>
+  void visitNodeList(const KDevPG::ListNode<T*>* list)
+  {
+    if (list) {
+      const KDevPG::ListNode<T*> *__it = list->front(), *__end = __it;
+      do
+      {
+          visitNode(__it->element);
+          __it = __it->next;
+      }
+      while (__it != __end);
+    }
+  }
+
+  virtual void visitCompilationUnit(java::CompilationUnitAst* node);
   virtual void visitForStatement(ForStatementAst *node);
   virtual void visitIfStatement(IfStatementAst *node);
   virtual void visitClassDeclaration(ClassDeclarationAst *node);
   virtual void visitMethodDeclaration(MethodDeclarationAst *node);
   virtual void visitConstructorDeclaration(ConstructorDeclarationAst *node);
   virtual void visitInterfaceDeclaration(InterfaceDeclarationAst *node);
-  virtual void visitImportDeclaration(ImportDeclarationAst *node);
+  virtual void visitPackageDeclaration(PackageDeclarationAst* node);
+
+  virtual void addBaseType( BaseClassInstance base );
 
 protected:
   // Variables

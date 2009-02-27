@@ -56,10 +56,13 @@ using namespace java;
 K_PLUGIN_FACTORY(KDevJavaSupportFactory, registerPlugin<JavaLanguageSupport>(); )
 K_EXPORT_PLUGIN(KDevJavaSupportFactory("kdevjavasupport"))
 
+const KDevelop::Identifier globalStaticImportIdentifier("{...static-import...}");
+
 JavaLanguageSupport::JavaLanguageSupport( QObject* parent,
                                           const QVariantList& /*args*/ )
         : KDevelop::IPlugin( KDevJavaSupportFactory::componentData(), parent )
         , KDevelop::ILanguageSupport()
+        , m_allJavaContext(0)
 {
     KDEV_USE_EXTENSION_INTERFACE( KDevelop::ILanguageSupport )
 
@@ -74,6 +77,8 @@ JavaLanguageSupport::JavaLanguageSupport( QObject* parent,
     connect( core()->projectController(),
              SIGNAL( projectClosed() ),
              this, SLOT( projectClosed() ) );
+
+    scheduleInternalSources();
 
     kDebug() << "Java support loaded";
 }
@@ -112,6 +117,8 @@ KDevelop::ILanguage * JavaLanguageSupport::language()
 {
     return core()->languageController()->language(name());
 }
+
+#if 0
 
 KDevelop::ReferencedTopDUContext JavaLanguageSupport::contextForIdentifier(KDevelop::QualifiedIdentifier id, bool isDirectory)
 {
@@ -172,22 +179,26 @@ KDevelop::ReferencedTopDUContext JavaLanguageSupport::contextForPath(const QStri
     // Built-in...
     KConfigGroup config(KGlobal::config(), "Java Support");
     KUrl javaSourceUrl = config.readEntry("Java Source Zip", KUrl());
-    javaSourceUrl.addPath(path);
+    if (javaSourceUrl.isValid()) {
+        javaSourceUrl.addPath(path);
 
-    QFileInfo info(javaSourceUrl.path());
-    if (info.exists() && info.isReadable()) {
-        if (KDevelop::TopDUContext* topContext = KDevelop::DUChainUtils::standardContextForUrl(javaSourceUrl)) {
-            return KDevelop::ReferencedTopDUContext(topContext);
-        } else {
-            KDevelop::DUChainWriteLocker lock(KDevelop::DUChain::lock());
-            if (!info.isFile()) {
-                return createDirectoryContext(javaSourceUrl);
+        QFileInfo info(javaSourceUrl.path());
+        if (info.exists() && info.isReadable()) {
+            if (KDevelop::TopDUContext* topContext = KDevelop::DUChainUtils::standardContextForUrl(javaSourceUrl)) {
+                return KDevelop::ReferencedTopDUContext(topContext);
             } else {
-                return createFileContext(javaSourceUrl);
+                KDevelop::DUChainWriteLocker lock(KDevelop::DUChain::lock());
+                if (!info.isFile()) {
+                    return createDirectoryContext(javaSourceUrl);
+                } else {
+                    return createFileContext(javaSourceUrl);
+                }
             }
+        } else {
+            kDebug() << path << "no inbuilt file:" << javaSourceUrl << "doesn't exist or is not readable";
         }
     } else {
-        kDebug() << javaSourceUrl << "no inbuilt file:" << javaSourceUrl << "doesn't exist or is not readable";
+        kDebug() << "Java source URL is not valid:" << javaSourceUrl;
     }
 
     return 0;
@@ -224,6 +235,54 @@ KDevelop::ReferencedTopDUContext JavaLanguageSupport::createDirectoryContext(con
         }
     }
     return top;
+}
+
+#endif
+
+void JavaLanguageSupport::scheduleInternalSources()
+{
+    KConfigGroup config(KGlobal::config(), "Java Support");
+    KUrl javaSourceUrl = config.readEntry("Java Source Zip", KUrl());
+    if (javaSourceUrl.isValid()) {
+        QFileInfo info(javaSourceUrl.path());
+        if (info.exists() && info.isReadable()) {
+            scheduleDirectory(javaSourceUrl);
+        } else {
+            kDebug() << "no inbuilt file:" << javaSourceUrl << "doesn't exist or is not readable";
+        }
+    } else {
+        kDebug() << "Java source URL is not valid:" << javaSourceUrl;
+    }
+}
+
+void JavaLanguageSupport::scheduleDirectory(const KUrl& url)
+{
+    QDir dirInfo(url.path());
+    kDebug() << url;
+    foreach (const QFileInfo& entry, dirInfo.entryInfoList(QDir::NoDotAndDotDot | QDir::Readable | QDir::Dirs | QDir::Files)) {
+        if (entry.isFile()) {
+            scheduleFile(KUrl::fromPath(entry.filePath()));
+        } else if (entry.isDir()) {
+            scheduleDirectory(KUrl::fromPath(entry.filePath()));
+        }
+    }
+}
+
+void JavaLanguageSupport::scheduleFile(const KUrl& url)
+{
+    KDevelop::ICore::self()->languageController()->backgroundParser()->addDocument(url, KDevelop::TopDUContext::AllDeclarationsAndContexts);
+}
+
+KDevelop::ReferencedTopDUContext JavaLanguageSupport::allJavaContext()
+{
+    if (m_allJavaContext)
+        return m_allJavaContext;
+
+    KDevelop::DUChainWriteLocker lock(KDevelop::DUChain::lock());
+    m_allJavaContext = new KDevelop::TopDUContext(KDevelop::IndexedString(KUrl("java://all")), KDevelop::SimpleRange());
+    m_allJavaContext->setType( KDevelop::DUContext::Global );
+    KDevelop::DUChain::self()->addDocumentChain( m_allJavaContext );
+    return m_allJavaContext;
 }
 
 

@@ -26,114 +26,30 @@
 #include "editorintegrator.h"
 #include "identifiercompiler.h"
 #include <language/duchain/functiondeclaration.h>
-#include "javaast.h"
+#include <language/duchain/aliasdeclaration.h>
 #include "parsesession.h"
 #include "classdeclaration.h"
+#include <language/duchain/namespacealiasdeclaration.h>
+#include "javalanguagesupport.h"
 
 using namespace KTextEditor;
 using namespace KDevelop;
 
 namespace java {
 
+QualifiedIdentifier javaLang("java::lang::*");
+
 DeclarationBuilder::DeclarationBuilder (ParseSession* session)
+  : m_defaultImportCreated(false)
 {
   setEditor(session);
 }
 
 DeclarationBuilder::DeclarationBuilder (EditorIntegrator* editor)
+  : m_defaultImportCreated(false)
 {
   setEditor(editor);
 }
-
-/*
-void DeclarationBuilder::visitDeclarator (DeclaratorAstNode* node)
-{
-  //need to make backup because we may temporarily change it
-  ParameterDeclarationClauseAstNode* parameter_declaration_clause_backup = node->parameter_declaration_clause;
-
-  ///@todo this should be solved more elegantly within parser and AstNode
-  if (node->parameter_declaration_clause) {
-    //Check if all parameter declarations are valid. If not, this is a misunderstood variable declaration.
-    if(!checkParameterDeclarationClause(node->parameter_declaration_clause))
-      node->parameter_declaration_clause = 0;
-  }
-  if (node->parameter_declaration_clause) {
-    openDeclaration(node->id, node, true);
-
-    applyFunctionSpecifiers();
-  } else {
-    openDefinition(node->id, node);
-  }
-
-  applyStorageSpecifiers();
-
-  DeclarationBuilderBase::visitDeclarator(node);
-
-  if (node->parameter_declaration_clause) {
-    if (!m_functionDefinedStack.isEmpty() && m_functionDefinedStack.top() && node->id) {
-
-      QualifiedIdentifier id = identifierForNode(node->id);
-      DUChainWriteLocker lock(DUChain::lock());
-      if (id.count() > 1 ||
-          (m_inFunctionDefinition && (currentContext()->type() == DUContext::Namespace || currentContext()->type() == DUContext::Global))) {
-        SimpleCursor pos = currentDeclaration()->range().start;//editor<EditorIntegrator>()->findPosition(m_functionDefinedStack.top(), KDevelop::EditorIntegrator::FrontEdge);
-
-        // TODO: potentially excessive locking
-
-        QList<Declaration*> declarations = currentContext()->findDeclarations(id, pos, AbstractType::Ptr(), 0, DUContext::OnlyFunctions);
-
-        JavaFunctionType::Ptr currentFunction = JavaFunctionType::Ptr(dynamic_cast<JavaFunctionType*>(currentDeclaration().data()));
-        int functionArgumentCount = 0;
-        if(currentFunction)
-          functionArgumentCount = currentFunction->arguments().count();
-
-        for( int cycle = 0; cycle < 3; cycle++ ) {
-          bool found = false;
-          ///We do 2 cycles: In the first cycle, we want an exact match. In the second, we accept approximate matches.
-          foreach (Declaration* dec, declarations) {
-            if (dec->isForwardDeclaration())
-              continue;
-            if(dec == currentDeclaration() || dec->isDefinition())
-              continue;
-            //Compare signatures of function-declarations:
-            if(dec->abstractType() == currentDeclaration()
-                || (dec->abstractType() && currentDeclaration() && dec->abstractType()->equals(currentDeclaration().data())))
-            {
-              //The declaration-type matches this definition, good.
-            }else{
-              if(cycle == 0) {
-                //First cycle, only accept exact matches
-                continue;
-              }else if(cycle == 1){
-                //Second cycle, match by argument-count
-                JavaFunctionType::Ptr matchFunction = dec->type<JavaFunctionType>();
-                if(currentFunction && matchFunction && currentFunction->arguments().count() == functionArgumentCount ) {
-                  //We have a match
-                }else{
-                  continue;
-                }
-              }else if(cycle == 2){
-                //Accept any match, so just continue
-              }
-              if(dec->definition() && wasEncountered(dec->definition()))
-                continue; //Do not steal declarations
-            }
-
-            dec->setDefinition(currentDeclaration());
-            found = true;
-            break;
-          }
-          if(found)
-            break;
-        }
-      }
-    }
-  }
-
-  closeDeclaration();
-
-  node->parameter_declaration_clause = parameter_declaration_clause_backup;
-}*/
 
 void DeclarationBuilder::closeDeclaration()
 {
@@ -141,6 +57,7 @@ void DeclarationBuilder::closeDeclaration()
     DUChainWriteLocker lock(DUChain::lock());
 
     currentDeclaration()->setType(lastType());
+    currentDeclaration()->setKind(Declaration::Type);
   }
 
   eventuallyAssignInternalContext();
@@ -174,61 +91,6 @@ void DeclarationBuilder::visitEnumerator(EnumeratorAstNode* node)
   DeclarationBuilderBase::visitEnumerator(node);
 
   closeDeclaration();
-}
-
-void DeclarationBuilder::visitUsingDirective(UsingDirectiveAstNode * node)
-{
-  DeclarationBuilderBase::visitUsingDirective(node);
-
-  {
-    DUChainReadLocker lock(DUChain::lock());
-    if( currentContext()->type() != DUContext::Namespace && currentContext()->type() != DUContext::Global ) {
-      ///@todo report problem
-      kDebug() << "Namespace-import used in non-global scope";
-      return;
-    }
-  }
-
-  if( m_compilingContexts ) {
-    openDeclaration(0, node, false, false, false, true, globalImportIdentifier);
-    {
-      DUChainWriteLocker lock(DUChain::lock());
-      Q_ASSERT(dynamic_cast<NamespaceAliasDeclaration*>(currentDeclaration()));
-      static_cast<NamespaceAliasDeclaration*>(currentDeclaration())->setImportIdentifier( resolveNamespaceIdentifier(identifierForNode(node->name), currentDeclaration()->range().start) );
-    }
-    closeDeclaration();
-  }
-}
-
-void DeclarationBuilder::visitAccessSpecifier(AccessSpecifierAstNode* node)
-{
-  if (node->specs) {
-    const ListNode<std::size_t> *it = node->specs->toFront();
-    const ListNode<std::size_t> *end = it;
-    do {
-      int kind = editor<EditorIntegrator>()->parseSession()->token_stream->kind(it->element);
-      switch (kind) {
-        case Token_signals:
-        case Token_slots:
-        case Token_k_dcop:
-        case Token_k_dcop_signals:
-          break;
-        case Token_public:
-          setAccessPolicy(Declaration::Public);
-          break;
-        case Token_protected:
-          setAccessPolicy(Declaration::Protected);
-          break;
-        case Token_private:
-          setAccessPolicy(Declaration::Private);
-          break;
-      }
-
-      it = it->next;
-    } while (it != end);
-  }
-
-  DeclarationBuilderBase::visitAccessSpecifier(node);
 }
 
 void DeclarationBuilder::parseStorageSpecifiers(const ListNode<std::size_t>* storage_specifiers)
@@ -315,31 +177,101 @@ void DeclarationBuilder::parseFunctionSpecifiers(const ListNode<std::size_t>* fu
 
 void DeclarationBuilder::visitClassDeclaration(ClassDeclarationAst * node)
 {
-  openDefinition<ClassDeclaration>(node->className, node);
-
-  currentDeclaration()->setKind(Declaration::Type);
+  ClassDeclaration* newClass = openDefinition<ClassDeclaration>(node->className, node);
+  newClass->setAccessPolicy(parseAccessPolicy(node->modifiers));
+  newClass->setClassType(java::ClassDeclarationData::Class);
+  newClass->setStorageSpecifiers(parseModifiers(node->modifiers));
 
   DeclarationBuilderBase::visitClassDeclaration(node);
 
+  // Provide java.lang.Object inheritance where it is not specified
+  DUChainWriteLocker lock(DUChain::lock());
+  if (newClass->baseClassesSize() == 0) {
+    static QualifiedIdentifier javaLangObject("java::lang::Object");
+    if (newClass->qualifiedIdentifier() != javaLangObject) {
+      QList<Declaration*> declarations = currentContext()->findDeclarations(javaLangObject, currentContext()->range().end, AbstractType::Ptr(), currentContext()->topContext());
+      if (declarations.count() >= 1) {
+        if (declarations.count() > 1)
+          kWarning() << "Found mulitple declarations for" << javaLangObject.toStringList().join(".");
+        BaseClassInstance instance;
+        {
+          // TODO check that type is a class
+          instance.baseClass = declarations.at(0)->indexedType();
+          newClass->addBaseClass(instance);
+        }
+        addBaseType(instance);
+      }
+    }
+  }
   closeDeclaration();
+}
+
+void DeclarationBuilder::visitClassExtendsClause(java::ClassExtendsClauseAst* node)
+{
+  DeclarationBuilderBase::visitClassExtendsClause(node);
+
+  BaseClassInstance instance;
+  {
+    DUChainWriteLocker lock(DUChain::lock());
+    ClassDeclaration* currentClass = dynamic_cast<ClassDeclaration*>(currentDeclaration());
+    if(currentClass) {
+      // TODO check that type is a class
+      instance.baseClass = lastType()->indexed();
+      currentClass->addBaseClass(instance);
+    }else{
+      kWarning() << "extends-specifier without class declaration";
+    }
+  }
+  addBaseType(instance);
+}
+
+void DeclarationBuilder::visitImplementsClause(java::ImplementsClauseAst* node)
+{
+  DeclarationBuilderBase::visitImplementsClause(node);
+
+  BaseClassInstance instance;
+  {
+    DUChainWriteLocker lock(DUChain::lock());
+    ClassDeclaration* currentClass = dynamic_cast<ClassDeclaration*>(currentDeclaration());
+    if(currentClass) {
+      // TODO check that type is an interface
+      instance.baseClass = lastType()->indexed();
+      currentClass->addBaseClass(instance);
+    }else{
+      kWarning() << "extends-specifier without class declaration";
+    }
+  }
+  addBaseType(instance);
 }
 
 void DeclarationBuilder::visitInterfaceDeclaration(InterfaceDeclarationAst * node)
 {
-  openDefinition<ClassDeclaration>(node->interfaceName, node);
-
-  currentDeclaration()->setKind(Declaration::Type);
+  ClassDeclaration* newInterface = openDefinition<ClassDeclaration>(node->interfaceName, node);
+  newInterface->setAccessPolicy(parseAccessPolicy(node->modifiers));
+  newInterface->setClassType(java::ClassDeclarationData::Interface);
+  newInterface->setStorageSpecifiers(parseModifiers(node->modifiers));
 
   DeclarationBuilderBase::visitInterfaceDeclaration(node);
+
+  // No default inheritance for interfaces
 
   closeDeclaration();
 }
 
 void DeclarationBuilder::visitInterfaceMethodDeclaration(InterfaceMethodDeclarationAst * node)
 {
-  openDefinition<ClassDeclaration>(node->methodName, node);
+  ClassFunctionDeclaration* newMethod = openDefinition<ClassFunctionDeclaration>(node->methodName, node);
+  if (node->modifiers) {
+    Declaration::AccessPolicy access = parseAccessPolicy(node->modifiers);
 
-  currentDeclaration()->setKind(Declaration::Type);
+    // Default public access for interface methods
+    if (access == Declaration::DefaultAccess)
+      access = Declaration::Public;
+
+    newMethod->setAccessPolicy(access);
+
+    newMethod->setStorageSpecifiers(parseModifiers(node->modifiers));
+  }
 
   DeclarationBuilderBase::visitInterfaceMethodDeclaration(node);
 
@@ -350,8 +282,6 @@ void DeclarationBuilder::visitConstructorDeclaration(ConstructorDeclarationAst *
 {
   openDefinition<ClassFunctionDeclaration>(node->className, node);
 
-  currentDeclaration()->setKind(Declaration::Type);
-
   DeclarationBuilderBase::visitConstructorDeclaration(node);
 
   closeDeclaration();
@@ -359,28 +289,33 @@ void DeclarationBuilder::visitConstructorDeclaration(ConstructorDeclarationAst *
 
 void DeclarationBuilder::visitMethodDeclaration(MethodDeclarationAst * node)
 {
-  openDefinition<ClassFunctionDeclaration>(node->methodName, node);
-
-  currentDeclaration()->setKind(Declaration::Type);
+  ClassFunctionDeclaration* newMethod = openDefinition<ClassFunctionDeclaration>(node->methodName, node);
+  newMethod->setAccessPolicy(parseAccessPolicy(node->modifiers));
+  newMethod->setStorageSpecifiers(parseModifiers(node->modifiers));
 
   DeclarationBuilderBase::visitMethodDeclaration(node);
 
   closeDeclaration();
 }
 
-void DeclarationBuilder::visitVariableDeclaration(VariableDeclarationAst * node)
+void DeclarationBuilder::visitVariableDeclarationData(java::VariableDeclarationDataAst* node)
 {
-  // Here we should save / apply the type
+  m_currentVariableModifiers = parseModifiers(node->modifiers);
 
-  DeclarationBuilderBase::visitVariableDeclaration(node);
+  DeclarationBuilderBase::visitVariableDeclarationData(node);
+
+  m_currentVariableModifiers = 0;
 }
 
 void DeclarationBuilder::visitVariableDeclarator(VariableDeclaratorAst * node)
 {
-  if (currentContext()->type() == DUContext::Class)
-    openDefinition<ClassMemberDeclaration>(node->variableName, node);
-  else
-    openDefinition<Declaration>(node->variableName, node);
+  if (currentContext()->type() == DUContext::Class) {
+    ClassMemberDeclaration* classMember = openDefinition<ClassMemberDeclaration>(node->variableName, node);
+    classMember->setStorageSpecifiers(m_currentVariableModifiers);
+  } else {
+    Declaration* variableDeclaration = openDefinition<Declaration>(node->variableName, node);
+    variableDeclaration->setFinal(m_currentVariableModifiers & ClassMemberDeclaration::FinalSpecifier);
+  }
 
   DeclarationBuilderBase::visitVariableDeclarator(node);
 
@@ -389,7 +324,8 @@ void DeclarationBuilder::visitVariableDeclarator(VariableDeclaratorAst * node)
 
 void DeclarationBuilder::visitParameterDeclaration(ParameterDeclarationAst * node)
 {
-  openDefinition<Declaration>(node->variableName, node);
+  Declaration* parameter = openDefinition<Declaration>(node->variableName, node);
+  parameter->setFinal(node->parameterModifiers ? node->parameterModifiers->modifiers & ModifierFinal : false);
 
   DeclarationBuilderBase::visitParameterDeclaration(node);
 
@@ -398,11 +334,151 @@ void DeclarationBuilder::visitParameterDeclaration(ParameterDeclarationAst * nod
 
 void DeclarationBuilder::visitParameterDeclarationEllipsis(ParameterDeclarationEllipsisAst * node)
 {
-  openDefinition<Declaration>(node->variableName, node);
+  Declaration* parameter = openDefinition<Declaration>(node->variableName, node);
+  parameter->setFinal(node->parameterModifiers ? node->parameterModifiers->hasModifierFinal : false);
 
   DeclarationBuilderBase::visitParameterDeclarationEllipsis(node);
 
   closeDeclaration();
 }
 
+void DeclarationBuilder::visitImportDeclaration(ImportDeclarationAst* node)
+{
+  if (!m_defaultImportCreated) {
+    Q_ASSERT(javaLang.count() == 3);
+
+    DUChainWriteLocker lock(DUChain::lock());
+    NamespaceAliasDeclaration* decl = openDeclaration<NamespaceAliasDeclaration>(QualifiedIdentifier(globalImportIdentifier), SimpleRange());
+    decl->setImportIdentifier(javaLang);
+    closeDeclaration();
+    m_defaultImportCreated = true;
+  }
+
+  if (node && node->identifierName && node->identifierName->nameSequence) {
+    QualifiedIdentifier import = identifierForNode(node->identifierName->nameSequence);
+    if (node->identifierName->hasStar) {
+      // Ignore imports of the current package, it's auto-imported.
+      {
+        DUChainReadLocker lock(DUChain::lock());
+        if (import == currentContext()->localScopeIdentifier())
+          return;
+      }
+
+      import.push(Identifier("*"));
+      // Ignore imports of java.lang.*, it's auto-imported.
+      if (import == javaLang)
+        return;
+    }
+
+    ///@todo only use the last name component as range
+    {
+      DUChainWriteLocker lock(DUChain::lock());
+      NamespaceAliasDeclaration* decl = openDeclaration<NamespaceAliasDeclaration>(QualifiedIdentifier(node->staticImport ? globalStaticImportIdentifier : globalImportIdentifier), editorFindRange(node->identifierName, node->identifierName));
+      decl->setImportIdentifier(import);
+    }
+
+    closeDeclaration();
+  }
 }
+
+void DeclarationBuilder::visitPackageDeclaration(java::PackageDeclarationAst* node)
+{
+  if (node->packageName) {
+    QualifiedIdentifier id = identifierForNode(node->packageName);
+    KDevelop::SimpleRange range = editorFindRange(node->packageName, node->packageName);
+    {
+      DUChainWriteLocker lock(DUChain::lock());
+      openDeclaration<Declaration>(id, range);
+    }
+
+    DeclarationBuilderBase::visitPackageDeclaration(node);
+
+    DUChainWriteLocker lock(DUChain::lock());
+    currentDeclaration()->setKind(KDevelop::Declaration::Namespace);
+    closeDeclaration();
+
+    // Use this to import other items from the package
+    NamespaceAliasDeclaration* decl = openDeclaration<NamespaceAliasDeclaration>(QualifiedIdentifier(globalImportIdentifier), range);
+    decl->setImportIdentifier(id);
+    closeDeclaration();
+  }
+}
+
+Declaration::AccessPolicy DeclarationBuilder::parseAccessPolicy(java::OptionalModifiersAst* node)
+{
+  if (node) {
+    if (node->modifiers & ModifierPublic)
+      return Declaration::Public;
+
+    if (node->modifiers & ModifierProtected)
+      return Declaration::Protected;
+
+    if (node->modifiers & ModifierPrivate)
+      return Declaration::Private;
+  }
+
+  return Declaration::DefaultAccess;
+}
+
+ClassMemberDeclaration::StorageSpecifiers DeclarationBuilder::parseModifiers(java::OptionalModifiersAst* node)
+{
+  ClassMemberDeclaration::StorageSpecifiers ret;
+
+  if (node) {
+    if (node->modifiers & ModifierFinal)
+      ret |= ClassMemberDeclaration::FinalSpecifier;
+    if (node->modifiers & ModifierAbstract)
+      ret |= ClassMemberDeclaration::AbstractSpecifier;
+    if (node->modifiers & ModifierStrictFP)
+      ret |= ClassMemberDeclaration::StrictFPSpecifier;
+    if (node->modifiers & ModifierSynchronized)
+      ret |= ClassMemberDeclaration::SynchronizedSpecifier;
+    if (node->modifiers & ModifierStatic)
+      ret |= ClassMemberDeclaration::StaticSpecifier;
+    if (node->modifiers & ModifierNative)
+      ret |= ClassMemberDeclaration::NativeSpecifier;
+    //ModifierTransient    = 1 << 4,
+    //ModifierVolatile     = 1 << 9,
+  }
+
+  return ret;
+}
+
+void DeclarationBuilder::visitEnumDeclaration(java::EnumDeclarationAst* node)
+{
+  Identifier id = identifierForNode(node->enumName).first();
+  Declaration* decl = openDeclaration<Declaration>(node->enumName, node, id);
+
+  DeclarationBuilderBase::visitEnumDeclaration(node);
+
+  EnumeratorType::Ptr enumeratorType = lastType().cast<EnumeratorType>();
+
+  closeDeclaration();
+
+  if(enumeratorType) { ///@todo Move this into closeDeclaration in a logical way
+    DUChainWriteLocker lock(DUChain::lock());
+    enumeratorType->setDeclaration(decl);
+    decl->setAbstractType(enumeratorType.cast<AbstractType>());
+  }
+}
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -41,14 +41,26 @@ protected:
   virtual void closeDeclaration();
 
   virtual void visitClassDeclaration(ClassDeclarationAst *node);
+  virtual void visitClassExtendsClause(java::ClassExtendsClauseAst* node);
+  virtual void visitImplementsClause(java::ImplementsClauseAst* node);
   virtual void visitMethodDeclaration(MethodDeclarationAst *node);
   virtual void visitInterfaceMethodDeclaration(InterfaceMethodDeclarationAst *node);
   virtual void visitConstructorDeclaration(ConstructorDeclarationAst *node);
   virtual void visitInterfaceDeclaration(InterfaceDeclarationAst *node);
-  virtual void visitVariableDeclaration(VariableDeclarationAst *node);
+  virtual void visitImportDeclaration(ImportDeclarationAst *node);
+  virtual void visitVariableDeclarationData(VariableDeclarationDataAst *node);
   virtual void visitVariableDeclarator(VariableDeclaratorAst *node);
   virtual void visitParameterDeclaration(ParameterDeclarationAst *node);
   virtual void visitParameterDeclarationEllipsis(ParameterDeclarationEllipsisAst *node);
+  virtual void visitPackageDeclaration(PackageDeclarationAst* node);
+  virtual void visitEnumDeclaration(java::EnumDeclarationAst* node);
+
+  KDevelop::Declaration::AccessPolicy parseAccessPolicy(OptionalModifiersAst* node);
+  KDevelop::ClassMemberDeclaration::StorageSpecifiers parseModifiers(OptionalModifiersAst* node);
+
+private:
+  bool m_defaultImportCreated;
+  KDevelop::ClassMemberDeclaration::StorageSpecifiers m_currentVariableModifiers;
 };
 
 }

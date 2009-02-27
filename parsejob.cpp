@@ -116,7 +116,7 @@ void ParseJob::run()
     QFileInfo fileInfo( localFile );
 
     m_readFromDisk = !contentsAvailableFromEditor();
-    
+
     if ( m_readFromDisk )
     {
         QFile file( localFile );
@@ -201,13 +201,14 @@ void ParseJob::run()
     //kDebug(  ) << (contentContext ? "updating" : "building") << "duchain for" << parentJob()->document().str();
 
     KDevelop::ReferencedTopDUContext toUpdate = KDevelop::DUChainUtils::standardContextForUrl(document().toUrl());
-    
+
     DeclarationBuilder builder(&editor);
+    builder.setJavaSupport(java());
     KDevelop::TopDUContext* chain = builder.build(document(), ast, toUpdate);
     setDuChain(chain);
 
-    UseBuilder useBuilder(&editor);
-    useBuilder.buildUses(ast);
+    //UseBuilder useBuilder(&editor);
+    //useBuilder.buildUses(ast);
 
     if (!abortRequested() && editor.smart()) {
         editor.smart()->clearRevision();
