@@ -21,10 +21,11 @@
 #include <language/duchain/duchainlock.h>
 #include <language/duchain/duchain.h>
 #include <language/duchain/namespacealiasdeclaration.h>
+#include <language/duchain/duchainregister.h>
 
 #include "javalanguagesupport.h"
 
-#define DEBUG_SEARCH
+//#define DEBUG_SEARCH
 
 using namespace KDevelop;
 
@@ -33,9 +34,14 @@ namespace java {
 TopDUContext::TopDUContext(const KDevelop::IndexedString& url, const KDevelop::SimpleRange& range, KDevelop::ParsingEnvironmentFile* file)
   : KDevelop::TopDUContext(url, range, file)
 {
-
 }
 
+TopDUContext::TopDUContext(TopDUContextData& data)
+  : KDevelop::TopDUContext(data)
+{
+}
+
+REGISTER_DUCHAIN_ITEM(TopDUContext);
 
 bool TopDUContext::findDeclarationsInternal(const SearchItem::PtrList& identifiers, const SimpleCursor& position, const AbstractType::Ptr& dataType, DeclarationList& ret, const KDevelop::TopDUContext* source, SearchFlags flags) const
 {
@@ -96,29 +102,39 @@ bool TopDUContext::findDeclarationsInternal(const SearchItem::PtrList& identifie
 
   findJavaDeclarationsInternal(singleTypeImports, ret, check, false);
   if (foundEnough(ret, flags)) {
+#ifdef DEBUG_SEARCH
     kDebug() << "Found from single type" << ret.count();
+#endif
     return true;
   }
 
   findJavaDeclarationsInternal(singleStaticImports, ret, check, true);
   if (foundEnough(ret, flags)) {
+#ifdef DEBUG_SEARCH
     kDebug() << "Found from single static" << ret.count();
+#endif
     return true;
   }
 
   findJavaDeclarationsInternal(typeImportsOnDemand, ret, check, false);
   if (foundEnough(ret, flags)) {
+#ifdef DEBUG_SEARCH
     kDebug() << "Found from type on demand" << ret.count();
+#endif
     return true;
   }
 
   findJavaDeclarationsInternal(staticImportsOnDemand, ret, check, true);
   if (foundEnough(ret, flags)) {
+#ifdef DEBUG_SEARCH
     kDebug() << "Found from static on demand" << ret.count();
+#endif
     return true;
   }
 
+#ifdef DEBUG_SEARCH
   kDebug() << "Found not enough" << ret.count();
+#endif
   return true;
 }
 

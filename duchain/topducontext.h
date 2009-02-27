@@ -18,13 +18,38 @@
 #define JAVA_TOPDUCONTEXT_H
 
 #include <language/duchain/topducontext.h>
+#include <language/duchain/topducontextdata.h>
 
 namespace java {
+
+class TopDUContextData : public KDevelop::TopDUContextData
+{
+public:
+  TopDUContextData(KDevelop::IndexedString url)
+    : KDevelop::TopDUContextData(url)
+  {
+    initializeAppendedLists();
+  }
+  
+  TopDUContextData(const TopDUContextData& rhs) : KDevelop::TopDUContextData(rhs)
+  {
+    initializeAppendedLists();
+  }
+
+  ~TopDUContextData() {
+    freeAppendedLists();
+  }
+};
 
 class TopDUContext : public KDevelop::TopDUContext
 {
   public:
     explicit TopDUContext(const KDevelop::IndexedString& url, const KDevelop::SimpleRange& range, KDevelop::ParsingEnvironmentFile* file = 0);
+    explicit TopDUContext(TopDUContextData& data);
+
+  enum {
+    Identity = 31
+  };
 
   protected:
     virtual bool findDeclarationsInternal(const SearchItem::PtrList& identifiers, const KDevelop::SimpleCursor& position, const KDevelop::AbstractType::Ptr& dataType, DeclarationList& ret, const KDevelop::TopDUContext* source, SearchFlags flags) const;
@@ -33,6 +58,8 @@ class TopDUContext : public KDevelop::TopDUContext
 
   private:
     void findJavaDeclarationsInternal(const SearchItem::PtrList& identifiers, DeclarationList& ret, DeclarationChecker& check, bool staticOnly) const;
+
+    DUCHAIN_DECLARE_DATA(TopDUContext)
 };
 
 }

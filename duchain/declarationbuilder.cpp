@@ -446,8 +446,13 @@ ClassMemberDeclaration::StorageSpecifiers DeclarationBuilder::parseModifiers(jav
 
 void DeclarationBuilder::visitEnumDeclaration(java::EnumDeclarationAst* node)
 {
-  Identifier id = identifierForNode(node->enumName).first();
-  Declaration* decl = openDeclaration<Declaration>(node->enumName, node, id);
+  QualifiedIdentifier id = identifierForNode(node->enumName);
+
+  Declaration* decl = 0;
+  {
+    DUChainWriteLocker lock(DUChain::lock());
+    decl = openDeclaration<Declaration>(id, editorFindRange(node->enumName, node->enumName));
+  }
 
   DeclarationBuilderBase::visitEnumDeclaration(node);
 

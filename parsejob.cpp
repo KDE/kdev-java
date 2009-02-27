@@ -68,30 +68,17 @@ namespace java
 ParseJob::ParseJob( const KUrl &url, JavaLanguageSupport *parent )
         : KDevelop::ParseJob( url, parent )
         , m_session( new ParseSession )
-        , m_AST( 0 )
         , m_readFromDisk( false )
 {}
-
-/*ParseJob::ParseJob( KDevelop::Document *document, JavaLanguageSupport *parent )
-        : KDevelop::ParseJob( document, parent )
-        , m_session( new ParseSession )
-        , m_AST( 0 )
-        , m_readFromDisk( false )
-{}*/
 
 ParseJob::~ParseJob()
-{}
+{
+  delete m_session;
+}
 
 JavaLanguageSupport* ParseJob::java() const
 {
     return static_cast<JavaLanguageSupport*>(const_cast<QObject*>(parent()));
-}
-
-AstNode *ParseJob::AST() const
-{
-    return 0;
-//     Q_ASSERT ( isFinished () && m_AST );
-//     return m_AST;
 }
 
 ParseSession *ParseJob::parseSession() const
@@ -175,7 +162,6 @@ void ParseJob::run()
     // 2) parse
     CompilationUnitAst *ast = 0;
     bool matched = javaParser.parseCompilationUnit( &ast );
-    //m_AST->language = java();
 
     if ( abortRequested() )
         return abortJob();

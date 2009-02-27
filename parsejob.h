@@ -44,7 +44,6 @@ class ParseJob : public KDevelop::ParseJob
 
 public:
     ParseJob( const KUrl &url, JavaLanguageSupport* parent );
-    //ParseJob( KDevelop::Document* document, JavaLanguageSupport* parent );
 
     virtual ~ParseJob();
 
@@ -54,14 +53,11 @@ public:
 
     bool wasReadFromDisk() const;
 
-    virtual AstNode *AST() const;
-
 protected:
     virtual void run();
 
 private:
     ParseSession *m_session;
-    CompilationUnitAst *m_AST;
     bool m_readFromDisk;
 };
 
