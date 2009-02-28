@@ -35,15 +35,13 @@
 #include <language/duchain/classfunctiondeclaration.h>
 #include <language/duchain/namespacealiasdeclaration.h>
 #include <language/duchain/duchainutils.h>
+#include <language/codecompletion/codecompletionhelper.h>
 
 using namespace KDevelop;
 
 namespace java {
 
 void NormalDeclarationCompletionItem::execute(KTextEditor::Document* document, const KTextEditor::Range& word) {
-  bool spaceBeforeParen = false; ///@todo Take this from some astyle config or something
-  bool spaceBetweenParens = true;
-  bool spaceBetweenEmptyParens = false;
 
   if( completionContext && completionContext->depth() != 0 )
     return; //Do not replace any text when it is an argument-hint
@@ -62,45 +60,9 @@ void NormalDeclarationCompletionItem::execute(KTextEditor::Document* document, c
 
   document->replaceText(word, newText);
 
-  if( declaration && dynamic_cast<AbstractFunctionDeclaration*>(declaration.data()) ) { //Do some intelligent stuff for functions with the parens:
-    KDevelop::DUChainReadLocker lock(KDevelop::DUChain::lock());
-    bool haveArguments = false;
-    if( declaration && declaration->type<FunctionType>() && declaration->type<FunctionType>()->arguments().count() )
-      haveArguments = true;
-    //Need to have a paren behind
-    QString suffix = document->text( KTextEditor::Range( word.end(), word.end() + KTextEditor::Cursor(1, 0) ) );
-    if( suffix.trimmed().startsWith("(") ) {
-      //Move the cursor behind the opening paren
-      if( document->activeView() )
-        document->activeView()->setCursorPosition( word.end() + KTextEditor::Cursor( 0, suffix.indexOf('(')+1 ) );
-    }else{
-      //We need to insert an opening paren
-      QString openingParen;
-      if( spaceBeforeParen )
-        openingParen = " (";
-      else
-        openingParen = "(";
-
-      if( spaceBetweenParens && (haveArguments || spaceBetweenEmptyParens) )
-        openingParen += " ";
-
-      QString closingParen;
-      if( spaceBetweenParens && (haveArguments) ) {
-        closingParen = " )";
-      } else
-        closingParen = ")";
-
-      KTextEditor::Cursor jumpPos = word.end() + KTextEditor::Cursor( 0, openingParen.length() );
-
-      //If no arguments, move the cursor behind the closing paren
-      if( !haveArguments )
-        jumpPos += KTextEditor::Cursor( 0, closingParen.length() );
-
-      lock.unlock();
-      document->insertText( word.end(), openingParen + closingParen );
-      if( document->activeView() )
-        document->activeView()->setCursorPosition( jumpPos );
-    }
+  if( declaration && dynamic_cast<AbstractFunctionDeclaration*>(declaration.data()) ) {
+    //Do some intelligent stuff for functions with the parens:
+    insertFunctionParenText(document, word, m_declaration);
   }
 }
 
