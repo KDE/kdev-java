@@ -36,7 +36,7 @@
 #include <language/duchain/namespacealiasdeclaration.h>
 #include <language/duchain/duchainutils.h>
 #include <duchain/classdeclaration.h>
-#include "helpers.h"
+//#include "helpers.h"
 #include <language/codecompletion/codecompletionhelper.h>
 
 using namespace KDevelop;
@@ -203,8 +203,8 @@ QVariant NormalDeclarationCompletionItem::data(const QModelIndex& index, int rol
           if (FunctionType::Ptr functionType = dec->type<FunctionType>()) {
             QString ret;
 
-            if (dec->type<FunctionType>())
-              createArgumentList(*this, ret, 0);
+            //if (dec->type<FunctionType>())
+              //createArgumentList(*this, ret, 0);
 
             return ret;
           }

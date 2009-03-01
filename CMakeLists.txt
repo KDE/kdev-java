@@ -53,7 +53,7 @@ set(kdevjavalanguagesupport_PART_SRCS
     completion/items.cpp
     completion/context.cpp
     completion/model.cpp
-    completion/helpers.cpp
+    #completion/helpers.cpp
 )
 
 kde4_add_plugin(kdevjavalanguagesupport ${kdevjavalanguagesupport_PART_SRCS})
