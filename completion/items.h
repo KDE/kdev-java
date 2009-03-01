@@ -46,8 +46,7 @@ class CodeCompletionContext;
 //A completion item used for completion of normal declarations while normal code-completion
 class NormalDeclarationCompletionItem : public KDevelop::CompletionTreeItem {
 public:
-  NormalDeclarationCompletionItem(KDevelop::DeclarationPointer decl = KDevelop::DeclarationPointer(), KSharedPtr<CodeCompletionContext> context=KSharedPtr<CodeCompletionContext>(), int _inheritanceDepth = 0, int _listOffset=0) : declaration(decl), completionContext(context), m_inheritanceDepth(_inheritanceDepth), listOffset(_listOffset) {
-  }
+  NormalDeclarationCompletionItem(KDevelop::DeclarationPointer decl = KDevelop::DeclarationPointer(), KSharedPtr<CodeCompletionContext> context=KSharedPtr<CodeCompletionContext>(), int _inheritanceDepth = 0, int _listOffset=0);
 
   virtual void execute(KTextEditor::Document* document, const KTextEditor::Range& word);
 
@@ -62,6 +61,8 @@ public:
 
   virtual int inheritanceDepth() const;
   virtual int argumentHintDepth() const;
+
+  KDevelop::DeclarationPointer m_declaration;
 };
 
 }

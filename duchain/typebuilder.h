@@ -39,15 +39,17 @@ typedef KDevelop::AbstractTypeBuilder<AstNode, IdentifierAst, java::ContextBuild
  */
 class TypeBuilder: public TypeBuilderBase
 {
+public:
+  TypeBuilder();  
+  
 protected:
   virtual void visitClassDeclaration(ClassDeclarationAst *node);
-  virtual void visitClassExtendsClause(ClassExtendsClauseAst *node);
-  virtual void visitImplementsClause(ImplementsClauseAst *node);
   virtual void visitClassOrInterfaceTypeName(ClassOrInterfaceTypeNameAst *node);
   virtual void visitClassOrInterfaceTypeNamePart(ClassOrInterfaceTypeNamePartAst *node);
   virtual void visitTypeArgument(TypeArgumentAst *node);
   virtual void visitOptionalArrayBuiltInType(OptionalArrayBuiltInTypeAst * node);
   virtual void visitEnumDeclaration(EnumDeclarationAst* node);
+  virtual void visitEnumConstant(EnumConstantAst* node);
 
   virtual void visitMethodDeclaration(MethodDeclarationAst *node);
   virtual void visitInterfaceMethodDeclaration(InterfaceMethodDeclarationAst * node);

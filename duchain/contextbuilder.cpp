@@ -151,11 +151,42 @@ void ContextBuilder::visitClassDeclaration(ClassDeclarationAst * node)
   visitNode(node->typeParameters);
 
   openContext(node->body, DUContext::Class, id);
+  classContextOpened(currentContext());
 
   visitNode(node->extends);
   visitNode(node->implements);
 
   visitNode(node->body);
+
+  closeContext();
+}
+
+void ContextBuilder::visitInterfaceDeclaration(InterfaceDeclarationAst * node)
+{
+  visitNode(node->modifiers);
+
+  //visitNode(node->interfaceName);
+  QualifiedIdentifier id = identifierForNode(node->interfaceName);
+
+  visitNode(node->typeParameters);
+
+  openContext(node->body, DUContext::Class, id);
+  classContextOpened(currentContext());
+
+  visitNode(node->extends);
+
+  visitNode(node->body);
+
+  closeContext();
+}
+
+void ContextBuilder::visitEnumDeclaration(java::EnumDeclarationAst* node)
+{
+  QualifiedIdentifier id = identifierForNode(node->enumName);
+  openContext(node->body, DUContext::Class, id);
+  classContextOpened(currentContext());
+  
+  DefaultVisitor::visitEnumDeclaration(node);
 
   closeContext();
 }
@@ -280,66 +311,53 @@ void ContextBuilder::visitConstructorDeclaration(ConstructorDeclarationAst * nod
   }
 }
 
-void ContextBuilder::visitInterfaceDeclaration(InterfaceDeclarationAst * node)
-{
-  visitNode(node->modifiers);
-
-  //visitNode(node->interfaceName);
-  QualifiedIdentifier id = identifierForNode(node->interfaceName);
-
-  visitNode(node->typeParameters);
-  visitNode(node->extends);
-
-  if (node->body) {
-    openContext(node->body, DUContext::Class, id);
-    visitNode(node->body);
-    closeContext();
-  }
-}
-
 void ContextBuilder::setJavaSupport(JavaLanguageSupport* java)
 {
   m_java = java;
 }
 
-void ContextBuilder::visitPackageDeclaration(java::PackageDeclarationAst* node)
-{
-  Q_UNUSED(node)
-  return;
-}
-
 void ContextBuilder::visitCompilationUnit(java::CompilationUnitAst* node)
 {
-  visitNode(node->packageDeclaration);
   if (node->importDeclarationSequence)
     visitNodeList(node->importDeclarationSequence);
   else
     visitImportDeclaration(0);
 
-  bool openedPackageContext = false;
-  if (node->packageDeclaration && node->packageDeclaration->packageName) {
-    QualifiedIdentifier id = identifierForNode(node->packageDeclaration->packageName);
-    {
-      DUChainReadLocker lock(DUChain::lock());
-      Q_ASSERT(currentContext() == currentContext()->topContext());
-      /*kDebug() << "Package declaration" << id.toString() << "found within another context, error";
-      ProblemPointer p = new Problem;
-      p->setFinalLocation(editorFindRange(node, node).start());
-      p->setDescription(i18n("Package declaration '%1' not at the start of file, ignored.", id.toStringList().join(".")));
-      p->setSource(ProblemData::DUChainBuilder);
-      currentContext()->topContext()->addProblem(p);
-      return;*/
-    }
+  KDevelop::DUContext* packageContext = currentContext();
 
-    openContext(node, DUContext::Namespace, id);
-    openedPackageContext = true;
+  bool openedExtraContext = false;
+  QualifiedIdentifier id;
+  if (node->packageDeclaration && node->packageDeclaration->packageName) {
+    id = identifierForNode(node->packageDeclaration->packageName);
+    if (id.count() > 1) {
+      openContext(node, DUContext::Namespace, id.left(-1));
+      packageContext = currentContext();
+      openedExtraContext = true;
+    }
+  }
+  
+  visitPackageDeclaration(node->packageDeclaration);
+
+  if (openedExtraContext)
+    closeContext();
+
+  QList<Declaration*> packageDeclarations;
+  {
+    DUChainReadLocker lock(DUChain::lock());
+    packageDeclarations = packageContext->findLocalDeclarations(id.last());
+    Q_ASSERT((id.isEmpty() && packageDeclarations.isEmpty()) || (!id.isEmpty() && packageDeclarations.count() == 1));
+  }
+
+  openContext(node, DUContext::Namespace, id);
+
+  if (!packageDeclarations.isEmpty()) {
+    DUChainWriteLocker lock(DUChain::lock());
+    packageDeclarations.first()->setInternalContext(currentContext());
   }
 
   visitNodeList(node->typeDeclarationSequence);
 
-  if (openedPackageContext) {
-    closeContext();
-  }
+  closeContext();
 }
 
 void ContextBuilder::addBaseType(BaseClassInstance base)
@@ -349,15 +367,30 @@ void ContextBuilder::addBaseType(BaseClassInstance base)
   //addImportedContexts(); //Make sure the template-contexts are imported first, before any parent-class contexts.
 
   Q_ASSERT(currentContext()->type() == DUContext::Class);
-  AbstractType::Ptr baseClass = base.baseClass.type();
+  AbstractType::Ptr baseClass = base.baseClass.abstractType();
   IdentifiedType* idType = dynamic_cast<IdentifiedType*>(baseClass.unsafeData());
   Declaration* idDecl = 0;
-  if( idType && (idDecl = idType->declaration(currentContext()->topContext())) && idDecl->logicalInternalContext(0) ) {
+  if (idType) {
+    idDecl = idType->declaration(currentContext()->topContext());
+    if (!idDecl) {
+      kDebug() << "No declaration provided by base class type " << idType->qualifiedIdentifier().toStringList().join(".");
+      return;
+    }
+  } else {
+    kDebug() << "Tried to add base class which is a null type!";
+    return;
+  }
+  
+  if( idDecl->logicalInternalContext(0) ) {
     currentContext()->addImportedParentContext( idDecl->logicalInternalContext(0) );
-  } else if( !baseClass.cast<DelayedType>() ) {
-    kDebug() << "ContextBuilder::addBaseType: Got invalid base-class" << (base.baseClass ? base.baseClass.type()->toString() : QString());
+  } else {
+    kDebug() << "No internal context provided for " << idDecl->toString();
   }
 }
 
+void ContextBuilder::classContextOpened(KDevelop::DUContext* context)
+{
+  Q_UNUSED(context);
+}
 
 }

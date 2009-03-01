@@ -23,6 +23,7 @@
 #include "editorintegrator.h"
 #include "parsesession.h"
 #include "declarationbuilder.h"
+
 //#define DEBUG
 
 #ifdef DEBUG
@@ -35,6 +36,12 @@ using namespace KDevelop;
 
 namespace java {
 
+TypeBuilder::TypeBuilder()
+{
+
+}
+
+  
 StructureType* TypeBuilder::openClass(bool interface, bool parameters)
 {
   StructureType* classType = /*parameters ? new ParameterizedType() : */new StructureType();
@@ -44,406 +51,10 @@ StructureType* TypeBuilder::openClass(bool interface, bool parameters)
   return classType;
 }
 
-#if 0
-
-void TypeBuilder::visitBaseSpecifier(BaseSpecifierAstNode *node)
-{
-  if (node->name) {
-    DUChainReadLocker lock(DUChain::lock());
-
-    StructureType* klass = dynamic_cast<StructureType*>(m_typeStack.top().data());
-    Q_ASSERT( klass );
-
-    bool openedType = openTypeFromName(node->name, true);
-
-    if( openedType ) {
-      closeType();
-
-      StructureType::BaseClassInstance instance;
-
-      instance.virtualInheritance = (bool)node->virt;
-      instance.baseClass = m_lastType;
-
-      int tk = 0;
-      if( node->access_specifier )
-        tk = editor()->parseSession()->token_stream->token(node->access_specifier).kind;
-
-      switch( tk ) {
-        default:
-        case Token_private:
-          instance.access = KDevelop::Declaration::Private;
-          break;
-        case Token_public:
-          instance.access = KDevelop::Declaration::Public;
-          break;
-        case Token_protected:
-          instance.access = KDevelop::Declaration::Protected;
-          break;
-      }
-
-      lock.unlock();
-
-      addBaseType(instance);
-    } else { //A case for the problem-reporter
-      kDebug() << "Could not find base declaration for" << identifierForNode(node->name);
-    }
-  }
-
-  TypeBuilderBase::visitBaseSpecifier(node);
-}
-
-void TypeBuilder::visitEnumSpecifier(EnumSpecifierAstNode *node)
-{
-  m_currentEnumeratorValue = 0;
-
-  openType(EnumerationType::Ptr(new EnumerationType()), node);
-
-  TypeBuilderBase::visitEnumSpecifier(node);
-
-  closeType();
-}
-
-void TypeBuilder::visitEnumerator(EnumeratorAstNode* node)
-{
-  bool openedType = false;
-
-  if(node->expression) {
-    ::ExpressionParser parser;
-
-    ::ExpressionEvaluationResult res;
-
-    bool delay = false;
-
-    if(!delay) {
-      DUChainReadLocker lock(DUChain::lock());
-      node->expression->ducontext = currentContext();
-      res = parser.evaluateType( node->expression, editor()->parseSession(), ImportTrace() );
-
-      //Delay the type-resolution of template-parameters
-      if( !res.allDeclarations.isEmpty() && (dynamic_cast<TemplateParameterDeclaration*>(res.allDeclarations.front().data()) || isTemplateDependent(res.allDeclarations.front().data())) )
-        delay = true;
-
-      if ( !delay && res.isValid() && res.instance ) {
-        if( dynamic_cast<ConstantIntegralType*>(res.type.data()) ) {
-          ConstantIntegralType* type = static_cast<ConstantIntegralType*>(res.type.data());
-          m_currentEnumeratorValue = (int)type->value<qint64>();
-        } else if( dynamic_cast<DelayedType*>(res.type.data()) ) {
-          DelayedType* type = static_cast<DelayedType*>(res.type.data());
-          openType(AbstractType::Ptr(type), node); ///@todo Make this an enumerator-type that holds the same information
-          openedType = true;
-        }
-      }
-    }
-    if( delay || (!openedType && templateDeclarationDepth() != 0) ) {
-      QString str;
-      ///Only record the strings, because these expressions may depend on template-parameters and thus must be evaluated later
-      str += stringFromSessionTokens( editor()->parseSession(), node->expression->start_token, node->expression->end_token );
-
-      QualifiedIdentifier id( str.trimmed() );
-      id.setIsExpression( true );
-
-      openDelayedType(id, node, DelayedType::Delayed);
-      openedType = true;
-    }
-  }
-
-//   if (EnumerationType::Ptr parent = currentType<EnumerationType>()) {
-//     EnumeratorType::Ptr enumerator(new EnumeratorType());
-//     openType(enumerator, node);
-//     ok = true;
-//   }
-
-  if(!openedType) {
-    openedType = true;
-    EnumeratorType::Ptr enumerator(new EnumeratorType());
-    openType(enumerator, node);
-    enumerator->setValue<qint64>(m_currentEnumeratorValue);
-  }
-
-  TypeBuilderBase::visitEnumerator(node);
-
-  closeType();
-
-  ++m_currentEnumeratorValue;
-}
-
-bool TypeBuilder::lastTypeWasInstance() const
-{
-  return m_lastTypeWasInstance;
-}
-
-void TypeBuilder::visitElaboratedTypeSpecifier(ElaboratedTypeSpecifierAstNode *node)
-{
-  m_lastTypeWasInstance = false;
-  AbstractType::Ptr type;
-
-  int kind = editor()->parseSession()->token_stream->kind(node->type);
-
-  if( kind == Token_typename ) {
-    //For typename, just find the type and return
-    bool openedType = openTypeFromName(node->name);
-
-    TypeBuilderBase::visitElaboratedTypeSpecifier(node);
-
-    if(openedType)
-      closeType();
-    return;
-  }
-
-  if (node->name) {
-/*    {
-      DUChainReadLocker lock(DUChain::lock());
-
-      ///If possible, find another fitting declaration/forward-declaration and re-use it's type
-
-      SimpleCursor pos = editor()->findPosition(node->start_token, KDevelop::EditorIntegrator::FrontEdge);
-
-      QList<Declaration*> declarations = ::findDeclarationsSameLevel(currentContext(), identifierForNode(node->name), pos);
-      if( !declarations.isEmpty() && declarations.first()->abstractType()) {
-        openType(declarations.first()->abstractType(), node);
-        closeType();
-        return;
-      }
-    }*/
-
-//     switch (kind) {
-//       case Token_class:
-//       case Token_struct:
-//       case Token_union:
-//         type = AbstractType::Ptr(openClass(kind));
-//         break;
-//       case Token_enum:
-//         type = AbstractType::Ptr(new EnumerationType());
-//         break;
-//       case Token_typename:
-//         // TODO what goes here...?
-//         //type = def->abstractType();
-//         break;
-//     }
-
-    type = AbstractType::Ptr(new ForwardDeclarationType());
-
-    openType(type, node);
-  }
-
-  // TODO.. figure out what to do with this now... parseConstVolatile(node->cv);
-
-  TypeBuilderBase::visitElaboratedTypeSpecifier(node);
-
-  if (type)
-    closeType();
-}
-
-void TypeBuilder::visitSimpleTypeSpecifier(SimpleTypeSpecifierAstNode *node)
-{
-  bool openedType = false;
-  m_lastTypeWasInstance = false;
-
-  if (node->integrals) {
-    IntegralType::IntegralTypes type = IntegralType::TypeNone;
-    IntegralType::TypeModifiers modifiers = IntegralType::ModifierNone;
-
-    const ListNode<std::size_t> *it = node->integrals->toFront();
-    const ListNode<std::size_t> *end = it;
-    do {
-      int kind = editor()->parseSession()->token_stream->kind(it->element);
-      switch (kind) {
-        case Token_char:
-          type = IntegralType::TypeChar;
-          break;
-        case Token_wchar_t:
-          type = IntegralType::TypeWchar_t;
-          break;
-        case Token_bool:
-          type = IntegralType::TypeBool;
-          break;
-        case Token_short:
-          modifiers |= IntegralType::ModifierShort;
-          break;
-        case Token_int:
-          type = IntegralType::TypeInt;
-          break;
-        case Token_long:
-          if (modifiers & IntegralType::ModifierLong)
-            modifiers |= IntegralType::ModifierLongLong;
-          else
-            modifiers |= IntegralType::ModifierLong;
-          break;
-        case Token_signed:
-          modifiers |= IntegralType::ModifierSigned;
-          break;
-        case Token_unsigned:
-          modifiers |= IntegralType::ModifierUnsigned;
-          break;
-        case Token_float:
-          type = IntegralType::TypeFloat;
-          break;
-        case Token_double:
-          type = IntegralType::TypeDouble;
-          break;
-        case Token_void:
-          type = IntegralType::TypeVoid;
-          break;
-      }
-
-      it = it->next;
-    } while (it != end);
-
-    if(type == IntegralType::TypeNone)
-      type = IntegralType::TypeInt; //Happens, example: "unsigned short"
-
-    IntegralType::Ptr integral = TypeRepository::self()->integral(type, modifiers, parseConstVolatile(node->cv));
-    if (integral) {
-      openedType = true;
-      openType(integral, node);
-    }
-
-  } else if (node->name) {
-    openedType = openTypeFromName(node->name);
-  }
-
-  TypeBuilderBase::visitSimpleTypeSpecifier(node);
-
-  if (openedType)
-    closeType();
-}
-#endif
-
-#if 0
-void TypeBuilder::visitTypedef(TypedefAstNode* node)
-{
-  openType(TypeAliasType::Ptr(new TypeAliasType()), node);
-
-  TypeBuilderBase::visitTypedef(node);
-
-  closeType();
-}
-
-void TypeBuilder::visitFunctionDeclaration(FunctionDefinitionAstNode* node)
-{
-  m_lastType = 0;
-
-  TypeBuilderBase::visitFunctionDeclaration(node);
-}
-
-void TypeBuilder::visitSimpleDeclaration(SimpleDeclarationAstNode* node)
-{
-  m_lastType = 0;
-
-  // Reimplement default visitor
-  m_declarationHasInitDeclarators = (bool)node->init_declarators;
-  visit(node->type_specifier);
-  m_declarationHasInitDeclarators = false;
-
-  AbstractType::Ptr baseType = m_lastType;
-
-  if (node->init_declarators) {
-    const ListNode<InitDeclaratorAstNode*> *it = node->init_declarators->toFront(), *end = it;
-
-    do {
-      visit(it->element);
-      // Reset last type to be the base type
-      m_lastType = baseType;
-
-      it = it->next;
-    } while (it != end);
-  }
-
-  visit(node->win_decl_specifiers);
-
-  visitPostSimpleDeclaration(node);
-}
-
-void TypeBuilder::visitPtrOperator(PtrOperatorAstNode* node)
-{
-  bool typeOpened = false;
-  if (node->op) {
-    QString op = editor()->tokenToString(node->op);
-    if (!op.isEmpty())
-      if (op[0] == '&') {
-        ReferenceType::Ptr pointer(new ReferenceType(parseConstVolatile(node->cv)));
-        pointer->setBaseType(lastType());
-        openType(pointer, node);
-        typeOpened = true;
-
-      } else if (op[0] == '*') {
-        PointerType::Ptr pointer(new PointerType(parseConstVolatile(node->cv)));
-        pointer->setBaseType(lastType());
-        openType(pointer, node);
-        typeOpened = true;
-      }
-  }
-
-  TypeBuilderBase::visitPtrOperator(node);
-
-  if (typeOpened)
-    closeType();
-}
-#endif
-
-#if 0
-void TypeBuilder::createTypeForDeclarator(DeclaratorAstNode *node) {
-  // Custom code - create array types
-  if (node->array_dimensions) {
-    const ListNode<ExpressionAstNode*> *it = node->array_dimensions->toFront(), *end = it;
-
-    do {
-      visitArrayExpression(it->element);
-      it = it->next;
-    } while (it != end);
-  }
-
-  if (node->parameter_declaration_clause)
-    // New function type
-    openType(FunctionType::Ptr(openFunction(node)), node);
-}
-
-void TypeBuilder::closeTypeForDeclarator(DeclaratorAstNode *node) {
-  if (node->parameter_declaration_clause)
-    closeType();
-
-  if (lastType() && hasCurrentType())
-    if (StructureType::Ptr structure = currentType<StructureType>())
-      structure->addElement(lastType());
-}
-
-
-void TypeBuilder::visitArrayExpression(ExpressionAstNode* expression)
-{
-  bool typeOpened = false;
-
-  ::ExpressionParser parser;
-
-  ::ExpressionEvaluationResult res;
-
-  {
-    DUChainReadLocker lock(DUChain::lock());
-    if(expression) {
-      expression->ducontext = currentContext();
-      res = parser.evaluateType( expression, editor()->parseSession(), ImportTrace() );
-    }
-
-    ArrayType::Ptr array(new ArrayType());
-    array->setElementType(lastType());
-
-    if( res.isValid() && dynamic_cast<ConstantIntegralType*>(res.type.data()) ) {
-      ConstantIntegralType* value = static_cast<ConstantIntegralType*>( res.type.data() );
-      array->setDimension(value->value<qint64>());
-    } else {
-      array->setDimension(0);
-    }
-
-    openType(array, expression);
-    typeOpened = true;
-  }
-
-  if (typeOpened)
-    closeType();
-}
-#endif
-
 void TypeBuilder::visitMethodDeclaration(MethodDeclarationAst * node)
 {
+  clearLastType();
+
   visitNode(node->returnType);
 
   FunctionType::Ptr functionType = FunctionType::Ptr(new FunctionType());
@@ -461,6 +72,8 @@ void TypeBuilder::visitMethodDeclaration(MethodDeclarationAst * node)
 
 void TypeBuilder::visitInterfaceMethodDeclaration(InterfaceMethodDeclarationAst * node)
 {
+  clearLastType();
+
   visitNode(node->returnType);
 
   FunctionType::Ptr functionType = FunctionType::Ptr(new FunctionType());
@@ -482,9 +95,6 @@ void TypeBuilder::visitConstructorDeclaration(ConstructorDeclarationAst * node)
 
   FunctionType::Ptr functionType = FunctionType::Ptr(new FunctionType());
   functionType->setModifiers(parseModifiers(node->modifiers));
-
-  if (lastType())
-    functionType->setReturnType(lastType());
 
   openType(functionType);
 
@@ -613,33 +223,12 @@ uint TypeBuilder::parseModifiers(OptionalModifiersAst * node) const
   uint mod = AbstractType::NoModifiers;
 
   // TODO handle the following ... ModifierPrivate, ModifierPublic, ModifierProtected
-  if (node->modifiers & java::ModifierTransient)
+  if (node->modifiers & ModifierTransient)
     mod |= AbstractType::TransientModifier;
-  if (node->modifiers & java::ModifierVolatile)
+  if (node->modifiers & ModifierVolatile)
     mod |= AbstractType::VolatileModifier;
 
   return mod;
-}
-
-void TypeBuilder::visitClassExtendsClause(ClassExtendsClauseAst * node)
-{
-  m_rememberClassNames.clear();
-
-  TypeBuilderBase::visitClassExtendsClause(node);
-
-  StructureType::Ptr klass = StructureType::Ptr::dynamicCast(currentAbstractType());
-
-  foreach (const StructureType::Ptr& extends, m_rememberClassNames) {
-    // TODO read locking required??
-/*    if (extends->classType() == StructureType::Interface) {
-      DUChainWriteLocker lock(DUChain::lock());
-      // TODO check with David where this should be saved (?in the declaration)
-      //klass->addExtendsClass(extends);
-    } else {
-      // TODO problem reporter
-      kDebug() << "Tried to extend rather than implement an interface";
-    }*/
-  }
 }
 
 void TypeBuilder::visitClassOrInterfaceTypeName(ClassOrInterfaceTypeNameAst * node)
@@ -647,9 +236,16 @@ void TypeBuilder::visitClassOrInterfaceTypeName(ClassOrInterfaceTypeNameAst * no
   m_currentIdentifier.clear();
 
   TypeBuilderBase::visitClassOrInterfaceTypeName(node);
-
-  if (openTypeFromName(m_currentIdentifier, node, true))
+  
+  if (openTypeFromName(m_currentIdentifier, node, true)) {
+    {
+      DUChainReadLocker lock(DUChain::lock());
+      kDebug() << "Searching for type " << m_currentIdentifier.toStringList().join(".") << ", found " << currentAbstractType()->toString();
+    }
     closeType();
+  } else {
+    kDebug() << "Searched for type " << m_currentIdentifier.toStringList().join(".") << ", none found.";
+  } 
 }
 
 void TypeBuilder::visitClassOrInterfaceTypeNamePart(ClassOrInterfaceTypeNamePartAst * node)
@@ -659,32 +255,24 @@ void TypeBuilder::visitClassOrInterfaceTypeNamePart(ClassOrInterfaceTypeNamePart
   TypeBuilderBase::visitClassOrInterfaceTypeNamePart(node);
 }
 
-void TypeBuilder::visitImplementsClause(ImplementsClauseAst * node)
+void TypeBuilder::visitEnumDeclaration(EnumDeclarationAst* node)
 {
-  /*m_rememberClassNames.clear();
+  StructureType::Ptr classType = StructureType::Ptr(openClass(false, false));
 
-  TypeBuilderBase::visitImplements_clause(node);
+  openType(classType);
 
-  StructureType* klass = dynamic_cast<StructureType*>(m_typeStack.top().data());
-
-  foreach (const StructureType::Ptr& interface, m_rememberClassNames) {
-    // TODO read locking required??
-    if (interface->classType() == StructureType::Interface) {
-      DUChainWriteLocker lock(DUChain::lock());
-      klass->addImplementsInterface(interface);
-    } else {
-      // TODO problem reporter
-      kDebug() << "Tried to implement a class rather than an interface";
-    }
-  }*/
-}
-
-void TypeBuilder::visitEnumDeclaration(java::EnumDeclarationAst* node) {
-  //m_currentEnumeratorValue = 0;
-
-  openType(EnumerationType::Ptr(new EnumerationType()));
+  classTypeOpened( currentAbstractType() ); //This callback is needed, because the type of the class-declaration needs to be set early so the class can be referenced from within itself
 
   TypeBuilderBase::visitEnumDeclaration(node);
+
+  closeType();
+}
+
+void TypeBuilder::visitEnumConstant(EnumConstantAst* node)
+{
+  openType(EnumerationType::Ptr(new EnumerationType()));
+
+  TypeBuilderBase::visitEnumConstant(node);
 
   closeType();
 }

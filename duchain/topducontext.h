@@ -48,11 +48,15 @@ class TopDUContext : public KDevelop::TopDUContext
   protected:
     virtual bool findDeclarationsInternal(const SearchItem::PtrList& identifiers, const KDevelop::SimpleCursor& position, const KDevelop::AbstractType::Ptr& dataType, DeclarationList& ret, const KDevelop::TopDUContext* source, SearchFlags flags) const;
 
-    //virtual void mergeDeclarationsInternal(QList< QPair< KDevelop::Declaration*, int > >& definitions, const KDevelop::SimpleCursor& position, QHash< const KDevelop::DUContext*, bool >& hadContexts, const KDevelop::TopDUContext* source, bool searchInParents = true, int currentDepth = 0) const;
+    virtual void findContextsInternal(KDevelop::DUContext::ContextType contextType, const SearchItem::PtrList& identifiers, const KDevelop::SimpleCursor& position, QList< KDevelop::DUContext* >& ret, const KDevelop::TopDUContext* source, SearchFlags flags = NoSearchFlags) const;
 
   private:
-    void findJavaDeclarationsInternal(const SearchItem::PtrList& identifiers, DeclarationList& ret, DeclarationChecker& check, bool staticOnly) const;
+    template<class Acceptor>
+    void findJavaDeclarationsInternal( const SearchItem::PtrList& identifiers, Acceptor& accept, bool staticOnly ) const;
 
+    struct FindDeclarationsAcceptor;
+    struct FindContextsAcceptor;
+    
     DUCHAIN_DECLARE_DATA(TopDUContext)
 };
 

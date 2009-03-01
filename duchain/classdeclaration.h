@@ -48,7 +48,8 @@ class ClassDeclarationData : public KDevelop::ClassMemberDeclarationData
 public:
   enum ClassType {
     Class,
-    Interface
+    Interface,
+    Enum
   };
 
   ClassDeclarationData() : m_classType(Class) {

@@ -39,10 +39,13 @@ public:
 
 protected:
   virtual void closeDeclaration();
+  virtual void classContextOpened(KDevelop::DUContext* context);
+  virtual void classTypeOpened(KDevelop::AbstractType::Ptr type);
 
   virtual void visitClassDeclaration(ClassDeclarationAst *node);
   virtual void visitClassExtendsClause(java::ClassExtendsClauseAst* node);
   virtual void visitImplementsClause(java::ImplementsClauseAst* node);
+  virtual void visitClassOrInterfaceTypeName(ClassOrInterfaceTypeNameAst *node);
   virtual void visitMethodDeclaration(MethodDeclarationAst *node);
   virtual void visitInterfaceMethodDeclaration(InterfaceMethodDeclarationAst *node);
   virtual void visitConstructorDeclaration(ConstructorDeclarationAst *node);
@@ -54,12 +57,15 @@ protected:
   virtual void visitParameterDeclarationEllipsis(ParameterDeclarationEllipsisAst *node);
   virtual void visitPackageDeclaration(PackageDeclarationAst* node);
   virtual void visitEnumDeclaration(java::EnumDeclarationAst* node);
+  virtual void visitEnumConstant(java::EnumConstantAst* node);
 
   KDevelop::Declaration::AccessPolicy parseAccessPolicy(OptionalModifiersAst* node);
   KDevelop::ClassMemberDeclaration::StorageSpecifiers parseModifiers(OptionalModifiersAst* node);
 
 private:
   bool m_defaultImportCreated;
+  bool m_inImplementsClause;
+
   KDevelop::ClassMemberDeclaration::StorageSpecifiers m_currentVariableModifiers;
 };
 

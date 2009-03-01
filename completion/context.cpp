@@ -27,9 +27,12 @@
 #include <language/duchain/classfunctiondeclaration.h>
 #include <language/duchain/duchainlock.h>
 #include <language/duchain/stringhelpers.h>
-#include "duchain/types.h"
+#include <language/duchain/namespacealiasdeclaration.h>
 #include <language/interfaces/iproblem.h>
 #include <util/pushvalue.h>
+
+#include "javalanguagesupport.h"
+#include <language/duchain/aliasdeclaration.h>
 
 #define LOCKDUCHAIN     DUChainReadLocker lock(DUChain::lock())
 
@@ -99,7 +102,7 @@ CodeCompletionContext::CodeCompletionContext(DUContextPointer context, const QSt
   }
 
   if( m_text.endsWith('.') ) {
-    m_memberAccessOperation = MemberAccess;
+    setMemberAccessOperation(MemberAccess);
     m_text = m_text.left( m_text.length()-1 );
   }
 
@@ -122,198 +125,20 @@ CodeCompletionContext::CodeCompletionContext(DUContextPointer context, const QSt
    * When the left and right part are only separated by a whitespace,
    * expressionAt returns both sides
    * */
-
-#if 0
-  int start_expr = Utils::expressionAt( m_text, m_text.length() );
-
-  m_expression = m_text.mid(start_expr).trimmed();
-
-  if(m_expression == "else")
-    m_expression = QString();
-
-  QString expressionPrefix = Utils::stripFinalWhitespace( m_text.left(start_expr) );
-
-  ifDebug( log( "expressionPrefix: " + expressionPrefix ); )
-
-  ///Handle constructions like "ClassType instance("
-  if(!expressionPrefix.isEmpty() && (expressionPrefix.endsWith('>') || expressionPrefix[expressionPrefix.length()-1].isLetterOrNumber() || expressionPrefix[expressionPrefix.length()-1] == '_')) {
-    int newExpressionStart = Utils::expressionAt(expressionPrefix, expressionPrefix.length());
-    if(newExpressionStart > 0) {
-      QString newExpression = expressionPrefix.mid(newExpressionStart).trimmed();
-      QString newExpressionPrefix = Utils::stripFinalWhitespace( expressionPrefix.left(newExpressionStart) );
-      if(newExpressionPrefix.isEmpty() || newExpressionPrefix.endsWith(';') || newExpressionPrefix.endsWith('{') || newExpressionPrefix.endsWith('}')) {
-        kDebug(9007) << "skipping expression" << m_expression << "and setting new expression" << newExpression;
-        m_expression = newExpression;
-        expressionPrefix = newExpressionPrefix;
-      }
-
-    }
-  }
-
-  ///Handle recursive contexts(Example: "ret = function1(param1, function2(" )
-  if( expressionPrefix.endsWith('(') || expressionPrefix.endsWith(',') ) {
-    log( QString("Recursive function-call: Searching parent-context in \"%1\"").arg(expressionPrefix) );
-    //Our expression is within a function-call. We need to find out the possible argument-types we need to match, and show an argument-hint.
-
-    //Find out which argument-number this expression is, and compute the beginning of the parent function-call(parentContextLast)
-    QStringList otherArguments;
-    int parentContextEnd = expressionPrefix.length();
-
-    Utils::skipFunctionArguments( expressionPrefix, otherArguments, parentContextEnd );
-
-    QString parentContextText = expressionPrefix.left(parentContextEnd);
-
-    log( QString("This argument-number: %1 Building parent-context from \"%2\"").arg(otherArguments.size()).arg(parentContextText) );
-    m_parentContext = new CodeCompletionContext( m_duContext, parentContextText, depth+1, otherArguments );
-  }
-
-  ///Handle overridden binary operator-functions
-  if( endsWithOperator(expressionPrefix) ) {
-    log( QString( "Recursive operator: creating parent-context with \"%1\"" ).arg(expressionPrefix) );
-    m_parentContext = new CodeCompletionContext( m_duContext, expressionPrefix, depth+1 );
-  }
-
-  ///Now care about m_expression. It may still contain keywords like "new "
-
-  bool isEmit = false, isReturn = false, isThrow = false;
-
-  QString expr = m_expression.trimmed();
-
-  if( expr.startsWith("emit") )  {
-    isEmit = true; //When isEmit is true, we should filter the result so only signals are left
-    expr = expr.right( expr.length() - 4 );
-  }
-  if( expr.startsWith("return") )  {
-    isReturn = true; //When isReturn is true, we should match the result against the return-type of the current context-function
-    expr = expr.right( expr.length() - 6 );
-  }
-  if( expr.startsWith("throw") )  {
-    isThrow = true;
-    expr = expr.right( expr.length() - 5 );
-  }
-
-  ExpressionParser expressionParser/*(false, true)*/;
-
-  ifDebug( kDebug(9007) << "expression: " << expr; )
-
-  if( !expr.trimmed().isEmpty() ) {
-    m_expressionResult = expressionParser.evaluateExpression( expr.toUtf8(), m_duContext );
-    ifDebug( kDebug(9007) << "expression result: " << m_expressionResult.toString(); )
-    if( !m_expressionResult.isValid() ) {
-      if( m_memberAccessOperation != StaticMemberChoose ) {
-        log( QString("expression \"%1\" could not be evaluated").arg(expr) );
-        m_valid = false;
-        return;
-      } else {
-        //It may be an access to a namespace, like "MyNamespace::".
-        //The "MyNamespace" can not be evaluated, still we can give some completions.
-        return;
-      }
-    }
-  }
-
-  switch( m_memberAccessOperation ) {
-
-    case NoMemberAccess:
-    {
-      if( !expr.trimmed().isEmpty() ) {
-        //This should never happen, because the position-cursor should be chosen at the beginning of a possible completion-context(not in the middle of a string)
-        log( QString("Cannot complete \"%1\" because there is an expression without an access-operation" ).arg(expr) );
-        m_valid  = false;
-      } else {
-        //Do nothing. We do not have a completion-container, which means that a global completion should be done.
-      }
-    }
-    break;
-    case MemberChoose:
-    case StaticMemberChoose:
-    {
-      ///@todo Check whether it is a MemberChoose
-    }
-    case ArrowMemberAccess:
-    {
-      LOCKDUCHAIN;
-      //Dereference a pointer
-      AbstractType::Ptr containerType = m_expressionResult.type;
-      CppPointerType* pnt = dynamic_cast<CppPointerType*>(TypeUtils::realType(containerType, m_duContext->topContext()));
-      if( !pnt ) {
-        IdentifiedType* idType = dynamic_cast<IdentifiedType*>(TypeUtils::realType(containerType, m_duContext->topContext()));
-        if( idType ) {
-          if( idType->declaration() && idType->declaration()->internalContext() ) {
-            QList<Declaration*> operatorDeclarations = idType->declaration()->internalContext()->findLocalDeclarations(Identifier("operator->"));
-            if( !operatorDeclarations.isEmpty() ) {
-              ///@todo care about const
-              m_expressionResult.allDeclarations = convert(operatorDeclarations);
-              CppFunctionType* function = dynamic_cast<CppFunctionType*>( operatorDeclarations.front()->abstractType().data() );
-
-              if( function ) {
-                m_expressionResult.type = function->returnType();
-                m_expressionResult.instance = ExpressionVisitor::Instance(true);
-              } else {
-                  log( QString("arrow-operator of class is not a function: %1").arg(containerType ? containerType->toString() : QString("null") ) );
-              }
-            } else {
-              log( QString("arrow-operator on type without operator* member: %1").arg(containerType ? containerType->toString() : QString("null") ) );
-            }
-          } else {
-            log( QString("arrow-operator on type without declaration and context: %1").arg(containerType ? containerType->toString() : QString("null") ) );
-          }
-        } else {
-          log( QString("arrow-operator on invalid type: %1").arg(containerType ? containerType->toString() : QString("null") ) );
-          m_expressionResult = ExpressionEvaluationResult();
-        }
-      }
-
-      if( pnt ) {
-        ///@todo what about const in pointer?
-        m_expressionResult.type = pnt->baseType();
-        m_expressionResult.instance = ExpressionVisitor::Instance(true);
-      }
-    }
-    case MemberAccess:
-    {
-      if( expr.trimmed().isEmpty() ) {
-        log( "Expression was empty, cannot complete" );
-        m_valid = false;
-      }
-
-      //The result of the expression is stored in m_expressionResult, so we're fine
-    }
-    break;
-    case FunctionCallAccess:
-      processFunctionCallAccess();
-    break;
-  }
-#endif
 }
 
 CodeCompletionContext::~CodeCompletionContext() {
 }
 
-bool CodeCompletionContext::isValidPosition() const {
-  if( m_text.isEmpty() )
-    return true;
-  //If we are in a string or comment, we should not complete anything
-/*  QString markedText = Utils::clearComments(m_text, '$');
-  markedText = Utils::clearStrings(markedText,'$');
-
-  if( markedText[markedText.length()-1] == '$' ) {
-    //We are within a comment or string
-    kDebug(9007) << "code-completion position is invalid, marked text: \n\"" << markedText << "\"\n unmarked text:\n" << m_text << "\n";
-    return false;
-  }*/
+bool CodeCompletionContext::isValidPosition() const
+{
+  // TODO
   return true;
-}
-
-CodeCompletionContext::MemberAccessOperation CodeCompletionContext::memberAccessOperation() const {
-  return m_memberAccessOperation;
 }
 
 CodeCompletionContext* CodeCompletionContext::parentContext() {
   return static_cast<CodeCompletionContext*>(KDevelop::CodeCompletionContext::parentContext());
 }
-
-#ifndef TEST_COMPLETION
 
 QList<CompletionTreeItemPointer> CodeCompletionContext::completionItems(const KDevelop::SimpleCursor& position, bool& abort, bool fullCompletion)
 {
@@ -330,81 +155,197 @@ QList<CompletionTreeItemPointer> CodeCompletionContext::completionItems(const KD
     items = m_storedItems;
 
   } else {
-#if 0
-if ( memberAccessContainer().isValid() ) {
-      QList<DUContext*> containers = memberAccessContainers();
-      if( !containers.isEmpty() ) {
-        foreach(DUContext* ctx, containers) {
-          if (abort)
-            return items;
-
-          foreach( const DeclarationDepthPair& decl, Cpp::hideOverloadedDeclarations( ctx->allDeclarations(ctx->range().end, m_duContext->topContext(), false ) ) )
-            items << CompletionTreeItemPointer( new NormalDeclarationCompletionItem( DeclarationPointer(decl.first), CodeCompletionContext::Ptr(this), decl.second ) );
-        }
-      } else {
-        kDebug(9007) << "setContext: no container-type";
-      }
-
-
-    } else {
-#endif
-    //Show all visible declarations
-    /*kDebug() << "Top context importers:" << m_duContext->topContext()->importedParentContexts().count();
-    foreach (const DUContext::Import& imported, m_duContext->topContext()->importedParentContexts()) {
-        DUContext* actualImport = imported.context(m_duContext->topContext());
-        kDebug() << "Actual import: " << actualImport->url().str() << actualImport->localDeclarations().count() << "decl" << actualImport->importedParentContexts().count() << "more imported parents";
-        foreach (const DUContext::Import& imported2, actualImport->importedParentContexts()) {
-            DUContext* actualImport2 = imported2.context(m_duContext->topContext());
-            kDebug() << "2 Actual import: " << actualImport2->url().str() << actualImport2->localDeclarations().count() << "decl" << actualImport2->importedParentContexts().count() << "more imported parents";
-        }
-    }*/
-
-    QList<DeclarationDepthPair> decls = /*Cpp::hideOverloadedDeclarations(*/ m_duContext->allDeclarations(m_duContext->type() == DUContext::Class ? m_duContext->range().end : position, m_duContext->topContext());
-    foreach( const DeclarationDepthPair& decl, decls ) {
-      if (abort)
-        return items;
-      items << CompletionTreeItemPointer( new NormalDeclarationCompletionItem(DeclarationPointer(decl.first), CodeCompletionContext::Ptr(this), decl.second ) );
-    }
-
-    kDebug(9007) << "setContext: using all declarations visible:" << decls.size();
+    standardAccessCompletionItems(position, items);
+    kDebug() << "Found declarations:" << items.count();
   }
-
-
-#if 0
-  ///Find all recursive function-calls that should be shown as call-tips
-  CodeCompletionContext::Ptr parentContext(this);
-  do {
-    if (abort)
-      return items;
-
-    parentContext = parentContext->parentContext();
-    if( parentContext ) {
-      if( parentContext->memberAccessOperation() == Cpp::CodeCompletionContext::FunctionCallAccess ) {
-        //When there is too many overloaded functions, do not show them. They can just be too many.
-        if( ((parentContext->functions().count() == 0 || parentContext->functions().count() > maxOverloadedOperatorArgumentHints) && parentContext->additionalContextType() == Cpp::CodeCompletionContext::BinaryOperatorFunctionCall)
-              || parentContext->functions().count() > maxOverloadedArgumentHints) {
-          items << CompletionTreeItemPointer( new NormalDeclarationCompletionItem( KDevelop::DeclarationPointer(), parentContext, 0, 0 ) );
-          if(parentContext->functions().count())
-            items.back()->asItem<NormalDeclarationCompletionItem>()->alternativeText = i18n("%1 overloads of", parentContext->functions().count()) + " " + parentContext->functionName();
-          else
-            items.back()->asItem<NormalDeclarationCompletionItem>()->alternativeText = parentContext->functionName();
-        }else{
-          int num = 0;
-          foreach( Cpp::CodeCompletionContext::Function function, parentContext->functions() ) {
-            items << CompletionTreeItemPointer( new NormalDeclarationCompletionItem( function.function.declaration(), parentContext, 0, num ) );
-            ++num;
-          }
-        }
-      } else {
-        kDebug(9007) << "parent-context has non function-call access type";
-      }
-    }
-  } while( parentContext );
-#endif
 
   return items;
 }
 
+void CodeCompletionContext::standardAccessCompletionItems(const KDevelop::SimpleCursor& position, QList<CompletionTreeItemPointer>& items) {
+  //Normal case: Show all visible declarations
+  typedef QPair<Declaration*, int> DeclarationDepthPair;
+  QSet<QualifiedIdentifier> hadNamespaceDeclarations;
+
+  bool typeIsConst = false;
+  /*if (Declaration* func = Cpp::localFunctionFromCodeContext(m_duContext.data())) {
+    if (func->abstractType() && (func->abstractType()->modifiers() & AbstractType::ConstModifier))
+      typeIsConst = true;
+  }*/
+
+  QList<DeclarationDepthPair> decls = m_duContext->allDeclarations(m_duContext->type() == DUContext::Class ? m_duContext->range().end : position, m_duContext->topContext());
+
+  QList<Declaration*> moreDecls;
+
+  Q_ASSERT(m_duContext);
+  if(m_duContext) {
+    //Collect the Declarations from all "using namespace" imported contexts
+    TopDUContext* top = m_duContext->topContext();
+
+    QSet<QualifiedIdentifier> packages;
+
+    // Determine which identifiers to search for
+    // Non-static imports
+    foreach (Declaration* import, top->allLocalDeclarations(globalImportIdentifier))
+      if (NamespaceAliasDeclaration* alias = dynamic_cast<NamespaceAliasDeclaration*>(import))
+        if (alias->importIdentifier().last() == Identifier("*"))
+          packages.insert( alias->importIdentifier().left(-1) );
+        else
+          moreDecls << top->findDeclarations(alias->importIdentifier());
+
+    // Static imports
+    foreach (Declaration* import, top->allLocalDeclarations(globalStaticImportIdentifier))
+      if (NamespaceAliasDeclaration* alias = dynamic_cast<NamespaceAliasDeclaration*>(import))
+        if (alias->importIdentifier().last() == Identifier("*"))
+          // TODO static-filter
+          packages.insert( alias->importIdentifier().left(-1) );
+        else
+          // TODO static-filter
+          moreDecls << top->findDeclarations(alias->importIdentifier());
+
+    kDebug() << "Found imported packages to retrieve declarations from:";
+        
+    foreach(const QualifiedIdentifier& package, packages) {
+      QList<DUContext*> importedContexts = m_duContext->findContexts( DUContext::Namespace, package );
+      kDebug() << package.toStringList().join(".") << "contexts found: " << importedContexts.count();
+      
+      foreach (DUContext* context, importedContexts) {
+        if(context->range().contains(m_duContext->range())) {
+          kDebug() << "Ignoring same context " << context << m_duContext;
+          continue; //If the context surrounds the current one, the declarations are visible through allDeclarations(..).
+        }
+        
+        foreach(Declaration* decl, context->localDeclarations())
+          if(filterDeclaration(decl)) {
+            kDebug() << "Adding declaration" << decl << decl->toString();
+            moreDecls << decl;
+          } else {
+            kDebug() << "Filtered out declaration" << decl;
+          }
+      }
+    }
+  }
+
+  /*QList<DeclarationDepthPair> oldDecls = decls;
+  decls.clear();
+
+  //Remove pure function-definitions before doing overload-resolution, so they don't hide their own declarations.
+  foreach( const DeclarationDepthPair& decl, oldDecls )
+    if(!dynamic_cast<FunctionDefinition*>(decl.first) || !static_cast<FunctionDefinition*>(decl.first)->hasDeclaration()) {
+      if(decl.first->kind() == Declaration::Namespace) {
+        QualifiedIdentifier id = decl.first->qualifiedIdentifier();
+        if(hadNamespaceDeclarations.contains(id))
+          continue;
+
+        hadNamespaceDeclarations.insert(id);
+      }
+
+      if(filterDeclaration(decl.first, 0, true, typeIsConst)) {
+        decls << decl;
+      }
+    }
+
+  decls = Cpp::hideOverloadedDeclarations(decls);*/
+
+  foreach( const DeclarationDepthPair& decl, decls )
+    if(filterDeclaration(decl.first))
+      items << CompletionTreeItemPointer( new NormalDeclarationCompletionItem(DeclarationPointer(decl.first), Ptr(this), decl.second ) );
+
+  foreach( Declaration* decl, moreDecls )
+    items << CompletionTreeItemPointer( new NormalDeclarationCompletionItem(DeclarationPointer(decl), Ptr(this), 1200 ) );
+
+  #if 0
+  ///Eventually show additional specificly known items for the matched argument-type, like for example enumerators for enum types
+  CodeCompletionContext* parent = parentContext();
+  if(parent) {
+    if(parent->memberAccessOperation() == FunctionCallAccess) {
+      foreach(const Cpp::OverloadResolutionFunction& function, parent->functions()) {
+        if(function.function.isValid() && function.function.isViable() && function.function.declaration()) {
+          //uint parameterNumber = parent->m_knownArgumentExpressions.size() + function.matchedArguments;
+          Declaration* functionDecl = function.function.declaration().data();
+          if(functionDecl->type<FunctionType>()->arguments().count() > function.matchedArguments) {
+            items += specialItemsForArgumentType(functionDecl->type<FunctionType>()->arguments()[function.matchedArguments]);
+          }
+        }
+      }
+    }
+  }
+
+  ///Eventually add a "this" item
+  DUContext* functionContext = m_duContext.data();
+  if(!m_onlyShowSignals && !m_onlyShowSlots && !m_onlyShowTypes) {
+    while(functionContext && functionContext->type() == DUContext::Other && functionContext->parentContext()->type() == DUContext::Other)
+      functionContext = functionContext->parentContext();
+  }
+
+  ClassFunctionDeclaration* classFun = dynamic_cast<ClassFunctionDeclaration*>(DUChainUtils::declarationForDefinition(functionContext->owner(), m_duContext->topContext()));
+
+  if(classFun && !classFun->isStatic() && classFun->context()->owner() && !m_onlyShowSignals && !m_onlyShowSlots && !m_onlyShowTypes) {
+    AbstractType::Ptr classType = classFun->context()->owner()->abstractType();
+    if(classFun->abstractType()->modifiers() & AbstractType::ConstModifier)
+      classType->setModifiers((AbstractType::CommonModifiers)(classType->modifiers() | AbstractType::ConstModifier));
+    PointerType::Ptr thisPointer(new PointerType());
+    thisPointer->setModifiers(AbstractType::ConstModifier);
+    thisPointer->setBaseType(classType);
+    KSharedPtr<TypeConversionCompletionItem> item( new TypeConversionCompletionItem("this", thisPointer->indexed(), 0, KSharedPtr <Cpp::CodeCompletionContext >(this)) );
+    item->setPrefix(thisPointer->toString());
+    QList<CompletionTreeItemPointer> lst;
+    lst += CompletionTreeItemPointer(item.data());
+    eventuallyAddGroup(i18n("C++ Builtin"), 800, lst);
+  }
+
+  //Eventually add missing include-completion in cases like NotIncludedClass|
+//   if(!m_followingText.trimmed().isEmpty()) {
+//     uint oldItemCount = items.count();
+//     items += missingIncludeCompletionItems(totalExpression, m_followingText.trimmed() + ": ", ExpressionEvaluationResult(), m_duContext.data(), 0);
+#ifndef TEST_COMPLETION
+    MissingIncludeCompletionModel::self().startWithExpression(m_duContext, QString(), m_followingText.trimmed());
 #endif
+//     kDebug() << QString("added %1 missing-includes for %2").arg(items.count()-oldItemCount).arg(totalExpression);
+//   }
+
+  eventuallyAddGroup(i18n("C++ Builtin"), 800, keywordCompletionItems());
+#endif
+}
+
+bool CodeCompletionContext::filterDeclaration(KDevelop::Declaration* decl, KDevelop::DUContext* declarationContext, bool dynamic, bool typeIsConst)
+{
+  if(!decl)
+    return false;
+
+  if (dynamic_cast<NamespaceAliasDeclaration*>(decl))
+    return false;
+
+  if (decl->kind() == DUContext::Namespace)
+    return false;
+  
+  //if(m_onlyShowTypes && decl->kind() != Declaration::Type && decl->kind() != Declaration::Namespace)
+    //return false;
+
+  /*if(m_onlyShowSignals || m_onlyShowSlots) {
+    Cpp::QtFunctionDeclaration* qtFunction = dynamic_cast<Cpp::QtFunctionDeclaration*>(decl);
+    if(!qtFunction || (m_onlyShowSignals && !qtFunction->isSignal()) || (m_onlyShowSlots && !qtFunction->isSlot()))
+      return false;
+  }*/
+
+  /*if(dynamic && decl->context()->type() == DUContext::Class) {
+    ClassMemberDeclaration* classMember = dynamic_cast<ClassMemberDeclaration*>(decl);
+    if(classMember)
+      return filterDeclaration(classMember, declarationContext, typeIsConst);
+  }*/
+
+  return true;
+}
+
+int CodeCompletionContext::memberAccessOperation() const
+{
+  return m_memberAccessOperation;
+}
+
+void CodeCompletionContext::setMemberAccessOperation(int operation)
+{
+  m_memberAccessOperation = operation;
+}
+
 
 }

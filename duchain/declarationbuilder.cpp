@@ -41,12 +41,14 @@ QualifiedIdentifier javaLang("java::lang::*");
 
 DeclarationBuilder::DeclarationBuilder (ParseSession* session)
   : m_defaultImportCreated(false)
+  , m_inImplementsClause(false)
 {
   setEditor(session);
 }
 
 DeclarationBuilder::DeclarationBuilder (EditorIntegrator* editor)
   : m_defaultImportCreated(false)
+  , m_inImplementsClause(false)
 {
   setEditor(editor);
 }
@@ -67,114 +69,6 @@ void DeclarationBuilder::closeDeclaration()
   DeclarationBuilderBase::closeDeclaration();
 }
 
-/*void DeclarationBuilder::visitEnumSpecifier(EnumSpecifierAstNode* node)
-{
-  openDefinition(node->name, node);
-
-  DeclarationBuilderBase::visitEnumSpecifier(node);
-
-  closeDeclaration();
-}
-
-void DeclarationBuilder::visitEnumerator(EnumeratorAstNode* node)
-{
-  //Ugly hack: Since we want the identifier only to have the range of the id(not
-  //the assigned expression), we change the range of the node temporarily
-  size_t oldEndToken = node->end_token;
-  node->end_token = node->id + 1;
-
-  Identifier id(editor<EditorIntegrator>()->parseSession()->token_stream->token(node->id).symbol());
-  DeclarationBuilder::openDeclaration(0, node, false, false, true, false, id);
-
-  node->end_token = oldEndToken;
-
-  DeclarationBuilderBase::visitEnumerator(node);
-
-  closeDeclaration();
-}
-
-void DeclarationBuilder::parseStorageSpecifiers(const ListNode<std::size_t>* storage_specifiers)
-{
-  ClassMemberDeclaration::StorageSpecifiers specs = 0;
-
-  if (storage_specifiers) {
-    const ListNode<std::size_t> *it = storage_specifiers->toFront();
-    const ListNode<std::size_t> *end = it;
-    do {
-      int kind = editor<EditorIntegrator>()->parseSession()->token_stream->kind(it->element);
-      switch (kind) {
-        case Token_friend:
-          specs |= ClassMemberDeclaration::FriendSpecifier;
-          break;
-        case Token_auto:
-          specs |= ClassMemberDeclaration::AutoSpecifier;
-          break;
-        case Token_register:
-          specs |= ClassMemberDeclaration::RegisterSpecifier;
-          break;
-        case Token_static:
-          specs |= ClassMemberDeclaration::StaticSpecifier;
-          break;
-        case Token_extern:
-          specs |= ClassMemberDeclaration::ExternSpecifier;
-          break;
-        case Token_mutable:
-          specs |= ClassMemberDeclaration::MutableSpecifier;
-          break;
-      }
-
-      it = it->next;
-    } while (it != end);
-  }
-
-  m_storageSpecifiers.push(specs);
-}
-
-void DeclarationBuilder::parseFunctionSpecifiers(const ListNode<std::size_t>* function_specifiers)
-{
-  AbstractFunctionDeclaration::FunctionSpecifiers specs = 0;
-
-  if (function_specifiers) {
-    const ListNode<std::size_t> *it = function_specifiers->toFront();
-    const ListNode<std::size_t> *end = it;
-    do {
-      int kind = editor<EditorIntegrator>()->parseSession()->token_stream->kind(it->element);
-      switch (kind) {
-        case Token_inline:
-          specs |= AbstractFunctionDeclaration::InlineSpecifier;
-          break;
-        case Token_virtual:
-          specs |= AbstractFunctionDeclaration::VirtualSpecifier;
-          break;
-        case Token_explicit:
-          specs |= AbstractFunctionDeclaration::ExplicitSpecifier;
-          break;
-      }
-
-      it = it->next;
-    } while (it != end);
-  }
-
-  m_functionSpecifiers.push(specs);
-}*/
-
-/*void DeclarationBuilder::visitParameterDeclaration(ParameterDeclarationAstNode* node) {
-  DeclarationBuilderBase::visitParameterDeclaration(node);
-  AbstractFunctionDeclaration* function = currentDeclaration<AbstractFunctionDeclaration>();
-
-  if( function ) {
-    if( node->expression ) {
-      //Fill default-parameters
-      QString defaultParam;
-      for( size_t token = node->expression->start_token; token != node->expression->end_token; ++token )
-        defaultParam += editor<EditorIntegrator>()->tokenToString(token);
-
-
-      function->addDefaultParameter(defaultParam);
-    }
-  }
-}*/
-
 void DeclarationBuilder::visitClassDeclaration(ClassDeclarationAst * node)
 {
   ClassDeclaration* newClass = openDefinition<ClassDeclaration>(node->className, node);
@@ -186,6 +80,7 @@ void DeclarationBuilder::visitClassDeclaration(ClassDeclarationAst * node)
 
   // Provide java.lang.Object inheritance where it is not specified
   DUChainWriteLocker lock(DUChain::lock());
+  //TODO : only count objects, not interfaces, in this check
   if (newClass->baseClassesSize() == 0) {
     static QualifiedIdentifier javaLangObject("java::lang::Object");
     if (newClass->qualifiedIdentifier() != javaLangObject) {
@@ -197,14 +92,33 @@ void DeclarationBuilder::visitClassDeclaration(ClassDeclarationAst * node)
         {
           // TODO check that type is a class
           instance.baseClass = declarations.at(0)->indexedType();
+          Q_ASSERT(dynamic_cast<IdentifiedType*>(instance.baseClass.abstractType().unsafeData())->declaration(currentContext()->topContext()));
           newClass->addBaseClass(instance);
         }
+        kDebug() << "Adding type for java.lang.Object as a base class";
         addBaseType(instance);
+      } else {
+        kWarning() << "Couldn't find declaration for java.lang.Object";
       }
+    } else {
+      kDebug() << "Not trying to add java.lang.Object to " << newClass->qualifiedIdentifier().toString();
     }
+  } else {
+    kDebug() << "Already have a base class for" << newClass->qualifiedIdentifier().toString();
   }
   closeDeclaration();
 }
+
+void DeclarationBuilder::classContextOpened(KDevelop::DUContext* context)
+{
+  if (currentDeclaration()) {
+    DUChainWriteLocker lock(DUChain::lock());
+    currentDeclaration()->setInternalContext(context);
+  }
+  
+  DeclarationBuilderBase::classContextOpened(context);
+}
+
 
 void DeclarationBuilder::visitClassExtendsClause(java::ClassExtendsClauseAst* node)
 {
@@ -217,9 +131,10 @@ void DeclarationBuilder::visitClassExtendsClause(java::ClassExtendsClauseAst* no
     if(currentClass) {
       // TODO check that type is a class
       instance.baseClass = lastType()->indexed();
+      kDebug() << "adding base class type, valid? " << instance.baseClass.isValid();
       currentClass->addBaseClass(instance);
     }else{
-      kWarning() << "extends-specifier without class declaration";
+      kWarning() << "extends-specifier without class type";
     }
   }
   addBaseType(instance);
@@ -227,21 +142,32 @@ void DeclarationBuilder::visitClassExtendsClause(java::ClassExtendsClauseAst* no
 
 void DeclarationBuilder::visitImplementsClause(java::ImplementsClauseAst* node)
 {
+  m_inImplementsClause = true;
+
   DeclarationBuilderBase::visitImplementsClause(node);
 
-  BaseClassInstance instance;
-  {
-    DUChainWriteLocker lock(DUChain::lock());
-    ClassDeclaration* currentClass = dynamic_cast<ClassDeclaration*>(currentDeclaration());
-    if(currentClass) {
-      // TODO check that type is an interface
-      instance.baseClass = lastType()->indexed();
-      currentClass->addBaseClass(instance);
-    }else{
-      kWarning() << "extends-specifier without class declaration";
+  m_inImplementsClause = false;
+}
+ 
+void DeclarationBuilder::visitClassOrInterfaceTypeName(ClassOrInterfaceTypeNameAst *node)
+{
+  DeclarationBuilderBase::visitClassOrInterfaceTypeName(node);
+
+  if (m_inImplementsClause) {
+    BaseClassInstance instance;
+    {
+      DUChainWriteLocker lock(DUChain::lock());
+      ClassDeclaration* currentClass = dynamic_cast<ClassDeclaration*>(currentDeclaration());
+      if(currentClass) {
+        // TODO check that type is an interface
+        instance.baseClass = lastType()->indexed();
+        currentClass->addBaseClass(instance);
+      }else{
+        kWarning() << "implements specifier without interface type";
+      }
     }
+    addBaseType(instance);
   }
-  addBaseType(instance);
 }
 
 void DeclarationBuilder::visitInterfaceDeclaration(InterfaceDeclarationAst * node)
@@ -277,6 +203,37 @@ void DeclarationBuilder::visitInterfaceMethodDeclaration(InterfaceMethodDeclarat
 
   closeDeclaration();
 }
+
+void DeclarationBuilder::visitEnumDeclaration(java::EnumDeclarationAst* node)
+{
+  ClassDeclaration* newInterface = openDefinition<ClassDeclaration>(node->enumName, node);
+  newInterface->setAccessPolicy(parseAccessPolicy(node->modifiers));
+  newInterface->setClassType(java::ClassDeclarationData::Enum);
+  newInterface->setStorageSpecifiers(parseModifiers(node->modifiers));
+
+  DeclarationBuilderBase::visitEnumDeclaration(node);
+
+  closeDeclaration();
+}
+
+void DeclarationBuilder::visitEnumConstant(java::EnumConstantAst* node)
+{
+  ClassMemberDeclaration* decl = openDeclaration<ClassMemberDeclaration>(node->identifier, node);
+  decl->setStatic(true);
+
+  DeclarationBuilderBase::visitEnumConstant(node);
+
+  EnumeratorType::Ptr enumeratorType = lastType().cast<EnumeratorType>();
+
+  closeDeclaration();
+
+  if(enumeratorType) { ///@todo Move this into closeDeclaration in a logical way
+    DUChainWriteLocker lock(DUChain::lock());
+    enumeratorType->setDeclaration(decl);
+    decl->setAbstractType(enumeratorType.cast<AbstractType>());
+  }
+}
+
 
 void DeclarationBuilder::visitConstructorDeclaration(ConstructorDeclarationAst * node)
 {
@@ -383,23 +340,28 @@ void DeclarationBuilder::visitImportDeclaration(ImportDeclarationAst* node)
 
 void DeclarationBuilder::visitPackageDeclaration(java::PackageDeclarationAst* node)
 {
-  if (node->packageName) {
+  if (node && node->packageName) {
+    // Use this to import other items from the package
     QualifiedIdentifier id = identifierForNode(node->packageName);
     KDevelop::SimpleRange range = editorFindRange(node->packageName, node->packageName);
+
     {
       DUChainWriteLocker lock(DUChain::lock());
-      openDeclaration<Declaration>(id, range);
+      NamespaceAliasDeclaration* decl = openDeclaration<NamespaceAliasDeclaration>(QualifiedIdentifier(globalImportIdentifier), range);
+      QualifiedIdentifier id2 = id;
+      id2.push(Identifier("*"));
+      decl->setImportIdentifier(id2);
+      decl->setContext(currentContext()->topContext());
+      closeDeclaration();
+
+      // Some crazy issue with just passing the whole QI?
+      openDeclaration<Declaration>(QualifiedIdentifier(id.last()), range);
     }
 
     DeclarationBuilderBase::visitPackageDeclaration(node);
 
     DUChainWriteLocker lock(DUChain::lock());
     currentDeclaration()->setKind(KDevelop::Declaration::Namespace);
-    closeDeclaration();
-
-    // Use this to import other items from the package
-    NamespaceAliasDeclaration* decl = openDeclaration<NamespaceAliasDeclaration>(QualifiedIdentifier(globalImportIdentifier), range);
-    decl->setImportIdentifier(id);
     closeDeclaration();
   }
 }
@@ -444,46 +406,17 @@ ClassMemberDeclaration::StorageSpecifiers DeclarationBuilder::parseModifiers(jav
   return ret;
 }
 
-void DeclarationBuilder::visitEnumDeclaration(java::EnumDeclarationAst* node)
+void DeclarationBuilder::classTypeOpened(AbstractType::Ptr type)
 {
-  QualifiedIdentifier id = identifierForNode(node->enumName);
+  //We override this so we can get the class-declaration into a usable state(with filled type) earlier
+  DUChainWriteLocker lock(DUChain::lock());
 
-  Declaration* decl = 0;
-  {
-    DUChainWriteLocker lock(DUChain::lock());
-    decl = openDeclaration<Declaration>(id, editorFindRange(node->enumName, node->enumName));
-  }
+  IdentifiedType* idType = dynamic_cast<IdentifiedType*>(type.unsafeData());
 
-  DeclarationBuilderBase::visitEnumDeclaration(node);
+  if( idType && !idType->declarationId().isValid() ) //When the given type has no declaration yet, assume we are declaring it now
+    idType->setDeclaration( currentDeclaration() );
 
-  EnumeratorType::Ptr enumeratorType = lastType().cast<EnumeratorType>();
-
-  closeDeclaration();
-
-  if(enumeratorType) { ///@todo Move this into closeDeclaration in a logical way
-    DUChainWriteLocker lock(DUChain::lock());
-    enumeratorType->setDeclaration(decl);
-    decl->setAbstractType(enumeratorType.cast<AbstractType>());
-  }
+  currentDeclaration()->setType(type);
 }
 
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

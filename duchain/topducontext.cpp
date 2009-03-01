@@ -26,7 +26,7 @@
 #include "javalanguagesupport.h"
 #include <language/duchain/classmemberdeclaration.h>
 
-//#define DEBUG_SEARCH
+//#define DEBUG_SEARCH2
 
 using namespace KDevelop;
 
@@ -43,6 +43,48 @@ TopDUContext::TopDUContext(TopDUContextData& data)
 }
 
 REGISTER_DUCHAIN_ITEM(TopDUContext);
+
+struct TopDUContext::FindDeclarationsAcceptor
+{
+  FindDeclarationsAcceptor(DeclarationList& _target, const DeclarationChecker& _check) : target(_target), check(_check) {
+  }
+
+  void operator() (Declaration* declaration) {
+#ifdef DEBUG_SEARCH
+    kDebug() << "accepting" << element->qualifiedIdentifier().toString();
+#endif
+    if (check(declaration)) {
+      target.append(declaration);
+    }
+  }
+
+  DeclarationList& target;
+  const DeclarationChecker& check;
+};
+
+struct TopDUContext::FindContextsAcceptor
+{
+  FindContextsAcceptor(QList<DUContext*>& _target, const ContextChecker& _check) : target(_target), check(_check) {
+  }
+
+  void operator() (Declaration* declaration) {
+#ifdef DEBUG_SEARCH2
+    kDebug() << "accepting" << declaration->toString();
+#endif
+    if (declaration->internalContext()) {
+      DUContext* context = declaration->internalContext();
+      if (check(context))
+        target.append(context);
+      else
+        kWarning() << "Declaration got filtered out for context acceptance " << declaration->qualifiedIdentifier().toStringList().join(".");
+    }
+    else
+      kWarning() << "Could not find internal context for " << declaration->qualifiedIdentifier().toStringList().join(".");
+  }
+
+  QList<DUContext*>& target;
+  const ContextChecker& check;
+};
 
 bool TopDUContext::findDeclarationsInternal(const SearchItem::PtrList& identifiers, const SimpleCursor& position, const AbstractType::Ptr& dataType, DeclarationList& ret, const KDevelop::TopDUContext* source, SearchFlags flags) const
 {
@@ -97,11 +139,12 @@ bool TopDUContext::findDeclarationsInternal(const SearchItem::PtrList& identifie
 #endif
 
   DeclarationChecker check(this, position, dataType, flags);
+  FindDeclarationsAcceptor accept(ret, check);
 
   ///The actual scopes are found within applyAliases, and each complete qualified identifier is given to FindDeclarationsAcceptor.
   ///That stores the found declaration to the output.
 
-  findJavaDeclarationsInternal(singleTypeImports, ret, check, false);
+  findJavaDeclarationsInternal(singleTypeImports, accept, false);
   if (foundEnough(ret, flags)) {
 #ifdef DEBUG_SEARCH
     kDebug() << "Found from single type" << ret.count();
@@ -109,7 +152,7 @@ bool TopDUContext::findDeclarationsInternal(const SearchItem::PtrList& identifie
     return true;
   }
 
-  findJavaDeclarationsInternal(singleStaticImports, ret, check, true);
+  findJavaDeclarationsInternal(singleStaticImports, accept, true);
   if (foundEnough(ret, flags)) {
 #ifdef DEBUG_SEARCH
     kDebug() << "Found from single static" << ret.count();
@@ -117,7 +160,7 @@ bool TopDUContext::findDeclarationsInternal(const SearchItem::PtrList& identifie
     return true;
   }
 
-  findJavaDeclarationsInternal(typeImportsOnDemand, ret, check, false);
+  findJavaDeclarationsInternal(typeImportsOnDemand, accept, false);
   if (foundEnough(ret, flags)) {
 #ifdef DEBUG_SEARCH
     kDebug() << "Found from type on demand" << ret.count();
@@ -125,7 +168,7 @@ bool TopDUContext::findDeclarationsInternal(const SearchItem::PtrList& identifie
     return true;
   }
 
-  findJavaDeclarationsInternal(staticImportsOnDemand, ret, check, true);
+  findJavaDeclarationsInternal(staticImportsOnDemand, accept, true);
   if (foundEnough(ret, flags)) {
 #ifdef DEBUG_SEARCH
     kDebug() << "Found from static on demand" << ret.count();
@@ -139,18 +182,19 @@ bool TopDUContext::findDeclarationsInternal(const SearchItem::PtrList& identifie
   return true;
 }
 
-void TopDUContext::findJavaDeclarationsInternal(const SearchItem::PtrList& identifiers, DeclarationList& ret, DeclarationChecker& check, bool staticOnly) const
+template<class Acceptor>
+void TopDUContext::findJavaDeclarationsInternal( const SearchItem::PtrList& identifiers, Acceptor& accept, bool staticOnly ) const
 {
   FOREACH_ARRAY(SearchItem::Ptr identifier, identifiers) {
-#ifdef DEBUG_SEARCH
-    //kDebug() << "checking" << newElement.qualifiedIdentifier().toString();
-#endif
-
     QualifiedIdentifier id(identifier->identifier);
     while (identifier->hasNext()) {
       identifier = *identifier->next.data();
       id.push(identifier->identifier);
     }
+
+#ifdef DEBUG_SEARCH2
+    kDebug() << "checking" << id.toString();
+#endif
 
     if(!id.isEmpty()) {
       PersistentSymbolTable::FilteredDeclarationIterator filter = PersistentSymbolTable::self().getFilteredDeclarations(id, recursiveImportIndices());
@@ -159,55 +203,53 @@ void TopDUContext::findJavaDeclarationsInternal(const SearchItem::PtrList& ident
         for(; filter; ++filter) {
           const IndexedDeclaration iDecl = *filter;
 
-          if(!check(iDecl))
-            continue;
-
           Declaration* aliasDecl = iDecl.data();
+
+#ifdef DEBUG_SEARCH2
+          kDebug() << "Found declaration" << aliasDecl;
+#endif
+
           if(!aliasDecl)
             continue;
 
-          if(aliasDecl->identifier() != id.last())  //Since we have retrieved the aliases by hash only, we still need to compare the name
+          if(aliasDecl->identifier() != id.last()) { //Since we have retrieved the aliases by hash only, we still need to compare the name
+#ifdef DEBUG_SEARCH2
+            kDebug() << "Dumped as not the same identifier" << aliasDecl->identifier().toString() << id.last().toString();
+#endif
             continue;
+          }
 
           ClassMemberDeclaration* classMemberDecl = dynamic_cast<ClassMemberDeclaration*>(aliasDecl);
 
           // TODO check logic here
-          if (staticOnly && (!classMemberDecl || !classMemberDecl->isStatic()))
+          if (staticOnly && (!classMemberDecl || !classMemberDecl->isStatic())) {
+#ifdef DEBUG_SEARCH2
+            kDebug() << "Dumped as not static where search requested static only" << aliasDecl->identifier().toString();
+#endif
             continue;
+          }
 
-          ret.append(aliasDecl);
+#ifdef DEBUG_SEARCH2
+          kDebug() << "Trying to accept" << aliasDecl->identifier().toString();
+#endif
+          accept(aliasDecl);
         }
       }
     }
+
+#ifdef DEBUG_SEARCH2
+    kDebug() << "Finished" << id.toString();
+#endif
   }
 }
 
-/*void TopDUContext::mergeDeclarationsInternal(QList< QPair< KDevelop::Declaration*, int > >& definitions, const KDevelop::SimpleCursor& position, QHash< const KDevelop::DUContext*, bool >& hadContexts, const KDevelop::TopDUContext* source, bool searchInParents, int currentDepth) const
+void TopDUContext::findContextsInternal(KDevelop::DUContext::ContextType contextType, const SearchItem::PtrList& identifiers, const KDevelop::SimpleCursor& position, QList< KDevelop::DUContext* >& ret, const KDevelop::TopDUContext* source, SearchFlags flags) const
 {
-  if(hadContexts.contains(this))
-    return;
-  hadContexts[this] = true;
+  ContextChecker check(this, position, contextType, flags);
+  FindContextsAcceptor accept(ret, check);
 
-  if( currentDepth < 1000 )
-    currentDepth += 1000;
-
-  foreach (KDevelop::Declaration* decl, localDeclarations(this)) {
-    if (decl->type() == Declaration::Namespace) {
-      PersistentSymbolTable::Declarations declarations = PersistentSymbolTable::self().getDeclarations(decl->qualifiedIdentifier());
-      for (PersistentSymbolTable::Declarations::Iterator it = declarations.iterator(); it; ++it) {
-        const IndexedDeclaration iDecl = *it;
-        definitions.append(qMakePair(iDecl.data(),currentDepth));
-      }
-    } else if (decl->type() == Declaration::NamespaceAlias) {
-      /// \todo account for static imports etc..
-      PersistentSymbolTable::Declarations declarations = PersistentSymbolTable::self().getDeclarations(decl->qualifiedIdentifier());
-      for (PersistentSymbolTable::Declarations::Iterator it = declarations.iterator(); it; ++it) {
-        const IndexedDeclaration iDecl = *it;
-        definitions.append(qMakePair(iDecl.data(),currentDepth));
-      }
-    }
-  }
-}*/
-
+  // TODO get static only though to here
+  findJavaDeclarationsInternal(identifiers, accept, false);
+}
 
 }

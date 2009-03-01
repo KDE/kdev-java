@@ -94,11 +94,13 @@ protected:
   virtual void visitMethodDeclaration(MethodDeclarationAst *node);
   virtual void visitConstructorDeclaration(ConstructorDeclarationAst *node);
   virtual void visitInterfaceDeclaration(InterfaceDeclarationAst *node);
-  virtual void visitPackageDeclaration(PackageDeclarationAst* node);
+  virtual void visitEnumDeclaration(java::EnumDeclarationAst* node);
 
   virtual void addBaseType( BaseClassInstance base );
 
 protected:
+  virtual void classContextOpened(KDevelop::DUContext* context);
+
   // Variables
   IdentifierCompiler* m_identifierCompiler;
 

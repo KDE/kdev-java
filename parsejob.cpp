@@ -177,7 +177,7 @@ void ParseJob::run()
         //java_parser.yy_expected_symbol(AstNode::Kind_compilation_unit, "compilation_unit"); // ### remove me
     }
 
-    //DumpChain dump;
+    DumpChain dump;
     //dump.dump(ast, m_session);
 
     // 3) Form definition-use chain
@@ -206,7 +206,7 @@ void ParseJob::run()
         }
     }
 
-    //KDevelop::DUChainReadLocker duchainlock(KDevelop::DUChain::lock());
+    KDevelop::DUChainReadLocker duchainlock(KDevelop::DUChain::lock());
     //dump.dump(chain);
 }
 

@@ -61,16 +61,9 @@ namespace java {
       ///@param Abort is checked regularly, and if it is false, the computation is aborted.
       virtual QList<KDevelop::CompletionTreeItemPointer> completionItems(const KDevelop::SimpleCursor& position, bool& abort, bool fullCompletion = true);
 
+      void standardAccessCompletionItems(const KDevelop::SimpleCursor& position, QList<KDevelop::CompletionTreeItemPointer>& items);
+      
       bool isValidPosition() const;
-
-      enum MemberAccessOperation {
-        NoMemberAccess,  ///With NoMemberAccess, a global completion should be done
-        MemberAccess,      ///klass.
-        FunctionCallAccess  ///"function(". Will never appear as initial access-operation, but as parentContext() access-operation.
-      };
-
-      ///@return the used access-operation
-      MemberAccessOperation memberAccessOperation() const;
 
       /**
        * When memberAccessOperation is FunctionCallAccess,
@@ -80,9 +73,28 @@ namespace java {
 
       virtual CodeCompletionContext* parentContext();
 
+      bool filterDeclaration(KDevelop::Declaration* decl, KDevelop::DUContext* declarationContext = 0, bool dynamic = false, bool typeIsConst = false);
+
+      enum MemberAccessOperation {
+        NoMemberAccess,  ///With NoMemberAccess, a global completion should be done
+        MemberAccess,      ///klass.
+        ArrowMemberAccess, ///klass->
+        StaticMemberChoose, /// Class::
+        MemberChoose, /// klass->ParentClass::
+        FunctionCallAccess,  ///"function(". Will never appear as initial access-operation, but as parentContext() access-operation.
+        TemplateAccess,  ///bla<. Will never appear as initial access-operation, but as parentContext() access-operation.
+        SignalAccess,  ///All signals from MemberAccessContainer should be listed
+        SlotAccess,     ///All slots from MemberAccessContainer should be listed
+        IncludeListAccess, ///A list of include-files should be presented. Get the list through includeItems()
+        ReturnAccess,
+        DeleteAccess   /// Any item which can be deleted or provide deletable results should be listed
+      };
+      int memberAccessOperation() const;
+      void setMemberAccessOperation(int operation);
+
     private:
-      MemberAccessOperation m_memberAccessOperation;
       QList<KDevelop::CompletionTreeItemPointer> m_storedItems;
+      int m_memberAccessOperation;
   };
 }
 

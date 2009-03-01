@@ -239,7 +239,7 @@ void DumpChain::dump( DUContext * context, bool imported )
   if (!imported) {
     foreach (Declaration* dec, context->localDeclarations()) {
 
-      kDebug() << QString((indent+1) * 2, ' ') << "Declaration: " << dec->toString() << /*(idType ? (" (type-identity: " + idType->identifier().toString() + ")") : QString()) <<*/ " [" << dec->qualifiedIdentifier() << "]" << dec << "(internal ctx" << dec->internalContext() << ")" << dec->range().textRange() << "," << (dec->isDefinition() ? "definition, " : "declaration, ") << dec->uses().count() << "use(s).";
+      kDebug() << QString((indent+1) * 2, ' ') << "Declaration: " << dec->toString() << /*(idType ? (" (type-identity: " + idType->identifier().toString() + ")") : QString()) <<*/ " [" << dec->qualifiedIdentifier() << "]" << dec << "(internal ctx" << dec->internalContext() << ")" << dec->range().textRange() << "," << (dec->isDefinition() ? "definition, " : "declaration, ") << dec->uses().count() << "use(s)," << (dec->inSymbolTable() ? " in symbol table" : " not in symbol table");
       QMap<IndexedString, QList<SimpleRange> > uses = dec->uses();
       for(QMap<IndexedString, QList<SimpleRange> >::const_iterator it = uses.begin(); it != uses.end(); ++it) {
         kDebug() << QString((indent+2) * 2, ' ') << "File:" << it.key().str();
