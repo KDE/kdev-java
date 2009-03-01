@@ -43,48 +43,17 @@ using namespace KDevelop;
 
 namespace java {
 
-NormalDeclarationCompletionItem::NormalDeclarationCompletionItem(KDevelop::DUChainPointer< KDevelop::Declaration > decl, KSharedPtr< java::CodeCompletionContext > context, int _inheritanceDepth, int _listOffset)
-  : declaration(decl)
-  , completionContext(context)
-  , m_inheritanceDepth(_inheritanceDepth)
-  , listOffset(_listOffset)
+NormalDeclarationCompletionItem::NormalDeclarationCompletionItem(KDevelop::DeclarationPointer decl, KSharedPtr< KDevelop::CodeCompletionContext > context, int _inheritanceDepth)
+  : KDevelop::NormalDeclarationCompletionItem(decl, context, _inheritanceDepth)
 {
 }
 
-  
-void NormalDeclarationCompletionItem::execute(KTextEditor::Document* document, const KTextEditor::Range& word) {
-
-  if( completionContext && completionContext->depth() != 0 )
-    return; //Do not replace any text when it is an argument-hint
-
-  QString newText;
-
-  {
-    KDevelop::DUChainReadLocker lock(KDevelop::DUChain::lock());
-    if(declaration) {
-      newText = declaration->identifier().toString();
-    } else {
-      kDebug() << "Declaration disappeared";
-      return;
-    }
-  }
-
-  document->replaceText(word, newText);
-
-  if( declaration && dynamic_cast<AbstractFunctionDeclaration*>(declaration.data()) ) {
+void NormalDeclarationCompletionItem::executed(KTextEditor::Document* document, const KTextEditor::Range& word)
+{
+  if( m_declaration && dynamic_cast<AbstractFunctionDeclaration*>(m_declaration.data()) ) {
     //Do some intelligent stuff for functions with the parens:
     insertFunctionParenText(document, word, m_declaration);
   }
-}
-
-const bool indentByDepth = false;
-
-//The name to be viewed in the name column
-QString nameForDeclaration(Declaration* dec) {
-  if (dec->identifier().toString().isEmpty())
-    return "<unknown>";
-  else
-    return dec->identifier().toString();
 }
 
 QVariant NormalDeclarationCompletionItem::data(const QModelIndex& index, int role, const KDevelop::CodeCompletionModel* model) const
@@ -95,100 +64,39 @@ QVariant NormalDeclarationCompletionItem::data(const QModelIndex& index, int rol
     return QVariant();
   }
 
-  static CompletionTreeItemPointer currentMatchContext;
-
-
-  //Stuff that does not require a declaration:
   switch (role) {
-    case CodeCompletionModel::SetMatchContext:
-      currentMatchContext = CompletionTreeItemPointer(const_cast<NormalDeclarationCompletionItem*>(this));
-      return QVariant(1);
-  };
-
-  if(!declaration) {
-    if(role == Qt::DisplayRole && index.column() == CodeCompletionModel::Name)
-      return alternativeText;
-    return QVariant();
-  }
-
-  Declaration* dec = const_cast<Declaration*>( declaration.data() );
-
-  switch (role) {
-    case CodeCompletionModel::IsExpandable:
-      return QVariant(false /* true*/);
     case Qt::DisplayRole:
       switch (index.column()) {
         case CodeCompletionModel::Prefix:
         {
-          int depth = m_inheritanceDepth;
-          if( depth >= 1000 )
-            depth-=1000;
-          QString indentation;
-          if(indentByDepth)
-            indentation = QString(depth, ' ');
+          if(m_declaration->kind() == Declaration::Namespace)
+            return "package";
 
-          if(declaration->kind() == Declaration::Namespace)
-            return indentation + "package";
-
-          if( NamespaceAliasDeclaration* alias = dynamic_cast<NamespaceAliasDeclaration*>(dec) ) {
+          if( NamespaceAliasDeclaration* alias = dynamic_cast<NamespaceAliasDeclaration*>(m_declaration.data()) ) {
             if( alias->identifier().isEmpty() ) {
-              return indentation + "imported package";
+              return "imported package";
             } else {
-              return indentation + "package";
+              return "package";
             }
           }
 
-          if( dec->kind() == Declaration::Type && !dec->type<FunctionType>() ) {
-            if (java::ClassDeclaration* classDecl = dynamic_cast<java::ClassDeclaration*>(dec)) {
+          if( m_declaration->kind() == Declaration::Type && !m_declaration->type<FunctionType>() ) {
+            if (java::ClassDeclaration* classDecl = dynamic_cast<java::ClassDeclaration*>(m_declaration.data())) {
               switch (classDecl->classType()) {
                 case ClassDeclarationData::Class:
-                  return indentation + "class";
+                  return "class";
                   break;
                 case ClassDeclarationData::Interface:
-                  return indentation + "interface";
+                  return "interface";
                   break;
                 case ClassDeclarationData::Enum:
-                  return indentation + "enum";
+                  return "enum";
                   break;
               }
               return QVariant();
             }
           }
-
-          if (dec->abstractType()) {
-            if(EnumeratorType::Ptr enumerator = dec->type<EnumeratorType>()) {
-              if(dec->context()->owner() && dec->context()->owner()->abstractType()) {
-                if(!dec->context()->owner()->identifier().isEmpty())
-                  return dec->context()->owner()->abstractType()->toString();
-                else
-                  return "enum";
-              }
-            }
-            if (FunctionType::Ptr functionType = dec->type<FunctionType>()) {
-              ClassFunctionDeclaration* funDecl = dynamic_cast<ClassFunctionDeclaration*>(dec);
-
-              if (functionType->returnType()) {
-                QString ret = indentation + functionType->returnType()->toString();
-                if(argumentHintDepth() && ret.length() > 30)
-                  return QString("...");
-                else
-                  return ret;
-              }else if(argumentHintDepth()) {
-                return indentation;//Don't show useless prefixes in the argument-hints
-              }else if(funDecl && funDecl->isConstructor() )
-                return indentation + "<constructor>";
-              else if(funDecl && funDecl->isDestructor() )
-                return indentation + "<destructor>";
-              else
-                return indentation + "<incomplete type>";
-
-            } else {
-              QString ret = indentation;
-              return  ret + dec->abstractType()->toString();
-            }
-          } else {
-            return indentation + "<no type>";
-          }
+          break;
         }
 
         case CodeCompletionModel::Scope: {
@@ -196,11 +104,8 @@ QVariant NormalDeclarationCompletionItem::data(const QModelIndex& index, int rol
           return QVariant();
         }
 
-        case CodeCompletionModel::Name:
-          return nameForDeclaration(dec);
-
         case CodeCompletionModel::Arguments:
-          if (FunctionType::Ptr functionType = dec->type<FunctionType>()) {
+          if (FunctionType::Ptr functionType = m_declaration->type<FunctionType>()) {
             QString ret;
 
             //if (dec->type<FunctionType>())
@@ -210,52 +115,19 @@ QVariant NormalDeclarationCompletionItem::data(const QModelIndex& index, int rol
           }
         break;
         case CodeCompletionModel::Postfix:
-          if (FunctionType::Ptr functionType = dec->type<FunctionType>()) {
+          if (FunctionType::Ptr functionType = m_declaration->type<FunctionType>()) {
             // TODO complete?
             return functionType->modifiers() & AbstractType::ConstModifier ? i18n("const") : QString();
           }
           break;
       }
       break;
-    case CodeCompletionModel::CompletionRole:
-      return (int)completionProperties();
-    case Qt::DecorationRole:
-     {
-      CodeCompletionModel::CompletionProperties p = completionProperties();
-
-      //If it's a signal, remove t he protected flag when computing the decoration. Signals are always protected, and this will give a nicer icon.
-      if(p & CodeCompletionModel::Signal)
-        p = CodeCompletionModel::Signal;
-      //If it's a slot, remove all flags except the slot flag, because that will give a nicer icon. Access-rights are checked anyway.
-      if(p & CodeCompletionModel::Slot)
-        p = CodeCompletionModel::Slot;
-
-
-      if( index.column() == CodeCompletionModel::Icon ) {
-        lock.unlock();
-        return DUChainUtils::iconForProperties(p);
-      }
-      break;
-     }
-
-    case CodeCompletionModel::ScopeIndex:
-      return static_cast<int>(reinterpret_cast<long>(dec->context()));
   }
 
-  return QVariant();
-}
+  lock.unlock();
 
-int NormalDeclarationCompletionItem::inheritanceDepth() const
-{
-  return m_inheritanceDepth;
-}
+  return KDevelop::NormalDeclarationCompletionItem::data(index, role, model);
 
-int NormalDeclarationCompletionItem::argumentHintDepth() const
-{
-  if( completionContext && completionContext->memberAccessOperation() == CodeCompletionContext::FunctionCallAccess )
-      return completionContext->depth();
-    else
-      return 0;
 }
 
 }

@@ -249,10 +249,10 @@ void CodeCompletionContext::standardAccessCompletionItems(const KDevelop::Simple
 
   foreach( const DeclarationDepthPair& decl, decls )
     if(filterDeclaration(decl.first))
-      items << CompletionTreeItemPointer( new NormalDeclarationCompletionItem(DeclarationPointer(decl.first), Ptr(this), decl.second ) );
+      items << CompletionTreeItemPointer( new NormalDeclarationCompletionItem(DeclarationPointer(decl.first), KDevelop::CodeCompletionContext::Ptr(this), decl.second ) );
 
   foreach( Declaration* decl, moreDecls )
-    items << CompletionTreeItemPointer( new NormalDeclarationCompletionItem(DeclarationPointer(decl), Ptr(this), 1200 ) );
+    items << CompletionTreeItemPointer( new NormalDeclarationCompletionItem(DeclarationPointer(decl), KDevelop::CodeCompletionContext::Ptr(this), 1200 ) );
 
   #if 0
   ///Eventually show additional specificly known items for the matched argument-type, like for example enumerators for enum types
