@@ -210,10 +210,10 @@ void CodeCompletionContext::standardAccessCompletionItems(const KDevelop::Simple
       kDebug() << package.toStringList().join(".") << "contexts found: " << importedContexts.count();
       
       foreach (DUContext* context, importedContexts) {
-        if(context->range().contains(m_duContext->range())) {
+        /*if(context->range().contains(m_duContext->range())) {
           kDebug() << "Ignoring same context " << context << m_duContext;
           continue; //If the context surrounds the current one, the declarations are visible through allDeclarations(..).
-        }
+        }*/
         
         foreach(Declaration* decl, context->localDeclarations())
           if(filterDeclaration(decl)) {
