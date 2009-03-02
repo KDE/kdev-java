@@ -32,25 +32,26 @@
 #include <language/duchain/declaration.h>
 #include <language/duchain/duchainutils.h>
 #include <language/duchain/abstractfunctiondeclaration.h>
-
 #include "items.h"
 
 using namespace KDevelop;
 
 namespace java {
 
-void createArgumentList(const NormalDeclarationCompletionItem& item, QString& ret, QList<QVariant>* highlighting, bool includeDefaultParams, bool noShortening )
+QString createArgumentList(const NormalDeclarationCompletionItem& item, QList<QVariant>* highlighting, bool includeDefaultParams, bool noShortening )
 {
-  Declaration* dec(item.m_declaration.data());
+  QString ret;
+  
+  Declaration* dec(item.declaration().data());
   if (!dec)
-    return;
+    return ret;
 
   TopDUContext* top = 0;
-  if(item.completionContext && item.completionContext->duContext())
-    top = item.completionContext->duContext()->topContext();
+  if(item.completionContext() && item.completionContext()->duContext())
+    top = item.completionContext()->duContext()->topContext();
 
-  //if( item.completionContext && item.completionContext->memberAccessOperation() == CodeCompletionContext::FunctionCallAccess && item.completionContext->functions().count() > item.listOffset )
-    //f = item.completionContext->functions()[item.listOffset];
+  //if( item.completionContext() && item.completionContext()->memberAccessOperation() == CodeCompletionContext::FunctionCallAccess && item.completionContext()->functions().count() > item.listOffset )
+    //f = item.completionContext()->functions()[item.listOffset];
 
   QTextFormat normalFormat(QTextFormat::CharFormat);
   QTextFormat highlightFormat; //highlightFormat is invalid, so kate uses the match-quality dependent color.
@@ -192,9 +193,9 @@ void createArgumentList(const NormalDeclarationCompletionItem& item, QString& re
       *highlighting << boldFormat;
       textFormatStart = ret.length();
     }
-
-    return;
   }
+
+  return ret;
 }
 
 

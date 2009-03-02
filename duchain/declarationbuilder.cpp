@@ -58,6 +58,18 @@ void DeclarationBuilder::closeDeclaration()
   if (currentDeclaration()) {
     DUChainWriteLocker lock(DUChain::lock());
 
+    if (lastType()) {
+
+      AbstractType::Ptr type = lastType();
+      IdentifiedType* idType = dynamic_cast<IdentifiedType*>(type.unsafeData());
+
+      //When the given type has no declaration yet, assume we are declaring it now.
+      //If the type is a delayed type, it is a searched type, and not a declared one, so don't set the declaration then.
+      if( idType && !idType->declarationId().isValid() /*&& !delayed*/ ) {
+          idType->setDeclaration( currentDeclaration() );
+      }
+    }
+    
     currentDeclaration()->setType(lastType());
     currentDeclaration()->setKind(Declaration::Type);
   }

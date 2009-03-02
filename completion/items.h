@@ -39,6 +39,7 @@ public:
 
 protected:
   virtual void executed(KTextEditor::Document* document, const KTextEditor::Range& word);
+  virtual QString shortenedTypeString(KDevelop::DeclarationPointer decl, int desiredTypeLength) const;
 };
 
 }

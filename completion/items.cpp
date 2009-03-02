@@ -36,8 +36,8 @@
 #include <language/duchain/namespacealiasdeclaration.h>
 #include <language/duchain/duchainutils.h>
 #include <duchain/classdeclaration.h>
-//#include "helpers.h"
 #include <language/codecompletion/codecompletionhelper.h>
+#include "helpers.h"
 
 using namespace KDevelop;
 
@@ -105,19 +105,14 @@ QVariant NormalDeclarationCompletionItem::data(const QModelIndex& index, int rol
         }
 
         case CodeCompletionModel::Arguments:
-          if (FunctionType::Ptr functionType = m_declaration->type<FunctionType>()) {
-            QString ret;
-
-            //if (dec->type<FunctionType>())
-              //createArgumentList(*this, ret, 0);
-
-            return ret;
-          }
-        break;
+          if (FunctionType::Ptr functionType = m_declaration->type<FunctionType>())
+            return createArgumentList(*this, 0);
+          break;
+          
         case CodeCompletionModel::Postfix:
           if (FunctionType::Ptr functionType = m_declaration->type<FunctionType>()) {
-            // TODO complete?
-            return functionType->modifiers() & AbstractType::ConstModifier ? i18n("const") : QString();
+            // TODO print throws declarations
+            //return functionType->modifiers() & AbstractType::ConstModifier ? i18n("const") : QString();
           }
           break;
       }
@@ -128,6 +123,13 @@ QVariant NormalDeclarationCompletionItem::data(const QModelIndex& index, int rol
 
   return KDevelop::NormalDeclarationCompletionItem::data(index, role, model);
 
+}
+
+QString NormalDeclarationCompletionItem::shortenedTypeString(KDevelop::DeclarationPointer decl, int desiredTypeLength) const {
+  if (FunctionType::Ptr funType = decl->type<FunctionType>())
+    return funType->returnType()->toString();
+
+  return KDevelop::NormalDeclarationCompletionItem::shortenedTypeString(decl, desiredTypeLength);
 }
 
 }
