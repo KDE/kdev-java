@@ -368,7 +368,7 @@ int Lexer::LexerInput( char *buf, int /*max_size*/ )
 
         // fall through
     case '\n':
-        m_locationTable->newline( m_currentOffset );
+        m_locationTable->newline( m_currentOffset - 1 );
         break;
 
     default:

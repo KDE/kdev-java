@@ -82,8 +82,9 @@ void DeclarationBuilder::closeDeclaration()
 }
 
 void DeclarationBuilder::visitClassDeclaration(ClassDeclarationAst * node)
-{
+{  
   ClassDeclaration* newClass = openDefinition<ClassDeclaration>(node->className, node);
+
   newClass->setAccessPolicy(parseAccessPolicy(node->modifiers));
   newClass->setClassType(java::ClassDeclarationData::Class);
   newClass->setStorageSpecifiers(parseModifiers(node->modifiers));
@@ -99,7 +100,7 @@ void DeclarationBuilder::visitClassDeclaration(ClassDeclarationAst * node)
       QList<Declaration*> declarations = currentContext()->findDeclarations(javaLangObject, currentContext()->range().end, AbstractType::Ptr(), currentContext()->topContext());
       if (declarations.count() >= 1) {
         if (declarations.count() > 1)
-          kWarning() << "Found mulitple declarations for" << javaLangObject.toStringList().join(".");
+          kDebug() << "Found mulitple declarations for" << javaLangObject.toStringList().join(".");
         BaseClassInstance instance;
         {
           // TODO check that type is a class
@@ -107,16 +108,11 @@ void DeclarationBuilder::visitClassDeclaration(ClassDeclarationAst * node)
           Q_ASSERT(dynamic_cast<IdentifiedType*>(instance.baseClass.abstractType().unsafeData())->declaration(currentContext()->topContext()));
           newClass->addBaseClass(instance);
         }
-        kDebug() << "Adding type for java.lang.Object as a base class";
         addBaseType(instance);
       } else {
-        kWarning() << "Couldn't find declaration for java.lang.Object";
+        kDebug() << "Couldn't find declaration for java.lang.Object";
       }
-    } else {
-      kDebug() << "Not trying to add java.lang.Object to " << newClass->qualifiedIdentifier().toString();
     }
-  } else {
-    kDebug() << "Already have a base class for" << newClass->qualifiedIdentifier().toString();
   }
   closeDeclaration();
 }
@@ -143,10 +139,10 @@ void DeclarationBuilder::visitClassExtendsClause(java::ClassExtendsClauseAst* no
     if(currentClass) {
       // TODO check that type is a class
       instance.baseClass = lastType()->indexed();
-      kDebug() << "adding base class type, valid? " << instance.baseClass.isValid();
+      //kDebug() << "adding base class type, valid? " << instance.baseClass.isValid();
       currentClass->addBaseClass(instance);
     }else{
-      kWarning() << "extends-specifier without class type";
+      kDebug() << "extends-specifier without class type";
     }
   }
   addBaseType(instance);

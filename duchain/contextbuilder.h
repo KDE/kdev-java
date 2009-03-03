@@ -95,6 +95,7 @@ protected:
   virtual void visitConstructorDeclaration(ConstructorDeclarationAst *node);
   virtual void visitInterfaceDeclaration(InterfaceDeclarationAst *node);
   virtual void visitEnumDeclaration(java::EnumDeclarationAst* node);
+  virtual void visitImportDeclaration(java::ImportDeclarationAst* node);
 
   virtual void addBaseType( BaseClassInstance base );
 

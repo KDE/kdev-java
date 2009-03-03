@@ -345,7 +345,10 @@ void ContextBuilder::visitCompilationUnit(java::CompilationUnitAst* node)
   {
     DUChainReadLocker lock(DUChain::lock());
     packageDeclarations = packageContext->findLocalDeclarations(id.last());
-    Q_ASSERT((id.isEmpty() && packageDeclarations.isEmpty()) || (!id.isEmpty() && packageDeclarations.count() == 1));
+    if (id.isEmpty())
+      Q_ASSERT(packageDeclarations.isEmpty());
+    else if (packageDeclarations.count() != 1)
+      kWarning() << "Package declaration expected, found " << packageDeclarations.count() << "declarations of" << id.last().toString();
   }
 
   openContext(node, DUContext::Namespace, id);
@@ -391,6 +394,12 @@ void ContextBuilder::addBaseType(BaseClassInstance base)
 void ContextBuilder::classContextOpened(KDevelop::DUContext* context)
 {
   Q_UNUSED(context);
+}
+
+void ContextBuilder::visitImportDeclaration(java::ImportDeclarationAst* node)
+{
+  if (node)
+    DefaultVisitor::visitImportDeclaration(node);
 }
 
 }

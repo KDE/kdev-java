@@ -239,12 +239,12 @@ void TypeBuilder::visitClassOrInterfaceTypeName(ClassOrInterfaceTypeNameAst * no
   
   if (openTypeFromName(m_currentIdentifier, node, true)) {
     {
-      DUChainReadLocker lock(DUChain::lock());
-      kDebug() << "Searching for type " << m_currentIdentifier.toStringList().join(".") << ", found " << currentAbstractType()->toString();
+      //DUChainReadLocker lock(DUChain::lock());
+      //kDebug() << "Searching for type " << m_currentIdentifier.toStringList().join(".") << ", found " << currentAbstractType()->toString();
     }
     closeType();
   } else {
-    kDebug() << "Searched for type " << m_currentIdentifier.toStringList().join(".") << ", none found.";
+    //kDebug() << "Searched for type " << m_currentIdentifier.toStringList().join(".") << ", none found.";
   } 
 }
 

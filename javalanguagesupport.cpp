@@ -50,6 +50,7 @@ Boston, MA 02110-1301, USA.
 #include <KIO/NetAccess>
 #include <qapplication.h>
 #include <kio/job.h>
+#include <language/highlighting/codehighlighting.h>
 
 using namespace java;
 
@@ -66,7 +67,7 @@ JavaLanguageSupport::JavaLanguageSupport( QObject* parent,
 {
     KDEV_USE_EXTENSION_INTERFACE( KDevelop::ILanguageSupport )
 
-    //m_highlights = new JavaHighlighting( this );
+    m_highlighting = new KDevelop::CodeHighlighting( this );
 
     CodeCompletionModel* ccModel = new CodeCompletionModel(this);
     new KDevelop::CodeCompletion( this, ccModel, name() );

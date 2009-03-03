@@ -45,9 +45,9 @@ KDevelop::SimpleCursor EditorIntegrator::findPosition( qint64 token, Edge edge )
 KDevelop::SimpleCursor EditorIntegrator::findPosition( const KDevPG::TokenStream::Token & token, Edge edge ) const
 {
   if(edge == BackEdge)
-    return m_session->positionAt(token.end + 1);
+    return m_session->positionAt(token.end);
   else
-    return m_session->positionAt(token.begin + 1);
+    return m_session->positionAt(token.begin);
 }
 
 KDevelop::SimpleRange EditorIntegrator::findRange( AstNode * node, RangeEdge edge )

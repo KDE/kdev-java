@@ -193,8 +193,8 @@ void ParseJob::run()
     KDevelop::TopDUContext* chain = builder.build(document(), ast, toUpdate);
     setDuChain(chain);
 
-    //UseBuilder useBuilder(&editor);
-    //useBuilder.buildUses(ast);
+    UseBuilder useBuilder(&editor);
+    useBuilder.buildUses(ast);
 
     if (!abortRequested() && editor.smart()) {
         editor.smart()->clearRevision();
@@ -206,7 +206,7 @@ void ParseJob::run()
         }
     }
 
-    KDevelop::DUChainReadLocker duchainlock(KDevelop::DUChain::lock());
+    //KDevelop::DUChainReadLocker duchainlock(KDevelop::DUChain::lock());
     //dump.dump(chain);
 }
 

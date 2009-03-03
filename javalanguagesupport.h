@@ -45,6 +45,7 @@ namespace KDevelop {
     class IDocument;
     class IProject;
     class DUContext;
+    class CodeHighlighting;
 }
 
 class JavaLanguageSupport : public KDevelop::IPlugin, public KDevelop::ILanguageSupport
@@ -73,7 +74,7 @@ private:
     void scheduleFile(const KUrl& url);
     void scheduleDirectory(const KUrl& url);
 
-    java::JavaHighlighting *m_highlights;
+    KDevelop::CodeHighlighting* m_highlighting;
     KDevelop::ReferencedTopDUContext m_allJavaContext;
 };
 

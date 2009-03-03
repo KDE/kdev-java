@@ -43,8 +43,10 @@ QString createArgumentList(const NormalDeclarationCompletionItem& item, QList<QV
   QString ret;
   
   Declaration* dec(item.declaration().data());
-  if (!dec)
+  if (!dec) {
+    kDebug() << "No declaration for item";
     return ret;
+  }
 
   TopDUContext* top = 0;
   if(item.completionContext() && item.completionContext()->duContext())
@@ -59,7 +61,13 @@ QString createArgumentList(const NormalDeclarationCompletionItem& item, QList<QV
   boldFormat.setFontWeight(QFont::Bold);
 
   AbstractFunctionDeclaration* decl = dynamic_cast<AbstractFunctionDeclaration*>(dec);
+  if (!decl)
+    kDebug() << "Declaration is not a subclass of AbstractFunctionDeclaration" << dec->toString();
+  
   FunctionType::Ptr functionType = dec->type<FunctionType>();
+  if (!functionType)
+    kDebug() << "Type is not a function type" << dec->abstractType()->toString();
+    
   if (functionType && decl) {
 
     QVector<Declaration*> parameters;
