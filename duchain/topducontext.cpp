@@ -92,11 +92,35 @@ bool TopDUContext::findDeclarationsInternal(const SearchItem::PtrList& identifie
 
   Q_ASSERT(identifiers.count() >= 1);
 
+  SearchItem::Ptr identifier = identifiers[0];
+
+  DeclarationChecker check(this, position, dataType, flags);
+  FindDeclarationsAcceptor accept(ret, check);
+
+#ifdef DEBUG_SEARCH2
+  FOREACH_ARRAY(SearchItem::Ptr idTree, identifiers)
+      foreach(const QualifiedIdentifier &id, idTree->toList())
+        kDebug() << "findDeclarationsInternal" << id.toString();
+
+  bool nextEmpty = identifier->hasNext() ? identifier->next.isEmpty() : true;
+  kDebug() << "Do direct search? hasNext" << identifier->hasNext() << " isEmpty " << nextEmpty;
+#endif
+ 
+  if (identifier->hasNext() && !identifier->next.isEmpty()) {
+    // This is a qualified identifier, do a direct lookup only
+    SearchItem::PtrList directLookup;
+    directLookup.append(identifier);
+    findJavaDeclarationsInternal(directLookup, accept, false);
+#ifdef DEBUG_SEARCH2
+    kDebug() << "Found directly " << ret.count();
+#endif
+    return true;
+  }
+  
   SearchItem::PtrList singleTypeImports;
   SearchItem::PtrList typeImportsOnDemand;
   SearchItem::PtrList singleStaticImports;
   SearchItem::PtrList staticImportsOnDemand;
-  SearchItem::Ptr identifier = identifiers[0];
 
   // Determine which identifiers to search for
   // Non-static imports
@@ -117,10 +141,6 @@ bool TopDUContext::findDeclarationsInternal(const SearchItem::PtrList& identifie
           singleStaticImports.append( SearchItem::Ptr( new SearchItem( alias->importIdentifier() ) ) ) ;
 
 #ifdef DEBUG_SEARCH
-  FOREACH_ARRAY(SearchItem::Ptr idTree, identifiers)
-      foreach(const QualifiedIdentifier &id, idTree->toList())
-        kDebug() << "findDeclarationsInternal" << id.toString();
-
   FOREACH_ARRAY(SearchItem::Ptr idTree, singleTypeImports)
       foreach(const QualifiedIdentifier &id, idTree->toList())
         kDebug() << "Single type imported: " << id.toString();
@@ -138,15 +158,12 @@ bool TopDUContext::findDeclarationsInternal(const SearchItem::PtrList& identifie
         kDebug() << "Statics imported on demand: " << id.toString();
 #endif
 
-  DeclarationChecker check(this, position, dataType, flags);
-  FindDeclarationsAcceptor accept(ret, check);
-
   ///The actual scopes are found within applyAliases, and each complete qualified identifier is given to FindDeclarationsAcceptor.
   ///That stores the found declaration to the output.
 
   findJavaDeclarationsInternal(singleTypeImports, accept, false);
   if (foundEnough(ret, flags)) {
-#ifdef DEBUG_SEARCH
+#ifdef DEBUG_SEARCH2
     kDebug() << "Found from single type" << ret.count();
 #endif
     return true;
@@ -154,7 +171,7 @@ bool TopDUContext::findDeclarationsInternal(const SearchItem::PtrList& identifie
 
   findJavaDeclarationsInternal(singleStaticImports, accept, true);
   if (foundEnough(ret, flags)) {
-#ifdef DEBUG_SEARCH
+#ifdef DEBUG_SEARCH2
     kDebug() << "Found from single static" << ret.count();
 #endif
     return true;
@@ -162,7 +179,7 @@ bool TopDUContext::findDeclarationsInternal(const SearchItem::PtrList& identifie
 
   findJavaDeclarationsInternal(typeImportsOnDemand, accept, false);
   if (foundEnough(ret, flags)) {
-#ifdef DEBUG_SEARCH
+#ifdef DEBUG_SEARCH2
     kDebug() << "Found from type on demand" << ret.count();
 #endif
     return true;
@@ -170,14 +187,14 @@ bool TopDUContext::findDeclarationsInternal(const SearchItem::PtrList& identifie
 
   findJavaDeclarationsInternal(staticImportsOnDemand, accept, true);
   if (foundEnough(ret, flags)) {
-#ifdef DEBUG_SEARCH
+#ifdef DEBUG_SEARCH2
     kDebug() << "Found from static on demand" << ret.count();
 #endif
     return true;
   }
 
-#ifdef DEBUG_SEARCH
-  kDebug() << "Found not enough" << ret.count();
+#ifdef DEBUG_SEARCH2
+  kDebug() << "None found" << ret.count();
 #endif
   return true;
 }
