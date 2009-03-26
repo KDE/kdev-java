@@ -16,13 +16,13 @@ add_subdirectory(parser)
 add_subdirectory(settings)
 
 include_directories(
-    ${CMAKE_SOURCE_DIR}
-    ${CMAKE_BINARY_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
     ${KDE4_INCLUDES}
     ${KDE4_INCLUDE_DIR}/threadweaver
     ${KDE4_INCLUDE_DIR}/kdevelop-pg-qt
-    ${CMAKE_SOURCE_DIR}/parser
-    ${CMAKE_BINARY_DIR}/parser
+    ${CMAKE_CURRENT_SOURCE_DIR}/parser
+    ${CMAKE_CURRENT_BINARY_DIR}/parser
     ${KDEVPLATFORM_INCLUDE_DIR}
 )
 
