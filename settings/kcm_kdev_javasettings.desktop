@@ -11,6 +11,7 @@ X-KDE-ParentComponents=kdevplatform
 X-KDE-CfgDlgHierarchy=GENERAL
 
 Name=Java Support
+Name[ca]=Implementació Java
 Name[es]=Implementación de Java
 Name[fr]=Gestion de Java
 Name[ga]=Tacaíocht Java
@@ -24,6 +25,7 @@ Name[tr]=Java Desteği
 Name[uk]=Підтримка Java
 Name[x-test]=xxJava Supportxx
 Comment=Configure Java Support settings
+Comment[ca]=Configura els arranjaments de la implementació de Java
 Comment[es]=Configurar las preferencias de la implementación Java
 Comment[fr]=Configurer les paramètres de la gestion de Java
 Comment[ga]=Cumraigh socruithe Tacaíocht Java
