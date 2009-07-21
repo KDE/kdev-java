@@ -10,8 +10,6 @@ include (MacroOptionalAddSubdirectory)
 
 find_package(KDevPlatform REQUIRED)
 
-include(KDevPlatformMacros)
-
 add_subdirectory(parser)
 add_subdirectory(settings)
 
