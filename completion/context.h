@@ -20,6 +20,8 @@
 #ifndef CODECOMPLETIONCONTEXT_H
 #define CODECOMPLETIONCONTEXT_H
 
+#include <QStringList>
+
 #include <ksharedptr.h>
 
 #include <language/codecompletion/codecompletioncontext.h>
@@ -53,15 +55,15 @@ namespace java {
        * @param text the text to analyze. It usually is the text in the range starting at the beginning of the context, and ending at the position where completion should start
        * @warning The du-chain must be unlocked when this is called
        * */
-      CodeCompletionContext(KDevelop::DUContextPointer context, const QString& text, const QString& followingText, int depth = 0);
+      CodeCompletionContext(KDevelop::DUContextPointer context, const QString& text, const QString &followingText, KDevelop::SimpleCursor& cursor, int depth = 0, const QStringList &knownArgumentExpressions = QStringList(), int line = -1);
       ~CodeCompletionContext();
 
       ///Computes the full set of completion items, using the information retrieved earlier.
       ///Should only be called on the first context, parent contexts are included in the computations.
       ///@param Abort is checked regularly, and if it is false, the computation is aborted.
-      virtual QList<KDevelop::CompletionTreeItemPointer> completionItems(const KDevelop::SimpleCursor& position, bool& abort, bool fullCompletion = true);
+      virtual QList<KDevelop::CompletionTreeItemPointer> completionItems(bool& abort, bool fullCompletion = true);
 
-      void standardAccessCompletionItems(const KDevelop::SimpleCursor& position, QList<KDevelop::CompletionTreeItemPointer>& items);
+      void standardAccessCompletionItems(/*const KDevelop::SimpleCursor& position,*/ QList<KDevelop::CompletionTreeItemPointer>& items);
       
       bool isValidPosition() const;
 
@@ -95,6 +97,8 @@ namespace java {
     private:
       QList<KDevelop::CompletionTreeItemPointer> m_storedItems;
       int m_memberAccessOperation;
+      QString m_followingText;
+      QStringList m_knownArgumentExpressions;
   };
 }
 

@@ -4,18 +4,16 @@ include_directories(
     ${KDE4_INCLUDE_DIR}/kdevelop-pg-qt
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${KDEVPLATFORM_INCLUDE_DIR}
-    ${KDEVPLATFORM_INCLUDE_DIR}/interfaces
-    ${KDEVPLATFORM_INCLUDE_DIR}/editor
-    ${KDEVPLATFORM_INCLUDE_DIR}/project
-    ${KDEVPLATFORM_INCLUDE_DIR}/project/interfaces
-    ${KDEVPLATFORM_INCLUDE_DIR}/language
-    ${KDEVPLATFORM_INCLUDE_DIR}/language/interfaces
-    ${KDEVPLATFORM_INCLUDE_DIR}/language/backgroundparser
-    ${KDEVPLATFORM_INCLUDE_DIR}/language/duchain
-    ${KDEVPLATFORM_INCLUDE_DIR}/language/duchain/viewer
+#    ${KDEVPLATFORM_INCLUDE_DIR}/interfaces
+#    ${KDEVPLATFORM_INCLUDE_DIR}/editor
+#    ${KDEVPLATFORM_INCLUDE_DIR}/project
+#    ${KDEVPLATFORM_INCLUDE_DIR}/project/interfaces
+#    ${KDEVPLATFORM_INCLUDE_DIR}/language
+#    ${KDEVPLATFORM_INCLUDE_DIR}/language/interfaces
+#    ${KDEVPLATFORM_INCLUDE_DIR}/language/backgroundparser
+#    ${KDEVPLATFORM_INCLUDE_DIR}/language/duchain
+#    ${KDEVPLATFORM_INCLUDE_DIR}/language/duchain/viewer
 )
-
-find_package(KDevelop-PG-Qt)
 
 ########### next target ###############
 
@@ -24,6 +22,7 @@ kdevpgqt_generate(_kdevpgList java NAMESPACE java DEBUG_VISITOR
     "${CMAKE_CURRENT_SOURCE_DIR}/java.g"
     "${CMAKE_CURRENT_SOURCE_DIR}/javalexer.h"
 )
+
 
 set(kdevjavaparser_STAT_SRCS
     java_io.cpp

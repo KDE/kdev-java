@@ -10,6 +10,10 @@ include (MacroOptionalAddSubdirectory)
 
 find_package(KDevPlatform REQUIRED)
 
+find_package(KDevelop-PG-Qt)
+
+include_directories(${KDEVPGQT_INCLUDE_DIR})
+
 add_subdirectory(parser)
 add_subdirectory(settings)
 

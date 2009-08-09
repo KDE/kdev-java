@@ -74,10 +74,12 @@ QString extractLastLine(const QString& str) {
 
 int completionRecursionDepth = 0;
 
-CodeCompletionContext::CodeCompletionContext(DUContextPointer context, const QString& text, const QString& followingText, int depth)
-  : KDevelop::CodeCompletionContext(context, text, depth)
-  , m_memberAccessOperation(NoMemberAccess)
+CodeCompletionContext::CodeCompletionContext(DUContextPointer context, const QString& text, const QString& followingText, KDevelop::SimpleCursor& position, int depth, const QStringList& knownArgumentExpressions, int line)
+  : KDevelop::CodeCompletionContext(context, text, position, depth)
+  , m_memberAccessOperation(NoMemberAccess), m_followingText( followingText ), 
+    m_knownArgumentExpressions( knownArgumentExpressions)
 {
+  #warning What to do with knownArgumentExpressions ?
   m_valid = isValidPosition();
   if( !m_valid ) {
     log( "position not valid for code-completion" );
@@ -125,6 +127,7 @@ CodeCompletionContext::CodeCompletionContext(DUContextPointer context, const QSt
    * When the left and right part are only separated by a whitespace,
    * expressionAt returns both sides
    * */
+  
 }
 
 CodeCompletionContext::~CodeCompletionContext() {
@@ -140,13 +143,13 @@ CodeCompletionContext* CodeCompletionContext::parentContext() {
   return static_cast<CodeCompletionContext*>(KDevelop::CodeCompletionContext::parentContext());
 }
 
-QList<CompletionTreeItemPointer> CodeCompletionContext::completionItems(const KDevelop::SimpleCursor& position, bool& abort, bool fullCompletion)
+QList<CompletionTreeItemPointer> CodeCompletionContext::completionItems(bool& abort, bool fullCompletion)
 {
   LOCKDUCHAIN;
 
   QList<CompletionTreeItemPointer> items;
 
-  if (!m_duContext)
+  if (!m_duContext || !m_valid)
     return items;
 
   typedef QPair<Declaration*, int> DeclarationDepthPair;
@@ -155,14 +158,14 @@ QList<CompletionTreeItemPointer> CodeCompletionContext::completionItems(const KD
     items = m_storedItems;
 
   } else {
-    standardAccessCompletionItems(position, items);
+    standardAccessCompletionItems(items);
     kDebug() << "Found declarations:" << items.count();
   }
 
   return items;
 }
 
-void CodeCompletionContext::standardAccessCompletionItems(const KDevelop::SimpleCursor& position, QList<CompletionTreeItemPointer>& items) {
+void CodeCompletionContext::standardAccessCompletionItems(QList< CompletionTreeItemPointer >& items) {
   //Normal case: Show all visible declarations
   typedef QPair<Declaration*, int> DeclarationDepthPair;
   QSet<QualifiedIdentifier> hadNamespaceDeclarations;
@@ -173,7 +176,7 @@ void CodeCompletionContext::standardAccessCompletionItems(const KDevelop::Simple
       typeIsConst = true;
   }*/
 
-  QList<DeclarationDepthPair> decls = m_duContext->allDeclarations(m_duContext->type() == DUContext::Class ? m_duContext->range().end : position, m_duContext->topContext());
+  QList<DeclarationDepthPair> decls = m_duContext->allDeclarations(m_duContext->type() == DUContext::Class ? m_duContext->range().end : m_position, m_duContext->topContext());
 
   QList<Declaration*> moreDecls;
 
