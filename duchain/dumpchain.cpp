@@ -194,7 +194,7 @@ void DumpChain::visitNode(AstNode *node)
   for( int a = 0; a < indent; a++ )
     indentation += "| ";
 
-  if (node)
+  if (node) {
     if (m_editor) {
       QString nodeText;
       for( qint64 a = node->startToken; a <= node->endToken; a++ ) {
@@ -208,22 +208,26 @@ void DumpChain::visitNode(AstNode *node)
       kDebug() << indentation <<  "\\" << names[node->kind - 1000]
               << "[" << node->startToken << m_editor->findPosition(node->startToken, EditorIntegrator::FrontEdge).textCursor() << ", "
               << node->endToken << m_editor->findPosition(node->endToken, EditorIntegrator::BackEdge).textCursor() << "]" << nodeText << endl;
-    } else
+    } else {
       kDebug() << indentation << "\\" << names[node->kind - 1000]
               << "[" << node->startToken << "," << node->endToken << "]" << endl;
+    }
+  }
 
   ++indent;
   DefaultVisitor::visitNode(node);
   --indent;
 
-  if (node)
-    if (m_editor)
+  if (node) {
+    if (m_editor) {
       kDebug() << indentation << "/" << names[node->kind - 1000]
               << "[("  << node->endToken << ") "/*<< m_editor->findPosition(node->startToken, EditorIntegrator::FrontEdge) << ", "*/
               << m_editor->findPosition(node->endToken, EditorIntegrator::FrontEdge).textCursor() << "]" << endl;
-    else
+    } else {
       kDebug() << indentation << "/" << names[node->kind - 1000]
               << "[" << node->startToken << "," << node->endToken << ']' << endl;
+    }
+  }
 }
 
 DumpChain::~ DumpChain( )

@@ -38,12 +38,15 @@ namespace java
 
 void Parser::reportProblem( Parser::ProblemType type, const QString& message )
 {
-  if (type == Error)
+  if (type == Error) {
     kDebug() << "** ERROR:" << message;
-  else if (type == Warning)
+  }
+  else if (type == Warning) {
     kDebug() << "** WARNING:" << message;
-  else if (type == Info)
+  }
+  else if (type == Info) {
     kDebug() << "** Info:" << message;
+  }
 }
 
 

@@ -44,6 +44,8 @@ TypeBuilder::TypeBuilder()
   
 StructureType* TypeBuilder::openClass(bool interface, bool parameters)
 {
+  Q_UNUSED( interface );
+  Q_UNUSED( parameters );
   StructureType* classType = /*parameters ? new ParameterizedType() : */new StructureType();
 
   //classType->setClassType(interface ? StructureType::Interface : StructureType::Class);

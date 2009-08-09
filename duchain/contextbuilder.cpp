@@ -346,9 +346,13 @@ void ContextBuilder::visitCompilationUnit(java::CompilationUnitAst* node)
     DUChainReadLocker lock(DUChain::lock());
     packageDeclarations = packageContext->findLocalDeclarations(id.last());
     if (id.isEmpty())
+    {
       Q_ASSERT(packageDeclarations.isEmpty());
+    }
     else if (packageDeclarations.count() != 1)
+    {
       kWarning() << "Package declaration expected, found " << packageDeclarations.count() << "declarations of" << id.last().toString();
+    }
   }
 
   openContext(node, DUContext::Namespace, id);

@@ -61,12 +61,14 @@ QString createArgumentList(const NormalDeclarationCompletionItem& item, QList<QV
   boldFormat.setFontWeight(QFont::Bold);
 
   AbstractFunctionDeclaration* decl = dynamic_cast<AbstractFunctionDeclaration*>(dec);
-  if (!decl)
+  if (!decl) {
     kDebug() << "Declaration is not a subclass of AbstractFunctionDeclaration" << dec->toString();
+  }
   
   FunctionType::Ptr functionType = dec->type<FunctionType>();
-  if (!functionType)
+  if (!functionType) {
     kDebug() << "Type is not a function type" << dec->abstractType()->toString();
+  }
     
   if (functionType && decl) {
 
@@ -100,10 +102,11 @@ QString createArgumentList(const NormalDeclarationCompletionItem& item, QList<QV
     int parameterConversion = 0;
 
     foreach (const AbstractType::Ptr& argument, functionType->arguments()) {
-      if (first)
+      if (first) {
         first = false;
-      else
+      } else {
         ret += ", ";
+      }
 
       bool doHighlight = false;
       QTextFormat doFormat = normalFormat;

@@ -192,8 +192,9 @@ void DumpTree::visitNode(AstNode *node)
   DefaultVisitor::visitNode(node);
   --indent;
 
-  if (node)
+  if (node) {
     kDebug() << QString(indent * 2, ' ').toLatin1().constData() << names[node->kind - 1000];
+  }
 }
 
 DumpTree::~ DumpTree( )

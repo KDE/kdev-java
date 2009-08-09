@@ -99,8 +99,9 @@ void DeclarationBuilder::visitClassDeclaration(ClassDeclarationAst * node)
     if (newClass->qualifiedIdentifier() != javaLangObject) {
       QList<Declaration*> declarations = currentContext()->findDeclarations(javaLangObject, currentContext()->range().end, AbstractType::Ptr(), currentContext()->topContext());
       if (declarations.count() >= 1) {
-        if (declarations.count() > 1)
+        if (declarations.count() > 1) {
           kDebug() << "Found mulitple declarations for" << javaLangObject.toStringList().join(".");
+        }
         BaseClassInstance instance;
         {
           // TODO check that type is a class

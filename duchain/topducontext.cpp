@@ -88,6 +88,7 @@ struct TopDUContext::FindContextsAcceptor
 
 bool TopDUContext::findDeclarationsInternal(const SearchItem::PtrList& identifiers, const SimpleCursor& position, const AbstractType::Ptr& dataType, DeclarationList& ret, const KDevelop::TopDUContext* source, SearchFlags flags) const
 {
+  Q_UNUSED( source );
   ENSURE_CAN_READ
 
   Q_ASSERT(identifiers.count() >= 1);
@@ -125,20 +126,27 @@ bool TopDUContext::findDeclarationsInternal(const SearchItem::PtrList& identifie
   // Determine which identifiers to search for
   // Non-static imports
   foreach (Declaration* import, allLocalDeclarations(globalImportIdentifier))
-    if (NamespaceAliasDeclaration* alias = dynamic_cast<NamespaceAliasDeclaration*>(import))
-      if (alias->importIdentifier().last() == Identifier("*"))
+    if (NamespaceAliasDeclaration* alias = dynamic_cast<NamespaceAliasDeclaration*>(import)) {
+      if (alias->importIdentifier().last() == Identifier("*")) {
         typeImportsOnDemand.append( SearchItem::Ptr( new SearchItem( alias->importIdentifier().left(-1), identifier ) ) ) ;
-      else
-        if (alias->importIdentifier().last() == identifier->identifier)
+      } else {
+        if (alias->importIdentifier().last() == identifier->identifier) {
           singleTypeImports.append( SearchItem::Ptr( new SearchItem( alias->importIdentifier() ) ) ) ;
+        }
+      }
+    }
   // Static imports
-  foreach (Declaration* import, allLocalDeclarations(globalStaticImportIdentifier))
-    if (NamespaceAliasDeclaration* alias = dynamic_cast<NamespaceAliasDeclaration*>(import))
-      if (alias->importIdentifier().last() == Identifier("*"))
+  foreach (Declaration* import, allLocalDeclarations(globalStaticImportIdentifier)) {
+    if (NamespaceAliasDeclaration* alias = dynamic_cast<NamespaceAliasDeclaration*>(import)) {
+      if (alias->importIdentifier().last() == Identifier("*")) {
         staticImportsOnDemand.append( SearchItem::Ptr( new SearchItem( alias->importIdentifier().left(-1), identifier ) ) ) ;
-      else
-        if (alias->importIdentifier().last() == identifier->identifier)
+      } else {
+        if (alias->importIdentifier().last() == identifier->identifier) {
           singleStaticImports.append( SearchItem::Ptr( new SearchItem( alias->importIdentifier() ) ) ) ;
+        }
+      }
+    }
+  }
 
 #ifdef DEBUG_SEARCH
   FOREACH_ARRAY(SearchItem::Ptr idTree, singleTypeImports)
@@ -262,6 +270,7 @@ void TopDUContext::findJavaDeclarationsInternal( const SearchItem::PtrList& iden
 
 void TopDUContext::findContextsInternal(KDevelop::DUContext::ContextType contextType, const SearchItem::PtrList& identifiers, const KDevelop::SimpleCursor& position, QList< KDevelop::DUContext* >& ret, const KDevelop::TopDUContext* source, SearchFlags flags) const
 {
+  Q_UNUSED( source );
   ContextChecker check(this, position, contextType, flags);
   FindContextsAcceptor accept(ret, check);
 
