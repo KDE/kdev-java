@@ -86,7 +86,7 @@ set_source_files_properties(
 #       Its only purpose is to support the plugin without needing to add all source files
 #       to the plugin target
 kde4_add_library(kdev4javaparser SHARED ${kdevjavaparser_STAT_SRCS})
-target_link_libraries(kdev4javaparser ${KDE4_KDECORE_LIBS} ${KDE4_KTEXTEDITOR_LIBS} ${KDEVPLATFORM_LANGUAGE_LIBRARY})
+target_link_libraries(kdev4javaparser ${KDE4_KDECORE_LIBS} ${KDE4_KTEXTEDITOR_LIBS} ${KDEVPLATFORM_LANGUAGE_LIBRARIES})
 install(TARGETS kdev4javaparser ${INSTALL_TARGETS_DEFAULT_ARGS} )
 
 
