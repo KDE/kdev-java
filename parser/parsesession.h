@@ -28,11 +28,12 @@
 #include "javaparserexport.h"
 
 #include <language/editor/simplecursor.h>
-
-typedef QPair<KDevelop::DUContextPointer, KDevelop::SimpleRange> SimpleUse;
+#include <language/duchain/ducontext.h>
 
 namespace java
 {
+
+typedef QPair<KDevelop::DUContextPointer, KDevelop::SimpleRange> SimpleUse;
 
 /// Contains everything needed to keep an AST useful once the rest of the parser
 /// has gone away.
