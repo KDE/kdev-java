@@ -19,6 +19,7 @@
 #include "usebuilder.h"
 
 #include "editorintegrator.h"
+#include "parsesession.h"
 
 using namespace KTextEditor;
 using namespace KDevelop;

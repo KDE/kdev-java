@@ -39,7 +39,7 @@ namespace java {
 
 ContextBuilder::ContextBuilder()
   : m_identifierCompiler(0)
-  , m_java(0)
+  , m_java(0), m_mapAst(false)
 {
 }
 

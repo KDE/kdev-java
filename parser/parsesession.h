@@ -29,7 +29,7 @@
 
 #include <language/editor/simplecursor.h>
 
-class SimpleUse;
+typedef QPair<KDevelop::DUContextPointer, KDevelop::SimpleRange> SimpleUse;
 
 namespace java
 {
@@ -62,7 +62,8 @@ public:
     /// This saves memory by sharing the strings using a global string repository
     /// \note Unimplemented
   QString unify(const QString& str) const;
-  
+
+  /// @TODO implement this
   void mapAstUse(AstNode* node, const SimpleUse& use)
   {
     Q_UNUSED(node);

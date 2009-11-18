@@ -86,9 +86,10 @@ struct TopDUContext::FindContextsAcceptor
   const ContextChecker& check;
 };
 
-bool TopDUContext::findDeclarationsInternal(const SearchItem::PtrList& identifiers, const SimpleCursor& position, const AbstractType::Ptr& dataType, DeclarationList& ret, const KDevelop::TopDUContext* source, SearchFlags flags) const
+bool TopDUContext::findDeclarationsInternal(const SearchItem::PtrList& identifiers, const SimpleCursor& position, const AbstractType::Ptr& dataType, DeclarationList& ret, const KDevelop::TopDUContext* source, SearchFlags flags, uint depth) const
 {
-  Q_UNUSED( source );
+  Q_UNUSED(source);
+  Q_UNUSED(depth);
   ENSURE_CAN_READ
 
   Q_ASSERT(identifiers.count() >= 1);

@@ -107,6 +107,8 @@ protected:
 
 private:
   JavaLanguageSupport* m_java;
+public:
+  bool m_mapAst;
 };
 
 }
