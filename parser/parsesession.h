@@ -29,6 +29,8 @@
 
 #include <language/editor/simplecursor.h>
 
+class SimpleUse;
+
 namespace java
 {
 
@@ -60,6 +62,12 @@ public:
     /// This saves memory by sharing the strings using a global string repository
     /// \note Unimplemented
   QString unify(const QString& str) const;
+  
+  void mapAstUse(AstNode* node, const SimpleUse& use)
+  {
+    Q_UNUSED(node);
+    Q_UNUSED(use);
+  }
 
 private:
   QByteArray m_contents;
