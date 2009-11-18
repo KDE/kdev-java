@@ -37,7 +37,8 @@ DUContext::DUContext(java::DUContextData& data)
 
 REGISTER_DUCHAIN_ITEM(DUContext);
 
-bool DUContext::findDeclarationsInternal(const SearchItem::PtrList& identifiers, const KDevelop::SimpleCursor& position, const KDevelop::AbstractType::Ptr& dataType, DeclarationList& ret, const KDevelop::TopDUContext* source, SearchFlags flags) const {
+bool DUContext::findDeclarationsInternal(const SearchItem::PtrList& identifiers, const KDevelop::SimpleCursor& position, const KDevelop::AbstractType::Ptr& dataType, DeclarationList& ret, const KDevelop::TopDUContext* source, SearchFlags flags, uint depth) const {
+  Q_UNUSED(depth);
   Q_ASSERT(identifiers.count() == 1);
 
   SearchItem::Ptr identifier = identifiers[0];
