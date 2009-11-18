@@ -71,7 +71,8 @@ bool DUContext::findDeclarationsInternal(const SearchItem::PtrList& identifiers,
       if( position.isValid() && import.position.isValid() && position < import.position )
         continue;
 
-      if( !context->findDeclarationsInternal(identifiers,  context->range().end, dataType, ret, source, flags | InImportedParentContext) )
+      /// \todo Is depth = 0 really okay?
+      if( !context->findDeclarationsInternal(identifiers, context->range().end, dataType, ret, source, flags | InImportedParentContext, 0) )
         return false;
     }
 
@@ -82,7 +83,8 @@ bool DUContext::findDeclarationsInternal(const SearchItem::PtrList& identifiers,
 
   ///Step 3: Continue search in parent-context
   if (!(flags & DontSearchInParent) && shouldSearchInParent(flags) && parentContext()) {
-    return parentContext()->findDeclarationsInternal(identifiers, parentContext()->range().end, dataType, ret, source, flags);
+    /// \todo Is depth = 0 really okay?
+    return parentContext()->findDeclarationsInternal(identifiers, parentContext()->range().end, dataType, ret, source, flags, 0);
   }
 
   return true;
