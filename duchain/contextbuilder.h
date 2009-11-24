@@ -50,6 +50,11 @@ public:
 
   void setJavaSupport(JavaLanguageSupport* java);
 
+  typedef QPair<KDevelop::DUContextPointer, KDevelop::QualifiedIdentifier> ContextID;
+  const QList<ContextID>& unresolvedIdentifiers() const;
+  bool hadUnresolvedIdentifiers() const;
+  bool identifiersRemainUnresolved() const;
+
 protected:
   EditorIntegrator* editor() const;
 
@@ -72,6 +77,8 @@ protected:
   KDevelop::QualifiedIdentifier identifierForNode(QualifiedIdentifierAst* id);
   KDevelop::QualifiedIdentifier identifierForNode(const KDevPG::ListNode<IdentifierAst*>* id);
 
+  void unresolvedIdentifier(KDevelop::DUContextPointer context, KDevelop::QualifiedIdentifier id);
+  
   // Visitors
   template<typename T>
   void visitNodeList(const KDevPG::ListNode<T*>* list)
@@ -99,7 +106,6 @@ protected:
 
   virtual void addBaseType( BaseClassInstance base );
 
-protected:
   virtual void classContextOpened(KDevelop::DUContext* context);
 
   // Variables
@@ -107,6 +113,9 @@ protected:
 
 private:
   JavaLanguageSupport* m_java;
+
+  QList<ContextID> m_unresolvedIDs;
+
 public:
   bool m_mapAst;
 };

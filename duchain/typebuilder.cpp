@@ -93,8 +93,6 @@ void TypeBuilder::visitInterfaceMethodDeclaration(InterfaceMethodDeclarationAst 
 
 void TypeBuilder::visitConstructorDeclaration(ConstructorDeclarationAst * node)
 {
-  // TODO set constructor type
-
   FunctionType::Ptr functionType = FunctionType::Ptr(new FunctionType());
   functionType->setModifiers(parseModifiers(node->modifiers));
 
@@ -246,7 +244,7 @@ void TypeBuilder::visitClassOrInterfaceTypeName(ClassOrInterfaceTypeNameAst * no
     }
     closeType();
   } else {
-    //kDebug() << "Searched for type " << m_currentIdentifier.toStringList().join(".") << ", none found.";
+    unresolvedIdentifier(DUContextPointer(currentContext()), m_currentIdentifier);
   } 
 }
 

@@ -2,7 +2,6 @@ project(java)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${java_SOURCE_DIR}/cmake)
 
-
 find_package(KDE4 REQUIRED)
 include (KDE4Defaults)
 include (MacroLibrary)
@@ -36,7 +35,7 @@ add_definitions( ${QT_DEFINITIONS} ${KDE4_DEFINITIONS} -DKDE_DEFAULT_DEBUG_AREA=
 set(kdevjavalanguagesupport_PART_SRCS
     javalanguagesupport.cpp
     parsejob.cpp
-    #javahighlighting.cpp
+    javaparsertracker.cpp
 
     duchain/editorintegrator.cpp
     duchain/identifiercompiler.cpp
@@ -65,7 +64,6 @@ target_link_libraries(kdevjavalanguagesupport
     ${KDEVPLATFORM_INTERFACES_LIBRARIES}
     ${KDEVPLATFORM_PROJECT_LIBRARIES}
     ${KDE4_THREADWEAVER_LIBRARIES}
-    ${KDEVPLATFORM_LANGUAGE_LIBRARIES}
     ${KDEVPLATFORM_LANGUAGE_LIBRARIES}
     ${KDE4_KDE3SUPPORT_LIBRARY}
     ${KDE4_KDEUI_LIBS}

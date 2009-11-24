@@ -41,6 +41,7 @@ Boston, MA 02110-1301, USA.
 #include <interfaces/iproject.h>
 
 #include "parsejob.h"
+#include "javaparsertracker.h"
 
 #include <language/codecompletion/codecompletion.h>
 #include <language/codecompletion/codecompletionmodel.h>
@@ -51,6 +52,8 @@ Boston, MA 02110-1301, USA.
 #include <qapplication.h>
 #include <kio/job.h>
 #include <language/highlighting/codehighlighting.h>
+#include <interfaces/ilanguage.h>
+#include <QReadWriteLock>
 
 using namespace java;
 
@@ -59,25 +62,23 @@ K_EXPORT_PLUGIN(KDevJavaSupportFactory("kdevjavasupport"))
 
 const KDevelop::Identifier globalStaticImportIdentifier("{...static-import...}");
 
+JavaLanguageSupport* JavaLanguageSupport::s_self = 0;
+
 JavaLanguageSupport::JavaLanguageSupport( QObject* parent,
                                           const QVariantList& /*args*/ )
         : KDevelop::IPlugin( KDevJavaSupportFactory::componentData(), parent )
         , KDevelop::ILanguageSupport()
         , m_allJavaContext(0)
+        , m_parserTracker(new java::ParserTracker(this))
 {
+    s_self = this;
+    
     KDEV_USE_EXTENSION_INTERFACE( KDevelop::ILanguageSupport )
 
     m_highlighting = new KDevelop::CodeHighlighting( this );
 
     CodeCompletionModel* ccModel = new CodeCompletionModel(this);
     new KDevelop::CodeCompletion( this, ccModel, name() );
-
-    connect( core()->projectController(),
-             SIGNAL( projectOpened(KDevelop::IProject*) ),
-             this, SLOT( projectOpened(KDevelop::IProject*) ) );
-    connect( core()->projectController(),
-             SIGNAL( projectClosed() ),
-             this, SLOT( projectClosed() ) );
 
     scheduleInternalSources();
 
@@ -86,27 +87,25 @@ JavaLanguageSupport::JavaLanguageSupport( QObject* parent,
 
 JavaLanguageSupport::~JavaLanguageSupport()
 {
+    KDevelop::ILanguage* lang = language();
+    if (lang) {
+        lang->parseLock()->lockForWrite();
+        s_self = 0; //By locking the parse-mutexes, we make sure that parse- and preprocess-jobs get a chance to finish in a good state
+        lang->parseLock()->unlock();
+    }
+}
+
+
+JavaLanguageSupport* JavaLanguageSupport::self()
+{
+    return s_self;
 }
 
 KDevelop::ParseJob *JavaLanguageSupport::createParseJob( const KUrl &url )
 {
-    return new ParseJob( url, this );
-}
-
-void JavaLanguageSupport::projectOpened(KDevelop::IProject *project)
-{
-    foreach(KDevelop::IDocument* doc, core()->documentController()->openDocuments()) {
-        if (project->inProject(doc->url())) {
-            QString path = doc->url().path();
-
-            core()->languageController()->backgroundParser()->addDocument(doc->url());
-        }
-    }
-}
-
-void JavaLanguageSupport::projectClosed()
-{
-    // FIXME This should remove the project files from the backgroundparser
+    ParseJob* job = new ParseJob( url );
+    parserTracker()->addParseJob(job);
+    return job;
 }
 
 QString JavaLanguageSupport::name() const
@@ -119,159 +118,39 @@ KDevelop::ILanguage * JavaLanguageSupport::language()
     return core()->languageController()->language(name());
 }
 
-#if 0
-
-KDevelop::ReferencedTopDUContext JavaLanguageSupport::contextForIdentifier(KDevelop::QualifiedIdentifier id, bool isDirectory)
-{
-    QString path = id.toStringList().join("/");
-
-    if (!isDirectory)
-        path += ".java";
-
-    return contextForPath(path, isDirectory);
-}
-
-KDevelop::ReferencedTopDUContext JavaLanguageSupport::contextForPath(const QString& path, bool isDirectory)
-{
-    // TODO: very crude, needs fixing once java-supported build system managers available
-    foreach (KDevelop::IProject *project, KDevelop::ICore::self()->projectController()->projects()) {
-        if (isDirectory) {
-            QList<KDevelop::ProjectFolderItem*> folders = project->foldersForUrl(path);
-            foreach (KDevelop::ProjectFolderItem* folder, folders) {
-                KDevelop::DUChainWriteLocker lock(KDevelop::DUChain::lock());
-                if (KDevelop::TopDUContext* topContext = KDevelop::DUChainUtils::standardContextForUrl(folder->url())) {
-                    return KDevelop::ReferencedTopDUContext(topContext);
-                } else {
-                    // Create new top context, and fire off parsing jobs for everything
-                    // TODO add wait condition from new parse jobs
-                    KDevelop::ReferencedTopDUContext top = createTopContext(KDevelop::IndexedString(path));
-                    // TODO add watcher for reparsing this context when files on disk change
-                    foreach (KDevelop::ProjectFileItem* file, folder->fileList()) {
-                        if (KDevelop::TopDUContext* importContext = KDevelop::DUChainUtils::standardContextForUrl(file->url())) {
-                            top->addImportedParentContext(importContext);
-                        } else {
-                            top->addImportedParentContext(contextForPath(file->url().path(), false));
-                        }
-                    }
-                    foreach (KDevelop::ProjectFolderItem* subFolder, folder->folderList()) {
-                        if (KDevelop::TopDUContext* importContext = KDevelop::DUChainUtils::standardContextForUrl(subFolder->url())) {
-                            top->addImportedParentContext(importContext);
-                        } else {
-                            top->addImportedParentContext(contextForPath(subFolder->url().path(), true));
-                        }
-                    }
-                    return top;
-                }
-            }
-        } else {
-            QList<KDevelop::ProjectFileItem*> files = project->filesForUrl(path);
-            foreach (KDevelop::ProjectFileItem* file, files) {
-                if (KDevelop::TopDUContext* topContext = KDevelop::DUChainUtils::standardContextForUrl(file->url())) {
-                    return KDevelop::ReferencedTopDUContext(topContext);
-                } else {
-                    // Create new top context, and fire off a parse job
-                    KDevelop::DUChainWriteLocker lock(KDevelop::DUChain::lock());
-                    return createFileContext(file->url());
-                }
-            }
-        }
-    }
-
-    // Built-in...
-    KConfigGroup config(KGlobal::config(), "Java Support");
-    KUrl javaSourceUrl = config.readEntry("Java Source Zip", KUrl());
-    if (javaSourceUrl.isValid()) {
-        javaSourceUrl.addPath(path);
-
-        QFileInfo info(javaSourceUrl.path());
-        if (info.exists() && info.isReadable()) {
-            if (KDevelop::TopDUContext* topContext = KDevelop::DUChainUtils::standardContextForUrl(javaSourceUrl)) {
-                return KDevelop::ReferencedTopDUContext(topContext);
-            } else {
-                KDevelop::DUChainWriteLocker lock(KDevelop::DUChain::lock());
-                if (!info.isFile()) {
-                    return createDirectoryContext(javaSourceUrl);
-                } else {
-                    return createFileContext(javaSourceUrl);
-                }
-            }
-        } else {
-            kDebug() << path << "no inbuilt file:" << javaSourceUrl << "doesn't exist or is not readable";
-        }
-    } else {
-        kDebug() << "Java source URL is not valid:" << javaSourceUrl;
-    }
-
-    return 0;
-}
-
-KDevelop::ReferencedTopDUContext JavaLanguageSupport::createTopContext(const KDevelop::IndexedString& url)
-{
-    KDevelop::ReferencedTopDUContext top = new KDevelop::TopDUContext(url, KDevelop::SimpleRange( KDevelop::SimpleCursor( 0, 0 ), KDevelop::SimpleCursor( INT_MAX, INT_MAX ) ));
-    top->setType( KDevelop::DUContext::Global );
-    KDevelop::DUChain::self()->addDocumentChain( top );
-    return top;
-}
-
-KDevelop::ReferencedTopDUContext JavaLanguageSupport::createFileContext(const KUrl& url)
-{
-    kDebug() << url;
-    KDevelop::ReferencedTopDUContext top = createTopContext(KDevelop::IndexedString(url));
-    KDevelop::ICore::self()->languageController()->backgroundParser()->addDocument(url, KDevelop::TopDUContext::AllDeclarationsAndContexts);
-    return top;
-}
-
-KDevelop::ReferencedTopDUContext JavaLanguageSupport::createDirectoryContext(const KUrl& url)
-{
-    KDevelop::ReferencedTopDUContext top = createTopContext(KDevelop::IndexedString(url));
-    QDir dirInfo(url.path());
-    kDebug() << url;
-    foreach (const QFileInfo& entry, dirInfo.entryInfoList(QDir::NoDotAndDotDot | QDir::Readable | QDir::Dirs | QDir::Files)) {
-        if (entry.isFile()) {
-            KDevelop::ReferencedTopDUContext child = createFileContext(KUrl::fromPath(entry.filePath()));
-            top->addImportedParentContext(child);
-        } else if (entry.isDir()) {
-            KDevelop::ReferencedTopDUContext child = createDirectoryContext(KUrl::fromPath(entry.filePath()));
-            top->addImportedParentContext(child);
-        }
-    }
-    return top;
-}
-
-#endif
-
 void JavaLanguageSupport::scheduleInternalSources()
 {
     KConfigGroup config(KGlobal::config(), "Java Support");
-    KUrl javaSourceUrl = config.readEntry("Java Source Zip", KUrl());
-    if (javaSourceUrl.isValid()) {
-        QFileInfo info(javaSourceUrl.path());
-        if (info.exists() && info.isReadable()) {
-            scheduleDirectory(javaSourceUrl);
+    m_javaSourceUrl = config.readEntry("Java Source Zip", KUrl());
+
+    if (m_javaSourceUrl.protocol() == "file") {
+        QFileInfo info(m_javaSourceUrl.path());
+        if (info.exists() && info.isReadable() && info.isFile()) {
+            m_javaSourceUrl.setProtocol("zip");
+            m_javaSourceUrl.adjustPath(KUrl::AddTrailingSlash);
+            KIO::ListJob* list = KIO::listRecursive(m_javaSourceUrl, KIO::DefaultFlags, false);
+            connect(list, SIGNAL(entries(KIO::Job*,KIO::UDSEntryList)), SLOT(slotJavaSourceEntries(KIO::Job*,KIO::UDSEntryList)));
+            list->start();
         } else {
-            kDebug() << "no inbuilt file:" << javaSourceUrl << "doesn't exist or is not readable";
+            kDebug() << m_javaSourceUrl << "error, file doesn't exist or is not readable";
         }
     } else {
-        kDebug() << "Java source URL is not valid:" << javaSourceUrl;
+        kDebug() << m_javaSourceUrl << "error, non file protocol url";
     }
 }
 
-void JavaLanguageSupport::scheduleDirectory(const KUrl& url)
+void JavaLanguageSupport::slotJavaSourceEntries(KIO::Job* job, KIO::UDSEntryList entries)
 {
-    QDir dirInfo(url.path());
-    kDebug() << url;
-    foreach (const QFileInfo& entry, dirInfo.entryInfoList(QDir::NoDotAndDotDot | QDir::Readable | QDir::Dirs | QDir::Files)) {
-        if (entry.isFile()) {
-            scheduleFile(KUrl::fromPath(entry.filePath()));
-        } else if (entry.isDir()) {
-            scheduleDirectory(KUrl::fromPath(entry.filePath()));
+    Q_UNUSED(job);
+    
+    foreach (KIO::UDSEntry entry, entries) {
+        KUrl url = m_javaSourceUrl;
+        url.addPath(entry.stringValue(KIO::UDSEntry::UDS_NAME));
+        if (!entry.isDir() && !entry.isLink()) {
+            kDebug() << "Found" << url << "in the java source zip, scheduled for parsing";
+            KDevelop::ICore::self()->languageController()->backgroundParser()->addDocument(url, KDevelop::TopDUContext::AllDeclarationsAndContexts);
         }
     }
-}
-
-void JavaLanguageSupport::scheduleFile(const KUrl& url)
-{
-    KDevelop::ICore::self()->languageController()->backgroundParser()->addDocument(url, KDevelop::TopDUContext::AllDeclarationsAndContexts);
 }
 
 KDevelop::ReferencedTopDUContext JavaLanguageSupport::allJavaContext()
@@ -286,6 +165,15 @@ KDevelop::ReferencedTopDUContext JavaLanguageSupport::allJavaContext()
     return m_allJavaContext;
 }
 
+const KDevelop::ICodeHighlighting* JavaLanguageSupport::codeHighlighting() const
+{
+    return m_highlighting;
+}
+
+java::ParserTracker* JavaLanguageSupport::parserTracker() const
+{
+    return m_parserTracker;
+}
 
 #include "javalanguagesupport.moc"
 

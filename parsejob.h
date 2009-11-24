@@ -43,7 +43,15 @@ class ParseJob : public KDevelop::ParseJob
     Q_OBJECT
 
 public:
-    ParseJob( const KUrl &url, JavaLanguageSupport* parent );
+    enum JobState {
+      Initial,
+      DeclarationsParsed,
+      TypesParsed,
+      UsesParsed
+    } jobState;
+
+    ParseJob( const KUrl &url );
+    ParseJob( const KUrl &url, JobState startingState );
 
     virtual ~ParseJob();
 
@@ -55,6 +63,7 @@ public:
 
 protected:
     virtual void run();
+
 
 private:
     ParseSession *m_session;

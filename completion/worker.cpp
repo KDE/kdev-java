@@ -46,9 +46,8 @@ CodeCompletionWorker::CodeCompletionWorker(CodeCompletionModel* parent)
 {
 }
 
-KDevelop::CodeCompletionContext* CodeCompletionWorker::createCompletionContext(KDevelop::DUContextPointer context, const QString &contextText, const QString &followingText, KDevelop::SimpleCursor &position, uint depth) const
+KDevelop::CodeCompletionContext* CodeCompletionWorker::createCompletionContext(KDevelop::DUContextPointer context, const QString &contextText, const QString &followingText, KDevelop::SimpleCursor &position) const
 {
-  Q_UNUSED(depth);
   return new java::CodeCompletionContext(context, contextText, followingText, position);
 }
 

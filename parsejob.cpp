@@ -61,15 +61,29 @@
 #include "duchain/editorintegrator.h"
 #include "duchain/dumpchain.h"
 #include <language/duchain/duchainutils.h>
+#include <interfaces/ilanguagecontroller.h>
+#include <kio/job.h>
+#include <KIO/NetAccess>
+#include <QApplication>
+#include <kzip.h>
 
 namespace java
 {
 
-ParseJob::ParseJob( const KUrl &url, JavaLanguageSupport *parent )
-        : KDevelop::ParseJob( url, parent )
+ParseJob::ParseJob( const KUrl &url )
+        : KDevelop::ParseJob( url )
+        , jobState(Initial)
         , m_session( new ParseSession )
         , m_readFromDisk( false )
 {}
+
+ParseJob::ParseJob(const KUrl& url, java::ParseJob::JobState startingState)
+        : KDevelop::ParseJob( url )
+        , jobState(startingState)
+        , m_session( new ParseSession ) // TODO fetch from cache if available
+        , m_readFromDisk( false )
+{
+}
 
 ParseJob::~ParseJob()
 {
@@ -78,7 +92,7 @@ ParseJob::~ParseJob()
 
 JavaLanguageSupport* ParseJob::java() const
 {
-    return static_cast<JavaLanguageSupport*>(const_cast<QObject*>(parent()));
+    return JavaLanguageSupport::self();
 }
 
 ParseSession *ParseJob::parseSession() const
@@ -98,44 +112,143 @@ void ParseJob::run()
 
     QReadLocker lock(java()->language()->parseLock());
 
-    QString localFile(KUrl(document().str()).toLocalFile());
-
-    QFileInfo fileInfo( localFile );
+    KUrl fileUrl(document().str());
 
     m_readFromDisk = !contentsAvailableFromEditor();
 
     if ( m_readFromDisk )
     {
-        QFile file( localFile );
-        if ( !file.open( QIODevice::ReadOnly ) )
-        {
-            KDevelop::ProblemPointer p(new KDevelop::Problem());
-            p->setSource(KDevelop::ProblemData::Disk);
-            p->setDescription(i18n( "Could not open file '%1'", localFile ));
-            switch (file.error()) {
-              case QFile::ReadError:
-                  p->setExplanation(i18n("File could not be read from."));
-                  break;
-              case QFile::OpenError:
-                  p->setExplanation(i18n("File could not be opened."));
-                  break;
-              case QFile::PermissionsError:
-                  p->setExplanation(i18n("File permissions prevent opening for read."));
-                  break;
-              default:
-                  break;
+        if (fileUrl.isLocalFile()) {
+            QString localFile(fileUrl.toLocalFile());
+            QFileInfo fileInfo( localFile );
+            QFile file( localFile );
+            if ( !file.open( QIODevice::ReadOnly ) )
+            {
+                KDevelop::ProblemPointer p(new KDevelop::Problem());
+                p->setSource(KDevelop::ProblemData::Disk);
+                p->setDescription(i18n( "Could not open file '%1'", localFile ));
+                switch (file.error()) {
+                case QFile::ReadError:
+                    p->setExplanation(i18n("File could not be read from."));
+                    break;
+                case QFile::OpenError:
+                    p->setExplanation(i18n("File could not be opened."));
+                    break;
+                case QFile::PermissionsError:
+                    p->setExplanation(i18n("File permissions prevent opening for read."));
+                    break;
+                default:
+                    break;
+                }
+                p->setFinalLocation(KDevelop::DocumentRange(document().str(), KTextEditor::Cursor(0,0), KTextEditor::Cursor(0,0)));
+                // TODO addProblem(p);
+                return;
             }
-            p->setFinalLocation(KDevelop::DocumentRange(document().str(), KTextEditor::Cursor(0,0), KTextEditor::Cursor(0,0)));
-            // TODO addProblem(p);
-            return;
+
+            m_session->setContents( file.readAll() );
+            Q_ASSERT ( m_session->size() > 0 );
+            file.close();
+
+        } else {
+#if 0
+            KIO approach; unfortunately very slow at random access in kde 4.3 (others untested) :(
+
+            static bool firstTime = true;
+            if (firstTime) {
+                qRegisterMetaType<QPair<QString,QString> >("QPair<QString,QString>");
+                qRegisterMetaType<KIO::filesize_t>("KIO::filesize_t");
+                firstTime = false;
+            }
+            
+            // KIO fetch
+            QTime t = QTime::currentTime();
+            kDebug() << "Start retrieving zipped file" << fileUrl;
+            KIO::TransferJob* getJob = KIO::get(fileUrl);
+            
+            QByteArray data;
+            KIO::NetAccess::synchronousRun(getJob, QApplication::activeWindow(), &data);
+            m_session->setContents( data );
+            Q_ASSERT ( m_session->size() > 0 );
+            kDebug() << "Zipped file retrieved in " << t.elapsed() << " seconds, size" << m_session->size();
+#endif
+#if 0
+//libzipios approach - the lib seems busted (but fast ... :( & :)
+
+#include "zipios++/zipios-config.h"
+
+#include "zipios++/meta-iostreams.h"
+#include <memory>
+
+#include "zipios++/zipfile.h"
+
+using namespace zipios ;
+
+            try {
+                if (fileUrl.protocol() == "zip") {
+                    QTime t = QTime::currentTime();
+
+                    QString filePath = fileUrl.path();
+                    int offset = filePath.indexOf(".zip");
+
+                    ZipFile collection( std::string(filePath.left(offset + 4).toAscii() ) );
+
+                    ConstEntryPointer ent = collection.getEntry( std::string(filePath.mid(offset +5).toAscii()) );
+                    if ( ent != 0 ) {
+                        std::auto_ptr< istream > is( collection.getInputStream( ent ) ) ;
+
+                        is->rdbuf();
+
+                        // This bit defeats me
+                        
+                        m_session->setContents( NEEDCODE );
+                        
+                        //Q_ASSERT ( m_session->size() > 0 );
+                        kDebug() << "Zipped file retrieved in " << t.elapsed() << " seconds, size" << m_session->size() << "expected size" << size;
+                        //kDebug() << QString::fromAscii(data);//.left(size - 100, size);
+                    } else {
+                        kDebug() << "Could not locate zip file " << filePath.mid(offset +5) << "in collection" << filePath.left(offset + 4);
+                    }
+                    collection.close();
+                }
+            }
+            catch( exception &excp ) {
+                kDebug() << "Zip exception:" << QString(excp.what());
+            }
+#endif
+
+            QTime t = QTime::currentTime();
+            
+            QString filePath = fileUrl.path();
+            int offset = filePath.indexOf(".zip");
+
+            KZip* zip = new KZip(filePath.left(offset + 4));
+            if(zip->open(QIODevice::ReadOnly))
+            {
+                const KArchiveDirectory *zipDir = zip->directory();
+                if (zipDir) {
+                    const KZipFileEntry* zipEntry = static_cast<const KZipFileEntry*>(zipDir->entry(filePath.mid(offset +5)));
+
+                    if (zipEntry)
+                    {
+                        m_session->setContents( zipEntry->data() );
+                        //Q_ASSERT ( m_session->size() > 0 );
+                        kDebug() << "Zipped file retrieved in " << t.elapsed() << "ms, size" << m_session->size();
+
+                    } else {
+                        kDebug() << "Could not find" << filePath.mid(offset +5) << "in zip file";
+                    }
+                    
+                } else {
+                    kDebug() << "Zip directory null!!";
+                }
+
+            } else {
+                kDebug() << "Zip file" << filePath.left(offset + 4) << "couldn't be opened.";
+            }
+            delete zip;
         }
 
-        m_session->setContents( file.readAll() );
-        Q_ASSERT ( m_session->size() > 0 );
-        file.close();
-    }
-    else
-    {
+    } else {
         m_session->setContents( contentsFromEditor().toUtf8() );
     }
 
@@ -187,14 +300,54 @@ void ParseJob::run()
     //kDebug(  ) << (contentContext ? "updating" : "building") << "duchain for" << parentJob()->document().str();
 
     KDevelop::ReferencedTopDUContext toUpdate = KDevelop::DUChainUtils::standardContextForUrl(document().toUrl());
+    
+    switch (jobState) {
+        case Initial:
+        case DeclarationsParsed: {
+            DeclarationBuilder builder(&editor);
+            builder.setJavaSupport(java());
+            KDevelop::TopDUContext* chain = builder.build(document(), ast, toUpdate);
+            setDuChain(chain);
 
-    DeclarationBuilder builder(&editor);
-    builder.setJavaSupport(java());
-    KDevelop::TopDUContext* chain = builder.build(document(), ast, toUpdate);
-    setDuChain(chain);
+            if (jobState == Initial) {
+                if (builder.hadUnresolvedIdentifiers()) {
+                    if (builder.identifiersRemainUnresolved()) {
+                        // Search for jobs which may improve identifier resolution
+                        jobState = DeclarationsParsed;
+                    } else {
+                        // Internal dependency needed completing
+                        // Builders aren't designed for re-use
+                        DeclarationBuilder builder2(&editor);
+                        builder2.setJavaSupport(java());
+                        builder2.build(document(), ast, KDevelop::ReferencedTopDUContext(chain));
+                        if (builder2.hadUnresolvedIdentifiers()) {
+                            kDebug() << "Builder found unresolved identifiers when they were supposedly all resolved!";
+                        }
+                        
+                        // Should be done now
+                        jobState = TypesParsed;
+                    }
+                    
+                    break;
+                } else {
+                    jobState = TypesParsed;
+                }
+            } else {
+                jobState = TypesParsed;
+            }
 
-    UseBuilder useBuilder(&editor);
-    useBuilder.buildUses(ast);
+            // if (!needsUses) break;
+        }
+        case TypesParsed: {
+            UseBuilder useBuilder(&editor);
+            useBuilder.buildUses(ast);
+            jobState = UsesParsed;
+            break;
+        }
+        case UsesParsed: {
+            Q_ASSERT(false);
+        }
+    }
 
     if (!abortRequested() && editor.smart()) {
         editor.smart()->clearRevision();
@@ -202,13 +355,18 @@ void ParseJob::run()
         if ( java()->codeHighlighting() )
         {
             QMutexLocker lock(editor.smart()->smartMutex());
-            java()->codeHighlighting()->highlightDUChain( chain );
+            java()->codeHighlighting()->highlightDUChain( duChain() );
         }
+    }
+
+    if (jobState < UsesParsed /*|| jobState == TypesParsed && !needsUses*/) {
+        //m_nextJob = new ParseJob(KUrl(document().str()), java(), jobState);
     }
 
     //KDevelop::DUChainReadLocker duchainlock(KDevelop::DUChain::lock());
     //dump.dump(chain);
 }
+
 
 } // end of namespace java
 

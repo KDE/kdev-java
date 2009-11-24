@@ -38,7 +38,7 @@ namespace KIO {
 }
 
 namespace java {
-    class JavaHighlighting;
+    class ParserTracker;
 }
 
 namespace KDevelop {
@@ -60,22 +60,27 @@ public:
 
     virtual KDevelop::ParseJob *createParseJob(const KUrl &url);
     virtual KDevelop::ILanguage *language();
-    //virtual const KDevelop::ICodeHighlighting *codeHighlighting() const;
+    virtual const KDevelop::ICodeHighlighting* codeHighlighting() const;
 
     // Hack to make it look like all java files #include each other
     KDevelop::ReferencedTopDUContext allJavaContext();
 
-private slots:
-    void projectOpened(KDevelop::IProject *project);
-    void projectClosed();
+    java::ParserTracker* parserTracker() const;
 
+    static JavaLanguageSupport* self();
+
+private Q_SLOTS:
+    void slotJavaSourceEntries(KIO::Job* job, KIO::UDSEntryList entries);
+    
 private:
     void scheduleInternalSources();
-    void scheduleFile(const KUrl& url);
-    void scheduleDirectory(const KUrl& url);
 
     KDevelop::CodeHighlighting* m_highlighting;
     KDevelop::ReferencedTopDUContext m_allJavaContext;
+    java::ParserTracker* m_parserTracker;
+    KUrl m_javaSourceUrl;
+
+    static JavaLanguageSupport* s_self;
 };
 
 extern const KDevelop::Identifier globalStaticImportIdentifier;

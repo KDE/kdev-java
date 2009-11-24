@@ -43,7 +43,34 @@ ContextBuilder::ContextBuilder()
 {
 }
 
-KDevelop::TopDUContext* ContextBuilder::newTopContext(const KDevelop::SimpleRange& range, KDevelop::ParsingEnvironmentFile* file) {
+void ContextBuilder::unresolvedIdentifier(KDevelop::DUContextPointer context, KDevelop::QualifiedIdentifier id)
+{
+  m_unresolvedIDs.append(ContextID(context, id));
+}
+
+bool ContextBuilder::identifiersRemainUnresolved() const
+{
+  DUChainReadLocker lock(DUChain::lock());
+  
+  foreach (const ContextID& cid, m_unresolvedIDs) {
+    // Weirdness if the context has been deleted
+    if (!cid.first)
+      return false;
+
+    if (cid.first->findDeclarations(cid.second).isEmpty())
+      return true;
+  }
+
+  return false;
+}
+
+bool ContextBuilder::hadUnresolvedIdentifiers() const
+{
+  return !m_unresolvedIDs.isEmpty();
+}
+
+KDevelop::TopDUContext* ContextBuilder::newTopContext(const KDevelop::SimpleRange& range, KDevelop::ParsingEnvironmentFile* file)
+{
   TopDUContext* top = new java::TopDUContext(editor()->currentUrl(), range, file);
 
   Q_ASSERT(top);
@@ -336,7 +363,8 @@ void ContextBuilder::visitCompilationUnit(java::CompilationUnitAst* node)
     }
   }
   
-  visitPackageDeclaration(node->packageDeclaration);
+  if (node->packageDeclaration)
+    visitPackageDeclaration(node->packageDeclaration);
 
   if (openedExtraContext)
     closeContext();
@@ -373,7 +401,11 @@ void ContextBuilder::addBaseType(BaseClassInstance base)
 
   //addImportedContexts(); //Make sure the template-contexts are imported first, before any parent-class contexts.
 
-  Q_ASSERT(currentContext()->type() == DUContext::Class);
+  if (currentContext()->type() != DUContext::Class) {
+    kDebug() << "Tried to add base class to a non-class context!";
+    return;
+  }
+
   AbstractType::Ptr baseClass = base.baseClass.abstractType();
   IdentifiedType* idType = dynamic_cast<IdentifiedType*>(baseClass.unsafeData());
   Declaration* idDecl = 0;
