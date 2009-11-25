@@ -32,6 +32,7 @@ Boston, MA 02110-1301, USA.
 #include <language/duchain/topducontext.h>
 
 class KJob;
+class KZip;
 
 namespace KIO {
     class Job;
@@ -69,6 +70,8 @@ public:
 
     static JavaLanguageSupport* self();
 
+    KZip* javaSourceZip() const;
+
 private Q_SLOTS:
     void slotJavaSourceEntries(KIO::Job* job, KIO::UDSEntryList entries);
     
@@ -79,6 +82,7 @@ private:
     KDevelop::ReferencedTopDUContext m_allJavaContext;
     java::ParserTracker* m_parserTracker;
     KUrl m_javaSourceUrl;
+    mutable KZip* m_javaSourceZip;
 
     static JavaLanguageSupport* s_self;
 };

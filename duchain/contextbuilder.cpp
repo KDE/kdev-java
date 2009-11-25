@@ -39,7 +39,7 @@ namespace java {
 
 ContextBuilder::ContextBuilder()
   : m_identifierCompiler(0)
-  , m_java(0), m_mapAst(false)
+  , m_mapAst(false)
 {
 }
 
@@ -74,10 +74,9 @@ KDevelop::TopDUContext* ContextBuilder::newTopContext(const KDevelop::SimpleRang
   TopDUContext* top = new java::TopDUContext(editor()->currentUrl(), range, file);
 
   Q_ASSERT(top);
-  Q_ASSERT(m_java);
-  Q_ASSERT(m_java->allJavaContext());
-  top->addImportedParentContext(m_java->allJavaContext());
-  m_java->allJavaContext()->addImportedParentContext(top);
+  Q_ASSERT(JavaLanguageSupport::self()->allJavaContext());
+  top->addImportedParentContext(JavaLanguageSupport::self()->allJavaContext());
+  JavaLanguageSupport::self()->allJavaContext()->addImportedParentContext(top);
 
   return top;
 }
@@ -336,11 +335,6 @@ void ContextBuilder::visitConstructorDeclaration(ConstructorDeclarationAst * nod
     visitNode(node->body);
     closeContext();
   }
-}
-
-void ContextBuilder::setJavaSupport(JavaLanguageSupport* java)
-{
-  m_java = java;
 }
 
 void ContextBuilder::visitCompilationUnit(java::CompilationUnitAst* node)

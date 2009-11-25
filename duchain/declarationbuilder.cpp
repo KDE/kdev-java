@@ -76,7 +76,7 @@ void DeclarationBuilder::closeDeclaration()
 
   eventuallyAssignInternalContext();
 
-  //kDebug() << "Mangled declaration:" << currentDeclaration()->mangledIdentifier();
+  //kDebug() << "Declaration closed:" << currentDeclaration()->identifier();
 
   DeclarationBuilderBase::closeDeclaration();
 }
@@ -137,12 +137,22 @@ void DeclarationBuilder::visitClassExtendsClause(java::ClassExtendsClauseAst* no
   {
     DUChainWriteLocker lock(DUChain::lock());
     ClassDeclaration* currentClass = dynamic_cast<ClassDeclaration*>(currentDeclaration());
-    if(currentClass) {
+    if (currentClass) {
       // TODO check that type is a class
       instance.baseClass = lastType()->indexed();
-      //kDebug() << "adding base class type, valid? " << instance.baseClass.isValid();
-      currentClass->addBaseClass(instance);
-    }else{
+      kDebug() << "adding base class type, valid? " << instance.baseClass.isValid();
+
+      if (instance.baseClass.abstractType())
+        kDebug() << "type " << instance.baseClass.abstractType()->toString();
+      else
+        kDebug() << "null type";
+
+      if (instance.baseClass.isValid())
+        currentClass->addBaseClass(instance);
+      else
+        kDebug() << "extends-specifier without class type (invalid parsed type)";
+
+    } else {
       kDebug() << "extends-specifier without class type";
     }
   }

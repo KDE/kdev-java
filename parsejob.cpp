@@ -80,7 +80,7 @@ ParseJob::ParseJob( const KUrl &url )
 
 ParseJob::~ParseJob()
 {
-  delete m_session;
+    delete m_session;
 }
 
 JavaLanguageSupport* ParseJob::java() const
@@ -148,8 +148,9 @@ void ParseJob::run()
             QString filePath = fileUrl.path();
             int offset = filePath.indexOf(".zip");
 
-            KZip* zip = new KZip(filePath.left(offset + 4));
-            if(zip->open(QIODevice::ReadOnly))
+            // TODO - add logic to detect if we should create a new zip object (non-jdk-source-zip) or not
+            KZip* zip = java()->javaSourceZip();
+            if(zip)//->open(QIODevice::ReadOnly))
             {
                 const KArchiveDirectory *zipDir = zip->directory();
                 if (zipDir) {
@@ -172,7 +173,10 @@ void ParseJob::run()
             } else {
                 kDebug() << "Zip file" << filePath.left(offset + 4) << "couldn't be opened.";
             }
-            delete zip;
+
+            if (m_session->size() == 0)
+                // TODO Register problem
+                return;
 
         } else {
             //KIO approach; unfortunately very slow at random access in kde 4.3 (others untested) :(
@@ -251,7 +255,6 @@ void ParseJob::run()
 
 
     DeclarationBuilder declarationBuilder(&editor);
-    declarationBuilder.setJavaSupport(java());
     KDevelop::TopDUContext* chain = declarationBuilder.build(document(), ast, toUpdate);
     setDuChain(chain);
 
@@ -274,7 +277,6 @@ void ParseJob::run()
             // Internal dependency needed completing
             // Builders aren't designed for re-use
             DeclarationBuilder builder2(&editor);
-            builder2.setJavaSupport(java());
             builder2.build(document(), ast, KDevelop::ReferencedTopDUContext(chain));
             if (!builder2.hadUnresolvedIdentifiers()) {
                 declarationsComplete = true;
@@ -297,10 +299,10 @@ void ParseJob::run()
         }
     }
 
-    if (declarationsComplete && (newFeatures & KDevelop::TopDUContext::AllDeclarationsContextsAndUses) == KDevelop::TopDUContext::AllDeclarationsContextsAndUses) {
+    /*if (declarationsComplete && (newFeatures & KDevelop::TopDUContext::AllDeclarationsContextsAndUses) == KDevelop::TopDUContext::AllDeclarationsContextsAndUses) {
         UseBuilder useBuilder(&editor);
         useBuilder.buildUses(ast);
-    }
+    }*/
 
     if (!abortRequested() && editor.smart()) {
         editor.smart()->clearRevision();

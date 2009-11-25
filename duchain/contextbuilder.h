@@ -48,8 +48,6 @@ public:
   void setEditor(EditorIntegrator* editor);
   void setEditor(ParseSession* session);
 
-  void setJavaSupport(JavaLanguageSupport* java);
-
   typedef QPair<KDevelop::DUContextPointer, KDevelop::QualifiedIdentifier> ContextID;
   const QList<ContextID>& unresolvedIdentifiers() const;
   bool hadUnresolvedIdentifiers() const;
@@ -112,8 +110,6 @@ protected:
   IdentifierCompiler* m_identifierCompiler;
 
 private:
-  JavaLanguageSupport* m_java;
-
   QList<ContextID> m_unresolvedIDs;
 
 public:

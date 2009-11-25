@@ -37,8 +37,9 @@ DUContext::DUContext(java::DUContextData& data)
 
 REGISTER_DUCHAIN_ITEM(DUContext);
 
+const uint maxParentDepth = 20;
+
 bool DUContext::findDeclarationsInternal(const SearchItem::PtrList& identifiers, const KDevelop::SimpleCursor& position, const KDevelop::AbstractType::Ptr& dataType, DeclarationList& ret, const KDevelop::TopDUContext* source, SearchFlags flags, uint depth) const {
-  const uint maxParentDepth = 20;
   if (depth > maxParentDepth) {
     kDebug() << "maximum depth reached in" << scopeIdentifier(true);
     return false;

@@ -54,6 +54,7 @@ Boston, MA 02110-1301, USA.
 #include <language/highlighting/codehighlighting.h>
 #include <interfaces/ilanguage.h>
 #include <QReadWriteLock>
+#include <kzip.h>
 
 using namespace java;
 
@@ -70,6 +71,7 @@ JavaLanguageSupport::JavaLanguageSupport( QObject* parent,
         , KDevelop::ILanguageSupport()
         , m_allJavaContext(0)
         , m_parserTracker(new java::ParserTracker(this))
+        , m_javaSourceZip(0)
 {
     s_self = this;
     
@@ -93,6 +95,8 @@ JavaLanguageSupport::~JavaLanguageSupport()
         s_self = 0; //By locking the parse-mutexes, we make sure that parse- and preprocess-jobs get a chance to finish in a good state
         lang->parseLock()->unlock();
     }
+
+    delete m_javaSourceZip;
 }
 
 
@@ -124,8 +128,15 @@ void JavaLanguageSupport::scheduleInternalSources()
     m_javaSourceUrl = config.readEntry("Java Source Zip", KUrl());
 
     if (m_javaSourceUrl.protocol() == "file") {
+        // KIO method - replace with KZip method if you can understand the KArchive API
         QFileInfo info(m_javaSourceUrl.path());
         if (info.exists() && info.isReadable() && info.isFile()) {
+            m_javaSourceZip = new KZip(m_javaSourceUrl.path());
+            if (!m_javaSourceZip->open(QIODevice::ReadOnly)) {
+                kDebug() << "error, could not open zip file"<< m_javaSourceUrl <<"for reading.";
+                return;
+            }
+
             m_javaSourceUrl.setProtocol("zip");
             m_javaSourceUrl.adjustPath(KUrl::AddTrailingSlash);
             KIO::ListJob* list = KIO::listRecursive(m_javaSourceUrl, KIO::DefaultFlags, false);
@@ -151,6 +162,11 @@ void JavaLanguageSupport::slotJavaSourceEntries(KIO::Job* job, KIO::UDSEntryList
             KDevelop::ICore::self()->languageController()->backgroundParser()->addDocument(url, KDevelop::TopDUContext::SimplifiedVisibleDeclarationsAndContexts);
         }
     }
+}
+
+KZip* JavaLanguageSupport::javaSourceZip() const
+{    
+    return m_javaSourceZip;
 }
 
 KDevelop::ReferencedTopDUContext JavaLanguageSupport::allJavaContext()
