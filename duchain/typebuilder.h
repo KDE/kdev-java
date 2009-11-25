@@ -41,7 +41,7 @@ class TypeBuilder: public TypeBuilderBase
 {
 public:
   TypeBuilder();  
-  
+
 protected:
   virtual void visitClassDeclaration(ClassDeclarationAst *node);
   virtual void visitClassOrInterfaceTypeName(ClassOrInterfaceTypeNameAst *node);

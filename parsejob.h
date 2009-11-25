@@ -43,15 +43,7 @@ class ParseJob : public KDevelop::ParseJob
     Q_OBJECT
 
 public:
-    enum JobState {
-      Initial,
-      DeclarationsParsed,
-      TypesParsed,
-      UsesParsed
-    } jobState;
-
     ParseJob( const KUrl &url );
-    ParseJob( const KUrl &url, JobState startingState );
 
     virtual ~ParseJob();
 

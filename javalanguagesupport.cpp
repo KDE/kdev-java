@@ -148,7 +148,7 @@ void JavaLanguageSupport::slotJavaSourceEntries(KIO::Job* job, KIO::UDSEntryList
         url.addPath(entry.stringValue(KIO::UDSEntry::UDS_NAME));
         if (!entry.isDir() && !entry.isLink()) {
             kDebug() << "Found" << url << "in the java source zip, scheduled for parsing";
-            KDevelop::ICore::self()->languageController()->backgroundParser()->addDocument(url, KDevelop::TopDUContext::AllDeclarationsAndContexts);
+            KDevelop::ICore::self()->languageController()->backgroundParser()->addDocument(url, KDevelop::TopDUContext::SimplifiedVisibleDeclarationsAndContexts);
         }
     }
 }

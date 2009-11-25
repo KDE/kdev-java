@@ -40,7 +40,6 @@ TypeBuilder::TypeBuilder()
 {
 
 }
-
   
 StructureType* TypeBuilder::openClass(bool interface, bool parameters)
 {
@@ -236,7 +235,7 @@ void TypeBuilder::visitClassOrInterfaceTypeName(ClassOrInterfaceTypeNameAst * no
   m_currentIdentifier.clear();
 
   TypeBuilderBase::visitClassOrInterfaceTypeName(node);
-  
+
   if (openTypeFromName(m_currentIdentifier, node, true)) {
     {
       //DUChainReadLocker lock(DUChain::lock());
@@ -245,7 +244,7 @@ void TypeBuilder::visitClassOrInterfaceTypeName(ClassOrInterfaceTypeNameAst * no
     closeType();
   } else {
     unresolvedIdentifier(DUContextPointer(currentContext()), m_currentIdentifier);
-  } 
+  }
 }
 
 void TypeBuilder::visitClassOrInterfaceTypeNamePart(ClassOrInterfaceTypeNamePartAst * node)

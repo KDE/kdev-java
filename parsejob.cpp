@@ -66,24 +66,17 @@
 #include <KIO/NetAccess>
 #include <QApplication>
 #include <kzip.h>
+#include <language/backgroundparser/backgroundparser.h>
+#include <interfaces/icore.h>
 
 namespace java
 {
 
 ParseJob::ParseJob( const KUrl &url )
         : KDevelop::ParseJob( url )
-        , jobState(Initial)
         , m_session( new ParseSession )
         , m_readFromDisk( false )
 {}
-
-ParseJob::ParseJob(const KUrl& url, java::ParseJob::JobState startingState)
-        : KDevelop::ParseJob( url )
-        , jobState(startingState)
-        , m_session( new ParseSession ) // TODO fetch from cache if available
-        , m_readFromDisk( false )
-{
-}
 
 ParseJob::~ParseJob()
 {
@@ -149,73 +142,7 @@ void ParseJob::run()
             Q_ASSERT ( m_session->size() > 0 );
             file.close();
 
-        } else {
-#if 0
-            KIO approach; unfortunately very slow at random access in kde 4.3 (others untested) :(
-
-            static bool firstTime = true;
-            if (firstTime) {
-                qRegisterMetaType<QPair<QString,QString> >("QPair<QString,QString>");
-                qRegisterMetaType<KIO::filesize_t>("KIO::filesize_t");
-                firstTime = false;
-            }
-            
-            // KIO fetch
-            QTime t = QTime::currentTime();
-            kDebug() << "Start retrieving zipped file" << fileUrl;
-            KIO::TransferJob* getJob = KIO::get(fileUrl);
-            
-            QByteArray data;
-            KIO::NetAccess::synchronousRun(getJob, QApplication::activeWindow(), &data);
-            m_session->setContents( data );
-            Q_ASSERT ( m_session->size() > 0 );
-            kDebug() << "Zipped file retrieved in " << t.elapsed() << " seconds, size" << m_session->size();
-#endif
-#if 0
-//libzipios approach - the lib seems busted (but fast ... :( & :)
-
-#include "zipios++/zipios-config.h"
-
-#include "zipios++/meta-iostreams.h"
-#include <memory>
-
-#include "zipios++/zipfile.h"
-
-using namespace zipios ;
-
-            try {
-                if (fileUrl.protocol() == "zip") {
-                    QTime t = QTime::currentTime();
-
-                    QString filePath = fileUrl.path();
-                    int offset = filePath.indexOf(".zip");
-
-                    ZipFile collection( std::string(filePath.left(offset + 4).toAscii() ) );
-
-                    ConstEntryPointer ent = collection.getEntry( std::string(filePath.mid(offset +5).toAscii()) );
-                    if ( ent != 0 ) {
-                        std::auto_ptr< istream > is( collection.getInputStream( ent ) ) ;
-
-                        is->rdbuf();
-
-                        // This bit defeats me
-                        
-                        m_session->setContents( NEEDCODE );
-                        
-                        //Q_ASSERT ( m_session->size() > 0 );
-                        kDebug() << "Zipped file retrieved in " << t.elapsed() << " seconds, size" << m_session->size() << "expected size" << size;
-                        //kDebug() << QString::fromAscii(data);//.left(size - 100, size);
-                    } else {
-                        kDebug() << "Could not locate zip file " << filePath.mid(offset +5) << "in collection" << filePath.left(offset + 4);
-                    }
-                    collection.close();
-                }
-            }
-            catch( exception &excp ) {
-                kDebug() << "Zip exception:" << QString(excp.what());
-            }
-#endif
-
+        } else if (fileUrl.protocol() == "zip") {
             QTime t = QTime::currentTime();
             
             QString filePath = fileUrl.path();
@@ -246,6 +173,27 @@ using namespace zipios ;
                 kDebug() << "Zip file" << filePath.left(offset + 4) << "couldn't be opened.";
             }
             delete zip;
+
+        } else {
+            //KIO approach; unfortunately very slow at random access in kde 4.3 (others untested) :(
+
+            static bool firstTime = true;
+            if (firstTime) {
+                qRegisterMetaType<QPair<QString,QString> >("QPair<QString,QString>");
+                qRegisterMetaType<KIO::filesize_t>("KIO::filesize_t");
+                firstTime = false;
+            }
+
+            // KIO fetch
+            QTime t = QTime::currentTime();
+            kDebug() << "Start retrieving zipped file" << fileUrl;
+            KIO::TransferJob* getJob = KIO::get(fileUrl);
+
+            QByteArray data;
+            KIO::NetAccess::synchronousRun(getJob, QApplication::activeWindow(), &data);
+            m_session->setContents( data );
+            Q_ASSERT ( m_session->size() > 0 );
+            kDebug() << "Zipped file retrieved in " << t.elapsed() << " seconds, size" << m_session->size();
         }
 
     } else {
@@ -300,53 +248,58 @@ using namespace zipios ;
     //kDebug(  ) << (contentContext ? "updating" : "building") << "duchain for" << parentJob()->document().str();
 
     KDevelop::ReferencedTopDUContext toUpdate = KDevelop::DUChainUtils::standardContextForUrl(document().toUrl());
+
+
+    DeclarationBuilder declarationBuilder(&editor);
+    declarationBuilder.setJavaSupport(java());
+    KDevelop::TopDUContext* chain = declarationBuilder.build(document(), ast, toUpdate);
+    setDuChain(chain);
+
+    KDevelop::TopDUContext::Features newFeatures = minimumFeatures();
+    if (toUpdate)
+        newFeatures = (KDevelop::TopDUContext::Features)(newFeatures | toUpdate->features());
+
+    if (newFeatures & KDevelop::TopDUContext::ForceUpdate)
+        kDebug() << "update enforced";
+
+    //Remove update-flags like 'Recursive' or 'ForceUpdate'
+    newFeatures = static_cast<KDevelop::TopDUContext::Features>(newFeatures & KDevelop::TopDUContext::AllDeclarationsContextsUsesAndAST);
     
-    switch (jobState) {
-        case Initial:
-        case DeclarationsParsed: {
-            DeclarationBuilder builder(&editor);
-            builder.setJavaSupport(java());
-            KDevelop::TopDUContext* chain = builder.build(document(), ast, toUpdate);
-            setDuChain(chain);
+    bool declarationsComplete = !declarationBuilder.hadUnresolvedIdentifiers();
 
-            if (jobState == Initial) {
-                if (builder.hadUnresolvedIdentifiers()) {
-                    if (builder.identifiersRemainUnresolved()) {
-                        // Search for jobs which may improve identifier resolution
-                        jobState = DeclarationsParsed;
-                    } else {
-                        // Internal dependency needed completing
-                        // Builders aren't designed for re-use
-                        DeclarationBuilder builder2(&editor);
-                        builder2.setJavaSupport(java());
-                        builder2.build(document(), ast, KDevelop::ReferencedTopDUContext(chain));
-                        if (builder2.hadUnresolvedIdentifiers()) {
-                            kDebug() << "Builder found unresolved identifiers when they were supposedly all resolved!";
-                        }
-                        
-                        // Should be done now
-                        jobState = TypesParsed;
-                    }
-                    
-                    break;
-                } else {
-                    jobState = TypesParsed;
-                }
+    kDebug() << "Parsing with feature set: " << newFeatures << " complete:" <<declarationsComplete;
+    
+    if (!declarationsComplete) {
+        if (!declarationBuilder.identifiersRemainUnresolved()) {
+            // Internal dependency needed completing
+            // Builders aren't designed for re-use
+            DeclarationBuilder builder2(&editor);
+            builder2.setJavaSupport(java());
+            builder2.build(document(), ast, KDevelop::ReferencedTopDUContext(chain));
+            if (!builder2.hadUnresolvedIdentifiers()) {
+                declarationsComplete = true;
             } else {
-                jobState = TypesParsed;
+                kDebug() << "Builder found unresolved identifiers when they were supposedly all resolved!";
             }
+        }
 
-            // if (!needsUses) break;
+        if (!declarationsComplete) {
+            if (newFeatures == KDevelop::TopDUContext::SimplifiedVisibleDeclarationsAndContexts) {
+                // Need to create new parse job with lower priority
+                kDebug() << "Reschedule file " << fileUrl << "for parsing";
+                KDevelop::ICore::self()->languageController()->backgroundParser()->addDocument(fileUrl, static_cast<KDevelop::TopDUContext::Features>(newFeatures | KDevelop::TopDUContext::VisibleDeclarationsAndContexts), 10000);
+
+            } else {
+                // We haven't resolved all identifiers, but by now, we don't expect to
+                kDebug() << "Builder found unresolved identifiers when they should have been resolved! (if there was no coding error)";
+                declarationsComplete = true;
+            }
         }
-        case TypesParsed: {
-            UseBuilder useBuilder(&editor);
-            useBuilder.buildUses(ast);
-            jobState = UsesParsed;
-            break;
-        }
-        case UsesParsed: {
-            Q_ASSERT(false);
-        }
+    }
+
+    if (declarationsComplete && (newFeatures & KDevelop::TopDUContext::AllDeclarationsContextsAndUses) == KDevelop::TopDUContext::AllDeclarationsContextsAndUses) {
+        UseBuilder useBuilder(&editor);
+        useBuilder.buildUses(ast);
     }
 
     if (!abortRequested() && editor.smart()) {
@@ -357,10 +310,6 @@ using namespace zipios ;
             QMutexLocker lock(editor.smart()->smartMutex());
             java()->codeHighlighting()->highlightDUChain( duChain() );
         }
-    }
-
-    if (jobState < UsesParsed /*|| jobState == TypesParsed && !needsUses*/) {
-        //m_nextJob = new ParseJob(KUrl(document().str()), java(), jobState);
     }
 
     //KDevelop::DUChainReadLocker duchainlock(KDevelop::DUChain::lock());

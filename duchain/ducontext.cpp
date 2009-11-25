@@ -38,7 +38,12 @@ DUContext::DUContext(java::DUContextData& data)
 REGISTER_DUCHAIN_ITEM(DUContext);
 
 bool DUContext::findDeclarationsInternal(const SearchItem::PtrList& identifiers, const KDevelop::SimpleCursor& position, const KDevelop::AbstractType::Ptr& dataType, DeclarationList& ret, const KDevelop::TopDUContext* source, SearchFlags flags, uint depth) const {
-  Q_UNUSED(depth);
+  const uint maxParentDepth = 20;
+  if (depth > maxParentDepth) {
+    kDebug() << "maximum depth reached in" << scopeIdentifier(true);
+    return false;
+  }
+  
   Q_ASSERT(identifiers.count() == 1);
 
   SearchItem::Ptr identifier = identifiers[0];
@@ -71,8 +76,7 @@ bool DUContext::findDeclarationsInternal(const SearchItem::PtrList& identifiers,
       if( position.isValid() && import.position.isValid() && position < import.position )
         continue;
 
-      /// \todo Is depth = 0 really okay?
-      if( !context->findDeclarationsInternal(identifiers, context->range().end, dataType, ret, source, flags | InImportedParentContext, 0) )
+      if( !context->findDeclarationsInternal(identifiers, context->range().end, dataType, ret, source, flags | InImportedParentContext, depth+1) )
         return false;
     }
 
@@ -83,8 +87,7 @@ bool DUContext::findDeclarationsInternal(const SearchItem::PtrList& identifiers,
 
   ///Step 3: Continue search in parent-context
   if (!(flags & DontSearchInParent) && shouldSearchInParent(flags) && parentContext()) {
-    /// \todo Is depth = 0 really okay?
-    return parentContext()->findDeclarationsInternal(identifiers, parentContext()->range().end, dataType, ret, source, flags, 0);
+    return parentContext()->findDeclarationsInternal(identifiers, parentContext()->range().end, dataType, ret, source, flags, depth);
   }
 
   return true;
