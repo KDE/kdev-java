@@ -299,10 +299,11 @@ void ParseJob::run()
         }
     }
 
-    /*if (declarationsComplete && (newFeatures & KDevelop::TopDUContext::AllDeclarationsContextsAndUses) == KDevelop::TopDUContext::AllDeclarationsContextsAndUses) {
+    if (declarationsComplete && (newFeatures & KDevelop::TopDUContext::AllDeclarationsContextsAndUses) == KDevelop::TopDUContext::AllDeclarationsContextsAndUses) {
+        kDebug() << "Building uses";
         UseBuilder useBuilder(&editor);
         useBuilder.buildUses(ast);
-    }*/
+    }
 
     if (!abortRequested() && editor.smart()) {
         editor.smart()->clearRevision();
@@ -314,8 +315,10 @@ void ParseJob::run()
         }
     }
 
-    //KDevelop::DUChainReadLocker duchainlock(KDevelop::DUChain::lock());
-    //dump.dump(chain);
+    if (declarationsComplete && (newFeatures & KDevelop::TopDUContext::AllDeclarationsContextsAndUses) == KDevelop::TopDUContext::AllDeclarationsContextsAndUses) {
+        KDevelop::DUChainReadLocker duchainlock(KDevelop::DUChain::lock());
+        dump.dump(chain);
+    }
 }
 
 
