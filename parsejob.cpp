@@ -242,9 +242,6 @@ void ParseJob::run()
         //java_parser.yy_expected_symbol(AstNode::Kind_compilation_unit, "compilation_unit"); // ### remove me
     }
 
-    DumpChain dump;
-    //dump.dump(ast, m_session);
-
     // 3) Form definition-use chain
     java::EditorIntegrator editor(parseSession());
     editor.setCurrentUrl(document());
@@ -316,6 +313,9 @@ void ParseJob::run()
     }
 
     if (declarationsComplete && (newFeatures & KDevelop::TopDUContext::AllDeclarationsContextsAndUses) == KDevelop::TopDUContext::AllDeclarationsContextsAndUses) {
+        DumpChain dump;
+        dump.dump(ast, m_session);
+        
         KDevelop::DUChainReadLocker duchainlock(KDevelop::DUChain::lock());
         dump.dump(chain);
     }

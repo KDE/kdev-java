@@ -17,6 +17,9 @@
 */
 
 #include "expressionvisitor.h"
+#include <util/pushvalue.h>
+
+using namespace KDevelop;
 
 namespace java {
 
@@ -115,7 +118,39 @@ void ExpressionVisitor::visitBreakStatement(BreakStatementAst* node) {
 }
 
 void ExpressionVisitor::visitBuiltInType(BuiltInTypeAst* node) {
-  ExpressionVisitorBase::visitBuiltInType(node);
+    IntegralType::CommonIntegralTypes type = IntegralType::TypeNone;
+
+    switch (node->type) {
+      case BuiltInTypeVoid:
+          type = IntegralType::TypeVoid;
+          break;
+      case BuiltInTypeBoolean:
+          type = IntegralType::TypeBoolean;
+          break;
+      case BuiltInTypeByte:
+          type = IntegralType::TypeByte;
+          break;
+      case BuiltInTypeChar:
+          type = IntegralType::TypeChar;
+          break;
+      case BuiltInTypeShort:
+          type = IntegralType::TypeShort;
+          break;
+      case BuiltInTypeInt:
+          type = IntegralType::TypeInt;
+          break;
+      case BuiltInTypeFloat:
+          type = IntegralType::TypeFloat;
+          break;
+      case BuiltInTypeLong:
+          type = IntegralType::TypeLong;
+          break;
+      case BuiltInTypeDouble:
+          type = IntegralType::TypeDouble;
+          break;
+    }
+
+    setLastType(IntegralType::Ptr(new IntegralType(type)));
 }
 
 void ExpressionVisitor::visitBuiltInTypeDotClass(BuiltInTypeDotClassAst* node) {
@@ -274,8 +309,85 @@ void ExpressionVisitor::visitLabeledStatement(LabeledStatementAst* node) {
   ExpressionVisitorBase::visitLabeledStatement(node);
 }
 
+bool ExpressionVisitor::openTypeFromName(QualifiedIdentifier id, bool needClass)
+{
+  bool openedType = false;
+
+  bool delay = false;
+
+  if(!delay) {
+    DUChainReadLocker lock(DUChain::lock());
+
+    QList<Declaration*> dec = currentContext()->findDeclarations(id);
+
+    if ( dec.isEmpty() )
+      delay = true;
+
+    if(!delay) {
+      foreach( Declaration* decl, dec ) {
+        // gcc 4.0.1 doesn't eath this // if( needClass && !decl->abstractType().cast<StructureType>() )
+        if( needClass && !decl->abstractType().cast(static_cast<StructureType *>(0)) )
+          continue;
+
+        if (decl->abstractType() ) {
+          ///@todo only functions may have multiple declarations here
+          //ifDebug( if( dec.count() > 1 ) kDebug() << id.toString() << "was found" << dec.count() << "times" )
+          //kDebug() << "found for" << id.toString() << ":" << decl->toString() << "type:" << decl->abstractType()->toString() << "context:" << decl->context();
+          openedType = true;
+          setLastType(decl->abstractType());
+          break;
+        }
+      }
+    }
+
+    if(!openedType)
+      delay = true;
+  }
+    ///@todo What about position?
+
+  return openedType;
+}
+
 void ExpressionVisitor::visitLiteral(LiteralAst* node) {
-  ExpressionVisitorBase::visitLiteral(node);
+  ConstantIntegralType::Ptr newConstant;
+  switch (node->literalType) {
+    case LiteralInteger: {
+      newConstant = new ConstantIntegralType(IntegralType::TypeInt);
+      newConstant->setValue<qint64>(node->integerLiteral);
+      break;
+    }
+    case LiteralCharacter: {
+      newConstant = new ConstantIntegralType(IntegralType::TypeChar);
+      newConstant->setValue<qint64>(node->characterLiteral);
+      break;
+    }
+    case LiteralFloatingPoint: {
+      newConstant = new ConstantIntegralType(IntegralType::TypeFloat);
+      newConstant->setValue<qint64>(node->floatingPointLiteral);
+      break;
+    }
+    case LiteralString: {
+      QualifiedIdentifier string;
+      string.push(Identifier("java"));
+      string.push(Identifier("lang"));
+      string.push(Identifier("String"));
+      openTypeFromName(string, true);
+      return;
+    }
+    case LiteralTrue:
+    case LiteralFalse:{
+      newConstant = new ConstantIntegralType(IntegralType::TypeBoolean);
+      newConstant->setValue<bool>(node->literalType == LiteralTrue);
+      break;
+    }
+    case LiteralNull:
+      newConstant = ConstantIntegralType::Ptr(new ConstantIntegralType(IntegralType::TypeNull));
+      break;
+
+    default:
+      return;
+  }
+  setLastType(newConstant);
 }
 
 void ExpressionVisitor::visitLogicalAndExpression(LogicalAndExpressionAst* node) {
@@ -296,6 +408,7 @@ void ExpressionVisitor::visitMandatoryDeclaratorBrackets(MandatoryDeclaratorBrac
 
 void ExpressionVisitor::visitMethodCallData(MethodCallDataAst* node) {
   ExpressionVisitorBase::visitMethodCallData(node);
+
 }
 
 void ExpressionVisitor::visitMethodDeclaration(MethodDeclarationAst* node) {
@@ -326,12 +439,23 @@ void ExpressionVisitor::visitOptionalArgumentList(OptionalArgumentListAst* node)
   ExpressionVisitorBase::visitOptionalArgumentList(node);
 }
 
-void ExpressionVisitor::visitOptionalArrayBuiltInType(OptionalArrayBuiltInTypeAst* node) {
-  ExpressionVisitorBase::visitOptionalArrayBuiltInType(node);
+void ExpressionVisitor::visitOptionalArrayBuiltInType(OptionalArrayBuiltInTypeAst* node)
+{
+  if (!node->type)
+    return;
+
+  visitBuiltInType(node->type);
+
+  if (node->declaratorBrackets) {
+    ArrayType::Ptr newArrayType(new ArrayType());
+    newArrayType->setDimension(node->declaratorBrackets->bracketCount);
+    newArrayType->setElementType(lastType());
+    setLastType(newArrayType);
+  }
 }
 
 void ExpressionVisitor::visitOptionalDeclaratorBrackets(OptionalDeclaratorBracketsAst* node) {
-  ExpressionVisitorBase::visitOptionalDeclaratorBrackets(node);
+  problem(node, "node-type cannot be parsed");
 }
 
 void ExpressionVisitor::visitOptionalModifiers(OptionalModifiersAst* node) {

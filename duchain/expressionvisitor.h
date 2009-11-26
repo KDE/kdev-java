@@ -36,6 +36,8 @@ class KDEVJAVAPARSER_EXPORT ExpressionVisitor : public ExpressionVisitorBase
     ExpressionVisitor();
     
   protected:
+    bool openTypeFromName(KDevelop::QualifiedIdentifier id, bool needClass);
+    
     virtual void visitAdditiveExpression(AdditiveExpressionAst* node);
     virtual void visitAdditiveExpressionRest(AdditiveExpressionRestAst* node);
     virtual void visitAnnotation(AnnotationAst* node);
