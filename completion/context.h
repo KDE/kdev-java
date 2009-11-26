@@ -55,7 +55,7 @@ namespace java {
        * @param text the text to analyze. It usually is the text in the range starting at the beginning of the context, and ending at the position where completion should start
        * @warning The du-chain must be unlocked when this is called
        * */
-      CodeCompletionContext(KDevelop::DUContextPointer context, const QString& text, const QString &followingText, KDevelop::SimpleCursor& cursor, int depth = 0, const QStringList &knownArgumentExpressions = QStringList(), int line = -1);
+      CodeCompletionContext(KDevelop::DUContextPointer context, const QString& text, const QString &followingText, const KDevelop::SimpleCursor& cursor, int depth = 0, const QStringList &knownArgumentExpressions = QStringList(), int line = -1);
       ~CodeCompletionContext();
 
       ///Computes the full set of completion items, using the information retrieved earlier.
