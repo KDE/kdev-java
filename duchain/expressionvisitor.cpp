@@ -19,6 +19,8 @@
 #include "expressionvisitor.h"
 #include <util/pushvalue.h>
 
+#include "overloadresolver.h"
+
 using namespace KDevelop;
 
 namespace java {
@@ -406,9 +408,36 @@ void ExpressionVisitor::visitMandatoryDeclaratorBrackets(MandatoryDeclaratorBrac
   ExpressionVisitorBase::visitMandatoryDeclaratorBrackets(node);
 }
 
-void ExpressionVisitor::visitMethodCallData(MethodCallDataAst* node) {
-  ExpressionVisitorBase::visitMethodCallData(node);
+void ExpressionVisitor::visitMethodCallData(MethodCallDataAst* node)
+{
+  if (lastInstance().isInstance) {
+    if (node->methodName) {
+      QualifiedIdentifier id = identifierForNode(node->methodName);
 
+      QList<OverloadResolver::Parameter> parameters;
+
+      if (node->arguments && node->arguments->expressionSequence)
+      {
+          const KDevPG::ListNode<ExpressionAst*> *__it = node->arguments->expressionSequence->front(), *__end = __it;
+          do
+          {
+              visitNode(__it->element);
+              // TODO determine l-value-ness if required
+              parameters.append(OverloadResolver::Parameter(lastType(), false));
+              
+              __it = __it->next;
+          }
+          while (__it != __end);
+      }
+
+      
+      KDevelop::DUContextPointer currentContextPtr(currentContext());
+      OverloadResolver resolver(currentContextPtr);
+      resolver.resolve(OverloadResolver::ParameterList(parameters), id);
+    }
+  } else {
+    kDebug() << "No instance on which to invoke a method";
+  }
 }
 
 void ExpressionVisitor::visitMethodDeclaration(MethodDeclarationAst* node) {
@@ -488,14 +517,36 @@ void ExpressionVisitor::visitPostfixOperator(PostfixOperatorAst* node) {
 
 void ExpressionVisitor::visitPrimaryAtom(PrimaryAtomAst* node) {
   ExpressionVisitorBase::visitPrimaryAtom(node);
+
+  if (node->simpleNameAccess && node->simpleNameAccess->name) {
+    QualifiedIdentifier id = identifierForNode(node->simpleNameAccess->name);
+    QList<Declaration*> decls = currentContext()->findDeclarations(id, SimpleCursor(editorFindRange(node, node).start()));
+    if (!decls.isEmpty()) {
+      setLastInstance(decls.first());
+    }
+  }
 }
 
 void ExpressionVisitor::visitPrimaryExpression(PrimaryExpressionAst* node) {
   ExpressionVisitorBase::visitPrimaryExpression(node);
 }
 
-void ExpressionVisitor::visitPrimarySelector(PrimarySelectorAst* node) {
-  ExpressionVisitorBase::visitPrimarySelector(node);
+void ExpressionVisitor::visitPrimarySelector(PrimarySelectorAst* node)
+{
+  if (lastInstance().isInstance) {
+    if (node->simpleNameAccess && node->simpleNameAccess->name) {
+      QualifiedIdentifier id = identifierForNode(node->simpleNameAccess->name);
+      DUContext* declContext = lastInstance().declaration->logicalInternalContext(currentContext()->topContext());
+
+      foreach (Declaration* decl, declContext->findDeclarations(id)) {
+        // Only select fields
+        if (decl->abstractType() && !FunctionType::Ptr::dynamicCast(decl->abstractType())) {
+          setLastInstance(decl);
+          return;
+        }
+      }
+    }
+  }
 }
 
 void ExpressionVisitor::visitQualifiedIdentifier(QualifiedIdentifierAst* node) {

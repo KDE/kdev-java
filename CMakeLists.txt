@@ -49,6 +49,11 @@ set(kdevjavalanguagesupport_PART_SRCS
     duchain/expressionvisitor.cpp
     duchain/topducontext.cpp
     duchain/ducontext.cpp
+    duchain/overloadresolver.cpp
+    duchain/typeconversion.cpp
+    duchain/typeutils.cpp
+    duchain/viablefunctions.cpp
+    duchain/missingdeclarationtype.cpp
 
     completion/worker.cpp
     completion/items.cpp
