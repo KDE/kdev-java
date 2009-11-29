@@ -35,7 +35,6 @@ add_definitions( ${QT_DEFINITIONS} ${KDE4_DEFINITIONS} -DKDE_DEFAULT_DEBUG_AREA=
 set(kdevjavalanguagesupport_PART_SRCS
     javalanguagesupport.cpp
     parsejob.cpp
-    javaparsertracker.cpp
 
     duchain/editorintegrator.cpp
     duchain/identifiercompiler.cpp

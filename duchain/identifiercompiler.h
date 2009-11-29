@@ -42,7 +42,6 @@ public:
 
 protected:
   virtual void visitIdentifier(IdentifierAst *node);
-  //virtual void visit_qualified_identifier(qualified_identifier_ast *node);
   virtual void visitQualifiedIdentifierWithOptionalStar(QualifiedIdentifierWithOptionalStarAst *node);
 
 private:

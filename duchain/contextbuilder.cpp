@@ -149,6 +149,16 @@ KDevelop::QualifiedIdentifier ContextBuilder::identifierForNode(java::QualifiedI
   return m_identifierCompiler->identifier();
 }
 
+QualifiedIdentifier ContextBuilder::identifierForNode(ClassOrInterfaceTypeNameAst* id)
+{
+  if( !id )
+    return QualifiedIdentifier();
+
+  m_identifierCompiler->run(id);
+
+  return m_identifierCompiler->identifier();
+}
+
 
 KDevelop::QualifiedIdentifier ContextBuilder::identifierForNode(const KDevPG::ListNode<IdentifierAst*>* id)
 {

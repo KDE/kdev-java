@@ -38,10 +38,6 @@ namespace KIO {
     class Job;
 }
 
-namespace java {
-    class ParserTracker;
-}
-
 namespace KDevelop {
     class IDocument;
     class IProject;
@@ -66,8 +62,6 @@ public:
     // Hack to make it look like all java files #include each other
     KDevelop::ReferencedTopDUContext allJavaContext();
 
-    java::ParserTracker* parserTracker() const;
-
     static JavaLanguageSupport* self();
 
     KZip* javaSourceZip() const;
@@ -80,7 +74,6 @@ private:
 
     KDevelop::CodeHighlighting* m_highlighting;
     KDevelop::ReferencedTopDUContext m_allJavaContext;
-    java::ParserTracker* m_parserTracker;
     KUrl m_javaSourceUrl;
     mutable KZip* m_javaSourceZip;
 

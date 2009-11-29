@@ -143,7 +143,7 @@ void ParseJob::run()
             file.close();
 
         } else if (fileUrl.protocol() == "zip") {
-            QTime t = QTime::currentTime();
+            //QTime t = QTime::currentTime();
             
             QString filePath = fileUrl.path();
             int offset = filePath.indexOf(".zip");
@@ -160,7 +160,7 @@ void ParseJob::run()
                     {
                         m_session->setContents( zipEntry->data() );
                         //Q_ASSERT ( m_session->size() > 0 );
-                        kDebug() << "Zipped file retrieved in " << t.elapsed() << "ms, size" << m_session->size();
+                        //kDebug() << "Zipped file retrieved in " << t.elapsed() << "ms, size" << m_session->size();
 
                     } else {
                         kDebug() << "Could not find" << filePath.mid(offset +5) << "in zip file";

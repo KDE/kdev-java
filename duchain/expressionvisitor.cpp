@@ -175,28 +175,30 @@ void ExpressionVisitor::visitClassBody(ClassBodyAst* node) {
   ExpressionVisitorBase::visitClassBody(node);
 }
 
-void ExpressionVisitor::visitClassDeclaration(ClassDeclarationAst* node) {
-  problem(node, "node-type cannot be parsed");
-}
-
-void ExpressionVisitor::visitClassExtendsClause(ClassExtendsClauseAst* node) {
-  problem(node, "node-type cannot be parsed");
-}
-
 void ExpressionVisitor::visitClassField(ClassFieldAst* node) {
   ExpressionVisitorBase::visitClassField(node);
 }
 
 void ExpressionVisitor::visitClassOrInterfaceTypeName(ClassOrInterfaceTypeNameAst* node) {
-  ExpressionVisitorBase::visitClassOrInterfaceTypeName(node);
+  QualifiedIdentifier id = identifierForNode(node);
+
+  DeclarationPointer useDecl;
+  AstNode* useNode = 0;
+
+  AbstractType::Ptr type = openTypeFromName(id, true);
+  if (StructureType::Ptr classType = StructureType::Ptr::dynamicCast(type)) {
+    DUChainReadLocker lock(DUChain::lock());
+    useDecl = classType->declaration(currentContext()->topContext());
+    if (useDecl)
+      useNode = node;
+  }
+
+  if (useNode)
+    usingDeclaration(useNode, useDecl);
 }
 
 void ExpressionVisitor::visitClassOrInterfaceTypeNamePart(ClassOrInterfaceTypeNamePartAst* node) {
   ExpressionVisitorBase::visitClassOrInterfaceTypeNamePart(node);
-}
-
-void ExpressionVisitor::visitClassType(ClassTypeAst* node) {
-  problem(node, "node-type cannot be parsed");
 }
 
 void ExpressionVisitor::visitCompilationUnit(CompilationUnitAst* node) {
@@ -207,16 +209,8 @@ void ExpressionVisitor::visitConditionalExpression(ConditionalExpressionAst* nod
   ExpressionVisitorBase::visitConditionalExpression(node);
 }
 
-void ExpressionVisitor::visitConstructorDeclaration(ConstructorDeclarationAst* node) {
-  problem(node, "node-type cannot be parsed");
-}
-
 void ExpressionVisitor::visitContinueStatement(ContinueStatementAst* node) {
   ExpressionVisitorBase::visitContinueStatement(node);
-}
-
-void ExpressionVisitor::visitDoWhileStatement(DoWhileStatementAst* node) {
-  problem(node, "node-type cannot be parsed");
 }
 
 void ExpressionVisitor::visitEmbeddedStatement(EmbeddedStatementAst* node) {
@@ -259,28 +253,8 @@ void ExpressionVisitor::visitForClauseTraditionalRest(ForClauseTraditionalRestAs
   ExpressionVisitorBase::visitForClauseTraditionalRest(node);
 }
 
-void ExpressionVisitor::visitForControl(ForControlAst* node) {
-  problem(node, "node-type cannot be parsed");
-}
-
-void ExpressionVisitor::visitForStatement(ForStatementAst* node) {
-  problem(node, "node-type cannot be parsed");
-}
-
-void ExpressionVisitor::visitForeachDeclarationData(ForeachDeclarationDataAst* node) {
-  problem(node, "node-type cannot be parsed");
-}
-
 void ExpressionVisitor::visitIdentifier(IdentifierAst* node) {
   ExpressionVisitorBase::visitIdentifier(node);
-}
-
-void ExpressionVisitor::visitIfStatement(IfStatementAst* node) {
-  problem(node, "node-type cannot be parsed");
-}
-
-void ExpressionVisitor::visitImplementsClause(ImplementsClauseAst* node) {
-  problem(node, "node-type cannot be parsed");
 }
 
 void ExpressionVisitor::visitImportDeclaration(ImportDeclarationAst* node) {
@@ -291,29 +265,16 @@ void ExpressionVisitor::visitInterfaceBody(InterfaceBodyAst* node) {
   ExpressionVisitorBase::visitInterfaceBody(node);
 }
 
-void ExpressionVisitor::visitInterfaceDeclaration(InterfaceDeclarationAst* node) {
-  problem(node, "node-type cannot be parsed");
-}
-
-void ExpressionVisitor::visitInterfaceExtendsClause(InterfaceExtendsClauseAst* node) {
-  problem(node, "node-type cannot be parsed");
-}
-
 void ExpressionVisitor::visitInterfaceField(InterfaceFieldAst* node) {
   ExpressionVisitorBase::visitInterfaceField(node);
 }
-
-void ExpressionVisitor::visitInterfaceMethodDeclaration(InterfaceMethodDeclarationAst* node) {
-  problem(node, "node-type cannot be parsed");
-}
-
 void ExpressionVisitor::visitLabeledStatement(LabeledStatementAst* node) {
   ExpressionVisitorBase::visitLabeledStatement(node);
 }
 
-bool ExpressionVisitor::openTypeFromName(QualifiedIdentifier id, bool needClass)
+AbstractType::Ptr ExpressionVisitor::openTypeFromName(QualifiedIdentifier id, bool needClass)
 {
-  bool openedType = false;
+  AbstractType::Ptr openedType;
 
   bool delay = false;
 
@@ -335,7 +296,7 @@ bool ExpressionVisitor::openTypeFromName(QualifiedIdentifier id, bool needClass)
           ///@todo only functions may have multiple declarations here
           //ifDebug( if( dec.count() > 1 ) kDebug() << id.toString() << "was found" << dec.count() << "times" )
           //kDebug() << "found for" << id.toString() << ":" << decl->toString() << "type:" << decl->abstractType()->toString() << "context:" << decl->context();
-          openedType = true;
+          openedType = decl->abstractType();
           setLastType(decl->abstractType());
           break;
         }
@@ -410,6 +371,9 @@ void ExpressionVisitor::visitMandatoryDeclaratorBrackets(MandatoryDeclaratorBrac
 
 void ExpressionVisitor::visitMethodCallData(MethodCallDataAst* node)
 {
+  DeclarationPointer useDecl;
+  AstNode* useNode = 0;
+
   if (lastInstance().isInstance) {
     if (node->methodName) {
       QualifiedIdentifier id = identifierForNode(node->methodName);
@@ -431,10 +395,17 @@ void ExpressionVisitor::visitMethodCallData(MethodCallDataAst* node)
       }
 
       
+      DUChainReadLocker lock(DUChain::lock());
       KDevelop::DUContextPointer currentContextPtr(currentContext());
       OverloadResolver resolver(currentContextPtr);
-      resolver.resolve(OverloadResolver::ParameterList(parameters), id);
+      useDecl = resolver.resolve(OverloadResolver::ParameterList(parameters), id);
+      if (useDecl)
+        useNode = node->methodName;
     }
+
+    if (useNode)
+      usingDeclaration(useNode, useDecl);
+
   } else {
     kDebug() << "No instance on which to invoke a method";
   }
@@ -452,8 +423,12 @@ void ExpressionVisitor::visitMultiplicativeExpressionRest(MultiplicativeExpressi
   ExpressionVisitorBase::visitMultiplicativeExpressionRest(node);
 }
 
-void ExpressionVisitor::visitNewExpression(NewExpressionAst* node) {
+void ExpressionVisitor::visitNewExpression(NewExpressionAst* node)
+{  
   ExpressionVisitorBase::visitNewExpression(node);
+
+  if (lastType())
+    setInstantiatedType(true);
 }
 
 void ExpressionVisitor::visitNonArrayType(NonArrayTypeAst* node) {
@@ -481,10 +456,6 @@ void ExpressionVisitor::visitOptionalArrayBuiltInType(OptionalArrayBuiltInTypeAs
     newArrayType->setElementType(lastType());
     setLastType(newArrayType);
   }
-}
-
-void ExpressionVisitor::visitOptionalDeclaratorBrackets(OptionalDeclaratorBracketsAst* node) {
-  problem(node, "node-type cannot be parsed");
 }
 
 void ExpressionVisitor::visitOptionalModifiers(OptionalModifiersAst* node) {
@@ -518,11 +489,31 @@ void ExpressionVisitor::visitPostfixOperator(PostfixOperatorAst* node) {
 void ExpressionVisitor::visitPrimaryAtom(PrimaryAtomAst* node) {
   ExpressionVisitorBase::visitPrimaryAtom(node);
 
+  DeclarationPointer useDecl;
+  AstNode* useNode = 0;
+
   if (node->simpleNameAccess && node->simpleNameAccess->name) {
     QualifiedIdentifier id = identifierForNode(node->simpleNameAccess->name);
+
+    DUChainReadLocker lock(DUChain::lock());
     QList<Declaration*> decls = currentContext()->findDeclarations(id, SimpleCursor(editorFindRange(node, node).start()));
     if (!decls.isEmpty()) {
       setLastInstance(decls.first());
+      useDecl = decls.first();
+      useNode = node->simpleNameAccess;
+    }
+  }
+  
+  if (node->superAccess) {
+    DUChainReadLocker lock(DUChain::lock());
+    if (ClassDeclaration* decl = dynamic_cast<ClassDeclaration*>(lastInstance().declaration.data())) {
+      if (decl->baseClassesSize() >= 1) {
+        if (StructureType::Ptr baseClass = decl->baseClasses()->baseClass.type<StructureType>()) {
+          setLastType(decl->baseClasses()->baseClass.abstractType());
+          useDecl = baseClass->declaration(currentContext()->topContext());
+          useNode = node->superAccess;
+        }
+      }
     }
   }
 }
@@ -533,20 +524,49 @@ void ExpressionVisitor::visitPrimaryExpression(PrimaryExpressionAst* node) {
 
 void ExpressionVisitor::visitPrimarySelector(PrimarySelectorAst* node)
 {
+  DeclarationPointer useDecl;
+  AstNode* useNode = 0;
+
   if (lastInstance().isInstance) {
+    DUChainReadLocker lock(DUChain::lock());
     if (node->simpleNameAccess && node->simpleNameAccess->name) {
       QualifiedIdentifier id = identifierForNode(node->simpleNameAccess->name);
-      DUContext* declContext = lastInstance().declaration->logicalInternalContext(currentContext()->topContext());
 
-      foreach (Declaration* decl, declContext->findDeclarations(id)) {
-        // Only select fields
-        if (decl->abstractType() && !FunctionType::Ptr::dynamicCast(decl->abstractType())) {
-          setLastInstance(decl);
-          return;
+      if (lastInstance().declaration) {
+        DUContext* declContext = lastInstance().declaration->logicalInternalContext(currentContext()->topContext());
+
+        if (declContext) {
+          foreach (Declaration* decl, declContext->findDeclarations(id)) {
+            // Only select fields
+            if (decl->abstractType() && !FunctionType::Ptr::dynamicCast(decl->abstractType())) {
+              setLastInstance(decl);
+              useNode = node->simpleNameAccess;
+              useDecl = decl;
+              break;
+            }
+          }
+        } else {
+          kWarning() << "Internal context for declaration" << lastInstance().declaration->toString() << "was null.";
         }
+      } else {
+        kWarning() << "No last instance for primary selector at" << editorFindRange(node->simpleNameAccess->name, node->simpleNameAccess->name);
       }
     }
   }
+  
+  if (node->thisAccess) {
+    if (lastInstance().isInstance) {
+      // Nothing to do - already the correct instance and type?
+    } else {
+      DUChainReadLocker lock(DUChain::lock());
+      setLastInstance(currentContext()->owner());
+      useNode = node->thisAccess;
+      useDecl = currentContext()->owner();
+    }
+  }
+
+  if (useNode)
+    usingDeclaration(useNode, useDecl);
 }
 
 void ExpressionVisitor::visitQualifiedIdentifier(QualifiedIdentifierAst* node) {
@@ -597,14 +617,6 @@ void ExpressionVisitor::visitSwitchLabel(SwitchLabelAst* node) {
   ExpressionVisitorBase::visitSwitchLabel(node);
 }
 
-void ExpressionVisitor::visitSwitchSection(SwitchSectionAst* node) {
-  problem(node, "node-type cannot be parsed");
-}
-
-void ExpressionVisitor::visitSwitchStatement(SwitchStatementAst* node) {
-  problem(node, "node-type cannot be parsed");
-}
-
 void ExpressionVisitor::visitSynchronizedStatement(SynchronizedStatementAst* node) {
   ExpressionVisitorBase::visitSynchronizedStatement(node);
 }
@@ -623,10 +635,6 @@ void ExpressionVisitor::visitThrowStatement(ThrowStatementAst* node) {
 
 void ExpressionVisitor::visitThrowsClause(ThrowsClauseAst* node) {
   ExpressionVisitorBase::visitThrowsClause(node);
-}
-
-void ExpressionVisitor::visitTryStatement(TryStatementAst* node) {
-  problem(node, "node-type cannot be parsed");
 }
 
 void ExpressionVisitor::visitType(TypeAst* node) {
@@ -699,10 +707,6 @@ void ExpressionVisitor::visitVariableDeclarator(VariableDeclaratorAst* node) {
 
 void ExpressionVisitor::visitVariableInitializer(VariableInitializerAst* node) {
   ExpressionVisitorBase::visitVariableInitializer(node);
-}
-
-void ExpressionVisitor::visitWhileStatement(WhileStatementAst* node) {
-  problem(node, "node-type cannot be parsed");
 }
 
 void ExpressionVisitor::visitWildcardType(WildcardTypeAst* node) {

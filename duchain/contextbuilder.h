@@ -74,6 +74,7 @@ protected:
   virtual KDevelop::QualifiedIdentifier identifierForNode(IdentifierAst* id);
   KDevelop::QualifiedIdentifier identifierForNode(QualifiedIdentifierAst* id);
   KDevelop::QualifiedIdentifier identifierForNode(const KDevPG::ListNode<IdentifierAst*>* id);
+  KDevelop::QualifiedIdentifier identifierForNode(ClassOrInterfaceTypeNameAst* id);
 
   void unresolvedIdentifier(KDevelop::DUContextPointer context, KDevelop::QualifiedIdentifier id);
   

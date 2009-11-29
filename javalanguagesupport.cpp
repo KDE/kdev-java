@@ -41,7 +41,6 @@ Boston, MA 02110-1301, USA.
 #include <interfaces/iproject.h>
 
 #include "parsejob.h"
-#include "javaparsertracker.h"
 
 #include <language/codecompletion/codecompletion.h>
 #include <language/codecompletion/codecompletionmodel.h>
@@ -70,7 +69,6 @@ JavaLanguageSupport::JavaLanguageSupport( QObject* parent,
         : KDevelop::IPlugin( KDevJavaSupportFactory::componentData(), parent )
         , KDevelop::ILanguageSupport()
         , m_allJavaContext(0)
-        , m_parserTracker(new java::ParserTracker(this))
         , m_javaSourceZip(0)
 {
     s_self = this;
@@ -108,7 +106,6 @@ JavaLanguageSupport* JavaLanguageSupport::self()
 KDevelop::ParseJob *JavaLanguageSupport::createParseJob( const KUrl &url )
 {
     ParseJob* job = new ParseJob( url );
-    parserTracker()->addParseJob(job);
     return job;
 }
 
@@ -184,11 +181,6 @@ KDevelop::ReferencedTopDUContext JavaLanguageSupport::allJavaContext()
 const KDevelop::ICodeHighlighting* JavaLanguageSupport::codeHighlighting() const
 {
     return m_highlighting;
-}
-
-java::ParserTracker* JavaLanguageSupport::parserTracker() const
-{
-    return m_parserTracker;
 }
 
 #include "javalanguagesupport.moc"

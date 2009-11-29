@@ -36,7 +36,7 @@ class KDEVJAVAPARSER_EXPORT ExpressionVisitor : public ExpressionVisitorBase
     ExpressionVisitor();
     
   protected:
-    bool openTypeFromName(KDevelop::QualifiedIdentifier id, bool needClass);
+    KDevelop::AbstractType::Ptr openTypeFromName(KDevelop::QualifiedIdentifier id, bool needClass);
     
     virtual void visitAdditiveExpression(AdditiveExpressionAst* node);
     virtual void visitAdditiveExpressionRest(AdditiveExpressionRestAst* node);
@@ -66,17 +66,12 @@ class KDEVJAVAPARSER_EXPORT ExpressionVisitor : public ExpressionVisitorBase
     virtual void visitCatchClause(CatchClauseAst* node);
     virtual void visitClassAccessData(ClassAccessDataAst* node);
     virtual void visitClassBody(ClassBodyAst* node);
-    virtual void visitClassDeclaration(ClassDeclarationAst* node);
-    virtual void visitClassExtendsClause(ClassExtendsClauseAst* node);
     virtual void visitClassField(ClassFieldAst* node);
     virtual void visitClassOrInterfaceTypeName(ClassOrInterfaceTypeNameAst* node);
     virtual void visitClassOrInterfaceTypeNamePart(ClassOrInterfaceTypeNamePartAst* node);
-    virtual void visitClassType(ClassTypeAst* node);
     virtual void visitCompilationUnit(CompilationUnitAst* node);
     virtual void visitConditionalExpression(ConditionalExpressionAst* node);
-    virtual void visitConstructorDeclaration(ConstructorDeclarationAst* node);
     virtual void visitContinueStatement(ContinueStatementAst* node);
-    virtual void visitDoWhileStatement(DoWhileStatementAst* node);
     virtual void visitEmbeddedStatement(EmbeddedStatementAst* node);
     virtual void visitEnumBody(EnumBodyAst* node);
     virtual void visitEnumConstant(EnumConstantAst* node);
@@ -87,18 +82,10 @@ class KDEVJAVAPARSER_EXPORT ExpressionVisitor : public ExpressionVisitorBase
     virtual void visitEqualityExpressionRest(EqualityExpressionRestAst* node);
     virtual void visitExpression(ExpressionAst* node);
     virtual void visitForClauseTraditionalRest(ForClauseTraditionalRestAst* node);
-    virtual void visitForControl(ForControlAst* node);
-    virtual void visitForStatement(ForStatementAst* node);
-    virtual void visitForeachDeclarationData(ForeachDeclarationDataAst* node);
     virtual void visitIdentifier(IdentifierAst* node);
-    virtual void visitIfStatement(IfStatementAst* node);
-    virtual void visitImplementsClause(ImplementsClauseAst* node);
     virtual void visitImportDeclaration(ImportDeclarationAst* node);
     virtual void visitInterfaceBody(InterfaceBodyAst* node);
-    virtual void visitInterfaceDeclaration(InterfaceDeclarationAst* node);
-    virtual void visitInterfaceExtendsClause(InterfaceExtendsClauseAst* node);
     virtual void visitInterfaceField(InterfaceFieldAst* node);
-    virtual void visitInterfaceMethodDeclaration(InterfaceMethodDeclarationAst* node);
     virtual void visitLabeledStatement(LabeledStatementAst* node);
     virtual void visitLiteral(LiteralAst* node);
     virtual void visitLogicalAndExpression(LogicalAndExpressionAst* node);
@@ -114,7 +101,6 @@ class KDEVJAVAPARSER_EXPORT ExpressionVisitor : public ExpressionVisitorBase
     virtual void visitNonWildcardTypeArguments(NonWildcardTypeArgumentsAst* node);
     virtual void visitOptionalArgumentList(OptionalArgumentListAst* node);
     virtual void visitOptionalArrayBuiltInType(OptionalArrayBuiltInTypeAst* node);
-    virtual void visitOptionalDeclaratorBrackets(OptionalDeclaratorBracketsAst* node);
     virtual void visitOptionalModifiers(OptionalModifiersAst* node);
     virtual void visitOptionalParameterDeclarationList(OptionalParameterDeclarationListAst* node);
     virtual void visitOptionalParameterModifiers(OptionalParameterModifiersAst* node);
@@ -137,14 +123,11 @@ class KDEVJAVAPARSER_EXPORT ExpressionVisitor : public ExpressionVisitorBase
     virtual void visitSuperAccessData(SuperAccessDataAst* node);
     virtual void visitSuperSuffix(SuperSuffixAst* node);
     virtual void visitSwitchLabel(SwitchLabelAst* node);
-    virtual void visitSwitchSection(SwitchSectionAst* node);
-    virtual void visitSwitchStatement(SwitchStatementAst* node);
     virtual void visitSynchronizedStatement(SynchronizedStatementAst* node);
     virtual void visitThisAccessData(ThisAccessDataAst* node);
     virtual void visitThisCallData(ThisCallDataAst* node);
     virtual void visitThrowStatement(ThrowStatementAst* node);
     virtual void visitThrowsClause(ThrowsClauseAst* node);
-    virtual void visitTryStatement(TryStatementAst* node);
     virtual void visitType(TypeAst* node);
     virtual void visitTypeArgument(TypeArgumentAst* node);
     virtual void visitTypeArgumentType(TypeArgumentTypeAst* node);
@@ -163,7 +146,6 @@ class KDEVJAVAPARSER_EXPORT ExpressionVisitor : public ExpressionVisitorBase
     virtual void visitVariableDeclarationStatement(VariableDeclarationStatementAst* node);
     virtual void visitVariableDeclarator(VariableDeclaratorAst* node);
     virtual void visitVariableInitializer(VariableInitializerAst* node);
-    virtual void visitWhileStatement(WhileStatementAst* node);
     virtual void visitWildcardType(WildcardTypeAst* node);
     virtual void visitWildcardTypeBounds(WildcardTypeBoundsAst* node);
 

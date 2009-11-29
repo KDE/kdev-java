@@ -19,15 +19,15 @@
 #ifndef USEBUILDER_H
 #define USEBUILDER_H
 
-#include "contextbuilder.h"
-
 #include <language/duchain/builders/abstractusebuilder.h>
+
+#include "expressionvisitor.h"
 
 namespace java {
 
 class ParseSession;
 
-typedef KDevelop::AbstractUseBuilder<AstNode, IdentifierAst, java::ContextBuilder> UseBuilderBase;
+typedef KDevelop::AbstractUseBuilder<AstNode, IdentifierAst, java::ExpressionVisitor> UseBuilderBase;
 
 /**
  * A class which iterates the AST to extract uses of definitions.
@@ -39,7 +39,8 @@ public:
   UseBuilder(EditorIntegrator* editor);
 
 protected:
-  virtual void visitSimpleNameAccessData(SimpleNameAccessDataAst *node);
+  virtual void usingDeclaration(AstNode* node, const KDevelop::DeclarationPointer& decl, qint64 start_token, qint64 end_token );
+
 };
 
 }

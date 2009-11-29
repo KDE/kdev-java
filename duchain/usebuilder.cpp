@@ -36,11 +36,17 @@ UseBuilder::UseBuilder (EditorIntegrator* editor)
   setEditor(editor);
 }
 
-void UseBuilder::visitSimpleNameAccessData(SimpleNameAccessDataAst * node)
-{
-  newUse(node->name);
 
-  UseBuilderBase::visitSimpleNameAccessData(node);
+void UseBuilder::usingDeclaration(AstNode* node, const KDevelop::DeclarationPointer& decl, qint64 start_token, qint64 end_token)
+{
+  if (start_token == qint64())
+    start_token = node->startToken;
+
+  if (end_token == qint64())
+    end_token = node->endToken;
+
+  kDebug() << "New use" << editor()->findRange(start_token, end_token).textRange() << " declaration" << decl.data() << decl->toString();
+  newUse(node, editor()->findRange(start_token, end_token), decl.data());
 }
 
 }
