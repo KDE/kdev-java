@@ -40,7 +40,10 @@ typedef KDevelop::AbstractTypeBuilder<AstNode, IdentifierAst, java::ContextBuild
 class TypeBuilder: public TypeBuilderBase
 {
 public:
-  TypeBuilder();  
+  TypeBuilder();
+
+  bool buildCompleteTypes() const;
+  void setBuildCompleteTypes(bool completeTypes);
 
 protected:
   virtual void visitClassDeclaration(ClassDeclarationAst *node);
@@ -68,6 +71,8 @@ private:
 
   QList<KDevelop::StructureType::Ptr> m_rememberClassNames;
   KDevelop::QualifiedIdentifier m_currentIdentifier;
+
+  bool m_buildCompleteTypes;
 };
 
 }

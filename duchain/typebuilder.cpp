@@ -37,8 +37,19 @@ using namespace KDevelop;
 namespace java {
 
 TypeBuilder::TypeBuilder()
+  : m_buildCompleteTypes(true)
 {
+}
 
+bool TypeBuilder::buildCompleteTypes() const
+{
+  return m_buildCompleteTypes;
+}
+
+
+void TypeBuilder::setBuildCompleteTypes(bool completeTypes)
+{
+  m_buildCompleteTypes = completeTypes;
 }
   
 StructureType* TypeBuilder::openClass(bool interface, bool parameters)
@@ -234,9 +245,9 @@ void TypeBuilder::visitClassOrInterfaceTypeName(ClassOrInterfaceTypeNameAst * no
 {
   m_currentIdentifier.clear();
 
-  TypeBuilderBase::visitClassOrInterfaceTypeName(node);
+    TypeBuilderBase::visitClassOrInterfaceTypeName(node);
 
-  if (openTypeFromName(m_currentIdentifier, node, true)) {
+  if (buildCompleteTypes() && openTypeFromName(m_currentIdentifier, node, true)) {
     {
       //DUChainReadLocker lock(DUChain::lock());
       //kDebug() << "Searching for type " << m_currentIdentifier.toStringList().join(".") << ", found " << currentAbstractType()->toString();

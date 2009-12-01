@@ -191,6 +191,10 @@ void ExpressionVisitor::visitClassOrInterfaceTypeName(ClassOrInterfaceTypeNameAs
     useDecl = classType->declaration(currentContext()->topContext());
     if (useDecl)
       useNode = node;
+    else
+      kDebug() << classType->toString() << "unable to return its declaration.";
+  } else {
+    kDebug() << id.toString() << "cannot be found as a class or interface type name.";
   }
 
   if (useNode)

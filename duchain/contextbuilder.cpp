@@ -40,7 +40,19 @@ namespace java {
 ContextBuilder::ContextBuilder()
   : m_identifierCompiler(0)
   , m_mapAst(false)
+  , m_computeOnlyVisible(false)
 {
+}
+
+
+bool ContextBuilder::onlyComputeVisible() const
+{
+  return m_computeOnlyVisible;
+}
+
+void ContextBuilder::setOnlyComputeVisible(bool onlyVisible)
+{
+  m_computeOnlyVisible = onlyVisible;
 }
 
 void ContextBuilder::unresolvedIdentifier(KDevelop::DUContextPointer context, KDevelop::QualifiedIdentifier id)
@@ -251,7 +263,7 @@ void ContextBuilder::visitMethodDeclaration(MethodDeclarationAst * node)
   visitNode(node->declaratorBrackets);
   visitNode(node->throwsClause);
 
-  if (node->body) {
+  if (!onlyComputeVisible() && node->body) {
     KDevelop::DUContext* body = openContext(node->body, DUContext::Function, id);
     if (parameters) {
       DUChainWriteLocker lock(DUChain::lock());
@@ -336,7 +348,7 @@ void ContextBuilder::visitConstructorDeclaration(ConstructorDeclarationAst * nod
 
   visitNode(node->throwsClause);
 
-  if (node->body) {
+  if (!onlyComputeVisible() && node->body) {
     KDevelop::DUContext* body = openContext(node->body, DUContext::Class, id);
     if (parameters) {
       DUChainWriteLocker lock(DUChain::lock());

@@ -94,7 +94,7 @@ void DeclarationBuilder::visitClassDeclaration(ClassDeclarationAst * node)
   // Provide java.lang.Object inheritance where it is not specified
   DUChainWriteLocker lock(DUChain::lock());
   //TODO : only count objects, not interfaces, in this check
-  if (newClass->baseClassesSize() == 0) {
+  if (buildCompleteTypes() && newClass->baseClassesSize() == 0) {
     static QualifiedIdentifier javaLangObject("java::lang::Object");
     if (newClass->qualifiedIdentifier() != javaLangObject) {
       QList<Declaration*> declarations = currentContext()->findDeclarations(javaLangObject, currentContext()->range().end, AbstractType::Ptr(), currentContext()->topContext());
@@ -133,30 +133,32 @@ void DeclarationBuilder::visitClassExtendsClause(java::ClassExtendsClauseAst* no
 {
   DeclarationBuilderBase::visitClassExtendsClause(node);
 
-  BaseClassInstance instance;
-  {
-    DUChainWriteLocker lock(DUChain::lock());
-    ClassDeclaration* currentClass = dynamic_cast<ClassDeclaration*>(currentDeclaration());
-    if (currentClass) {
-      // TODO check that type is a class
-      instance.baseClass = lastType()->indexed();
-      kDebug() << "adding base class type, valid? " << instance.baseClass.isValid();
+  if (buildCompleteTypes()) {
+    BaseClassInstance instance;
+    {
+      DUChainWriteLocker lock(DUChain::lock());
+      ClassDeclaration* currentClass = dynamic_cast<ClassDeclaration*>(currentDeclaration());
+      if (currentClass) {
+        // TODO check that type is a class
+        instance.baseClass = lastType()->indexed();
+        kDebug() << "adding base class type, valid? " << instance.baseClass.isValid();
 
-      if (instance.baseClass.abstractType())
-        kDebug() << "type " << instance.baseClass.abstractType()->toString();
-      else
-        kDebug() << "null type";
+        if (instance.baseClass.abstractType())
+          kDebug() << "type " << instance.baseClass.abstractType()->toString();
+        else
+          kDebug() << "null type";
 
-      if (instance.baseClass.isValid())
-        currentClass->addBaseClass(instance);
-      else
-        kDebug() << "extends-specifier without class type (invalid parsed type)";
+        if (instance.baseClass.isValid())
+          currentClass->addBaseClass(instance);
+        else
+          kDebug() << "extends-specifier without class type (invalid parsed type)";
 
-    } else {
-      kDebug() << "extends-specifier without class type";
+      } else {
+        kDebug() << "extends-specifier without class type";
+      }
     }
+    addBaseType(instance);
   }
-  addBaseType(instance);
 }
 
 void DeclarationBuilder::visitImplementsClause(java::ImplementsClauseAst* node)
@@ -172,20 +174,22 @@ void DeclarationBuilder::visitClassOrInterfaceTypeName(ClassOrInterfaceTypeNameA
 {
   DeclarationBuilderBase::visitClassOrInterfaceTypeName(node);
 
-  if (m_inImplementsClause) {
-    BaseClassInstance instance;
-    {
-      DUChainWriteLocker lock(DUChain::lock());
-      ClassDeclaration* currentClass = dynamic_cast<ClassDeclaration*>(currentDeclaration());
-      if(currentClass) {
-        // TODO check that type is an interface
-        instance.baseClass = lastType()->indexed();
-        currentClass->addBaseClass(instance);
-      }else{
-        kWarning() << "implements specifier without interface type";
+  if (buildCompleteTypes()) {
+    if (m_inImplementsClause) {
+      BaseClassInstance instance;
+      {
+        DUChainWriteLocker lock(DUChain::lock());
+        ClassDeclaration* currentClass = dynamic_cast<ClassDeclaration*>(currentDeclaration());
+        if(currentClass) {
+          // TODO check that type is an interface
+          instance.baseClass = lastType()->indexed();
+          currentClass->addBaseClass(instance);
+        }else{
+          kWarning() << "implements specifier without interface type";
+        }
       }
+      addBaseType(instance);
     }
-    addBaseType(instance);
   }
 }
 

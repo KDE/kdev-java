@@ -53,6 +53,9 @@ public:
   bool hadUnresolvedIdentifiers() const;
   bool identifiersRemainUnresolved() const;
 
+  bool onlyComputeVisible() const;
+  void setOnlyComputeVisible(bool onlyVisible);
+
 protected:
   EditorIntegrator* editor() const;
 
@@ -115,6 +118,7 @@ private:
 
 public:
   bool m_mapAst;
+  bool m_computeOnlyVisible;
 };
 
 }

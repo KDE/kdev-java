@@ -248,12 +248,9 @@ void ParseJob::run()
 
     //kDebug(  ) << (contentContext ? "updating" : "building") << "duchain for" << parentJob()->document().str();
 
+    // TODO: use zip hash to find out if jdk/other source has changed when going for 2nd pass
+
     KDevelop::ReferencedTopDUContext toUpdate = KDevelop::DUChainUtils::standardContextForUrl(document().toUrl());
-
-
-    DeclarationBuilder declarationBuilder(&editor);
-    KDevelop::TopDUContext* chain = declarationBuilder.build(document(), ast, toUpdate);
-    setDuChain(chain);
 
     KDevelop::TopDUContext::Features newFeatures = minimumFeatures();
     if (toUpdate)
@@ -264,6 +261,20 @@ void ParseJob::run()
 
     //Remove update-flags like 'Recursive' or 'ForceUpdate'
     newFeatures = static_cast<KDevelop::TopDUContext::Features>(newFeatures & KDevelop::TopDUContext::AllDeclarationsContextsUsesAndAST);
+
+    DeclarationBuilder declarationBuilder(&editor);
+
+    if (newFeatures == KDevelop::TopDUContext::SimplifiedVisibleDeclarationsAndContexts) {
+        declarationBuilder.setOnlyComputeVisible(true); //Only visible declarations/contexts need to be built.
+        declarationBuilder.setBuildCompleteTypes(false);
+        
+    } else if (newFeatures == KDevelop::TopDUContext::VisibleDeclarationsAndContexts) {
+        declarationBuilder.setOnlyComputeVisible(true); //Only visible declarations/contexts need to be built.
+    }
+
+    
+    KDevelop::TopDUContext* chain = declarationBuilder.build(document(), ast, toUpdate);
+    setDuChain(chain);
     
     bool declarationsComplete = !declarationBuilder.hadUnresolvedIdentifiers();
 
