@@ -500,12 +500,14 @@ void ExpressionVisitor::visitPrimaryAtom(PrimaryAtomAst* node) {
     QualifiedIdentifier id = identifierForNode(node->simpleNameAccess->name);
 
     DUChainReadLocker lock(DUChain::lock());
-    QList<Declaration*> decls = currentContext()->findDeclarations(id, SimpleCursor(editorFindRange(node, node).start()));
+    KTextEditor::Cursor start = editorFindRange(node, node).start();
+    QList<Declaration*> decls = currentContext()->findDeclarations(id, SimpleCursor(start));
     if (!decls.isEmpty()) {
       setLastInstance(decls.first());
       useDecl = decls.first();
       useNode = node->simpleNameAccess;
     }
+    //kDebug() << currentContext()->localScopeIdentifier().toString() << id << start << decls.count() << useDecl << useNode;
   }
   
   if (node->superAccess) {
@@ -520,6 +522,9 @@ void ExpressionVisitor::visitPrimaryAtom(PrimaryAtomAst* node) {
       }
     }
   }
+
+  if (useNode)
+    usingDeclaration(useNode, useDecl);
 }
 
 void ExpressionVisitor::visitPrimaryExpression(PrimaryExpressionAst* node) {
