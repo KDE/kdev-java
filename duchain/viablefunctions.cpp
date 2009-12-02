@@ -60,10 +60,14 @@ void ViableFunction::matchParameters( const OverloadResolver::ParameterList& par
   
   uint functionArgumentCount = m_type->indexedArgumentsSize();
   
-  if( params.parameters.size() + m_funDecl->defaultParametersSize() < functionArgumentCount && !partial )
+  if( params.parameters.size() + m_funDecl->defaultParametersSize() < functionArgumentCount && !partial ) {
+    //kDebug() << "Not enough parameters + default-parameters";
     return; //Not enough parameters + default-parameters
-  if( params.parameters.size() > functionArgumentCount )
+  }
+  if( params.parameters.size() > functionArgumentCount ) {
+    //kDebug() << "Too many parameters" << params.parameters.size() << "gt" << functionArgumentCount;
     return; //Too many parameters
+  }
 
   m_parameterCountMismatch = false;
   //Match all parameters against the argument-type

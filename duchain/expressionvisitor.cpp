@@ -378,10 +378,25 @@ void ExpressionVisitor::visitMethodCallData(MethodCallDataAst* node)
   DeclarationPointer useDecl;
   AstNode* useNode = 0;
 
-  if (lastInstance().isInstance) {
+  if (lastInstance().declaration) {
     if (node->methodName) {
       QualifiedIdentifier id = identifierForNode(node->methodName);
-
+      DUContextPointer searchContext;
+      {
+        DUChainReadLocker lock(DUChain::lock());
+        StructureType::Ptr classType = lastInstance().declaration->type<StructureType>();
+        if (!classType) {
+            kDebug() << "Type of last instance " << lastInstance().declaration->toString() << "was not a structure.";
+            return;
+        }
+        searchContext = classType->internalContext(currentContext()->topContext());
+        if (!searchContext) {
+          kDebug() << "could not find internal context for the structure type of the class to be searched";
+          return;
+        }
+        kDebug() << "Looking for function" << id << "in" << searchContext->scopeIdentifier(true);
+      }
+      
       QList<OverloadResolver::Parameter> parameters;
 
       if (node->arguments && node->arguments->expressionSequence)
@@ -391,7 +406,10 @@ void ExpressionVisitor::visitMethodCallData(MethodCallDataAst* node)
           {
               visitNode(__it->element);
               // TODO determine l-value-ness if required
-              parameters.append(OverloadResolver::Parameter(lastType(), false));
+              if (lastType()) {
+                kDebug() << "Parameter" << lastType()->toString();
+                parameters.append(OverloadResolver::Parameter(lastType(), false));
+              }
               
               __it = __it->next;
           }
@@ -400,18 +418,20 @@ void ExpressionVisitor::visitMethodCallData(MethodCallDataAst* node)
 
       
       DUChainReadLocker lock(DUChain::lock());
-      KDevelop::DUContextPointer currentContextPtr(currentContext());
-      OverloadResolver resolver(currentContextPtr);
+      OverloadResolver resolver(searchContext);
+      //kDebug() << "Parameter count:" << parameters.count();
       useDecl = resolver.resolve(OverloadResolver::ParameterList(parameters), id);
       if (useDecl)
         useNode = node->methodName;
+
+      kDebug() << "result" << (useDecl ? useDecl->toString() : "null declaration") << useNode;
     }
 
     if (useNode)
       usingDeclaration(useNode, useDecl);
 
   } else {
-    kDebug() << "No instance on which to invoke a method";
+    kDebug() << "No declaration for the last instance on which to invoke a method";
   }
 }
 
@@ -573,6 +593,9 @@ void ExpressionVisitor::visitPrimarySelector(PrimarySelectorAst* node)
       useDecl = currentContext()->owner();
     }
   }
+
+  if (node->methodCall)
+    visitNode(node->methodCall);
 
   if (useNode)
     usingDeclaration(useNode, useDecl);

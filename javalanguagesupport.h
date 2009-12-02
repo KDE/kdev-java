@@ -64,6 +64,7 @@ public:
 
     static JavaLanguageSupport* self();
 
+    QMutex* javaSourceZipMutex() const;
     KZip* javaSourceZip() const;
 
 private Q_SLOTS:
@@ -75,7 +76,9 @@ private:
     KDevelop::CodeHighlighting* m_highlighting;
     KDevelop::ReferencedTopDUContext m_allJavaContext;
     KUrl m_javaSourceUrl;
+    QMutex* m_javaSourceZipMutex;
     mutable KZip* m_javaSourceZip;
+    
 
     static JavaLanguageSupport* s_self;
 };

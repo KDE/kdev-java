@@ -82,6 +82,16 @@ void TypeBuilder::visitMethodDeclaration(MethodDeclarationAst * node)
   closeType();
 }
 
+
+void TypeBuilder::visitParameterDeclarationEllipsis(ParameterDeclarationEllipsisAst* node)
+{
+  TypeBuilderBase::visitParameterDeclarationEllipsis(node);
+  
+  if (hasCurrentType())
+    if (FunctionType::Ptr function = currentType<FunctionType>())
+      function->addArgument(lastType());
+}
+
 void TypeBuilder::visitInterfaceMethodDeclaration(InterfaceMethodDeclarationAst * node)
 {
   clearLastType();

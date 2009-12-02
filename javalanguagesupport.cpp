@@ -69,6 +69,7 @@ JavaLanguageSupport::JavaLanguageSupport( QObject* parent,
         : KDevelop::IPlugin( KDevJavaSupportFactory::componentData(), parent )
         , KDevelop::ILanguageSupport()
         , m_allJavaContext(0)
+        , m_javaSourceZipMutex(new QMutex())
         , m_javaSourceZip(0)
 {
     s_self = this;
@@ -164,6 +165,12 @@ void JavaLanguageSupport::slotJavaSourceEntries(KIO::Job* job, KIO::UDSEntryList
 KZip* JavaLanguageSupport::javaSourceZip() const
 {    
     return m_javaSourceZip;
+}
+
+
+QMutex* JavaLanguageSupport::javaSourceZipMutex() const
+{
+    return m_javaSourceZipMutex;
 }
 
 KDevelop::ReferencedTopDUContext JavaLanguageSupport::allJavaContext()

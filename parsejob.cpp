@@ -149,6 +149,7 @@ void ParseJob::run()
             int offset = filePath.indexOf(".zip");
 
             // TODO - add logic to detect if we should create a new zip object (non-jdk-source-zip) or not
+            QMutexLocker lock(java()->javaSourceZipMutex());
             KZip* zip = java()->javaSourceZip();
             if(zip)//->open(QIODevice::ReadOnly))
             {

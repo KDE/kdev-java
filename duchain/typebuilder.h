@@ -55,6 +55,7 @@ protected:
   virtual void visitEnumConstant(EnumConstantAst* node);
 
   virtual void visitMethodDeclaration(MethodDeclarationAst *node);
+  virtual void visitParameterDeclarationEllipsis(ParameterDeclarationEllipsisAst* node);
   virtual void visitInterfaceMethodDeclaration(InterfaceMethodDeclarationAst * node);
   virtual void visitConstructorDeclaration(ConstructorDeclarationAst *node);
   virtual void visitInterfaceDeclaration(InterfaceDeclarationAst *node);
