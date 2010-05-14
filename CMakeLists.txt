@@ -9,7 +9,7 @@ include (MacroOptionalAddSubdirectory)
 
 find_package(KDevPlatform REQUIRED)
 
-find_package(KDevelop-PG-Qt)
+find_package(KDevelop-PG-Qt REQUIRED)
 
 include_directories(${KDEVPGQT_INCLUDE_DIR})
 
