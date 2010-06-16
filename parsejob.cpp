@@ -111,7 +111,7 @@ void ParseJob::run()
 
     if ( m_readFromDisk )
     {
-        if (fileUrl.isLocalFile()) {
+        if (fileUrl.isLocalFile() || fileUrl.protocol().isEmpty()) {
             QString localFile(fileUrl.toLocalFile());
             QFileInfo fileInfo( localFile );
             QFile file( localFile );
