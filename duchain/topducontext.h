@@ -55,7 +55,6 @@ class TopDUContext : public KDevelop::TopDUContext
     void findJavaDeclarationsInternal( const SearchItem::PtrList& identifiers, Acceptor& accept, bool staticOnly ) const;
 
     struct FindDeclarationsAcceptor;
-    struct FindContextsAcceptor;
     
     DUCHAIN_DECLARE_DATA(TopDUContext)
 };

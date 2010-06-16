@@ -62,30 +62,6 @@ struct TopDUContext::FindDeclarationsAcceptor
   const DeclarationChecker& check;
 };
 
-struct TopDUContext::FindContextsAcceptor
-{
-  FindContextsAcceptor(QList<DUContext*>& _target, const ContextChecker& _check) : target(_target), check(_check) {
-  }
-
-  void operator() (Declaration* declaration) {
-#ifdef DEBUG_SEARCH2
-    kDebug() << "accepting" << declaration->toString();
-#endif
-    if (declaration->internalContext()) {
-      DUContext* context = declaration->internalContext();
-      if (check(context))
-        target.append(context);
-      else
-        kWarning() << "Declaration got filtered out for context acceptance " << declaration->qualifiedIdentifier().toStringList().join(".");
-    }
-    else
-      kWarning() << "Could not find internal context for " << declaration->qualifiedIdentifier().toStringList().join(".");
-  }
-
-  QList<DUContext*>& target;
-  const ContextChecker& check;
-};
-
 bool TopDUContext::findDeclarationsInternal(const SearchItem::PtrList& identifiers, const SimpleCursor& position, const AbstractType::Ptr& dataType, DeclarationList& ret, const KDevelop::TopDUContext* source, SearchFlags flags, uint depth) const
 {
   Q_UNUSED(source);
@@ -267,16 +243,6 @@ void TopDUContext::findJavaDeclarationsInternal( const SearchItem::PtrList& iden
     kDebug() << "Finished" << id.toString();
 #endif
   }
-}
-
-void TopDUContext::findContextsInternal(KDevelop::DUContext::ContextType contextType, const SearchItem::PtrList& identifiers, const KDevelop::SimpleCursor& position, QList< KDevelop::DUContext* >& ret, const KDevelop::TopDUContext* source, SearchFlags flags) const
-{
-  Q_UNUSED( source );
-  ContextChecker check(this, position, contextType, flags);
-  FindContextsAcceptor accept(ret, check);
-
-  // TODO get static only though to here
-  findJavaDeclarationsInternal(identifiers, accept, false);
 }
 
 }
