@@ -126,7 +126,7 @@ bool TopDUContext::findDeclarationsInternal(const SearchItem::PtrList& identifie
 
   // Determine which identifiers to search for
   // Non-static imports
-  foreach (Declaration* import, allLocalDeclarations(globalImportIdentifier()))
+  foreach (Declaration* import, findLocalDeclarations(globalImportIdentifier()))
     if (NamespaceAliasDeclaration* alias = dynamic_cast<NamespaceAliasDeclaration*>(import)) {
       if (alias->importIdentifier().last() == Identifier("*")) {
         typeImportsOnDemand.append( SearchItem::Ptr( new SearchItem( alias->importIdentifier().left(-1), identifier ) ) ) ;
@@ -137,7 +137,7 @@ bool TopDUContext::findDeclarationsInternal(const SearchItem::PtrList& identifie
       }
     }
   // Static imports
-  foreach (Declaration* import, allLocalDeclarations(globalStaticImportIdentifier)) {
+  foreach (Declaration* import, findLocalDeclarations(globalStaticImportIdentifier)) {
     if (NamespaceAliasDeclaration* alias = dynamic_cast<NamespaceAliasDeclaration*>(import)) {
       if (alias->importIdentifier().last() == Identifier("*")) {
         staticImportsOnDemand.append( SearchItem::Ptr( new SearchItem( alias->importIdentifier().left(-1), identifier ) ) ) ;
