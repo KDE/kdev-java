@@ -48,8 +48,6 @@ class TopDUContext : public KDevelop::TopDUContext
   protected:
     virtual bool findDeclarationsInternal(const SearchItem::PtrList& identifiers, const KDevelop::SimpleCursor& position, const KDevelop::AbstractType::Ptr& dataType, DeclarationList& ret, const KDevelop::TopDUContext* source, SearchFlags flags, uint depth) const;
 
-    virtual void findContextsInternal(KDevelop::DUContext::ContextType contextType, const SearchItem::PtrList& identifiers, const KDevelop::SimpleCursor& position, QList< KDevelop::DUContext* >& ret, const KDevelop::TopDUContext* source, SearchFlags flags = NoSearchFlags) const;
-
   private:
     template<class Acceptor>
     void findJavaDeclarationsInternal( const SearchItem::PtrList& identifiers, Acceptor& accept, bool staticOnly ) const;

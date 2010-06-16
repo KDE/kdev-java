@@ -208,6 +208,7 @@ void CodeCompletionContext::standardAccessCompletionItems(QList< CompletionTreeI
 
     kDebug() << "Found imported packages to retrieve declarations from:";
         
+    /** FIXME: findContexts is not available anylonger
     foreach(const QualifiedIdentifier& package, packages) {
       QList<DUContext*> importedContexts = m_duContext->findContexts( DUContext::Namespace, package );
       kDebug() << package.toStringList().join(".") << "contexts found: " << importedContexts.count();
@@ -216,7 +217,7 @@ void CodeCompletionContext::standardAccessCompletionItems(QList< CompletionTreeI
         /*if(context->range().contains(m_duContext->range())) {
           kDebug() << "Ignoring same context " << context << m_duContext;
           continue; //If the context surrounds the current one, the declarations are visible through allDeclarations(..).
-        }*/
+        }* /
         
         foreach(Declaration* decl, context->localDeclarations())
           if(filterDeclaration(decl)) {
@@ -227,6 +228,7 @@ void CodeCompletionContext::standardAccessCompletionItems(QList< CompletionTreeI
           }
       }
     }
+    **/
   }
 
   /*QList<DeclarationDepthPair> oldDecls = decls;
