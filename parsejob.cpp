@@ -251,7 +251,11 @@ void ParseJob::run()
 
     // TODO: use zip hash to find out if jdk/other source has changed when going for 2nd pass
 
-    KDevelop::ReferencedTopDUContext toUpdate = KDevelop::DUChainUtils::standardContextForUrl(document().toUrl());
+    KDevelop::ReferencedTopDUContext toUpdate;
+    {
+        KDevelop::DUChainReadLocker lock;
+        toUpdate = KDevelop::DUChainUtils::standardContextForUrl(document().toUrl());
+    }
 
     KDevelop::TopDUContext::Features newFeatures = minimumFeatures();
     if (toUpdate)
