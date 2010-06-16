@@ -189,7 +189,7 @@ void CodeCompletionContext::standardAccessCompletionItems(QList< CompletionTreeI
 
     // Determine which identifiers to search for
     // Non-static imports
-    foreach (Declaration* import, top->allLocalDeclarations(globalImportIdentifier))
+    foreach (Declaration* import, top->allLocalDeclarations(globalImportIdentifier()))
       if (NamespaceAliasDeclaration* alias = dynamic_cast<NamespaceAliasDeclaration*>(import))
         if (alias->importIdentifier().last() == Identifier("*"))
           packages.insert( alias->importIdentifier().left(-1) );

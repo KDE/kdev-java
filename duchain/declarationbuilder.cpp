@@ -328,7 +328,7 @@ void DeclarationBuilder::visitImportDeclaration(ImportDeclarationAst* node)
     Q_ASSERT(javaLang.count() == 3);
 
     DUChainWriteLocker lock(DUChain::lock());
-    NamespaceAliasDeclaration* decl = openDeclaration<NamespaceAliasDeclaration>(QualifiedIdentifier(globalImportIdentifier), SimpleRange());
+    NamespaceAliasDeclaration* decl = openDeclaration<NamespaceAliasDeclaration>(QualifiedIdentifier(globalImportIdentifier()), SimpleRange());
     decl->setImportIdentifier(javaLang);
     closeDeclaration();
     m_defaultImportCreated = true;
@@ -353,7 +353,7 @@ void DeclarationBuilder::visitImportDeclaration(ImportDeclarationAst* node)
     ///@todo only use the last name component as range
     {
       DUChainWriteLocker lock(DUChain::lock());
-      NamespaceAliasDeclaration* decl = openDeclaration<NamespaceAliasDeclaration>(QualifiedIdentifier(node->staticImport ? globalStaticImportIdentifier : globalImportIdentifier), editorFindRange(node->identifierName, node->identifierName));
+      NamespaceAliasDeclaration* decl = openDeclaration<NamespaceAliasDeclaration>(QualifiedIdentifier(node->staticImport ? globalStaticImportIdentifier : globalImportIdentifier()), editorFindRange(node->identifierName, node->identifierName));
       decl->setImportIdentifier(import);
     }
 
@@ -370,7 +370,7 @@ void DeclarationBuilder::visitPackageDeclaration(java::PackageDeclarationAst* no
 
     {
       DUChainWriteLocker lock(DUChain::lock());
-      NamespaceAliasDeclaration* decl = openDeclaration<NamespaceAliasDeclaration>(QualifiedIdentifier(globalImportIdentifier), range);
+      NamespaceAliasDeclaration* decl = openDeclaration<NamespaceAliasDeclaration>(QualifiedIdentifier(globalImportIdentifier()), range);
       QualifiedIdentifier id2 = id;
       id2.push(Identifier("*"));
       decl->setImportIdentifier(id2);
