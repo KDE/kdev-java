@@ -103,9 +103,34 @@ void ParseJob::run()
     if ( abortRequested() )
         return abortJob();
 
+    KUrl fileUrl(document().str());
+
+    if ( !(minimumFeatures() & KDevelop::TopDUContext::ForceUpdate) ) {
+        bool needsUpdate = true;
+        KDevelop::DUChainReadLocker lock;
+        ///TODO: this is hacky - we check for any env file for a zipped file and assume it's up2date
+        ///      updating a zip file won't trigger reparsing though...
+        bool isZipFile = fileUrl.protocol() == "zip";
+        foreach(const KDevelop::ParsingEnvironmentFilePointer &file, KDevelop::DUChain::self()->allEnvironmentFiles(document())) {
+            if (file->needsUpdate() && !(isZipFile && file->featuresSatisfied(minimumFeatures()))) {
+                needsUpdate = true;
+                break;
+            } else {
+                needsUpdate = false;
+            }
+        }
+        if (!needsUpdate) {
+            kDebug() << "Already up to date" << document().str();
+            return;
+        }
+    }
+
+    if ( abortRequested() )
+        return abortJob();
+
     QReadLocker lock(java()->language()->parseLock());
 
-    KUrl fileUrl(document().str());
+    QDateTime lastModified;
 
     m_readFromDisk = !contentsAvailableFromEditor();
 
@@ -114,6 +139,7 @@ void ParseJob::run()
         if (fileUrl.isLocalFile() || fileUrl.protocol().isEmpty()) {
             QString localFile(fileUrl.toLocalFile());
             QFileInfo fileInfo( localFile );
+            lastModified = fileInfo.lastModified();
             QFile file( localFile );
             if ( !file.open( QIODevice::ReadOnly ) )
             {
@@ -151,6 +177,8 @@ void ParseJob::run()
             // TODO - add logic to detect if we should create a new zip object (non-jdk-source-zip) or not
             QMutexLocker lock(java()->javaSourceZipMutex());
             KZip* zip = java()->javaSourceZip();
+            lastModified = QFileInfo( zip->fileName() ).lastModified();
+
             if(zip)//->open(QIODevice::ReadOnly))
             {
                 const KArchiveDirectory *zipDir = zip->directory();
@@ -199,10 +227,12 @@ void ParseJob::run()
             m_session->setContents( data );
             Q_ASSERT ( m_session->size() > 0 );
             kDebug() << "Zipped file retrieved in " << t.elapsed() << " seconds, size" << m_session->size();
+            ///TODO: lastModified
         }
 
     } else {
         m_session->setContents( contentsFromEditor().toUtf8() );
+        lastModified = QFileInfo(document().str()).lastModified();
     }
 
     kDebug() << "===-- PARSING --===> "
@@ -334,6 +364,19 @@ void ParseJob::run()
         
         KDevelop::DUChainReadLocker duchainlock(KDevelop::DUChain::lock());
         dump.dump(chain);
+    }
+
+    if (lastModified.isValid()) {
+        KDevelop::ParsingEnvironmentFilePointer file = chain->parsingEnvironmentFile();
+
+        KDevelop::DUChainWriteLocker lock;
+        if (m_readFromDisk) {
+            file->setModificationRevision(KDevelop::ModificationRevision(lastModified));
+        } else {
+            file->setModificationRevision(KDevelop::ModificationRevision(lastModified, revisionToken()));
+        }
+
+        KDevelop::DUChain::self()->updateContextEnvironment( chain->topContext(), file.data() );
     }
 }
 

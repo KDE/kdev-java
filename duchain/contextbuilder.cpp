@@ -83,6 +83,13 @@ bool ContextBuilder::hadUnresolvedIdentifiers() const
 
 KDevelop::TopDUContext* ContextBuilder::newTopContext(const KDevelop::SimpleRange& range, KDevelop::ParsingEnvironmentFile* file)
 {
+  if (!file) {
+      file = new ParsingEnvironmentFile(editor()->currentUrl());
+      /// Indexed string for 'Java', identifies environment files from this language plugin
+      static const IndexedString javaLangString("Java");
+      file->setLanguage(javaLangString);
+  }
+
   TopDUContext* top = new java::TopDUContext(editor()->currentUrl(), range, file);
 
   Q_ASSERT(top);
