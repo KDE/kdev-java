@@ -82,17 +82,17 @@ CodeCompletionContext::CodeCompletionContext(DUContextPointer context, const QSt
   #warning What to do with knownArgumentExpressions ?
   m_valid = isValidPosition();
   if( !m_valid ) {
-    log( "position not valid for code-completion" );
+    kDebug() << "position not valid for code-completion" ;
     return;
   }
 
-  ifDebug( log( "non-processed text: " + m_text ); )
+  ifDebug( kDebug() << "non-processed text: " << m_text; )
 
 //   m_text = Utils::clearComments( m_text );
 //   m_text = Utils::clearStrings( m_text );
 //   m_text = Utils::stripFinalWhitespace( m_text );
 
-  ifDebug( log( "processed text: " + m_text ); )
+  ifDebug( kDebug() << "processed text: " << m_text; )
 
   ///@todo template-parameters
 
