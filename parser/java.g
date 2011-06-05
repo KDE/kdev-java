@@ -79,12 +79,14 @@
 ------------------------------------------------------------
 
 [:
-#include <QtCore/QString>
 namespace KDevelop
 {
 class DUContext;
 }
 :]
+
+%parser_declaration_header "QtCore/QString"
+%parser_declaration_header "kdevelop-pg-qt/kdev-pg-list.h"
 
 %export_macro "KDEVJAVAPARSER_EXPORT"
 %export_macro_header "javaparserexport.h"
