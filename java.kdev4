@@ -1,3 +1,3 @@
 [Project]
 Manager=KDevCMakeManager
-Name=java
+Name=kdev-java

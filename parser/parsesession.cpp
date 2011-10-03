@@ -65,7 +65,7 @@ void ParseSession::setContents( const QByteArray & contents )
 
 QString ParseSession::symbol( qint64 token ) const
 {
-    const KDevPG::TokenStream::Token& tok = tokenStream->token( token );
+    const KDevPG::TokenStream::Token& tok = tokenStream->at( token );
     return QString::fromUtf8(m_contents.constData() + tok.begin, tok.end - tok.begin);
 }
 
