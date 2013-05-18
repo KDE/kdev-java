@@ -57,7 +57,7 @@ uint parseConstVolatile(ParseSession* session, const KDevPG::ListNode<qint64> *c
     const KDevPG::ListNode<qint64> *it = cv->front();
     const KDevPG::ListNode<qint64> *end = it;
     do {
-      int kind = session->tokenStream->token(it->element).kind;
+      int kind = session->tokenStream->at(it->element).kind;
       if (kind == Parser::Token_CONST)
         ret |= AbstractType::ConstModifier;
       else if (kind == Parser::Token_VOLATILE)

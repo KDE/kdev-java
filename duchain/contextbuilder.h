@@ -59,13 +59,13 @@ public:
 protected:
   EditorIntegrator* editor() const;
 
-  virtual KDevelop::TopDUContext* newTopContext(const KDevelop::SimpleRange& range, KDevelop::ParsingEnvironmentFile* file = 0);
-  virtual KDevelop::DUContext* newContext(const KDevelop::SimpleRange& range);
+  virtual KDevelop::TopDUContext* newTopContext(const KDevelop::RangeInRevision& range, KDevelop::ParsingEnvironmentFile* file = 0);
+  virtual KDevelop::DUContext* newContext(const KDevelop::RangeInRevision& range);
 
   virtual void startVisiting( AstNode* node );
   virtual void setContextOnNode( AstNode* node, KDevelop::DUContext* ctx );
   virtual KDevelop::DUContext* contextFromNode( AstNode* node );
-  virtual KTextEditor::Range editorFindRange( AstNode* fromRange, AstNode* toRange );
+  virtual KDevelop::RangeInRevision editorFindRange( AstNode* fromRange, AstNode* toRange );
 
   /**
    * Compile an identifier for the specified AstNode \a id.

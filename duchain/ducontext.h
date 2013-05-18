@@ -35,7 +35,7 @@ public:
 class DUContext : public KDevelop::DUContext
 {
 public:
-  explicit DUContext(const KDevelop::SimpleRange& range, KDevelop::DUContext* parent = 0, bool anonymous = false);
+  explicit DUContext(const KDevelop::RangeInRevision& range, KDevelop::DUContext* parent = 0, bool anonymous = false);
   explicit DUContext(DUContextData&);
 
   enum {
@@ -43,7 +43,7 @@ public:
   };
 
 protected:
-  virtual bool findDeclarationsInternal(const SearchItem::PtrList& identifiers, const KDevelop::SimpleCursor& position, const KDevelop::AbstractType::Ptr& dataType, DeclarationList& ret, const KDevelop::TopDUContext* source, SearchFlags flags, uint depth) const;
+  virtual bool findDeclarationsInternal(const SearchItem::PtrList& identifiers, const KDevelop::CursorInRevision& position, const KDevelop::AbstractType::Ptr& dataType, DeclarationList& ret, const KDevelop::TopDUContext* source, SearchFlags flags, uint depth) const;
 
 private:
   DUCHAIN_DECLARE_DATA(DUContext)

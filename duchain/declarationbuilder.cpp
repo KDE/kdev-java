@@ -328,7 +328,7 @@ void DeclarationBuilder::visitImportDeclaration(ImportDeclarationAst* node)
     Q_ASSERT(javaLang.count() == 3);
 
     DUChainWriteLocker lock(DUChain::lock());
-    NamespaceAliasDeclaration* decl = openDeclaration<NamespaceAliasDeclaration>(QualifiedIdentifier(globalImportIdentifier()), SimpleRange());
+    NamespaceAliasDeclaration* decl = openDeclaration<NamespaceAliasDeclaration>(QualifiedIdentifier(globalImportIdentifier()), RangeInRevision());
     decl->setImportIdentifier(javaLang);
     closeDeclaration();
     m_defaultImportCreated = true;
@@ -366,7 +366,7 @@ void DeclarationBuilder::visitPackageDeclaration(java::PackageDeclarationAst* no
   if (node && node->packageName) {
     // Use this to import other items from the package
     QualifiedIdentifier id = identifierForNode(node->packageName);
-    KDevelop::SimpleRange range = editorFindRange(node->packageName, node->packageName);
+    KDevelop::RangeInRevision range = editorFindRange(node->packageName, node->packageName);
 
     {
       DUChainWriteLocker lock(DUChain::lock());

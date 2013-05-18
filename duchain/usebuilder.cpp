@@ -45,7 +45,7 @@ void UseBuilder::usingDeclaration(AstNode* node, const KDevelop::DeclarationPoin
   if (end_token == qint64())
     end_token = node->endToken;
 
-  kDebug() << "New use" << editor()->findRange(start_token, end_token).textRange() << " declaration" << decl.data() << decl->toString();
+  kDebug() << "New use" << editor()->findRange(start_token, end_token) << " declaration" << decl.data() << decl->toString();
   newUse(node, editor()->findRange(start_token, end_token), decl.data());
 }
 

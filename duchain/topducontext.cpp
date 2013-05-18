@@ -32,7 +32,7 @@ using namespace KDevelop;
 
 namespace java {
 
-TopDUContext::TopDUContext(const KDevelop::IndexedString& url, const KDevelop::SimpleRange& range, KDevelop::ParsingEnvironmentFile* file)
+TopDUContext::TopDUContext(const KDevelop::IndexedString& url, const KDevelop::RangeInRevision& range, KDevelop::ParsingEnvironmentFile* file)
   : KDevelop::TopDUContext(url, range, file)
 {
 }
@@ -62,7 +62,7 @@ struct TopDUContext::FindDeclarationsAcceptor
   const DeclarationChecker& check;
 };
 
-bool TopDUContext::findDeclarationsInternal(const SearchItem::PtrList& identifiers, const SimpleCursor& position, const AbstractType::Ptr& dataType, DeclarationList& ret, const KDevelop::TopDUContext* source, SearchFlags flags, uint depth) const
+bool TopDUContext::findDeclarationsInternal(const SearchItem::PtrList& identifiers, const CursorInRevision& position, const AbstractType::Ptr& dataType, DeclarationList& ret, const KDevelop::TopDUContext* source, SearchFlags flags, uint depth) const
 {
   Q_UNUSED(source);
   Q_UNUSED(depth);

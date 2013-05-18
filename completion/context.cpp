@@ -74,7 +74,7 @@ QString extractLastLine(const QString& str) {
 
 int completionRecursionDepth = 0;
 
-CodeCompletionContext::CodeCompletionContext(DUContextPointer context, const QString& text, const QString& followingText, const KDevelop::SimpleCursor& position, int depth, const QStringList& knownArgumentExpressions, int line)
+CodeCompletionContext::CodeCompletionContext(DUContextPointer context, const QString& text, const QString& followingText, const KDevelop::CursorInRevision& position, int depth, const QStringList& knownArgumentExpressions, int line)
   : KDevelop::CodeCompletionContext(context, text, position, depth)
   , m_memberAccessOperation(NoMemberAccess), m_followingText( followingText ), 
     m_knownArgumentExpressions( knownArgumentExpressions)

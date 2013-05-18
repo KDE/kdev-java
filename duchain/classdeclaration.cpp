@@ -30,7 +30,7 @@ namespace java {
 
 DEFINE_LIST_MEMBER_HASH(ClassDeclarationData, baseClasses, BaseClassInstance)
 
-ClassDeclaration::ClassDeclaration(const KDevelop::SimpleRange& range, DUContext* context)
+ClassDeclaration::ClassDeclaration(const KDevelop::RangeInRevision& range, DUContext* context)
   : ClassMemberDeclaration(*new ClassDeclarationData, range)
 {
   d_func_dynamic()->setClassId(this);

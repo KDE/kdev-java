@@ -521,7 +521,7 @@ void ExpressionVisitor::visitPrimaryAtom(PrimaryAtomAst* node) {
 
     DUChainReadLocker lock(DUChain::lock());
     KTextEditor::Cursor start = editorFindRange(node, node).start();
-    QList<Declaration*> decls = currentContext()->findDeclarations(id, SimpleCursor(start));
+    QList<Declaration*> decls = currentContext()->findDeclarations(id, CursorInRevision(start));
     if (!decls.isEmpty()) {
       setLastInstance(decls.first());
       useDecl = decls.first();

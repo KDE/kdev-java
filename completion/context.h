@@ -55,7 +55,7 @@ namespace java {
        * @param text the text to analyze. It usually is the text in the range starting at the beginning of the context, and ending at the position where completion should start
        * @warning The du-chain must be unlocked when this is called
        * */
-      CodeCompletionContext(KDevelop::DUContextPointer context, const QString& text, const QString &followingText, const KDevelop::SimpleCursor& cursor, int depth = 0, const QStringList &knownArgumentExpressions = QStringList(), int line = -1);
+      CodeCompletionContext(KDevelop::DUContextPointer context, const QString& text, const QString &followingText, const KDevelop::CursorInRevision& cursor, int depth = 0, const QStringList &knownArgumentExpressions = QStringList(), int line = -1);
       ~CodeCompletionContext();
 
       ///Computes the full set of completion items, using the information retrieved earlier.
@@ -63,7 +63,7 @@ namespace java {
       ///@param Abort is checked regularly, and if it is false, the computation is aborted.
       virtual QList<KDevelop::CompletionTreeItemPointer> completionItems(bool& abort, bool fullCompletion = true);
 
-      void standardAccessCompletionItems(/*const KDevelop::SimpleCursor& position,*/ QList<KDevelop::CompletionTreeItemPointer>& items);
+      void standardAccessCompletionItems(/*const KDevelop::CursorInRevision& position,*/ QList<KDevelop::CompletionTreeItemPointer>& items);
       
       bool isValidPosition() const;
 

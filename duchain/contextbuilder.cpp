@@ -81,7 +81,7 @@ bool ContextBuilder::hadUnresolvedIdentifiers() const
   return !m_unresolvedIDs.isEmpty();
 }
 
-KDevelop::TopDUContext* ContextBuilder::newTopContext(const KDevelop::SimpleRange& range, KDevelop::ParsingEnvironmentFile* file)
+KDevelop::TopDUContext* ContextBuilder::newTopContext(const KDevelop::RangeInRevision& range, KDevelop::ParsingEnvironmentFile* file)
 {
   if (!file) {
       file = new ParsingEnvironmentFile(editor()->currentUrl());
@@ -100,7 +100,7 @@ KDevelop::TopDUContext* ContextBuilder::newTopContext(const KDevelop::SimpleRang
   return top;
 }
 
-KDevelop::DUContext* ContextBuilder::newContext(const KDevelop::SimpleRange& range) {
+KDevelop::DUContext* ContextBuilder::newContext(const KDevelop::RangeInRevision& range) {
   return new java::DUContext(range, currentContext());
 }
 
@@ -145,7 +145,7 @@ EditorIntegrator* ContextBuilder::editor() const
 
 KTextEditor::Range ContextBuilder::editorFindRange( AstNode* fromRange, AstNode* toRange )
 {
-  return editor()->findRange(fromRange, toRange).textRange();
+  return editor()->findRange(fromRange, toRange);
 }
 
 QualifiedIdentifier ContextBuilder::identifierForNode(IdentifierAst* id)

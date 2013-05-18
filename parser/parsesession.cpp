@@ -41,11 +41,11 @@ ParseSession::~ParseSession()
     delete tokenStream;
 }
 
-KDevelop::SimpleCursor ParseSession::positionAt( qint64 offset ) const
+KDevelop::CursorInRevision ParseSession::positionAt( qint64 offset ) const
 {
     qint64 line, column;
     tokenStream->locationTable()->positionAt( offset, &line, &column );
-    return KDevelop::SimpleCursor(line, column);
+    return KDevelop::CursorInRevision(line, column);
 }
 
 qint64 ParseSession::size() const

@@ -179,7 +179,7 @@ KDevelop::ReferencedTopDUContext JavaLanguageSupport::allJavaContext()
         return m_allJavaContext;
 
     KDevelop::DUChainWriteLocker lock(KDevelop::DUChain::lock());
-    m_allJavaContext = new KDevelop::TopDUContext(KDevelop::IndexedString(KUrl("java://all")), KDevelop::SimpleRange());
+    m_allJavaContext = new KDevelop::TopDUContext(KDevelop::IndexedString(KUrl("java://all")), KDevelop::RangeInRevision());
     m_allJavaContext->setType( KDevelop::DUContext::Global );
     KDevelop::DUChain::self()->addDocumentChain( m_allJavaContext );
     return m_allJavaContext;

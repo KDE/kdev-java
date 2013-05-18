@@ -38,7 +38,7 @@ public:
 class TopDUContext : public KDevelop::TopDUContext
 {
   public:
-    explicit TopDUContext(const KDevelop::IndexedString& url, const KDevelop::SimpleRange& range, KDevelop::ParsingEnvironmentFile* file = 0);
+    explicit TopDUContext(const KDevelop::IndexedString& url, const KDevelop::RangeInRevision& range, KDevelop::ParsingEnvironmentFile* file = 0);
     explicit TopDUContext(TopDUContextData& data);
 
   enum {
@@ -46,7 +46,7 @@ class TopDUContext : public KDevelop::TopDUContext
   };
 
   protected:
-    virtual bool findDeclarationsInternal(const SearchItem::PtrList& identifiers, const KDevelop::SimpleCursor& position, const KDevelop::AbstractType::Ptr& dataType, DeclarationList& ret, const KDevelop::TopDUContext* source, SearchFlags flags, uint depth) const;
+    virtual bool findDeclarationsInternal(const SearchItem::PtrList& identifiers, const KDevelop::CursorInRevision& position, const KDevelop::AbstractType::Ptr& dataType, DeclarationList& ret, const KDevelop::TopDUContext* source, SearchFlags flags, uint depth) const;
 
   private:
     template<class Acceptor>

@@ -31,7 +31,7 @@ namespace KDevelop {
   class DUContext;
   class TopDUContext;
   class HashedString;
-  class SimpleRange;
+  class RangeInRevision;
 }
 
 namespace java {
@@ -80,7 +80,7 @@ class ClassDeclaration : public KDevelop::ClassMemberDeclaration
 public:
   ClassDeclaration(const ClassDeclaration& rhs);
   ClassDeclaration(ClassDeclarationData& data);
-  ClassDeclaration(const KDevelop::SimpleRange& range, KDevelop::DUContext* context);
+  ClassDeclaration(const KDevelop::RangeInRevision& range, KDevelop::DUContext* context);
   ~ClassDeclaration();
 
   void clearBaseClasses();

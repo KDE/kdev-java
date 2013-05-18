@@ -33,7 +33,7 @@
 namespace java
 {
 
-typedef QPair<KDevelop::DUContextPointer, KDevelop::SimpleRange> SimpleUse;
+typedef QPair<KDevelop::DUContextPointer, KDevelop::RangeInRevision> SimpleUse;
 
 /// Contains everything needed to keep an AST useful once the rest of the parser
 /// has gone away.
@@ -48,7 +48,7 @@ public:
    *
    * \note the line starts from 0.
    */
-  KDevelop::SimpleCursor positionAt( qint64 offset ) const;
+  KDevelop::CursorInRevision positionAt( qint64 offset ) const;
 
   void setContents( const QByteArray& contents );
 

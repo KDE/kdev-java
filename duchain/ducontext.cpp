@@ -24,7 +24,7 @@ using namespace KDevelop;
 
 namespace java {
 
-DUContext::DUContext(const KDevelop::SimpleRange& range, KDevelop::DUContext* parent, bool anonymous)
+DUContext::DUContext(const KDevelop::RangeInRevision& range, KDevelop::DUContext* parent, bool anonymous)
   : KDevelop::DUContext(range, parent, anonymous)
 {
 }
@@ -39,7 +39,7 @@ REGISTER_DUCHAIN_ITEM(DUContext);
 
 const uint maxParentDepth = 20;
 
-bool DUContext::findDeclarationsInternal(const SearchItem::PtrList& identifiers, const KDevelop::SimpleCursor& position, const KDevelop::AbstractType::Ptr& dataType, DeclarationList& ret, const KDevelop::TopDUContext* source, SearchFlags flags, uint depth) const {
+bool DUContext::findDeclarationsInternal(const SearchItem::PtrList& identifiers, const KDevelop::CursorInRevision& position, const KDevelop::AbstractType::Ptr& dataType, DeclarationList& ret, const KDevelop::TopDUContext* source, SearchFlags flags, uint depth) const {
   if (depth > maxParentDepth) {
     kDebug() << "maximum depth reached in" << scopeIdentifier(true);
     return false;
