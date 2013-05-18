@@ -79,6 +79,7 @@ install(TARGETS kdevjavalanguagesupport DESTINATION ${PLUGIN_INSTALL_DIR})
 
 ########### install files ###############
 
-install(FILES kdevjavasupport.desktop DESTINATION ${SERVICES_INSTALL_DIR})
+configure_file(kdevjavasupport.desktop.cmake ${CMAKE_CURRENT_BINARY_DIR}/kdevjavasupport.desktop)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/kdevjavasupport.desktop DESTINATION ${SERVICES_INSTALL_DIR})
 
 
