@@ -72,8 +72,8 @@
 namespace java
 {
 
-ParseJob::ParseJob( const KUrl &url )
-        : KDevelop::ParseJob( url )
+ParseJob::ParseJob( const KDevelop::IndexedString &url, KDevelop::ILanguageSupport* languageSupport)
+        : KDevelop::ParseJob( url, languageSupport )
         , m_session( new ParseSession )
         , m_readFromDisk( false )
 {}

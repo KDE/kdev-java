@@ -43,7 +43,7 @@ class ParseJob : public KDevelop::ParseJob
     Q_OBJECT
 
 public:
-    ParseJob( const KUrl &url );
+    ParseJob( const KDevelop::IndexedString &url, KDevelop::ILanguageSupport* languageSupport );
 
     virtual ~ParseJob();
 

@@ -104,10 +104,9 @@ JavaLanguageSupport* JavaLanguageSupport::self()
     return s_self;
 }
 
-KDevelop::ParseJob *JavaLanguageSupport::createParseJob( const KUrl &url )
+KDevelop::ParseJob *JavaLanguageSupport::createParseJob( const KDevelop::IndexedString& url )
 {
-    ParseJob* job = new ParseJob( url );
-    return job;
+    return new ParseJob( url, this );
 }
 
 QString JavaLanguageSupport::name() const
