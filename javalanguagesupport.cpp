@@ -185,7 +185,7 @@ KDevelop::ReferencedTopDUContext JavaLanguageSupport::allJavaContext()
     return m_allJavaContext;
 }
 
-const KDevelop::ICodeHighlighting* JavaLanguageSupport::codeHighlighting() const
+KDevelop::ICodeHighlighting* JavaLanguageSupport::codeHighlighting() const
 {
     return m_highlighting;
 }

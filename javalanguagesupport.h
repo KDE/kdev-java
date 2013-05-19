@@ -57,7 +57,7 @@ public:
 
     virtual KDevelop::ParseJob *createParseJob(const KUrl &url);
     virtual KDevelop::ILanguage *language();
-    virtual const KDevelop::ICodeHighlighting* codeHighlighting() const;
+    virtual KDevelop::ICodeHighlighting* codeHighlighting() const;
 
     // Hack to make it look like all java files #include each other
     KDevelop::ReferencedTopDUContext allJavaContext();
