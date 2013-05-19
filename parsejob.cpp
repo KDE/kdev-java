@@ -332,7 +332,7 @@ void ParseJob::run()
             if (newFeatures == KDevelop::TopDUContext::SimplifiedVisibleDeclarationsAndContexts) {
                 // Need to create new parse job with lower priority
                 kDebug() << "Reschedule file " << fileUrl << "for parsing";
-                KDevelop::ICore::self()->languageController()->backgroundParser()->addDocument(fileUrl, static_cast<KDevelop::TopDUContext::Features>(newFeatures | KDevelop::TopDUContext::VisibleDeclarationsAndContexts), 10000);
+                KDevelop::ICore::self()->languageController()->backgroundParser()->addDocument(KDevelop::IndexedString(fileUrl), static_cast<KDevelop::TopDUContext::Features>(newFeatures | KDevelop::TopDUContext::VisibleDeclarationsAndContexts), 10000);
 
             } else {
                 // We haven't resolved all identifiers, but by now, we don't expect to
