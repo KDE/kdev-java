@@ -27,7 +27,7 @@ namespace java {
 
 class ParseSession;
 
-typedef KDevelop::AbstractUseBuilder<AstNode, IdentifierAst, java::ExpressionVisitor> UseBuilderBase;
+typedef KDevelop::AbstractUseBuilder<AstNode, IdentifierAst, ContextBuilder> UseBuilderBase;
 
 /**
  * A class which iterates the AST to extract uses of definitions.
