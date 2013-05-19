@@ -19,7 +19,6 @@
 #ifndef JAVAEDITORINTEGRATOR_H
 #define JAVAEDITORINTEGRATOR_H
 
-#include <language/editor/editorintegrator.h>
 #include <language/editor/rangeinrevision.h>
 
 #include "kdev-pg-token-stream.h"
@@ -38,7 +37,7 @@ class AstNode;
  *
  * \todo introduce stacks for the state?
  */
-class EditorIntegrator : public KDevelop::EditorIntegrator
+class EditorIntegrator
 {
 public:
   EditorIntegrator(ParseSession* session);
@@ -76,8 +75,6 @@ public:
    * \returns the requested cursor relating to the start or end of the given token.
    */
   KDevelop::CursorInRevision findPosition(qint64 token, Edge edge = BackEdge) const;
-
-  using KDevelop::EditorIntegrator::createRange;
 
   /**
    * Create a range encompassing the given AstNode \a node.
