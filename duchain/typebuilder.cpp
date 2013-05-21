@@ -18,8 +18,6 @@
 
 #include "typebuilder.h"
 
-#include <ktexteditor/smartrange.h>
-
 #include "editorintegrator.h"
 #include "parsesession.h"
 #include "declarationbuilder.h"

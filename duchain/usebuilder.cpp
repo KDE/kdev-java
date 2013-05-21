@@ -46,7 +46,7 @@ void UseBuilder::usingDeclaration(AstNode* node, const KDevelop::DeclarationPoin
     end_token = node->endToken;
 
   kDebug() << "New use" << editor()->findRange(start_token, end_token) << " declaration" << decl.data() << decl->toString();
-  newUse(node, editor()->findRange(start_token, end_token), decl.data());
+  newUse(node, editor()->findRange(start_token, end_token), decl);
 }
 
 }
