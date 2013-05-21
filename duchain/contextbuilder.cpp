@@ -20,6 +20,7 @@
 #include "contextbuilder.h"
 
 #include <KDebug>
+#include <ktexteditor/smartrange.h>
 
 #include <language/duchain/duchain.h>
 #include <language/duchain/topducontext.h>
@@ -39,6 +40,7 @@ namespace java {
 
 ContextBuilder::ContextBuilder()
   : m_identifierCompiler(0)
+  , m_editor(0)
   , m_mapAst(false)
   , m_computeOnlyVisible(false)
 {
@@ -83,14 +85,16 @@ bool ContextBuilder::hadUnresolvedIdentifiers() const
 
 KDevelop::TopDUContext* ContextBuilder::newTopContext(const KDevelop::RangeInRevision& range, KDevelop::ParsingEnvironmentFile* file)
 {
+  KDevelop::IndexedString rangeUrl = KDevelop::IndexedString(range.castToSimpleRange().textRange().toSmartRange()->document()->url());
+
   if (!file) {
-      file = new ParsingEnvironmentFile(editor()->currentUrl());
+      file = new ParsingEnvironmentFile(rangeUrl);
       /// Indexed string for 'Java', identifies environment files from this language plugin
       static const IndexedString javaLangString("Java");
       file->setLanguage(javaLangString);
   }
 
-  TopDUContext* top = new java::TopDUContext(editor()->currentUrl(), range, file);
+  TopDUContext* top = new java::TopDUContext(rangeUrl, range, file);
 
   Q_ASSERT(top);
   Q_ASSERT(JavaLanguageSupport::self()->allJavaContext());
@@ -107,15 +111,14 @@ KDevelop::DUContext* ContextBuilder::newContext(const KDevelop::RangeInRevision&
 
 void ContextBuilder::setEditor(EditorIntegrator* editor)
 {
+  m_editor = editor;
   m_identifierCompiler = new IdentifierCompiler(editor->parseSession());
-  ContextBuilderBase::setEditor(editor, false);
 }
 
 void ContextBuilder::setEditor(ParseSession* session)
 {
-  EditorIntegrator* e = new EditorIntegrator(session);
-  m_identifierCompiler = new IdentifierCompiler(e->parseSession());
-  ContextBuilderBase::setEditor(e, true);
+  EditorIntegrator* editor = new EditorIntegrator(session);
+  setEditor(editor);
 }
 
 ContextBuilder::~ContextBuilder ()
@@ -140,10 +143,10 @@ KDevelop::DUContext* ContextBuilder::contextFromNode( AstNode* node )
 
 EditorIntegrator* ContextBuilder::editor() const
 {
-  return static_cast<EditorIntegrator*>(ContextBuilderBase::editor());
+  return m_editor;
 }
 
-KTextEditor::Range ContextBuilder::editorFindRange( AstNode* fromRange, AstNode* toRange )
+KDevelop::RangeInRevision ContextBuilder::editorFindRange( AstNode* fromRange, AstNode* toRange )
 {
   return editor()->findRange(fromRange, toRange);
 }

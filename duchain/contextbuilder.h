@@ -115,6 +115,7 @@ protected:
 
 private:
   QList<ContextID> m_unresolvedIDs;
+  EditorIntegrator* m_editor;
 
 public:
   bool m_mapAst;

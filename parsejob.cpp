@@ -130,111 +130,6 @@ void ParseJob::run()
 
     QReadLocker lock(java()->language()->parseLock());
 
-    QDateTime lastModified;
-
-    m_readFromDisk = !contentsAvailableFromEditor();
-
-    if ( m_readFromDisk )
-    {
-        if (fileUrl.isLocalFile() || fileUrl.protocol().isEmpty()) {
-            QString localFile(fileUrl.toLocalFile());
-            QFileInfo fileInfo( localFile );
-            lastModified = fileInfo.lastModified();
-            QFile file( localFile );
-            if ( !file.open( QIODevice::ReadOnly ) )
-            {
-                KDevelop::ProblemPointer p(new KDevelop::Problem());
-                p->setSource(KDevelop::ProblemData::Disk);
-                p->setDescription(i18n( "Could not open file '%1'", localFile ));
-                switch (file.error()) {
-                case QFile::ReadError:
-                    p->setExplanation(i18n("File could not be read from."));
-                    break;
-                case QFile::OpenError:
-                    p->setExplanation(i18n("File could not be opened."));
-                    break;
-                case QFile::PermissionsError:
-                    p->setExplanation(i18n("File permissions prevent opening for read."));
-                    break;
-                default:
-                    break;
-                }
-                p->setFinalLocation(KDevelop::DocumentRange(document().str(), KTextEditor::Cursor(0,0), KTextEditor::Cursor(0,0)));
-                // TODO addProblem(p);
-                return;
-            }
-
-            m_session->setContents( file.readAll() );
-            Q_ASSERT ( m_session->size() > 0 );
-            file.close();
-
-        } else if (fileUrl.protocol() == "zip") {
-            //QTime t = QTime::currentTime();
-            
-            QString filePath = fileUrl.path();
-            int offset = filePath.indexOf(".zip");
-
-            // TODO - add logic to detect if we should create a new zip object (non-jdk-source-zip) or not
-            QMutexLocker lock(java()->javaSourceZipMutex());
-            KZip* zip = java()->javaSourceZip();
-            lastModified = QFileInfo( zip->fileName() ).lastModified();
-
-            if(zip)//->open(QIODevice::ReadOnly))
-            {
-                const KArchiveDirectory *zipDir = zip->directory();
-                if (zipDir) {
-                    const KZipFileEntry* zipEntry = static_cast<const KZipFileEntry*>(zipDir->entry(filePath.mid(offset +5)));
-
-                    if (zipEntry)
-                    {
-                        m_session->setContents( zipEntry->data() );
-                        //Q_ASSERT ( m_session->size() > 0 );
-                        //kDebug() << "Zipped file retrieved in " << t.elapsed() << "ms, size" << m_session->size();
-
-                    } else {
-                        kDebug() << "Could not find" << filePath.mid(offset +5) << "in zip file";
-                    }
-                    
-                } else {
-                    kDebug() << "Zip directory null!!";
-                }
-
-            } else {
-                kDebug() << "Zip file" << filePath.left(offset + 4) << "couldn't be opened.";
-            }
-
-            if (m_session->size() == 0)
-                // TODO Register problem
-                return;
-
-        } else {
-            //KIO approach; unfortunately very slow at random access in kde 4.3 (others untested) :(
-
-            static bool firstTime = true;
-            if (firstTime) {
-                qRegisterMetaType<QPair<QString,QString> >("QPair<QString,QString>");
-                qRegisterMetaType<KIO::filesize_t>("KIO::filesize_t");
-                firstTime = false;
-            }
-
-            // KIO fetch
-            QTime t = QTime::currentTime();
-            kDebug() << "Start retrieving zipped file" << fileUrl;
-            KIO::TransferJob* getJob = KIO::get(fileUrl);
-
-            QByteArray data;
-            KIO::NetAccess::synchronousRun(getJob, QApplication::activeWindow(), &data);
-            m_session->setContents( data );
-            Q_ASSERT ( m_session->size() > 0 );
-            kDebug() << "Zipped file retrieved in " << t.elapsed() << " seconds, size" << m_session->size();
-            ///TODO: lastModified
-        }
-
-    } else {
-        m_session->setContents( contentsFromEditor().toUtf8() );
-        lastModified = QFileInfo(document().str()).lastModified();
-    }
-
     kDebug() << "===-- PARSING --===> "
              << document().str()
              << " <== readFromDisk: " << m_readFromDisk
@@ -275,7 +170,6 @@ void ParseJob::run()
 
     // 3) Form definition-use chain
     java::EditorIntegrator editor(parseSession());
-    editor.setCurrentUrl(document());
 
     //kDebug(  ) << (contentContext ? "updating" : "building") << "duchain for" << parentJob()->document().str();
 
@@ -348,12 +242,10 @@ void ParseJob::run()
         useBuilder.buildUses(ast);
     }
 
-    if (!abortRequested() && editor.smart()) {
-        editor.smart()->clearRevision();
+    if (!abortRequested()) {
 
         if ( java()->codeHighlighting() )
         {
-            QMutexLocker lock(editor.smart()->smartMutex());
             java()->codeHighlighting()->highlightDUChain( duChain() );
         }
     }
@@ -364,19 +256,6 @@ void ParseJob::run()
         
         KDevelop::DUChainReadLocker duchainlock(KDevelop::DUChain::lock());
         dump.dump(chain);
-    }
-
-    if (lastModified.isValid()) {
-        KDevelop::ParsingEnvironmentFilePointer file = chain->parsingEnvironmentFile();
-
-        KDevelop::DUChainWriteLocker lock;
-        if (m_readFromDisk) {
-            file->setModificationRevision(KDevelop::ModificationRevision(lastModified));
-        } else {
-            file->setModificationRevision(KDevelop::ModificationRevision(lastModified, revisionToken()));
-        }
-
-        KDevelop::DUChain::self()->updateContextEnvironment( chain->topContext(), file.data() );
     }
 }
 
