@@ -12,6 +12,7 @@ X-KDE-CfgDlgHierarchy=GENERAL
 
 Name=Java Support
 Name[bg]=Поддръжка на Java
+Name[bs]=Podrška za jezik Java
 Name[ca]=Implementació Java
 Name[ca@valencia]=Implementació Java
 Name[de]=Unterstützung für Java
@@ -38,6 +39,7 @@ Name[uk]=Підтримка Java
 Name[x-test]=xxJava Supportxx
 Comment=Configure Java Support settings
 Comment[bg]=Настройки на поддръжката на Java
+Comment[bs]=Konfiguriši podršku za jezik Java
 Comment[ca]=Configura els arranjaments de la implementació de Java
 Comment[ca@valencia]=Configura els arranjaments de la implementació de Java
 Comment[de]=Unterstützung für Java einrichten
