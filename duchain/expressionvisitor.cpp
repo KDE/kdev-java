@@ -520,8 +520,8 @@ void ExpressionVisitor::visitPrimaryAtom(PrimaryAtomAst* node) {
     QualifiedIdentifier id = identifierForNode(node->simpleNameAccess->name);
 
     DUChainReadLocker lock(DUChain::lock());
-    KTextEditor::Cursor start = editorFindRange(node, node).start();
-    QList<Declaration*> decls = currentContext()->findDeclarations(id, CursorInRevision(start));
+    CursorInRevision start = editorFindRange(node, node).start;
+    QList<Declaration*> decls = currentContext()->findDeclarations(id, start);
     if (!decls.isEmpty()) {
       setLastInstance(decls.first());
       useDecl = decls.first();

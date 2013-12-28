@@ -19,10 +19,10 @@
 #ifndef JAVA_EXPRESSIONVISITOR_H
 #define JAVA_EXPRESSIONVISITOR_H
 
+#include "abstractexpressionvisitor.h"
 #include "parser/javadefaultvisitor.h"
 #include "contextbuilder.h"
 
-#include <language/duchain/builders/abstractexpressionvisitor.h>
 
 namespace java {
 

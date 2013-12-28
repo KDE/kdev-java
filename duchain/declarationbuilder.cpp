@@ -294,7 +294,9 @@ void DeclarationBuilder::visitVariableDeclarator(VariableDeclaratorAst * node)
     classMember->setStorageSpecifiers(m_currentVariableModifiers);
   } else {
     Declaration* variableDeclaration = openDefinition<Declaration>(node->variableName, node);
+#if 0 // Porting -- Declaration::final property got removed
     variableDeclaration->setFinal(m_currentVariableModifiers & ClassMemberDeclaration::FinalSpecifier);
+#endif
   }
 
   DeclarationBuilderBase::visitVariableDeclarator(node);
@@ -305,7 +307,9 @@ void DeclarationBuilder::visitVariableDeclarator(VariableDeclaratorAst * node)
 void DeclarationBuilder::visitParameterDeclaration(ParameterDeclarationAst * node)
 {
   Declaration* parameter = openDefinition<Declaration>(node->variableName, node);
+#if 0 // Porting -- Declaration::final property got removed
   parameter->setFinal(node->parameterModifiers ? node->parameterModifiers->modifiers & ModifierFinal : false);
+#endif
 
   DeclarationBuilderBase::visitParameterDeclaration(node);
 
@@ -315,7 +319,9 @@ void DeclarationBuilder::visitParameterDeclaration(ParameterDeclarationAst * nod
 void DeclarationBuilder::visitParameterDeclarationEllipsis(ParameterDeclarationEllipsisAst * node)
 {
   Declaration* parameter = openDefinition<Declaration>(node->variableName, node);
+#if 0 // Porting -- Declaration::final property got removed
   parameter->setFinal(node->parameterModifiers ? node->parameterModifiers->hasModifierFinal : false);
+#endif
 
   DeclarationBuilderBase::visitParameterDeclarationEllipsis(node);
 
