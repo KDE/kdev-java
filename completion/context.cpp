@@ -28,7 +28,6 @@
 #include <language/duchain/duchainlock.h>
 #include <language/duchain/stringhelpers.h>
 #include <language/duchain/namespacealiasdeclaration.h>
-#include <language/interfaces/iproblem.h>
 #include <util/pushvalue.h>
 
 #include "javalanguagesupport.h"

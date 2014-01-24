@@ -49,7 +49,6 @@
 
 #include <interfaces/ilanguage.h>
 #include <language/interfaces/icodehighlighting.h>
-#include <language/interfaces/iproblem.h>
 
 #include "parser/dumptree.h"
 
@@ -61,6 +60,7 @@
 #include "duchain/editorintegrator.h"
 #include "duchain/dumpchain.h"
 #include <language/duchain/duchainutils.h>
+#include <language/duchain/problem.h>
 #include <interfaces/ilanguagecontroller.h>
 #include <kio/job.h>
 #include <KIO/NetAccess>
