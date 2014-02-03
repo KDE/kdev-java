@@ -53,6 +53,7 @@ public:
   void setContents( const QByteArray& contents );
 
   const char *contents() const;
+  KDevelop::IndexedString m_document;
   qint64 size() const;
   Parser::memoryPoolType *memoryPool;
   KDevPG::TokenStream *tokenStream;

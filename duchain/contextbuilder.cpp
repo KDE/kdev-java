@@ -85,7 +85,7 @@ bool ContextBuilder::hadUnresolvedIdentifiers() const
 
 KDevelop::TopDUContext* ContextBuilder::newTopContext(const KDevelop::RangeInRevision& range, KDevelop::ParsingEnvironmentFile* file)
 {
-  KDevelop::IndexedString rangeUrl = KDevelop::IndexedString(range.castToSimpleRange().textRange().toSmartRange()->document()->url());
+  KDevelop::IndexedString rangeUrl = editor()->parseSession()->m_document;
 
   if (!file) {
       file = new ParsingEnvironmentFile(rangeUrl);
