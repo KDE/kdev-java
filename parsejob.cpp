@@ -128,6 +128,11 @@ void ParseJob::run()
     if ( abortRequested() )
         return abortJob();
 
+    KDevelop::ProblemPointer p = readContents();
+    if (p)
+        return abortJob();
+    m_session->setContents(contents().contents);
+
     QReadLocker lock(java()->language()->parseLock());
 
     kDebug() << "===-- PARSING --===> "
