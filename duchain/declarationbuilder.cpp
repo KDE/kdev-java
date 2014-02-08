@@ -114,6 +114,7 @@ void DeclarationBuilder::classContextOpened(KDevelop::DUContext* context)
 {
   if (currentDeclaration()) {
     DUChainWriteLocker lock(DUChain::lock());
+    Q_ASSERT(context->type() == KDevelop::DUContext::Class);
     currentDeclaration()->setInternalContext(context);
   }
   

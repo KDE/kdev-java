@@ -26,14 +26,24 @@
 #include <QObject>
 #include <language/duchain/topducontext.h>
 
+namespace KDevelop
+{
+class TestFile;
+}
+
 using namespace KDevelop;
 
 class JavaDUChainTest : public QObject
 {
     Q_OBJECT
+
+public:
+    virtual ~JavaDUChainTest();
+
 private slots:
     void initTestCase();
     void cleanupTestCase();
+    void initShell();
 
     ReferencedTopDUContext parse(const QString& code);
 
@@ -42,6 +52,9 @@ private slots:
 
     void testLocalDeclarations();
     void testLocalDeclarations_data();
+
+private:
+    QVector<TestFile*> createdFiles;
 };
 
 #endif // JAVADUCHAINTEST_H

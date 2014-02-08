@@ -13,15 +13,15 @@ namespace java {
 static KDevelop::ReferencedTopDUContext allJavaContext()
 {
     static IndexedString global(KUrl("java://all"));
-    auto chain = DUChain::self()->chainForDocument(global);
-    if ( chain ) {
-        return chain;
+    DUChainReadLocker lock;
+    ReferencedTopDUContext top = DUChain::self()->chainForDocument(global);
+    if ( ! top ) {
+        lock.unlock();
+        DUChainWriteLocker wlock;
+        top = new KDevelop::TopDUContext(global, KDevelop::RangeInRevision());
+        top->setType( KDevelop::DUContext::Global );
+        KDevelop::DUChain::self()->addDocumentChain(top);
     }
-
-    DUChainWriteLocker lock;
-    auto top = new KDevelop::TopDUContext(global, KDevelop::RangeInRevision());
-    top->setType( KDevelop::DUContext::Global );
-    KDevelop::DUChain::self()->addDocumentChain(top);
     return top;
 }
 

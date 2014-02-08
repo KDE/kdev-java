@@ -26,6 +26,8 @@
 #include <tests/testcore.h>
 #include <language/codegen/coderepresentation.h>
 #include <language/duchain/duchain.h>
+#include <language/duchain/declaration.h>
+#include <language/duchain/duchainlock.h>
 
 #include <QtTest>
 #include <KUrl>
@@ -46,21 +48,7 @@ void JavaDUChainTest::cleanupTestCase()
     // Called after the last testfunction was executed
 }
 
-ReferencedTopDUContext JavaDUChainTest::parse(const QString &code)
-{
-    TestFile testfile(code + "\n", "java", 0, QDir::tempPath().append("/"));
-
-    testfile.parse((TopDUContext::Features) (TopDUContext::ForceUpdate | TopDUContext::AST) );
-    testfile.waitForParsed(500);
-
-    if ( testfile.isReady() ) {
-        return testfile.topContext();
-    }
-    else Q_ASSERT(false && "Timed out waiting for parser results, aborting all tests");
-    return 0;
-}
-
-void JavaDUChainTest::init()
+void JavaDUChainTest::initShell()
 {
     AutoTestShell::init();
     TestCore* core = new TestCore();
@@ -68,6 +56,31 @@ void JavaDUChainTest::init()
 
     DUChain::self()->disablePersistentStorage();
     KDevelop::CodeRepresentation::setDiskChangesForbidden(true);
+}
+
+JavaDUChainTest::~JavaDUChainTest()
+{
+    qDeleteAll(createdFiles);
+}
+
+ReferencedTopDUContext JavaDUChainTest::parse(const QString &code)
+{
+    TestFile* testfile = new TestFile(code + "\n", "java", 0, QDir::tempPath().append("/"));
+    createdFiles << testfile;
+
+    testfile->parse((TopDUContext::Features) (TopDUContext::ForceUpdate | TopDUContext::AST) );
+    testfile->waitForParsed(5000);
+
+    if ( testfile->isReady() ) {
+        return testfile->topContext();
+    }
+    else Q_ASSERT(false && "Timed out waiting for parser results, aborting all tests");
+    return 0;
+}
+
+void JavaDUChainTest::init()
+{
+
 }
 
 QString mainClass() {
@@ -88,7 +101,36 @@ void JavaDUChainTest::testLocalDeclarations()
     QFETCH(QStringList, expectedDeclarations);
 
     ReferencedTopDUContext top = parse(codeInMain(code));
+    DUChainReadLocker lock;
     QVERIFY(top);
+    auto context = top->childContexts().first();
+
+    auto classdecls = context->localDeclarations();
+    QCOMPARE(classdecls.size(), 1);
+    auto classdecl = classdecls.first();
+
+    QVERIFY(classdecl->internalContext());
+    QCOMPARE(classdecl->internalContext()->type(), KDevelop::DUContext::Class);
+    auto funcs = classdecl->internalContext()->localDeclarations();
+    QCOMPARE(funcs.size(), 1);
+    auto func = funcs.first();
+
+    QVERIFY(func->internalContext());
+    QCOMPARE(func->internalContext()->type(), KDevelop::DUContext::Other);
+    auto variables = func->internalContext()->localDeclarations();
+    qDebug() << variables;
+    QCOMPARE(variables.size(), expectedDeclarations.size());
+
+    for ( auto expected: expectedDeclarations ) {
+        bool found = false;
+        for ( auto existing: variables ) {
+            if ( existing->identifier().toString() == expected ) {
+                found = true;
+                break;
+            }
+        }
+        QVERIFY(found);
+    }
 }
 
 void JavaDUChainTest::testLocalDeclarations_data()
@@ -97,6 +139,7 @@ void JavaDUChainTest::testLocalDeclarations_data()
     QTest::addColumn<QStringList>("expectedDeclarations");
 
     QTest::newRow("int") << "int x = 3;" << qsl{"x"};
+    QTest::newRow("int_new") << "int[] numbers = new int[] {1, 2, 3};" << qsl{"numbers"};
 }
 
 void JavaDUChainTest::cleanup()

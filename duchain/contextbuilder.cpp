@@ -265,7 +265,7 @@ void ContextBuilder::visitMethodDeclaration(MethodDeclarationAst * node)
 
   KDevelop::DUContext* parameters = 0;
   if (node->parameters) {
-    parameters = openContext(node->parameters, DUContext::Other, node->methodName);
+    parameters = openContext(node->parameters, DUContext::Function, node->methodName);
     id = currentContext()->localScopeIdentifier();
     visitNode(node->parameters);
     closeContext();
@@ -275,7 +275,7 @@ void ContextBuilder::visitMethodDeclaration(MethodDeclarationAst * node)
   visitNode(node->throwsClause);
 
   if (!onlyComputeVisible() && node->body) {
-    KDevelop::DUContext* body = openContext(node->body, DUContext::Function, id);
+    KDevelop::DUContext* body = openContext(node->body, DUContext::Other, id);
     if (parameters) {
       DUChainWriteLocker lock(DUChain::lock());
       body->addImportedParentContext(parameters);
