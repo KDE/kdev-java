@@ -26,6 +26,8 @@
 #include <language/duchain/classmemberdeclaration.h>
 #include <language/duchain/types/alltypes.h>
 
+#include "javaduchainexport.h"
+
 namespace KDevelop {
   class QualifiedIdentifier;
   class DUContext;
@@ -75,7 +77,7 @@ public:
 };
 
 
-class ClassDeclaration : public KDevelop::ClassMemberDeclaration
+class KDEVJAVADUCHAIN_EXPORT ClassDeclaration : public KDevelop::ClassMemberDeclaration
 {
 public:
   ClassDeclaration(const ClassDeclaration& rhs);

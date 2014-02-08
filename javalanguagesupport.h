@@ -59,9 +59,6 @@ public:
     virtual KDevelop::ILanguage *language();
     virtual KDevelop::ICodeHighlighting* codeHighlighting() const;
 
-    // Hack to make it look like all java files #include each other
-    KDevelop::ReferencedTopDUContext allJavaContext();
-
     static JavaLanguageSupport* self();
 
     QMutex* javaSourceZipMutex() const;
@@ -82,8 +79,6 @@ private:
 
     static JavaLanguageSupport* s_self;
 };
-
-extern const KDevelop::Identifier globalStaticImportIdentifier;
 
 #endif
 

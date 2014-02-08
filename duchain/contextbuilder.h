@@ -20,11 +20,12 @@
 #ifndef CONTEXTBUILDER_H
 #define CONTEXTBUILDER_H
 
-#include "parser/javadefaultvisitor.h"
+#include "javadefaultvisitor.h"
 
 #include <language/duchain/builders/abstractcontextbuilder.h>
 
 #include "classdeclaration.h"
+#include "javaduchainexport.h"
 
 class JavaLanguageSupport;
 
@@ -39,7 +40,7 @@ typedef KDevelop::AbstractContextBuilder<AstNode, IdentifierAst> ContextBuilderB
 /**
  * A class which iterates the AST to identify contexts.
  */
-class ContextBuilder: public ContextBuilderBase, protected DefaultVisitor
+class KDEVJAVADUCHAIN_EXPORT ContextBuilder: public ContextBuilderBase, protected DefaultVisitor
 {
 public:
   ContextBuilder();

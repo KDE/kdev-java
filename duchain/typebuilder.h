@@ -25,6 +25,7 @@
 #include <language/duchain/declaration.h>
 #include <language/duchain/identifier.h>
 #include "types.h"
+#include "javaduchainexport.h"
 
 namespace java {
 
@@ -37,7 +38,7 @@ typedef KDevelop::AbstractTypeBuilder<AstNode, IdentifierAst, java::ContextBuild
  * array types; parent classes will not have
  * their visitDeclarator function called.
  */
-class TypeBuilder: public TypeBuilderBase
+class KDEVJAVADUCHAIN_EXPORT TypeBuilder: public TypeBuilderBase
 {
 public:
   TypeBuilder();

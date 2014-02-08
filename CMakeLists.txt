@@ -21,6 +21,7 @@ endif()
 
 add_subdirectory(parser)
 add_subdirectory(settings)
+add_subdirectory(duchain)
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -42,24 +43,6 @@ set(kdevjavalanguagesupport_PART_SRCS
     javalanguagesupport.cpp
     parsejob.cpp
 
-    duchain/editorintegrator.cpp
-    duchain/identifiercompiler.cpp
-    duchain/contextbuilder.cpp
-    duchain/dumpchain.cpp
-    duchain/declarationbuilder.cpp
-    duchain/usebuilder.cpp
-    duchain/typebuilder.cpp
-    duchain/types.cpp
-    duchain/classdeclaration.cpp
-    duchain/expressionvisitor.cpp
-    duchain/topducontext.cpp
-    duchain/ducontext.cpp
-    duchain/overloadresolver.cpp
-    duchain/typeconversion.cpp
-    duchain/typeutils.cpp
-    duchain/viablefunctions.cpp
-    duchain/missingdeclarationtype.cpp
-
     completion/worker.cpp
     completion/items.cpp
     completion/context.cpp
@@ -69,15 +52,14 @@ set(kdevjavalanguagesupport_PART_SRCS
 
 kde4_add_plugin(kdevjavalanguagesupport ${kdevjavalanguagesupport_PART_SRCS})
 target_link_libraries(kdevjavalanguagesupport
-    ${QT_QTDESIGNER_LIBRARY}
     ${KDE4_KTEXTEDITOR_LIBS}
     ${KDEVPLATFORM_INTERFACES_LIBRARIES}
     ${KDEVPLATFORM_PROJECT_LIBRARIES}
     ${KDE4_THREADWEAVER_LIBRARIES}
     ${KDEVPLATFORM_LANGUAGE_LIBRARIES}
-    ${KDE4_KDE3SUPPORT_LIBRARY}
     ${KDE4_KDEUI_LIBS}
     kdev4javaparser
+    kdevjavaduchain
 )
 
 install(TARGETS kdevjavalanguagesupport DESTINATION ${PLUGIN_INSTALL_DIR})
@@ -87,5 +69,3 @@ install(TARGETS kdevjavalanguagesupport DESTINATION ${PLUGIN_INSTALL_DIR})
 
 configure_file(kdevjavasupport.desktop.cmake ${CMAKE_CURRENT_BINARY_DIR}/kdevjavasupport.desktop)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/kdevjavasupport.desktop DESTINATION ${SERVICES_INSTALL_DIR})
-
-

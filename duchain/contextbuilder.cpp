@@ -29,9 +29,9 @@
 #include "parsesession.h"
 #include "editorintegrator.h"
 #include "identifiercompiler.h"
-#include <javalanguagesupport.h>
 #include "topducontext.h"
 #include "ducontext.h"
+#include "helpers.h"
 
 using namespace KTextEditor;
 using namespace KDevelop;
@@ -97,9 +97,10 @@ KDevelop::TopDUContext* ContextBuilder::newTopContext(const KDevelop::RangeInRev
   TopDUContext* top = new java::TopDUContext(rangeUrl, range, file);
 
   Q_ASSERT(top);
-  Q_ASSERT(JavaLanguageSupport::self()->allJavaContext());
-  top->addImportedParentContext(JavaLanguageSupport::self()->allJavaContext());
-  JavaLanguageSupport::self()->allJavaContext()->addImportedParentContext(top);
+  ReferencedTopDUContext global = allJavaContext();
+  Q_ASSERT(global);
+  top->addImportedParentContext(global);
+  global->addImportedParentContext(top);
 
   return top;
 }

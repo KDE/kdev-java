@@ -20,7 +20,7 @@
 #define JAVA_EXPRESSIONVISITOR_H
 
 #include "abstractexpressionvisitor.h"
-#include "parser/javadefaultvisitor.h"
+#include "javadefaultvisitor.h"
 #include "contextbuilder.h"
 
 

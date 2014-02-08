@@ -22,6 +22,7 @@
 
 
 #include "javadefaultvisitor.h"
+#include "javaduchainexport.h"
 
 namespace KDevelop
 {
@@ -32,7 +33,7 @@ namespace java {
 
 class ParseSession;
 
-class DumpChain: protected DefaultVisitor
+class KDEVJAVADUCHAIN_EXPORT DumpChain: protected DefaultVisitor
 {
 public:
   DumpChain();

@@ -34,7 +34,7 @@
 #include <language/duchain/parsingenvironment.h>
 #include <language/duchain/identifier.h>
 #include <language/duchain/use.h>
-#include "parser/parsesession.h"
+#include "parsesession.h"
 
 using namespace KDevelop;
 using namespace java;

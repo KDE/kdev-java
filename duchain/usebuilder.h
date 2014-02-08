@@ -22,6 +22,7 @@
 #include <language/duchain/builders/abstractusebuilder.h>
 
 #include "expressionvisitor.h"
+#include "javaduchainexport.h"
 
 namespace java {
 
@@ -32,7 +33,7 @@ typedef KDevelop::AbstractUseBuilder<AstNode, IdentifierAst, ContextBuilder> Use
 /**
  * A class which iterates the AST to extract uses of definitions.
  */
-class UseBuilder: public UseBuilderBase
+class KDEVJAVADUCHAIN_EXPORT UseBuilder: public UseBuilderBase
 {
 public:
   UseBuilder(ParseSession* session);

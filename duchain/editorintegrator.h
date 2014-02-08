@@ -23,6 +23,8 @@
 
 #include "kdev-pg-token-stream.h"
 
+#include "javaduchainexport.h"
+
 namespace java {
 
 class ParseSession;
@@ -37,7 +39,7 @@ class AstNode;
  *
  * \todo introduce stacks for the state?
  */
-class EditorIntegrator
+class KDEVJAVADUCHAIN_EXPORT EditorIntegrator
 {
 public:
   EditorIntegrator(ParseSession* session);

@@ -23,8 +23,9 @@
 #include <language/duchain/namespacealiasdeclaration.h>
 #include <language/duchain/duchainregister.h>
 
-#include "javalanguagesupport.h"
 #include <language/duchain/classmemberdeclaration.h>
+
+#include "helpers.h"
 
 //#define DEBUG_SEARCH2
 
@@ -113,7 +114,7 @@ bool TopDUContext::findDeclarationsInternal(const SearchItem::PtrList& identifie
       }
     }
   // Static imports
-  foreach (Declaration* import, findLocalDeclarations(globalStaticImportIdentifier)) {
+  foreach (Declaration* import, findLocalDeclarations(Identifier(globalStaticImportIdentifier))) {
     if (NamespaceAliasDeclaration* alias = dynamic_cast<NamespaceAliasDeclaration*>(import)) {
       if (alias->importIdentifier().last() == Identifier("*")) {
         staticImportsOnDemand.append( SearchItem::Ptr( new SearchItem( alias->importIdentifier().left(-1), identifier ) ) ) ;

@@ -30,25 +30,17 @@
 #include "parsesession.h"
 #include "classdeclaration.h"
 #include <language/duchain/namespacealiasdeclaration.h>
-#include "javalanguagesupport.h"
+#include "helpers.h"
 
 using namespace KTextEditor;
 using namespace KDevelop;
 
 namespace java {
 
-QualifiedIdentifier javaLang("java::lang::*");
-
-DeclarationBuilder::DeclarationBuilder (ParseSession* session)
-  : m_defaultImportCreated(false)
-  , m_inImplementsClause(false)
-{
-  setEditor(session);
-}
-
 DeclarationBuilder::DeclarationBuilder (EditorIntegrator* editor)
   : m_defaultImportCreated(false)
   , m_inImplementsClause(false)
+  , javaLang("java::lang::*")
 {
   setEditor(editor);
 }
@@ -359,7 +351,7 @@ void DeclarationBuilder::visitImportDeclaration(ImportDeclarationAst* node)
     ///@todo only use the last name component as range
     {
       DUChainWriteLocker lock(DUChain::lock());
-      NamespaceAliasDeclaration* decl = openDeclaration<NamespaceAliasDeclaration>(QualifiedIdentifier(node->staticImport ? globalStaticImportIdentifier : globalImportIdentifier()), editorFindRange(node->identifierName, node->identifierName));
+      NamespaceAliasDeclaration* decl = openDeclaration<NamespaceAliasDeclaration>(QualifiedIdentifier(node->staticImport ? Identifier(globalStaticImportIdentifier) : globalImportIdentifier()), editorFindRange(node->identifierName, node->identifierName));
       decl->setImportIdentifier(import);
     }
 

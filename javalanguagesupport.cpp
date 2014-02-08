@@ -60,8 +60,6 @@ using namespace java;
 K_PLUGIN_FACTORY(KDevJavaSupportFactory, registerPlugin<JavaLanguageSupport>(); )
 K_EXPORT_PLUGIN(KDevJavaSupportFactory("kdevjavasupport"))
 
-const KDevelop::Identifier globalStaticImportIdentifier("{...static-import...}");
-
 JavaLanguageSupport* JavaLanguageSupport::s_self = 0;
 
 JavaLanguageSupport::JavaLanguageSupport( QObject* parent,
@@ -170,18 +168,6 @@ KZip* JavaLanguageSupport::javaSourceZip() const
 QMutex* JavaLanguageSupport::javaSourceZipMutex() const
 {
     return m_javaSourceZipMutex;
-}
-
-KDevelop::ReferencedTopDUContext JavaLanguageSupport::allJavaContext()
-{
-    if (m_allJavaContext)
-        return m_allJavaContext;
-
-    KDevelop::DUChainWriteLocker lock(KDevelop::DUChain::lock());
-    m_allJavaContext = new KDevelop::TopDUContext(KDevelop::IndexedString(KUrl("java://all")), KDevelop::RangeInRevision());
-    m_allJavaContext->setType( KDevelop::DUContext::Global );
-    KDevelop::DUChain::self()->addDocumentChain( m_allJavaContext );
-    return m_allJavaContext;
 }
 
 KDevelop::ICodeHighlighting* JavaLanguageSupport::codeHighlighting() const

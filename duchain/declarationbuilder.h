@@ -21,6 +21,7 @@
 
 #include "typebuilder.h"
 #include <language/duchain/builders/abstractdeclarationbuilder.h>
+#include "javaduchainexport.h"
 
 namespace java {
 
@@ -31,10 +32,9 @@ typedef KDevelop::AbstractDeclarationBuilder<AstNode, IdentifierAst, java::TypeB
 /**
  * A class which iterates the AST to extract definitions of types.
  */
-class DeclarationBuilder: public DeclarationBuilderBase
+class KDEVJAVADUCHAIN_EXPORT DeclarationBuilder: public DeclarationBuilderBase
 {
 public:
-  DeclarationBuilder(ParseSession* session);
   DeclarationBuilder(EditorIntegrator* editor);
 
 protected:
@@ -65,6 +65,7 @@ protected:
 private:
   bool m_defaultImportCreated;
   bool m_inImplementsClause;
+  KDevelop::QualifiedIdentifier javaLang;
 
   KDevelop::ClassMemberDeclaration::StorageSpecifiers m_currentVariableModifiers;
 };

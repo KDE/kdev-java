@@ -33,6 +33,8 @@
 #include "javalanguagesupport.h"
 #include <language/duchain/aliasdeclaration.h>
 
+#include "../duchain/helpers.h"
+
 #define LOCKDUCHAIN     DUChainReadLocker lock(DUChain::lock())
 
 #define ifDebug(x) x
@@ -196,7 +198,7 @@ void CodeCompletionContext::standardAccessCompletionItems(QList< CompletionTreeI
           moreDecls << top->findDeclarations(alias->importIdentifier());
 
     // Static imports
-    foreach (Declaration* import, top->findLocalDeclarations(globalStaticImportIdentifier))
+    foreach (Declaration* import, top->findLocalDeclarations(KDevelop::Identifier(globalStaticImportIdentifier)))
       if (NamespaceAliasDeclaration* alias = dynamic_cast<NamespaceAliasDeclaration*>(import))
         if (alias->importIdentifier().last() == Identifier("*"))
           // TODO static-filter
