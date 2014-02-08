@@ -24,7 +24,6 @@
 #include "parsejob.h"
 
 #include <cassert>
-#include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
 
@@ -37,8 +36,6 @@
 
 #include <kdebug.h>
 #include <klocale.h>
-
-#include <KTextEditor/SmartInterface>
 
 #include "javalanguagesupport.h"
 
