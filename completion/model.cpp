@@ -35,7 +35,6 @@
 
 
 #include <language/duchain/declaration.h>
-#include "duchain/types.h"
 #include <language/duchain/classfunctiondeclaration.h>
 #include <language/duchain/ducontext.h>
 #include <language/duchain/duchain.h>

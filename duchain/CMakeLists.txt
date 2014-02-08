@@ -9,7 +9,6 @@ set(kdevjavaduchain_SRCS
     declarationbuilder.cpp
     usebuilder.cpp
     typebuilder.cpp
-    types.cpp
     classdeclaration.cpp
     expressionvisitor.cpp
     topducontext.cpp

@@ -34,7 +34,6 @@
 #include <language/duchain/duchainbase.h>
 #include <language/duchain/duchainutils.h>
 #include <language/duchain/duchain.h>
-#include "duchain/types.h"
 #include "model.h"
 
 using namespace KDevelop;

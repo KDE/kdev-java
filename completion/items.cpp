@@ -29,7 +29,6 @@
 #include <ktexteditor/range.h>
 #include <ktexteditor/view.h>
 #include <ktexteditor/document.h>
-#include "duchain/types.h"
 #include <language/codecompletion/codecompletionmodel.h>
 #include <language/duchain/declaration.h>
 #include <language/duchain/classfunctiondeclaration.h>
