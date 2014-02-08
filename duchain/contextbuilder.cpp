@@ -30,7 +30,6 @@
 #include "editorintegrator.h"
 #include "identifiercompiler.h"
 #include "topducontext.h"
-#include "ducontext.h"
 #include "helpers.h"
 
 using namespace KTextEditor;
@@ -106,7 +105,7 @@ KDevelop::TopDUContext* ContextBuilder::newTopContext(const KDevelop::RangeInRev
 }
 
 KDevelop::DUContext* ContextBuilder::newContext(const KDevelop::RangeInRevision& range) {
-  return new java::DUContext(range, currentContext());
+  return new DUContext(range, currentContext());
 }
 
 

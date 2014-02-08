@@ -13,7 +13,6 @@ set(kdevjavaduchain_SRCS
     classdeclaration.cpp
     expressionvisitor.cpp
     topducontext.cpp
-    ducontext.cpp
     overloadresolver.cpp
     typeconversion.cpp
     typeutils.cpp
