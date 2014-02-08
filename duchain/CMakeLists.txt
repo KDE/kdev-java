@@ -16,7 +16,6 @@ set(kdevjavaduchain_SRCS
     typeconversion.cpp
     typeutils.cpp
     viablefunctions.cpp
-    missingdeclarationtype.cpp
 )
 
 include_directories(

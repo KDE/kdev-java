@@ -22,7 +22,6 @@
 #include <language/duchain/declaration.h>
 #include <language/duchain/classfunctiondeclaration.h>
 
-#include "missingdeclarationtype.h"
 #include "typeutils.h"
 #include "typeconversion.h"
 
