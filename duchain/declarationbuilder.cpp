@@ -63,7 +63,6 @@ void DeclarationBuilder::closeDeclaration()
     }
     
     currentDeclaration()->setType(lastType());
-    currentDeclaration()->setKind(Declaration::Type);
   }
 
   eventuallyAssignInternalContext();
@@ -78,8 +77,9 @@ void DeclarationBuilder::visitClassDeclaration(ClassDeclarationAst * node)
   ClassDeclaration* newClass = openDefinition<ClassDeclaration>(node->className, node);
 
   newClass->setAccessPolicy(parseAccessPolicy(node->modifiers));
-  newClass->setClassType(java::ClassDeclarationData::Class);
+  newClass->setClassType(ClassDeclarationData::Class);
   newClass->setStorageSpecifiers(parseModifiers(node->modifiers));
+  newClass->setKind(Declaration::Type);
 
   DeclarationBuilderBase::visitClassDeclaration(node);
 
@@ -192,6 +192,7 @@ void DeclarationBuilder::visitInterfaceDeclaration(InterfaceDeclarationAst * nod
   newInterface->setAccessPolicy(parseAccessPolicy(node->modifiers));
   newInterface->setClassType(java::ClassDeclarationData::Interface);
   newInterface->setStorageSpecifiers(parseModifiers(node->modifiers));
+  newInterface->setKind(Declaration::Type);
 
   DeclarationBuilderBase::visitInterfaceDeclaration(node);
 
@@ -203,6 +204,7 @@ void DeclarationBuilder::visitInterfaceDeclaration(InterfaceDeclarationAst * nod
 void DeclarationBuilder::visitInterfaceMethodDeclaration(InterfaceMethodDeclarationAst * node)
 {
   ClassFunctionDeclaration* newMethod = openDefinition<ClassFunctionDeclaration>(node->methodName, node);
+  newMethod->setKind(Declaration::Type);
   if (node->modifiers) {
     Declaration::AccessPolicy access = parseAccessPolicy(node->modifiers);
 
@@ -224,8 +226,8 @@ void DeclarationBuilder::visitEnumDeclaration(java::EnumDeclarationAst* node)
 {
   ClassDeclaration* newInterface = openDefinition<ClassDeclaration>(node->enumName, node);
   newInterface->setAccessPolicy(parseAccessPolicy(node->modifiers));
-  newInterface->setClassType(java::ClassDeclarationData::Enum);
   newInterface->setStorageSpecifiers(parseModifiers(node->modifiers));
+  newInterface->setKind(Declaration::Type);
 
   DeclarationBuilderBase::visitEnumDeclaration(node);
 
@@ -236,6 +238,7 @@ void DeclarationBuilder::visitEnumConstant(java::EnumConstantAst* node)
 {
   ClassMemberDeclaration* decl = openDeclaration<ClassMemberDeclaration>(node->identifier, node);
   decl->setStatic(true);
+  decl->setKind(Declaration::Instance);
 
   DeclarationBuilderBase::visitEnumConstant(node);
 
@@ -285,8 +288,12 @@ void DeclarationBuilder::visitVariableDeclarator(VariableDeclaratorAst * node)
   if (currentContext()->type() == DUContext::Class) {
     ClassMemberDeclaration* classMember = openDefinition<ClassMemberDeclaration>(node->variableName, node);
     classMember->setStorageSpecifiers(m_currentVariableModifiers);
+    classMember->setKind(Declaration::Instance);
+    classMember->setAbstractType(lastType());
   } else {
     Declaration* variableDeclaration = openDefinition<Declaration>(node->variableName, node);
+    variableDeclaration->setKind(Declaration::Instance);
+    variableDeclaration->setAbstractType(lastType());
 #if 0 // Porting -- Declaration::final property got removed
     variableDeclaration->setFinal(m_currentVariableModifiers & ClassMemberDeclaration::FinalSpecifier);
 #endif
@@ -300,6 +307,8 @@ void DeclarationBuilder::visitVariableDeclarator(VariableDeclaratorAst * node)
 void DeclarationBuilder::visitParameterDeclaration(ParameterDeclarationAst * node)
 {
   Declaration* parameter = openDefinition<Declaration>(node->variableName, node);
+  parameter->setKind(Declaration::Instance);
+  parameter->setAbstractType(lastType());
 #if 0 // Porting -- Declaration::final property got removed
   parameter->setFinal(node->parameterModifiers ? node->parameterModifiers->modifiers & ModifierFinal : false);
 #endif
@@ -312,6 +321,8 @@ void DeclarationBuilder::visitParameterDeclaration(ParameterDeclarationAst * nod
 void DeclarationBuilder::visitParameterDeclarationEllipsis(ParameterDeclarationEllipsisAst * node)
 {
   Declaration* parameter = openDefinition<Declaration>(node->variableName, node);
+  parameter->setKind(Declaration::Instance);
+  parameter->setAbstractType(lastType());
 #if 0 // Porting -- Declaration::final property got removed
   parameter->setFinal(node->parameterModifiers ? node->parameterModifiers->hasModifierFinal : false);
 #endif
@@ -329,6 +340,7 @@ void DeclarationBuilder::visitImportDeclaration(ImportDeclarationAst* node)
     DUChainWriteLocker lock(DUChain::lock());
     NamespaceAliasDeclaration* decl = openDeclaration<NamespaceAliasDeclaration>(QualifiedIdentifier(globalImportIdentifier()), RangeInRevision());
     decl->setImportIdentifier(javaLang);
+    decl->setKind(Declaration::Import);
     closeDeclaration();
     m_defaultImportCreated = true;
   }
@@ -374,6 +386,7 @@ void DeclarationBuilder::visitPackageDeclaration(java::PackageDeclarationAst* no
       id2.push(Identifier("*"));
       decl->setImportIdentifier(id2);
       decl->setContext(currentContext()->topContext());
+      decl->setKind(Declaration::NamespaceAlias);
       closeDeclaration();
 
       // Some crazy issue with just passing the whole QI?
