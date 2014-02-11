@@ -41,17 +41,15 @@ public:
     virtual ~JavaDUChainTest();
 
 private slots:
-    void initTestCase();
-    void cleanupTestCase();
     void initShell();
 
     ReferencedTopDUContext parse(const QString& code);
 
-    void init();
-    void cleanup();
-
     void testLocalDeclarations();
     void testLocalDeclarations_data();
+
+    void testUses();
+    void testUses_data();
 
 private:
     QVector<TestFile*> createdFiles;

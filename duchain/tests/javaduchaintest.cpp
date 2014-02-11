@@ -28,6 +28,7 @@
 #include <language/duchain/duchain.h>
 #include <language/duchain/declaration.h>
 #include <language/duchain/duchainlock.h>
+#include <language/duchain/use.h>
 
 #include <QtTest>
 #include <KUrl>
@@ -37,16 +38,6 @@ QTEST_MAIN(JavaDUChainTest);
 using namespace KDevelop;
 
 using qsl = QStringList;
-
-void JavaDUChainTest::initTestCase()
-{
-    // Called before the first testfunction is executed
-}
-
-void JavaDUChainTest::cleanupTestCase()
-{
-    // Called after the last testfunction was executed
-}
 
 void JavaDUChainTest::initShell()
 {
@@ -63,36 +54,30 @@ JavaDUChainTest::~JavaDUChainTest()
     qDeleteAll(createdFiles);
 }
 
-ReferencedTopDUContext JavaDUChainTest::parse(const QString &code)
+ReferencedTopDUContext JavaDUChainTest::parse(const QString& code)
 {
     TestFile* testfile = new TestFile(code + "\n", "java", 0, QDir::tempPath().append("/"));
     createdFiles << testfile;
 
-    testfile->parse((TopDUContext::Features) (TopDUContext::ForceUpdate | TopDUContext::AST) );
+    testfile->parse((TopDUContext::Features) (TopDUContext::ForceUpdate | TopDUContext::AllDeclarationsContextsUsesAndAST) );
     testfile->waitForParsed(5000);
 
     if ( testfile->isReady() ) {
         return testfile->topContext();
     }
-    else Q_ASSERT(false && "Timed out waiting for parser results, aborting all tests");
-    return 0;
-}
-
-void JavaDUChainTest::init()
-{
-
-}
-
-QString mainClass() {
-    return QString("public class Foo {\n"
-                   "    public static void main(String args[]) {\n"
-                   "        ${CODE}\n"
-                   "    }\n"
-                   "}\n");
+    Q_ASSERT_X(false, Q_FUNC_INFO, "Timed out waiting for parser results, aborting all tests");
 }
 
 QString codeInMain(const QString& code) {
-    return mainClass().replace("${CODE}", code);
+    return QString("public class Foo {\n"
+                   "    public static void main(String[] args) {\n"
+                   "        %1\n"
+                   "    }\n"
+                   "}\n").arg(code);
+}
+
+QString codeInMainWithDeclaration(const QString& code) {
+    return codeInMain("        int x;\n        %1\n").arg(code);
 }
 
 void JavaDUChainTest::testLocalDeclarations()
@@ -142,9 +127,52 @@ void JavaDUChainTest::testLocalDeclarations_data()
     QTest::newRow("int_new") << "int[] numbers = new int[] {1, 2, 3};" << qsl{"numbers"};
 }
 
-void JavaDUChainTest::cleanup()
+void JavaDUChainTest::testUses()
 {
-    // Called after every testfunction
+    QFETCH(QString, code);
+    QFETCH(QStringList, expectedUses);
+
+    ReferencedTopDUContext top = parse(code);
+    DUChainReadLocker lock;
+    QVERIFY(top);
+
+    int usesCount = 0;
+    for ( DUContext* context: top->childContexts() ) {
+        usesCount += context->usesCount();
+        qDebug() <<  context->uses();
+    }
+    QCOMPARE(usesCount, expectedUses.size());
+
+    for ( auto expected: expectedUses ) {
+        bool found = false;
+        for ( DUContext* context: top->childContexts() ) {
+            auto uses = context->uses();
+            int usesCount = context->usesCount();
+
+            for ( int i = 0; i < usesCount; i++ ) {
+                if ( uses[i].usedDeclaration(top)->identifier().toString() == expected ) {
+                    found = true;
+                    break;
+                }
+            }
+            if ( found )
+                break;
+        }
+        QVERIFY(found);
+    }
+}
+
+void JavaDUChainTest::testUses_data()
+{
+    QTest::addColumn<QString>("code");
+    QTest::addColumn<QStringList>("expectedUses");
+
+    QTest::newRow("lvalue") << codeInMainWithDeclaration("x = 5;") << QStringList{"x"};
+    QTest::newRow("for") << codeInMainWithDeclaration("for ( x = 0; x < 20; x++ ) ;") << QStringList{"x", "x", "x"};
+    QTest::newRow("rvalue") << codeInMainWithDeclaration("int y = x;") << QStringList{"x"};
+    QTest::newRow("increment") << codeInMainWithDeclaration("x++;") << QStringList{"x"};
+
+    QTest::newRow("function_call") << "class Foo { void func() {} void f() { func(); } }" << QStringList{"func"};
 }
 
 #include "javaduchaintest.moc"
