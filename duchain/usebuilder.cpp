@@ -26,6 +26,17 @@ using namespace KDevelop;
 
 namespace java {
 
+class UseBuilder::UseExpressionVisitor : public ExpressionVisitor {
+public:
+  // creating this visitor will open the specified context
+  // TODO remove context parameter when it is not needed anymore
+  UseExpressionVisitor(KDevelop::DUContext* context, EditorIntegrator* editor, UseBuilder* builder);
+protected:
+  virtual void usingDeclaration ( AstNode* node, qint64 start_token, qint64 end_token, const KDevelop::DeclarationPointer& decl ) override;
+private:
+  UseBuilder* m_builder;
+};
+
 UseBuilder::UseBuilder (ParseSession* session)
 {
   setEditor(session);
@@ -36,8 +47,23 @@ UseBuilder::UseBuilder (EditorIntegrator* editor)
   setEditor(editor);
 }
 
+void UseBuilder::startVisiting(AstNode* node)
+{
+  UseExpressionVisitor visitor(currentContext(), editor(), this);
+  visitor.parse(node);
+}
 
-void UseBuilder::usingDeclaration(AstNode* node, const KDevelop::DeclarationPointer& decl, qint64 start_token, qint64 end_token)
+UseBuilder::UseExpressionVisitor::UseExpressionVisitor(KDevelop::DUContext* context, EditorIntegrator* editor, UseBuilder* builder)//: ExpressionVisitor(context, editor)
+{
+  m_builder = builder;
+  setEditor(editor);
+  // openContext is called here to prevent crash
+  // because this visitor now parses everything
+  // TODO remove the call and the parameter when it is fixed
+  openContext(context);
+}
+
+void UseBuilder::UseExpressionVisitor::usingDeclaration( AstNode* node, qint64 start_token, qint64 end_token, const KDevelop::DeclarationPointer& decl )
 {
   if (start_token == qint64())
     start_token = node->startToken;
@@ -46,7 +72,7 @@ void UseBuilder::usingDeclaration(AstNode* node, const KDevelop::DeclarationPoin
     end_token = node->endToken;
 
   kDebug() << "New use" << editor()->findRange(start_token, end_token) << " declaration" << decl.data() << decl->toString();
-  newUse(node, editor()->findRange(start_token, end_token), decl);
+  m_builder->newUse(node, editor()->findRange(start_token, end_token), decl);
 }
 
 }

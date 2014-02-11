@@ -40,7 +40,10 @@ public:
   UseBuilder(EditorIntegrator* editor);
 
 protected:
-  virtual void usingDeclaration(AstNode* node, const KDevelop::DeclarationPointer& decl, qint64 start_token, qint64 end_token );
+
+private:
+  virtual void startVisiting(AstNode* node);
+  class UseExpressionVisitor;
 
 };
 

@@ -143,6 +143,10 @@ class AbstractExpressionVisitor : public LanguageSpecificExpressionVisitorBase
 
     /** The duchain is not locked when this is called */
     virtual void usingDeclaration( T* node, const KDevelop::DeclarationPointer& decl, TokenType start_token = TokenType(), TokenType end_token = TokenType() ) {
+      usingDeclaration(node, start_token, end_token, decl);
+    }
+
+    virtual void usingDeclaration( T* node, TokenType start_token, TokenType end_token, const KDevelop::DeclarationPointer& decl ) {
       Q_UNUSED(node) Q_UNUSED(start_token) Q_UNUSED(end_token) Q_UNUSED(decl)
     }
 
