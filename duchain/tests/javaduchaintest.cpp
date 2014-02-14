@@ -66,6 +66,7 @@ ReferencedTopDUContext JavaDUChainTest::parse(const QString& code)
         return testfile->topContext();
     }
     Q_ASSERT_X(false, Q_FUNC_INFO, "Timed out waiting for parser results, aborting all tests");
+    return NULL;
 }
 
 QString codeInMain(const QString& code) {
