@@ -28,9 +28,7 @@ namespace java {
 
 class UseBuilder::UseExpressionVisitor : public ExpressionVisitor {
 public:
-  // creating this visitor will open the specified context
-  // TODO remove context parameter when it is not needed anymore
-  UseExpressionVisitor(KDevelop::DUContext* context, EditorIntegrator* editor, UseBuilder* builder);
+  UseExpressionVisitor ( EditorIntegrator* editor, UseBuilder* builder );
 protected:
   virtual void usingDeclaration ( AstNode* node, qint64 start_token, qint64 end_token, const KDevelop::DeclarationPointer& decl ) override;
 private:
@@ -47,20 +45,26 @@ UseBuilder::UseBuilder (EditorIntegrator* editor)
   setEditor(editor);
 }
 
-void UseBuilder::startVisiting(AstNode* node)
+void UseBuilder::visitPrimaryExpression(PrimaryExpressionAst* node)
 {
-  UseExpressionVisitor visitor(currentContext(), editor(), this);
+  UseExpressionVisitor visitor( editor(), this );
+  if ( !node->ducontext )
+    node->ducontext = currentContext();
   visitor.parse(node);
 }
 
-UseBuilder::UseExpressionVisitor::UseExpressionVisitor(KDevelop::DUContext* context, EditorIntegrator* editor, UseBuilder* builder)//: ExpressionVisitor(context, editor)
+void UseBuilder::visitClassOrInterfaceTypeName(ClassOrInterfaceTypeNameAst* node)
+{
+  UseExpressionVisitor visitor( editor(), this );
+  if ( !node->ducontext )
+    node->ducontext = currentContext();
+  visitor.parse( node );
+}
+
+UseBuilder::UseExpressionVisitor::UseExpressionVisitor ( EditorIntegrator* editor, UseBuilder* builder )
+  : ExpressionVisitor ( editor )
 {
   m_builder = builder;
-  setEditor(editor);
-  // openContext is called here to prevent crash
-  // because this visitor now parses everything
-  // TODO remove the call and the parameter when it is fixed
-  openContext(context);
 }
 
 void UseBuilder::UseExpressionVisitor::usingDeclaration( AstNode* node, qint64 start_token, qint64 end_token, const KDevelop::DeclarationPointer& decl )

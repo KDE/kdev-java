@@ -42,7 +42,8 @@ public:
 protected:
 
 private:
-  virtual void startVisiting(AstNode* node);
+  virtual void visitClassOrInterfaceTypeName(ClassOrInterfaceTypeNameAst* node) override;
+  virtual void visitPrimaryExpression(PrimaryExpressionAst* node) override;
   class UseExpressionVisitor;
 
 };

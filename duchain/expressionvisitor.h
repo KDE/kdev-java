@@ -28,12 +28,12 @@ namespace java {
 
 class ParseSession;
 
-typedef KDevelop::AbstractExpressionVisitor<AstNode, IdentifierAst, qint64, java::ContextBuilder> ExpressionVisitorBase;
+typedef KDevelop::AbstractExpressionVisitor<AstNode, IdentifierAst, qint64, DefaultVisitor> ExpressionVisitorBase;
 
 class KDEVJAVAPARSER_EXPORT ExpressionVisitor : public ExpressionVisitorBase
 {
   public:
-    ExpressionVisitor();
+    ExpressionVisitor(EditorIntegrator* editor);
     
   protected:
     KDevelop::AbstractType::Ptr openTypeFromName(KDevelop::QualifiedIdentifier id, bool needClass);
@@ -47,6 +47,13 @@ class KDEVJAVAPARSER_EXPORT ExpressionVisitor : public ExpressionVisitorBase
     virtual void visitPrimaryExpression(PrimaryExpressionAst *node);
     virtual void visitLiteral(LiteralAst *node);
     virtual void visitMethodCallData(MethodCallDataAst *node);
+    virtual void visitNode(AstNode* node) override;
+
+    const KDevelop::DUContext* currentContext() const { return m_currentContext; }
+    EditorIntegrator* editor() const { return m_editor; }
+  private:
+    const KDevelop::DUContext* m_currentContext;
+    EditorIntegrator* m_editor;
 };
 
 }

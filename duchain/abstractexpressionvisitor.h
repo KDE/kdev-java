@@ -56,10 +56,10 @@ class AbstractExpressionVisitor : public LanguageSpecificExpressionVisitorBase
     {
       m_lastType = 0;
       m_lastInstance = Instance();
-      DUContext* context = LanguageSpecificExpressionVisitorBase::contextFromNode(ast);
+      DUContext* context = ast->ducontext;
       Q_ASSERT(context);
       m_topContext = context->topContext();
-      LanguageSpecificExpressionVisitorBase::startVisiting(ast);
+      this->visitNode(ast);
       m_topContext = 0;
       flushUse();
     }

@@ -20,14 +20,16 @@
 #include <util/pushvalue.h>
 
 #include "overloadresolver.h"
+#include "editorintegrator.h"
+#include <parsesession.h>
 
 using namespace KDevelop;
 
 namespace java {
 
-ExpressionVisitor::ExpressionVisitor()
+ExpressionVisitor::ExpressionVisitor(EditorIntegrator* editor)
 {
-  setCompilingContexts(false);
+  m_editor = editor;
 }
 
 void ExpressionVisitor::visitBuiltInType(BuiltInTypeAst* node) {
@@ -67,7 +69,17 @@ void ExpressionVisitor::visitBuiltInType(BuiltInTypeAst* node) {
 }
 
 void ExpressionVisitor::visitClassOrInterfaceTypeName(ClassOrInterfaceTypeNameAst* node) {
-  QualifiedIdentifier id = identifierForNode(node);
+  QualifiedIdentifier id;
+  if (node->partSequence) {
+    auto it = node->partSequence->front(), end = it;
+    do
+    {
+      QString ident = editor()->parseSession()->symbol(it->element->identifier->ident);
+      id.push(Identifier(ident));
+      it = it->next;
+    }
+    while (it != end);
+  }
 
   DeclarationPointer useDecl;
   AstNode* useNode = 0;
@@ -75,7 +87,7 @@ void ExpressionVisitor::visitClassOrInterfaceTypeName(ClassOrInterfaceTypeNameAs
   AbstractType::Ptr type = openTypeFromName(id, true);
   if (StructureType::Ptr classType = StructureType::Ptr::dynamicCast(type)) {
     DUChainReadLocker lock(DUChain::lock());
-    useDecl = classType->declaration(currentContext()->topContext());
+    useDecl = classType->declaration(topContext());
     if (useDecl)
       useNode = node;
     else
@@ -176,7 +188,7 @@ void ExpressionVisitor::visitMethodCallData(MethodCallDataAst* node)
 
   if (lastInstance().declaration) {
     if (node->methodName) {
-      QualifiedIdentifier id = identifierForNode(node->methodName);
+      QualifiedIdentifier id (editor()->parseSession()->symbol(node->methodName->ident));
       DUContextPointer searchContext;
       {
         DUChainReadLocker lock(DUChain::lock());
@@ -185,7 +197,7 @@ void ExpressionVisitor::visitMethodCallData(MethodCallDataAst* node)
             kDebug() << "Type of last instance " << lastInstance().declaration->toString() << "was not a structure.";
             return;
         }
-        searchContext = classType->internalContext(currentContext()->topContext());
+        searchContext = classType->internalContext(topContext());
         if (!searchContext) {
           kDebug() << "could not find internal context for the structure type of the class to be searched";
           return;
@@ -261,10 +273,10 @@ void ExpressionVisitor::visitPrimaryAtom(PrimaryAtomAst* node) {
   AstNode* useNode = 0;
 
   if (node->simpleNameAccess && node->simpleNameAccess->name) {
-    QualifiedIdentifier id = identifierForNode(node->simpleNameAccess->name);
+    QualifiedIdentifier id (editor()->parseSession()->symbol(node->simpleNameAccess->name->ident));
 
     DUChainReadLocker lock(DUChain::lock());
-    CursorInRevision start = editorFindRange(node, node).start;
+    CursorInRevision start = editor()->findRange(node, node).start;
     QList<Declaration*> decls = currentContext()->findDeclarations(id, start);
     if (!decls.isEmpty()) {
       setLastInstance(decls.first());
@@ -280,7 +292,7 @@ void ExpressionVisitor::visitPrimaryAtom(PrimaryAtomAst* node) {
       if (decl->baseClassesSize() >= 1) {
         if (StructureType::Ptr baseClass = decl->baseClasses()->baseClass.type<StructureType>()) {
           setLastType(decl->baseClasses()->baseClass.abstractType());
-          useDecl = baseClass->declaration(currentContext()->topContext());
+          useDecl = baseClass->declaration(topContext());
           useNode = node->superAccess;
         }
       }
@@ -303,10 +315,10 @@ void ExpressionVisitor::visitPrimarySelector(PrimarySelectorAst* node)
   if (lastInstance().isInstance) {
     DUChainReadLocker lock(DUChain::lock());
     if (node->simpleNameAccess && node->simpleNameAccess->name) {
-      QualifiedIdentifier id = identifierForNode(node->simpleNameAccess->name);
+      QualifiedIdentifier id (editor()->parseSession()->symbol(node->simpleNameAccess->name->ident));
 
       if (lastInstance().declaration) {
-        DUContext* declContext = lastInstance().declaration->logicalInternalContext(currentContext()->topContext());
+        DUContext* declContext = lastInstance().declaration->logicalInternalContext(topContext());
 
         if (declContext) {
           foreach (Declaration* decl, declContext->findDeclarations(id)) {
@@ -322,7 +334,7 @@ void ExpressionVisitor::visitPrimarySelector(PrimarySelectorAst* node)
           kWarning() << "Internal context for declaration" << lastInstance().declaration->toString() << "was null.";
         }
       } else {
-        kWarning() << "No last instance for primary selector at" << editorFindRange(node->simpleNameAccess->name, node->simpleNameAccess->name);
+        kWarning() << "No last instance for primary selector at" << editor()->findRange(node->simpleNameAccess->name, node->simpleNameAccess->name);
       }
     }
   }
@@ -343,6 +355,14 @@ void ExpressionVisitor::visitPrimarySelector(PrimarySelectorAst* node)
 
   if (useNode)
     usingDeclaration(useNode, useDecl);
+}
+
+void ExpressionVisitor::visitNode(AstNode* node)
+{
+  if(!node)
+    return;
+  PushPositiveValue<const DUContext*> pushContext(m_currentContext, node->ducontext);
+  Visitor::visitNode(node);
 }
 
 }
