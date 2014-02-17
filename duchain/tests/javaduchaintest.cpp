@@ -136,17 +136,42 @@ void JavaDUChainTest::testUses()
     ReferencedTopDUContext top = parse(code);
     DUChainReadLocker lock;
     QVERIFY(top);
+    auto context = top->childContexts().first();
 
-    int usesCount = 0;
-    for ( DUContext* context: top->childContexts() ) {
-        usesCount += context->usesCount();
-        qDebug() <<  context->uses();
-    }
-    QCOMPARE(usesCount, expectedUses.size());
+    auto classdecls = context->localDeclarations();
+    QVERIFY(!classdecls.empty());
+    auto classdecl = classdecls.first();
+
+    QVERIFY(classdecl->internalContext());
+    QCOMPARE(classdecl->internalContext()->type(), KDevelop::DUContext::Class);
+    auto funcs = classdecl->internalContext()->localDeclarations();
+    QVERIFY(!funcs.empty());
+    auto func = funcs.first();
+    auto funcContext = func->internalContext();
+
+    QVERIFY(funcContext);
+    QCOMPARE(funcContext->type(), KDevelop::DUContext::Other);
+
+    int allUsesCount = funcContext->usesCount();
+    for ( DUContext* context: funcContext->childContexts() )
+        allUsesCount += context->usesCount();
+    QCOMPARE(allUsesCount, expectedUses.size());
 
     for ( auto expected: expectedUses ) {
         bool found = false;
-        for ( DUContext* context: top->childContexts() ) {
+        auto uses = funcContext->uses();
+        int usesCount = funcContext->usesCount();
+
+        for ( int i = 0; i < usesCount; i++ ) {
+            if ( uses[i].usedDeclaration(top)->identifier().toString() == expected ) {
+                found = true;
+                break;
+            }
+        }
+
+        for ( DUContext* context: funcContext->childContexts() ) {
+            if ( found )
+                break;
             auto uses = context->uses();
             int usesCount = context->usesCount();
 
@@ -156,8 +181,6 @@ void JavaDUChainTest::testUses()
                     break;
                 }
             }
-            if ( found )
-                break;
         }
         QVERIFY(found);
     }
@@ -173,7 +196,7 @@ void JavaDUChainTest::testUses_data()
     QTest::newRow("rvalue") << codeInMainWithDeclaration("int y = x;") << QStringList{"x"};
     QTest::newRow("increment") << codeInMainWithDeclaration("x++;") << QStringList{"x"};
 
-    QTest::newRow("function_call") << "class Foo { void func() {} void f() { func(); } }" << QStringList{"func"};
+    QTest::newRow("function_call") << "public class Foo {\npublic static void main() {\nfunc();\n}\nvoid func() {\n}\n}" << QStringList{"func"};
 }
 
 #include "javaduchaintest.moc"
