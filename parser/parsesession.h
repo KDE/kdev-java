@@ -28,6 +28,7 @@
 #include "javaparserexport.h"
 
 #include <language/editor/simplecursor.h>
+#include <language/duchain/indexedstring.h>
 #include <language/duchain/ducontext.h>
 
 namespace java
