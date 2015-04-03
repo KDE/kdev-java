@@ -3,6 +3,7 @@ Encoding=UTF-8
 Type=Service
 Exec=blubb
 Comment=Java Language Support
+Comment[ast]=Sofitu de llinguax Java
 Comment[bg]=Поддръжка на езика Java
 Comment[bs]=Podrška za jezik Java
 Comment[ca]=Implementació de llenguatge Java
