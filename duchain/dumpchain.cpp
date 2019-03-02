@@ -21,8 +21,8 @@
 
 #include <QtCore/QString>
 #include <QTextStream>
+#include <QDebug>
 
-#include <kdebug.h>
 #include <ktexteditor/range.h>
 
 #include <language/duchain/types/identifiedtype.h>
@@ -205,11 +205,11 @@ void DumpChain::visitNode(AstNode *node)
       if( !nodeText.isEmpty() ) nodeText = "\"" + nodeText + "\"";
 
 
-      kDebug() << indentation <<  "\\" << names[node->kind - 1000]
+      qDebug() << indentation <<  "\\" << names[node->kind - 1000]
               << "[" << node->startToken << m_editor->findPosition(node->startToken, EditorIntegrator::FrontEdge) << ", "
               << node->endToken << m_editor->findPosition(node->endToken, EditorIntegrator::BackEdge) << "]" << nodeText << endl;
     } else {
-      kDebug() << indentation << "\\" << names[node->kind - 1000]
+      qDebug() << indentation << "\\" << names[node->kind - 1000]
               << "[" << node->startToken << "," << node->endToken << "]" << endl;
     }
   }
@@ -220,11 +220,11 @@ void DumpChain::visitNode(AstNode *node)
 
   if (node) {
     if (m_editor) {
-      kDebug() << indentation << "/" << names[node->kind - 1000]
+      qDebug() << indentation << "/" << names[node->kind - 1000]
               << "[("  << node->endToken << ") "/*<< m_editor->findPosition(node->startToken, EditorIntegrator::FrontEdge) << ", "*/
               << m_editor->findPosition(node->endToken, EditorIntegrator::FrontEdge) << "]" << endl;
     } else {
-      kDebug() << indentation << "/" << names[node->kind - 1000]
+      qDebug() << indentation << "/" << names[node->kind - 1000]
               << "[" << node->startToken << "," << node->endToken << ']' << endl;
     }
   }
@@ -237,18 +237,18 @@ DumpChain::~ DumpChain( )
 
 void DumpChain::dump( DUContext * context, bool imported )
 {
-  kDebug() << QString(indent * 2, ' ') << (imported ? "==import==> Context " : "New Context ") << context << "\"" <<  context->localScopeIdentifier() << "\" [" << context->scopeIdentifier() << "]" << context->range() << " " << (dynamic_cast<TopDUContext*>(context) ? "top-context" : "");
+  qDebug() << QString(indent * 2, ' ') << (imported ? "==import==> Context " : "New Context ") << context << "\"" <<  context->localScopeIdentifier() << "\" [" << context->scopeIdentifier() << "]" << context->range() << " " << (dynamic_cast<TopDUContext*>(context) ? "top-context" : "");
   if( !context )
     return;
   if (!imported) {
     foreach (Declaration* dec, context->localDeclarations()) {
 
-      kDebug() << QString((indent+1) * 2, ' ') << "Declaration: " << dec->toString() << /*(idType ? (" (type-identity: " + idType->identifier().toString() + ")") : QString()) <<*/ " [" << dec->qualifiedIdentifier() << "]" << dec << "(internal ctx" << dec->internalContext() << ")" << dec->range() << "," << (dec->isDefinition() ? "definition, " : "declaration, ") << dec->uses().count() << "use(s)," << (dec->inSymbolTable() ? " in symbol table" : " not in symbol table");
-      QMap<IndexedString, QList<RangeInRevision> > uses = dec->uses();
-      for(QMap<IndexedString, QList<RangeInRevision> >::const_iterator it = uses.begin(); it != uses.end(); ++it) {
-        kDebug() << QString((indent+2) * 2, ' ') << "File:" << it.key().str();
+      qDebug() << QString((indent+1) * 2, ' ') << "Declaration: " << dec->toString() << /*(idType ? (" (type-identity: " + idType->identifier().toString() + ")") : QString()) <<*/ " [" << dec->qualifiedIdentifier() << "]" << dec << "(internal ctx" << dec->internalContext() << ")" << dec->range() << "," << (dec->isDefinition() ? "definition, " : "declaration, ") << dec->uses().count() << "use(s)," << (dec->inSymbolTable() ? " in symbol table" : " not in symbol table");
+      QMap<IndexedString, QVector<RangeInRevision> > uses = dec->uses();
+      for(QMap<IndexedString, QVector<RangeInRevision> >::const_iterator it = uses.begin(); it != uses.end(); ++it) {
+        qDebug() << QString((indent+2) * 2, ' ') << "File:" << it.key().str();
         foreach (const RangeInRevision& range, *it)
-          kDebug() << QString((indent+2) * 2+1, ' ') << "Use:" << range;
+          qDebug() << QString((indent+2) * 2+1, ' ') << "Use:" << range;
       }
     }
   }

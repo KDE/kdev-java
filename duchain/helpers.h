@@ -4,7 +4,7 @@
 #include <language/duchain/topducontext.h>
 #include <language/duchain/duchain.h>
 #include <language/duchain/duchainlock.h>
-#include <KUrl>
+#include <QUrl>
 
 using namespace KDevelop;
 
@@ -12,7 +12,7 @@ namespace java {
 
 static KDevelop::ReferencedTopDUContext allJavaContext()
 {
-    static IndexedString global(KUrl("java://all"));
+    static IndexedString global(QUrl("java://all"));
     DUChainReadLocker lock;
     ReferencedTopDUContext top = DUChain::self()->chainForDocument(global);
     if ( ! top ) {

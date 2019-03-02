@@ -44,7 +44,7 @@ using namespace KDevelop;
       }
       if(base)
         base->setModifiers(base->modifiers() | hadModifiers);
-      
+
       ref = base.cast<ReferenceType>();
       alias = base.cast<TypeAliasType>();
     }
@@ -62,7 +62,7 @@ using namespace KDevelop;
       base = ref->baseType();
       if(base)
         base->setModifiers(base->modifiers() | hadModifiers);
-      
+
       ref = base.cast<ReferenceType>();
     }
 
@@ -187,10 +187,10 @@ using namespace KDevelop;
     Declaration* klassDecl = klass->declaration(topContext);
     DUContext* context = klassDecl ? klassDecl->internalContext() : 0;
     if( !context || !context->owner() || !context->owner() ) {
-//       kDebug(9007) << "Tried to get constructors of a class without context";
+//       qDebug(9007) << "Tried to get constructors of a class without context";
       return;
     }
-    
+
     Identifier id(context->owner()->identifier());
     id.clearTemplateIdentifiers();
 
@@ -218,9 +218,9 @@ const Identifier& castIdentifier() {
 
 KDevelop::AbstractType::Ptr matchingClassPointer(const KDevelop::AbstractType::Ptr& matchTo, const KDevelop::AbstractType::Ptr& actual, const KDevelop::TopDUContext* topContext) {
   java::TypeConversion conversion(topContext);
-  
+
   StructureType::Ptr actualStructure = realType(actual, topContext).cast<KDevelop::StructureType>();
-  
+
   if(actualStructure) {
     DUContext* internal = actualStructure->internalContext(topContext);
     if(internal) {
@@ -235,14 +235,14 @@ KDevelop::AbstractType::Ptr matchingClassPointer(const KDevelop::AbstractType::P
       }
     }
   }
-  
+
   return actual;
 }
 
 Declaration* getDeclaration( const AbstractType::Ptr& type, TopDUContext* top ) {
   if( !type) return 0;
 
-  const IdentifiedType* idType = dynamic_cast<const IdentifiedType*>(type.unsafeData());
+  const IdentifiedType* idType = dynamic_cast<const IdentifiedType*>(type.data());
   if( idType ) {
     return idType->declaration(top);
   } else {
@@ -252,7 +252,7 @@ Declaration* getDeclaration( const AbstractType::Ptr& type, TopDUContext* top ) 
 
 AbstractType::Ptr decreasePointerDepth(AbstractType::Ptr type, TopDUContext* top, bool useOperator) {
   type = realType(type, top);
-  
+
   if( PointerType::Ptr pt = type.cast<PointerType>() )
   {
     //Dereference
@@ -285,7 +285,7 @@ AbstractType::Ptr increasePointerDepth(AbstractType::Ptr type) {
 AbstractType::Ptr removeConstants(AbstractType::Ptr type) {
       if(ConstantIntegralType::Ptr integral = type.cast<ConstantIntegralType>())
         return AbstractType::Ptr(new IntegralType(*integral));
-      
+
       return type;
 }
 }

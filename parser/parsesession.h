@@ -25,10 +25,10 @@
 #include <QtCore/QByteArray>
 
 #include "javaparser.h"
-#include "javaparserexport.h"
 
-#include <language/editor/simplecursor.h>
-#include <language/duchain/indexedstring.h>
+#include "javaparser_export.h"
+
+#include <serialization/indexedstring.h>
 #include <language/duchain/ducontext.h>
 
 namespace java

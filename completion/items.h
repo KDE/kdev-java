@@ -29,16 +29,15 @@
 class QModelIndex;
 
 namespace java {
-
 //A completion item used for completion of normal declarations while normal code-completion
 class NormalDeclarationCompletionItem : public KDevelop::NormalDeclarationCompletionItem {
 public:
-  NormalDeclarationCompletionItem(KDevelop::DeclarationPointer decl = KDevelop::DeclarationPointer(), KSharedPtr<KDevelop::CodeCompletionContext> context=KSharedPtr<KDevelop::CodeCompletionContext>(), int _inheritanceDepth = 0);
+  NormalDeclarationCompletionItem(KDevelop::DeclarationPointer decl = KDevelop::DeclarationPointer(), QExplicitlySharedDataPointer<KDevelop::CodeCompletionContext> context=QExplicitlySharedDataPointer<KDevelop::CodeCompletionContext>(), int _inheritanceDepth = 0);
 
   virtual QVariant data(const QModelIndex& index, int role, const KDevelop::CodeCompletionModel* model) const;
 
 protected:
-  virtual void executed(KTextEditor::Document* document, const KTextEditor::Range& word);
+  virtual void executed(KTextEditor::View* document, const KTextEditor::Range& word);
   virtual QString shortenedTypeString(KDevelop::DeclarationPointer decl, int desiredTypeLength) const;
 };
 

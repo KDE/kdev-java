@@ -24,7 +24,7 @@
 #ifndef JAVA_PARSEJOB_H
 #define JAVA_PARSEJOB_H
 
-#include <kurl.h>
+#include <QUrl>
 #include <language/backgroundparser/parsejob.h>
 
 // from the parser subdirectory

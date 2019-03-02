@@ -75,8 +75,8 @@ void UseBuilder::UseExpressionVisitor::usingDeclaration( AstNode* node, qint64 s
   if (end_token == qint64())
     end_token = node->endToken;
 
-  kDebug() << "New use" << editor()->findRange(start_token, end_token) << " declaration" << decl.data() << decl->toString();
-  m_builder->newUse(node, editor()->findRange(start_token, end_token), decl);
+  qDebug() << "New use" << editor()->findRange(start_token, end_token) << " declaration" << decl.data() << decl->toString();
+  m_builder->newUse(editor()->findRange(start_token, end_token), decl);
 }
 
 }

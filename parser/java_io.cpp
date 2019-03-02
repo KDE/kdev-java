@@ -19,7 +19,7 @@
 
 // This file is meant to be specific to the framework in which the parser
 // operates, and is likely to be adapted for different environments.
-// Specifically, the error output might not always go to kDebug(),
+// Specifically, the error output might not always go to qDebug(),
 // but will rather be placed as items inside some listbox.
 
 
@@ -28,7 +28,7 @@
 
 #include <iostream>
 
-#include <kdebug.h>
+#include <QDebug>
 
 // void print_token_environment(java::Parser* parser);
 
@@ -39,13 +39,13 @@ namespace java
 void Parser::reportProblem( Parser::ProblemType type, const QString& message )
 {
   if (type == Error) {
-    kDebug() << "** ERROR:" << message;
+    qDebug() << "** ERROR:" << message;
   }
   else if (type == Warning) {
-    kDebug() << "** WARNING:" << message;
+    qDebug() << "** WARNING:" << message;
   }
   else if (type == Info) {
-    kDebug() << "** Info:" << message;
+    qDebug() << "** Info:" << message;
   }
 }
 

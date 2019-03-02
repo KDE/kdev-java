@@ -27,15 +27,11 @@
 #include <sys/stat.h>
 #include <sys/mman.h>
 
-#include "Thread.h"
-
 #include <QFile>
 #include <QFileInfo>
 #include <QByteArray>
 #include <QReadLocker>
-
-#include <kdebug.h>
-#include <klocale.h>
+#include <QDebug>
 
 #include "javalanguagesupport.h"
 
@@ -44,7 +40,6 @@
 #include <parser/javaparser.h>
 #include <parser/javadefaultvisitor.h>
 
-#include <interfaces/ilanguage.h>
 #include <language/interfaces/icodehighlighting.h>
 
 #include "parser/dumptree.h"
@@ -60,7 +55,6 @@
 #include <language/duchain/problem.h>
 #include <interfaces/ilanguagecontroller.h>
 #include <kio/job.h>
-#include <KIO/NetAccess>
 #include <QApplication>
 #include <kzip.h>
 #include <language/backgroundparser/backgroundparser.h>
@@ -100,14 +94,14 @@ void ParseJob::run()
     if ( abortRequested() )
         return abortJob();
 
-    KUrl fileUrl(document().str());
+    QUrl fileUrl(document().str());
 
     if ( !(minimumFeatures() & KDevelop::TopDUContext::ForceUpdate) ) {
         bool needsUpdate = true;
         KDevelop::DUChainReadLocker lock;
         ///TODO: this is hacky - we check for any env file for a zipped file and assume it's up2date
         ///      updating a zip file won't trigger reparsing though...
-        bool isZipFile = fileUrl.protocol() == "zip";
+        bool isZipFile = fileUrl.scheme() == "zip";
         foreach(const KDevelop::ParsingEnvironmentFilePointer &file, KDevelop::DUChain::self()->allEnvironmentFiles(document())) {
             if (file->needsUpdate() && !(isZipFile && file->featuresSatisfied(minimumFeatures()))) {
                 needsUpdate = true;
@@ -117,7 +111,7 @@ void ParseJob::run()
             }
         }
         if (!needsUpdate) {
-            kDebug() << "Already up to date" << document().str();
+            qDebug() << "Already up to date" << document().str();
             return;
         }
     }
@@ -132,7 +126,7 @@ void ParseJob::run()
 
     QReadLocker lock(java()->language()->parseLock());
 
-    kDebug() << "===-- PARSING --===> "
+    qDebug() << "===-- PARSING --===> "
              << document().str()
              << " <== readFromDisk: " << m_readFromDisk
              << " size: " << m_session->size();
@@ -174,7 +168,7 @@ void ParseJob::run()
     m_session->m_document = document();
     java::EditorIntegrator editor(parseSession());
 
-    //kDebug(  ) << (contentContext ? "updating" : "building") << "duchain for" << parentJob()->document().str();
+    //qDebug(  ) << (contentContext ? "updating" : "building") << "duchain for" << parentJob()->document().str();
 
     // TODO: use zip hash to find out if jdk/other source has changed when going for 2nd pass
 
@@ -189,7 +183,7 @@ void ParseJob::run()
         newFeatures = (KDevelop::TopDUContext::Features)(newFeatures | toUpdate->features());
 
     if (newFeatures & KDevelop::TopDUContext::ForceUpdate)
-        kDebug() << "update enforced";
+        qDebug() << "update enforced";
 
     //Remove update-flags like 'Recursive' or 'ForceUpdate'
     newFeatures = static_cast<KDevelop::TopDUContext::Features>(newFeatures & KDevelop::TopDUContext::AllDeclarationsContextsUsesAndAST);
@@ -199,19 +193,19 @@ void ParseJob::run()
     if (newFeatures == KDevelop::TopDUContext::SimplifiedVisibleDeclarationsAndContexts) {
         declarationBuilder.setOnlyComputeVisible(true); //Only visible declarations/contexts need to be built.
         declarationBuilder.setBuildCompleteTypes(false);
-        
+
     } else if (newFeatures == KDevelop::TopDUContext::VisibleDeclarationsAndContexts) {
         declarationBuilder.setOnlyComputeVisible(true); //Only visible declarations/contexts need to be built.
     }
 
-    
+
     KDevelop::TopDUContext* chain = declarationBuilder.build(document(), ast, toUpdate);
     setDuChain(chain);
-    
+
     bool declarationsComplete = !declarationBuilder.hadUnresolvedIdentifiers();
 
-    kDebug() << "Parsing with feature set: " << newFeatures << " complete:" <<declarationsComplete;
-    
+    qDebug() << "Parsing with feature set: " << newFeatures << " complete:" <<declarationsComplete;
+
     if (!declarationsComplete) {
         if (!declarationBuilder.identifiersRemainUnresolved()) {
             // Internal dependency needed completing
@@ -221,26 +215,26 @@ void ParseJob::run()
             if (!builder2.hadUnresolvedIdentifiers()) {
                 declarationsComplete = true;
             } else {
-                kDebug() << "Builder found unresolved identifiers when they were supposedly all resolved!";
+                qDebug() << "Builder found unresolved identifiers when they were supposedly all resolved!";
             }
         }
 
         if (!declarationsComplete) {
             if (newFeatures == KDevelop::TopDUContext::SimplifiedVisibleDeclarationsAndContexts) {
                 // Need to create new parse job with lower priority
-                kDebug() << "Reschedule file " << fileUrl << "for parsing";
+                qDebug() << "Reschedule file " << fileUrl << "for parsing";
                 KDevelop::ICore::self()->languageController()->backgroundParser()->addDocument(KDevelop::IndexedString(fileUrl), static_cast<KDevelop::TopDUContext::Features>(newFeatures | KDevelop::TopDUContext::VisibleDeclarationsAndContexts), 10000);
 
             } else {
                 // We haven't resolved all identifiers, but by now, we don't expect to
-                kDebug() << "Builder found unresolved identifiers when they should have been resolved! (if there was no coding error)";
+                qDebug() << "Builder found unresolved identifiers when they should have been resolved! (if there was no coding error)";
                 declarationsComplete = true;
             }
         }
     }
 
     if (declarationsComplete && (newFeatures & KDevelop::TopDUContext::AllDeclarationsContextsAndUses) == KDevelop::TopDUContext::AllDeclarationsContextsAndUses) {
-        kDebug() << "Building uses";
+        qDebug() << "Building uses";
         UseBuilder useBuilder(&editor);
         useBuilder.buildUses(ast);
     }
@@ -256,7 +250,7 @@ void ParseJob::run()
     if (declarationsComplete && (newFeatures & KDevelop::TopDUContext::AllDeclarationsContextsAndUses) == KDevelop::TopDUContext::AllDeclarationsContextsAndUses) {
         DumpChain dump;
         dump.dump(ast, m_session);
-        
+
         KDevelop::DUChainReadLocker duchainlock(KDevelop::DUChain::lock());
         dump.dump(chain);
     }
@@ -264,7 +258,5 @@ void ParseJob::run()
 
 
 } // end of namespace java
-
-#include "parsejob.moc"
 
 // kate: space-indent on; indent-width 4; tab-width 4; replace-tabs on

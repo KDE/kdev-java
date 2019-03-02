@@ -152,14 +152,14 @@ class AbstractExpressionVisitor : public LanguageSpecificExpressionVisitorBase
 
     /** Called when there is a problem, with a string for that problem.
      * The default-implementation dumps all relevant information to
-     * kDebug.
+     * qDebug.
      * @param node the node the problem is about
      * @param str a string that describes the problem
      */
     virtual void problem( T* node, const QString& str )
     {
 #ifdef DUMP_PROBLEMS
-      kDebug() << "Problem:" << str;
+      qDebug() << "Problem:" << str;
 #endif
     }
 

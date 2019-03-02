@@ -41,10 +41,10 @@ namespace java {
 QString createArgumentList(const NormalDeclarationCompletionItem& item, QList<QVariant>* highlighting, bool includeDefaultParams, bool noShortening )
 {
   QString ret;
-  
+
   Declaration* dec(item.declaration().data());
   if (!dec) {
-    kDebug() << "No declaration for item";
+    qDebug() << "No declaration for item";
     return ret;
   }
 
@@ -62,19 +62,19 @@ QString createArgumentList(const NormalDeclarationCompletionItem& item, QList<QV
 
   AbstractFunctionDeclaration* decl = dynamic_cast<AbstractFunctionDeclaration*>(dec);
   if (!decl) {
-    kDebug() << "Declaration is not a subclass of AbstractFunctionDeclaration" << dec->toString();
+    qDebug() << "Declaration is not a subclass of AbstractFunctionDeclaration" << dec->toString();
   }
-  
+
   FunctionType::Ptr functionType = dec->type<FunctionType>();
   if (!functionType) {
-    kDebug() << "Type is not a function type" << dec->abstractType()->toString();
+    qDebug() << "Type is not a function type" << dec->abstractType()->toString();
   }
-    
+
   if (functionType && decl) {
 
     QVector<Declaration*> parameters;
-    if( DUChainUtils::getArgumentContext(dec) )
-      parameters = DUChainUtils::getArgumentContext(dec)->localDeclarations(top);
+    if( DUChainUtils::argumentContext(dec) )
+      parameters = DUChainUtils::argumentContext(dec)->localDeclarations(top);
 
 //     QStringList defaultParams = decl->defaultParameters();
 

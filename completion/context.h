@@ -22,10 +22,9 @@
 
 #include <QStringList>
 
-#include <ksharedptr.h>
+#include <QExplicitlySharedDataPointer>
 
 #include <language/codecompletion/codecompletioncontext.h>
-#include <language/editor/simplecursor.h>
 
 #include "items.h"
 
@@ -39,7 +38,7 @@ namespace KDevelop {
   class AbstractType;
 
   class CompletionTreeItem;
-  typedef KSharedPtr<CompletionTreeItem> CompletionTreeItemPointer;
+  using CompletionTreeItemPointer = QExplicitlySharedDataPointer<CompletionTreeItem>;
 }
 
 namespace java {
@@ -48,7 +47,7 @@ namespace java {
    * */
   class CodeCompletionContext : public KDevelop::CodeCompletionContext {
     public:
-      typedef KSharedPtr<CodeCompletionContext> Ptr;
+      typedef QExplicitlySharedDataPointer<CodeCompletionContext> Ptr;
 
       /**
        * @param firstContext should be true for a context that has no parent. Such a context will never be a function-call context.
@@ -64,7 +63,7 @@ namespace java {
       virtual QList<KDevelop::CompletionTreeItemPointer> completionItems(bool& abort, bool fullCompletion = true);
 
       void standardAccessCompletionItems(/*const KDevelop::CursorInRevision& position,*/ QList<KDevelop::CompletionTreeItemPointer>& items);
-      
+
       bool isValidPosition() const;
 
       /**

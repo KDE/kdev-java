@@ -1,9 +1,6 @@
 
 include_directories(
-    ${KDE4_INCLUDES}
-    ${KDE4_INCLUDE_DIR}/kdevelop-pg-qt
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${KDEVPLATFORM_INCLUDE_DIR}
 #    ${KDEVPLATFORM_INCLUDE_DIR}/interfaces
 #    ${KDEVPLATFORM_INCLUDE_DIR}/editor
 #    ${KDEVPLATFORM_INCLUDE_DIR}/project
@@ -31,7 +28,7 @@ set(kdevjavaparser_STAT_SRCS
     ${_kdevpgList}
 )
 
-find_package(Flex REQUIRED)
+find_package(FLEX REQUIRED)
 
 # Copy javalexer.ll to the builddir, so that flex doesn't write out
 # absolute paths in the generated file when we pass them as arguments.
@@ -73,7 +70,8 @@ set_source_files_properties(
 # Note: This library doesn't follow API/ABI/BC rules and shouldn't have a SOVERSION
 #       Its only purpose is to support the plugin without needing to add all source files
 #       to the plugin target
-kde4_add_library(kdev4javaparser SHARED ${kdevjavaparser_STAT_SRCS})
-target_link_libraries(kdev4javaparser ${KDE4_KDECORE_LIBS} ${KDE4_KTEXTEDITOR_LIBS} ${KDEVPLATFORM_LANGUAGE_LIBRARIES})
-install(TARGETS kdev4javaparser ${INSTALL_TARGETS_DEFAULT_ARGS} )
+add_library(kdev4javaparser SHARED ${kdevjavaparser_STAT_SRCS})
+generate_export_header(kdev4javaparser BASE_NAME javaparser EXPORT_MACRO_NAME KDEVJAVAPARSER_EXPORT)
+target_link_libraries(kdev4javaparser KDev::Util)
+install(TARGETS kdev4javaparser ${INSTALL_TARGETS_DEFAULT_ARGS})
 

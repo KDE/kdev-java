@@ -30,8 +30,8 @@
 #include <language/duchain/duchainlock.h>
 #include <language/duchain/use.h>
 
-#include <QtTest>
-#include <KUrl>
+#include <QtTest/QTest>
+#include <QUrl>
 
 QTEST_MAIN(JavaDUChainTest);
 
@@ -198,7 +198,5 @@ void JavaDUChainTest::testUses_data()
 
     QTest::newRow("function_call") << "public class Foo {\npublic static void main() {\nfunc();\n}\nvoid func() {\n}\n}" << QStringList{"func"};
 }
-
-#include "javaduchaintest.moc"
 
 // kate: space-indent on; indent-width 4

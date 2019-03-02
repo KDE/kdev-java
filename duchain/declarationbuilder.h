@@ -21,7 +21,7 @@
 
 #include "typebuilder.h"
 #include <language/duchain/builders/abstractdeclarationbuilder.h>
-#include "javaduchainexport.h"
+#include "javaduchain_export.h"
 
 namespace java {
 
@@ -60,14 +60,14 @@ protected:
   virtual void visitEnumConstant(java::EnumConstantAst* node);
 
   KDevelop::Declaration::AccessPolicy parseAccessPolicy(OptionalModifiersAst* node);
-  KDevelop::ClassMemberDeclaration::StorageSpecifiers parseModifiers(OptionalModifiersAst* node);
+  ClassDeclaration::StorageSpecifiers parseModifiers(OptionalModifiersAst* node);
 
 private:
   bool m_defaultImportCreated;
   bool m_inImplementsClause;
   KDevelop::QualifiedIdentifier javaLang;
 
-  KDevelop::ClassMemberDeclaration::StorageSpecifiers m_currentVariableModifiers;
+  ClassDeclaration::StorageSpecifiers m_currentVariableModifiers;
 };
 
 }

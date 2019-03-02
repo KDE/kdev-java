@@ -53,11 +53,14 @@ public:
     JavaLanguageSupport(  QObject* parent, const QVariantList& args = QVariantList() );
     virtual ~JavaLanguageSupport();
 
-    virtual QString name() const;
+    virtual QString name() const override;
 
-    virtual KDevelop::ParseJob *createParseJob(const KDevelop::IndexedString& url);
-    virtual KDevelop::ILanguage *language();
-    virtual KDevelop::ICodeHighlighting* codeHighlighting() const;
+    virtual KDevelop::ParseJob *createParseJob(const KDevelop::IndexedString& url) override;
+    virtual KDevelop::ILanguageSupport *language();
+    virtual KDevelop::ICodeHighlighting* codeHighlighting() const override;
+
+    KDevelop::ConfigPage* configPage(int number, QWidget *parent) override;
+    int configPages() const override;
 
     static JavaLanguageSupport* self();
 
@@ -66,16 +69,16 @@ public:
 
 private Q_SLOTS:
     void slotJavaSourceEntries(KIO::Job* job, KIO::UDSEntryList entries);
-    
+
 private:
     void scheduleInternalSources();
 
     KDevelop::CodeHighlighting* m_highlighting;
     KDevelop::ReferencedTopDUContext m_allJavaContext;
-    KUrl m_javaSourceUrl;
+    QUrl m_javaSourceUrl;
     QMutex* m_javaSourceZipMutex;
     mutable KZip* m_javaSourceZip;
-    
+
 
     static JavaLanguageSupport* s_self;
 };

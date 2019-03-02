@@ -1,14 +1,19 @@
+
+include(ECMAddTests)
+
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
-    ${KDE4_INCLUDES}
-    ${KDEVPLATFORM_INCLUDE_DIR}
 )
 
-kde4_add_unit_test(javaduchaintest javaduchaintest.cpp)
+add_executable(javaduchaintest javaduchaintest.cpp)
+add_test(javaduchaintest javaduchaintest)
+ecm_mark_as_test(javaduchaintest)
+
 
 target_link_libraries(javaduchaintest
     kdevjavaduchain
-    ${QT_QTTEST_LIBRARY}
-    ${KDEVPLATFORM_TESTS_LIBRARIES}
+    KDevPlatformLanguage
+    KDevPlatformTests
+    Qt5::Test
 )

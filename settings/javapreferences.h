@@ -22,38 +22,28 @@
 #ifndef KDEVJAVAPREFERENCES_H
 #define KDEVJAVAPREFERENCES_H
 
-#include <kcmodule.h>
-
-#include <kurl.h>
-#include <kstandarddirs.h>
+#include <interfaces/configpage.h>
 
 namespace Ui
 {
 class JavaSettings;
 }
 
-namespace KDevelop
-{
-
-class JavaPreferences : public KCModule
+class JavaPreferences : public KDevelop::ConfigPage
 {
     Q_OBJECT
 public:
-    JavaPreferences( QWidget *parent, const QVariantList &args );
+    JavaPreferences(QWidget* parent);
     virtual ~JavaPreferences();
 
-    virtual void save();
+    QString name() const override;
+    QString fullName() const override;
+    QIcon icon() const override;
 
-    virtual KUrl localNonShareableFile() const
-    {
-        return KUrl::fromPath(
-                   KStandardDirs::locate( "data", "kdevelop/data.kdev4" ) );
-    }
+    KDevelop::ConfigPage::ConfigPageType configPageType() const override;
 
 private:
-    Ui::JavaSettings *preferencesDialog;
-
+    QScopedPointer<Ui::JavaSettings> m_settings;
 };
 
-}
 #endif

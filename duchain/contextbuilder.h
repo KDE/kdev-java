@@ -25,7 +25,7 @@
 #include <language/duchain/builders/abstractcontextbuilder.h>
 
 #include "classdeclaration.h"
-#include "javaduchainexport.h"
+#include "javaduchain_export.h"
 
 class JavaLanguageSupport;
 
@@ -81,7 +81,7 @@ protected:
   KDevelop::QualifiedIdentifier identifierForNode(ClassOrInterfaceTypeNameAst* id);
 
   void unresolvedIdentifier(KDevelop::DUContextPointer context, KDevelop::QualifiedIdentifier id);
-  
+
   // Visitors
   template<typename T>
   void visitNodeList(const KDevPG::ListNode<T*>* list)

@@ -22,7 +22,7 @@
 
 
 #include "javadefaultvisitor.h"
-#include "javaduchainexport.h"
+#include "javaduchain_export.h"
 
 namespace KDevelop
 {

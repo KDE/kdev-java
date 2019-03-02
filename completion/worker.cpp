@@ -22,11 +22,8 @@
 
 #include "worker.h"
 
-#include <kdebug.h>
-
 #include <ktexteditor/view.h>
 #include <ktexteditor/document.h>
-#include <klocale.h>
 
 #include <language/duchain/declaration.h>
 #include <language/duchain/ducontext.h>

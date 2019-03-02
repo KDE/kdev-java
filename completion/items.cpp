@@ -22,8 +22,6 @@
 
 #include "items.h"
 
-#include <KLocale>
-
 #include <language/duchain/duchain.h>
 #include <language/duchain/duchainlock.h>
 #include <ktexteditor/range.h>
@@ -42,12 +40,12 @@ using namespace KDevelop;
 
 namespace java {
 
-NormalDeclarationCompletionItem::NormalDeclarationCompletionItem(KDevelop::DeclarationPointer decl, KSharedPtr< KDevelop::CodeCompletionContext > context, int _inheritanceDepth)
+NormalDeclarationCompletionItem::NormalDeclarationCompletionItem(KDevelop::DeclarationPointer decl, QExplicitlySharedDataPointer< KDevelop::CodeCompletionContext > context, int _inheritanceDepth)
   : KDevelop::NormalDeclarationCompletionItem(decl, context, _inheritanceDepth)
 {
 }
 
-void NormalDeclarationCompletionItem::executed(KTextEditor::Document* document, const KTextEditor::Range& word)
+void NormalDeclarationCompletionItem::executed(KTextEditor::View* document, const KTextEditor::Range& word)
 {
   if( m_declaration && dynamic_cast<AbstractFunctionDeclaration*>(m_declaration.data()) ) {
     //Do some intelligent stuff for functions with the parens:
@@ -59,7 +57,7 @@ QVariant NormalDeclarationCompletionItem::data(const QModelIndex& index, int rol
 {
   DUChainReadLocker lock(DUChain::lock(), 500);
   if(!lock.locked()) {
-    kDebug() << "Failed to lock the du-chain in time";
+    qDebug() << "Failed to lock the du-chain in time";
     return QVariant();
   }
 
@@ -107,7 +105,7 @@ QVariant NormalDeclarationCompletionItem::data(const QModelIndex& index, int rol
           if (FunctionType::Ptr functionType = m_declaration->type<FunctionType>())
             return createArgumentList(*this, 0);
           break;
-          
+
         case CodeCompletionModel::Postfix:
           if (FunctionType::Ptr functionType = m_declaration->type<FunctionType>()) {
             // TODO print throws declarations

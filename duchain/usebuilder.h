@@ -22,7 +22,7 @@
 #include <language/duchain/builders/abstractusebuilder.h>
 
 #include "expressionvisitor.h"
-#include "javaduchainexport.h"
+#include "javaduchain_export.h"
 
 namespace java {
 

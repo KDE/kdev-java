@@ -19,50 +19,39 @@
 */
 
 #include "javapreferences.h"
-
-#include <QVBoxLayout>
-
-#include <kgenericfactory.h>
-#include <kaboutdata.h>
-
 #include "javaconfig.h"
 
+#include <KUrlRequester>
 #include "ui_javasettings.h"
 
-namespace KDevelop
+JavaPreferences::JavaPreferences(QWidget* parent)
+    : ConfigPage(nullptr, JavaSettings::self(), parent)
+    , m_settings(new Ui::JavaSettings)
 {
-
-K_PLUGIN_FACTORY(JavaPreferencesFactory, registerPlugin<JavaPreferences>();)
-K_EXPORT_PLUGIN(JavaPreferencesFactory( KAboutData("kcm_kdev_bgsettings", "kdevplatform", ki18n("Java Support Settings"), "0.1")))
-
-
-JavaPreferences::JavaPreferences( QWidget *parent, const QVariantList &args )
- : KCModule( JavaPreferencesFactory::componentData(), parent, args )
-{
-
-    QVBoxLayout * l = new QVBoxLayout( this );
-    QWidget* w = new QWidget;
-    preferencesDialog = new Ui::JavaSettings;
-    preferencesDialog->setupUi( w );
-
-    l->addWidget( w );
-
-    addConfig( JavaSettings::self(), w );
-
-    load();
+    m_settings->setupUi(this);
 }
 
 JavaPreferences::~JavaPreferences( )
+{}
+
+QString JavaPreferences::name() const
 {
-    delete preferencesDialog;
+    return i18n("Java Support");
 }
 
-void JavaPreferences::save()
+QString JavaPreferences::fullName() const
 {
-    KCModule::save();
+    return i18n("Configure Java Support settings");
 }
 
+QIcon JavaPreferences::icon() const
+{
+    return QIcon::fromTheme(QStringLiteral("application-x-java"));
 }
 
-#include "javapreferences.moc"
+
+KDevelop::ConfigPage::ConfigPageType JavaPreferences::configPageType() const
+{
+    return ConfigPage::LanguageConfigPage;
+}
 

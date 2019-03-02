@@ -27,7 +27,6 @@
 #include <QMap>
 #include <QPointer>
 #include <language/codecompletion/codecompletionmodel.h>
-#include <ksharedptr.h>
 #include <language/duchain/duchainpointer.h>
 #include "context.h"
 
@@ -43,9 +42,9 @@ class CodeCompletionModel : public KDevelop::CodeCompletionModel
 
   protected:
     virtual KDevelop::CodeCompletionWorker* createCompletionWorker();
-    
+
   private:
-    KSharedPtr<CodeCompletionContext> m_completionContext;
+    QExplicitlySharedDataPointer<CodeCompletionContext> m_completionContext;
 };
 
 }

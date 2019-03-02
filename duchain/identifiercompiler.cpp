@@ -25,8 +25,6 @@
 #include "parsesession.h"
 //#include "tokens.h"
 
-#include <kdebug.h>
-
 using namespace KDevelop;
 using namespace java;
 

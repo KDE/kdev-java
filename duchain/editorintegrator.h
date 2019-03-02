@@ -23,7 +23,7 @@
 
 #include "kdev-pg-token-stream.h"
 
-#include "javaduchainexport.h"
+#include "javaduchain_export.h"
 
 namespace java {
 

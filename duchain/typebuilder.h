@@ -24,7 +24,7 @@
 
 #include <language/duchain/declaration.h>
 #include <language/duchain/identifier.h>
-#include "javaduchainexport.h"
+#include "javaduchain_export.h"
 
 namespace java {
 

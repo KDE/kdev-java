@@ -90,7 +90,7 @@ class DUContext;
 %parser_declaration_header "kdev-pg-list.h"
 
 %export_macro "KDEVJAVAPARSER_EXPORT"
-%export_macro_header "javaparserexport.h"
+%export_macro_header "javaparser_export.h"
 
 ------------------------------------------------------------
 -- Enumeration types for additional AST members,

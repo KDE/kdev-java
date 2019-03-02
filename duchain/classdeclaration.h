@@ -26,7 +26,7 @@
 #include <language/duchain/classmemberdeclaration.h>
 #include <language/duchain/types/alltypes.h>
 
-#include "javaduchainexport.h"
+#include "javaduchain_export.h"
 
 namespace KDevelop {
   class QualifiedIdentifier;
@@ -80,10 +80,28 @@ public:
 class KDEVJAVADUCHAIN_EXPORT ClassDeclaration : public KDevelop::ClassMemberDeclaration
 {
 public:
+
   ClassDeclaration(const ClassDeclaration& rhs);
   ClassDeclaration(ClassDeclarationData& data);
   ClassDeclaration(const KDevelop::RangeInRevision& range, KDevelop::DUContext* context);
   ~ClassDeclaration();
+
+  enum StorageSpecifier {
+      StaticSpecifier   = 0x1  /**< indicates static member */,
+      AutoSpecifier     = 0x2  /**< indicates automatic determination of member access */,
+      FriendSpecifier   = 0x4  /**< indicates friend member */,
+      ExternSpecifier   = 0x8  /**< indicates external declaration */,
+      RegisterSpecifier = 0x10 /**< indicates register */,
+      MutableSpecifier  = 0x20 /**< indicates a mutable member */,
+      FinalSpecifier    = 0x40 /**< indicates a final declaration */,
+      NativeSpecifier   = 0x80,
+      SynchronizedSpecifier = 0x100,
+      StrictFPSpecifier = 0x200,
+      AbstractSpecifier = 0x400
+  };
+  Q_DECLARE_FLAGS(StorageSpecifiers, StorageSpecifier)
+
+  void setStorageSpecifiers(StorageSpecifiers specifiers);
 
   void clearBaseClasses();
   ///Count of base-classes
@@ -112,6 +130,13 @@ public:
 private:
   virtual KDevelop::Declaration* clonePrivate() const;
   DUCHAIN_DECLARE_DATA(ClassDeclaration)
+
+  bool m_isFinal        = false;
+  bool m_isNative       = false;
+  bool m_isSynchronized = false;
+  bool m_isStrictFP     = false;
+  bool m_isAbstract     = false;
+
 };
 
 }

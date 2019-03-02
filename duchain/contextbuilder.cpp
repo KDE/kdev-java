@@ -19,8 +19,7 @@
 
 #include "contextbuilder.h"
 
-#include <KDebug>
-#include <ktexteditor/smartrange.h>
+#include <QDebug>
 
 #include <language/duchain/duchain.h>
 #include <language/duchain/topducontext.h>
@@ -64,7 +63,7 @@ void ContextBuilder::unresolvedIdentifier(KDevelop::DUContextPointer context, KD
 bool ContextBuilder::identifiersRemainUnresolved() const
 {
   DUChainReadLocker lock(DUChain::lock());
-  
+
   foreach (const ContextID& cid, m_unresolvedIDs) {
     // Weirdness if the context has been deleted
     if (!cid.first)
@@ -243,7 +242,7 @@ void ContextBuilder::visitEnumDeclaration(java::EnumDeclarationAst* node)
   QualifiedIdentifier id = identifierForNode(node->enumName);
   openContext(node->body, DUContext::Class, id);
   classContextOpened(currentContext());
-  
+
   DefaultVisitor::visitEnumDeclaration(node);
 
   closeContext();
@@ -388,7 +387,7 @@ void ContextBuilder::visitCompilationUnit(java::CompilationUnitAst* node)
       openedExtraContext = true;
     }
   }
-  
+
   if (node->packageDeclaration)
     visitPackageDeclaration(node->packageDeclaration);
 
@@ -405,7 +404,7 @@ void ContextBuilder::visitCompilationUnit(java::CompilationUnitAst* node)
     }
     else if (packageDeclarations.count() != 1)
     {
-      kWarning() << "Package declaration expected, found " << packageDeclarations.count() << "declarations of" << id.last().toString();
+      qWarning() << "Package declaration expected, found " << packageDeclarations.count() << "declarations of" << id.last().toString();
     }
   }
 
@@ -428,28 +427,28 @@ void ContextBuilder::addBaseType(BaseClassInstance base)
   //addImportedContexts(); //Make sure the template-contexts are imported first, before any parent-class contexts.
 
   if (currentContext()->type() != DUContext::Class) {
-    kDebug() << "Tried to add base class to a non-class context!";
+    qDebug() << "Tried to add base class to a non-class context!";
     return;
   }
 
   AbstractType::Ptr baseClass = base.baseClass.abstractType();
-  IdentifiedType* idType = dynamic_cast<IdentifiedType*>(baseClass.unsafeData());
+  IdentifiedType* idType = dynamic_cast<IdentifiedType*>(baseClass.data());
   Declaration* idDecl = 0;
   if (idType) {
     idDecl = idType->declaration(currentContext()->topContext());
     if (!idDecl) {
-      kDebug() << "No declaration provided by base class type " << idType->qualifiedIdentifier().toStringList().join(".");
+      qDebug() << "No declaration provided by base class type " << idType->qualifiedIdentifier().toStringList().join(".");
       return;
     }
   } else {
-    kDebug() << "Tried to add base class which is a null type!";
+    qDebug() << "Tried to add base class which is a null type!";
     return;
   }
-  
+
   if( idDecl->logicalInternalContext(0) ) {
     currentContext()->addImportedParentContext( idDecl->logicalInternalContext(0) );
   } else {
-    kDebug() << "No internal context provided for " << idDecl->toString();
+    qDebug() << "No internal context provided for " << idDecl->toString();
   }
 }
 

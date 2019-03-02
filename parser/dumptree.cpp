@@ -24,8 +24,7 @@
 #include "kdev-pg-token-stream.h"
 
 #include <QtCore/QString>
-
-#include <kdebug.h>
+#include <QDebug>
 
 static char const * const names[] = {
   "additive_expression",
@@ -184,7 +183,7 @@ void DumpTree::visitNode(AstNode *node)
     }
   }
   if (node) {
-    kDebug() << QString(indent * 2, ' ').toLatin1().constData() << names[node->kind - 1000]
+    qDebug() << QString(indent * 2, ' ').toLatin1().constData() << names[node->kind - 1000]
              <<  "[" << node->startToken << "," << node->endToken << "]" << nodeText << endl;
   }
 
@@ -193,7 +192,7 @@ void DumpTree::visitNode(AstNode *node)
   --indent;
 
   if (node) {
-    kDebug() << QString(indent * 2, ' ').toLatin1().constData() << names[node->kind - 1000];
+    qDebug() << QString(indent * 2, ' ').toLatin1().constData() << names[node->kind - 1000];
   }
 }
 

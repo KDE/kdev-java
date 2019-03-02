@@ -77,23 +77,23 @@ int completionRecursionDepth = 0;
 
 CodeCompletionContext::CodeCompletionContext(DUContextPointer context, const QString& text, const QString& followingText, const KDevelop::CursorInRevision& position, int depth, const QStringList& knownArgumentExpressions, int line)
   : KDevelop::CodeCompletionContext(context, text, position, depth)
-  , m_memberAccessOperation(NoMemberAccess), m_followingText( followingText ), 
+  , m_memberAccessOperation(NoMemberAccess), m_followingText( followingText ),
     m_knownArgumentExpressions( knownArgumentExpressions)
 {
   #warning What to do with knownArgumentExpressions ?
   m_valid = isValidPosition();
   if( !m_valid ) {
-    kDebug() << "position not valid for code-completion" ;
+    qDebug() << "position not valid for code-completion" ;
     return;
   }
 
-  ifDebug( kDebug() << "non-processed text: " << m_text; )
+  ifDebug( qDebug() << "non-processed text: " << m_text; )
 
 //   m_text = Utils::clearComments( m_text );
 //   m_text = Utils::clearStrings( m_text );
 //   m_text = Utils::stripFinalWhitespace( m_text );
 
-  ifDebug( kDebug() << "processed text: " << m_text; )
+  ifDebug( qDebug() << "processed text: " << m_text; )
 
   ///@todo template-parameters
 
@@ -128,7 +128,7 @@ CodeCompletionContext::CodeCompletionContext(DUContextPointer context, const QSt
    * When the left and right part are only separated by a whitespace,
    * expressionAt returns both sides
    * */
-  
+
 }
 
 CodeCompletionContext::~CodeCompletionContext() {
@@ -160,7 +160,7 @@ QList<CompletionTreeItemPointer> CodeCompletionContext::completionItems(bool& ab
 
   } else {
     standardAccessCompletionItems(items);
-    kDebug() << "Found declarations:" << items.count();
+    qDebug() << "Found declarations:" << items.count();
   }
 
   return items;
@@ -177,7 +177,7 @@ void CodeCompletionContext::standardAccessCompletionItems(QList< CompletionTreeI
       typeIsConst = true;
   }*/
 
-  QList<DeclarationDepthPair> decls = m_duContext->allDeclarations(m_duContext->type() == DUContext::Class ? m_duContext->range().end : m_position, m_duContext->topContext());
+  QVector<DeclarationDepthPair> decls = m_duContext->allDeclarations(m_duContext->type() == DUContext::Class ? m_duContext->range().end : m_position, m_duContext->topContext());
 
   QList<Declaration*> moreDecls;
 
@@ -207,27 +207,27 @@ void CodeCompletionContext::standardAccessCompletionItems(QList< CompletionTreeI
           // TODO static-filter
           moreDecls << top->findDeclarations(alias->importIdentifier());
 
-    kDebug() << "Found imported packages to retrieve declarations from:";
+    qDebug() << "Found imported packages to retrieve declarations from:";
 
     foreach(const QualifiedIdentifier &package, packages) {
       QList<Declaration*> importedContextDecls = m_duContext->findDeclarations( package );
-      kDebug() << package.toStringList().join(".") << "context declarations found: " << importedContextDecls.count();
+      qDebug() << package.toStringList().join(".") << "context declarations found: " << importedContextDecls.count();
       foreach(Declaration* contextDecl, importedContextDecls) {
         if(contextDecl->kind() != Declaration::Namespace || !contextDecl->internalContext())
           continue;
         DUContext* context = contextDecl->internalContext();
 
         /*if(context->range().contains(m_duContext->range())) {
-          kDebug() << "Ignoring same context " << context << m_duContext;
+          qDebug() << "Ignoring same context " << context << m_duContext;
           continue; //If the context surrounds the current one, the declarations are visible through allDeclarations(..).
         }*/
 
         foreach(Declaration* decl, context->localDeclarations())
           if(filterDeclaration(decl)) {
-            kDebug() << "Adding declaration" << decl << decl->toString();
+            qDebug() << "Adding declaration" << decl << decl->toString();
             moreDecls << decl;
           } else {
-            kDebug() << "Filtered out declaration" << decl;
+            qDebug() << "Filtered out declaration" << decl;
           }
       }
     }
@@ -294,7 +294,7 @@ void CodeCompletionContext::standardAccessCompletionItems(QList< CompletionTreeI
     PointerType::Ptr thisPointer(new PointerType());
     thisPointer->setModifiers(AbstractType::ConstModifier);
     thisPointer->setBaseType(classType);
-    KSharedPtr<TypeConversionCompletionItem> item( new TypeConversionCompletionItem("this", thisPointer->indexed(), 0, KSharedPtr <Cpp::CodeCompletionContext >(this)) );
+    QExplicitlySharedDataPointer<TypeConversionCompletionItem> item( new TypeConversionCompletionItem("this", thisPointer->indexed(), 0, QExplicitlySharedDataPointer <Cpp::CodeCompletionContext >(this)) );
     item->setPrefix(thisPointer->toString());
     QList<CompletionTreeItemPointer> lst;
     lst += CompletionTreeItemPointer(item.data());
@@ -308,7 +308,7 @@ void CodeCompletionContext::standardAccessCompletionItems(QList< CompletionTreeI
 #ifndef TEST_COMPLETION
     MissingIncludeCompletionModel::self().startWithExpression(m_duContext, QString(), m_followingText.trimmed());
 #endif
-//     kDebug() << QString("added %1 missing-includes for %2").arg(items.count()-oldItemCount).arg(totalExpression);
+//     qDebug() << QString("added %1 missing-includes for %2").arg(items.count()-oldItemCount).arg(totalExpression);
 //   }
 
   eventuallyAddGroup(i18n("C++ Builtin"), 800, keywordCompletionItems());
@@ -323,9 +323,9 @@ bool CodeCompletionContext::filterDeclaration(KDevelop::Declaration* decl, KDeve
   if (dynamic_cast<NamespaceAliasDeclaration*>(decl))
     return false;
 
-  if (decl->kind() == DUContext::Namespace)
+  if (decl->kind() == Declaration::Kind::Namespace)
     return false;
-  
+
   //if(m_onlyShowTypes && decl->kind() != Declaration::Type && decl->kind() != Declaration::Namespace)
     //return false;
 

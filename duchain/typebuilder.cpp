@@ -258,7 +258,7 @@ void TypeBuilder::visitClassOrInterfaceTypeName(ClassOrInterfaceTypeNameAst * no
   if (buildCompleteTypes() && openTypeFromName(m_currentIdentifier, node, true)) {
     {
       //DUChainReadLocker lock(DUChain::lock());
-      //kDebug() << "Searching for type " << m_currentIdentifier.toStringList().join(".") << ", found " << currentAbstractType()->toString();
+      //qDebug() << "Searching for type " << m_currentIdentifier.toStringList().join(".") << ", found " << currentAbstractType()->toString();
     }
     closeType();
   } else {

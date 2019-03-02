@@ -91,9 +91,9 @@ void ExpressionVisitor::visitClassOrInterfaceTypeName(ClassOrInterfaceTypeNameAs
     if (useDecl)
       useNode = node;
     else
-      kDebug() << classType->toString() << "unable to return its declaration.";
+      qDebug() << classType->toString() << "unable to return its declaration.";
   } else {
-    kDebug() << id.toString() << "cannot be found as a class or interface type name.";
+    qDebug() << id.toString() << "cannot be found as a class or interface type name.";
   }
 
   if (useNode)
@@ -122,8 +122,8 @@ AbstractType::Ptr ExpressionVisitor::openTypeFromName(QualifiedIdentifier id, bo
 
         if (decl->abstractType() ) {
           ///@todo only functions may have multiple declarations here
-          //ifDebug( if( dec.count() > 1 ) kDebug() << id.toString() << "was found" << dec.count() << "times" )
-          //kDebug() << "found for" << id.toString() << ":" << decl->toString() << "type:" << decl->abstractType()->toString() << "context:" << decl->context();
+          //ifDebug( if( dec.count() > 1 ) qDebug() << id.toString() << "was found" << dec.count() << "times" )
+          //qDebug() << "found for" << id.toString() << ":" << decl->toString() << "type:" << decl->abstractType()->toString() << "context:" << decl->context();
           openedType = decl->abstractType();
           setLastType(decl->abstractType());
           break;
@@ -194,15 +194,15 @@ void ExpressionVisitor::visitMethodCallData(MethodCallDataAst* node)
         DUChainReadLocker lock(DUChain::lock());
         StructureType::Ptr classType = lastInstance().declaration->type<StructureType>();
         if (!classType) {
-            kDebug() << "Type of last instance " << lastInstance().declaration->toString() << "was not a structure.";
+            qDebug() << "Type of last instance " << lastInstance().declaration->toString() << "was not a structure.";
             return;
         }
         searchContext = classType->internalContext(topContext());
         if (!searchContext) {
-          kDebug() << "could not find internal context for the structure type of the class to be searched";
+          qDebug() << "could not find internal context for the structure type of the class to be searched";
           return;
         }
-        kDebug() << "Looking for function" << id << "in" << searchContext->scopeIdentifier(true);
+        qDebug() << "Looking for function" << id << "in" << searchContext->scopeIdentifier(true);
       }
       
       QList<OverloadResolver::Parameter> parameters;
@@ -215,7 +215,7 @@ void ExpressionVisitor::visitMethodCallData(MethodCallDataAst* node)
               visitNode(__it->element);
               // TODO determine l-value-ness if required
               if (lastType()) {
-                kDebug() << "Parameter" << lastType()->toString();
+                qDebug() << "Parameter" << lastType()->toString();
                 parameters.append(OverloadResolver::Parameter(lastType(), false));
               }
               
@@ -227,19 +227,19 @@ void ExpressionVisitor::visitMethodCallData(MethodCallDataAst* node)
       
       DUChainReadLocker lock(DUChain::lock());
       OverloadResolver resolver(searchContext);
-      //kDebug() << "Parameter count:" << parameters.count();
+      //qDebug() << "Parameter count:" << parameters.count();
       useDecl = resolver.resolve(OverloadResolver::ParameterList(parameters), id);
       if (useDecl)
         useNode = node->methodName;
 
-      kDebug() << "result" << (useDecl ? useDecl->toString() : "null declaration") << useNode;
+      qDebug() << "result" << (useDecl ? useDecl->toString() : "null declaration") << useNode;
     }
 
     if (useNode)
       usingDeclaration(useNode, useDecl);
 
   } else {
-    kDebug() << "No declaration for the last instance on which to invoke a method";
+    qDebug() << "No declaration for the last instance on which to invoke a method";
   }
 }
 
@@ -283,7 +283,7 @@ void ExpressionVisitor::visitPrimaryAtom(PrimaryAtomAst* node) {
       useDecl = decls.first();
       useNode = node->simpleNameAccess;
     }
-    //kDebug() << currentContext()->localScopeIdentifier().toString() << id << start << decls.count() << useDecl << useNode;
+    //qDebug() << currentContext()->localScopeIdentifier().toString() << id << start << decls.count() << useDecl << useNode;
   }
   
   if (node->superAccess) {
@@ -331,10 +331,10 @@ void ExpressionVisitor::visitPrimarySelector(PrimarySelectorAst* node)
             }
           }
         } else {
-          kWarning() << "Internal context for declaration" << lastInstance().declaration->toString() << "was null.";
+          qWarning() << "Internal context for declaration" << lastInstance().declaration->toString() << "was null.";
         }
       } else {
-        kWarning() << "No last instance for primary selector at" << editor()->findRange(node->simpleNameAccess->name, node->simpleNameAccess->name);
+        qWarning() << "No last instance for primary selector at" << editor()->findRange(node->simpleNameAccess->name, node->simpleNameAccess->name);
       }
     }
   }

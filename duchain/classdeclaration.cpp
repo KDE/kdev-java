@@ -45,6 +45,17 @@ ClassDeclaration::ClassDeclaration(ClassDeclarationData& data)
 
 REGISTER_DUCHAIN_ITEM(ClassDeclaration);
 
+
+void ClassDeclaration::setStorageSpecifiers(StorageSpecifiers specifiers)
+{
+  ClassMemberDeclaration::setStorageSpecifiers(ClassMemberDeclaration::StorageSpecifiers(static_cast<ClassDeclaration::StorageSpecifiers::Int>(specifiers)));
+  this->m_isFinal = specifiers & FinalSpecifier;
+  this->m_isSynchronized = specifiers & SynchronizedSpecifier;
+  this->m_isNative = specifiers & NativeSpecifier;
+  this->m_isStrictFP = specifiers & StrictFPSpecifier;
+  this->m_isAbstract = specifiers & AbstractSpecifier;
+}
+
 void ClassDeclaration::clearBaseClasses() {
   d_func_dynamic()->baseClassesList().clear();
 }
